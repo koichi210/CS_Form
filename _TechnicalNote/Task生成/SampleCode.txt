@@ -1,0 +1,37 @@
+public partial class Main
+{
+	Boolean IsTaskRun = false;
+	String Path = "explorer.exe";
+	String Param = @"C:\";
+	Boolean NoWindow = false;
+
+	Task task = new Task(() =>
+	{
+		IsTaskRun = true;
+
+		// èàóù
+
+		// Processî≠çs
+		Process hProcess = ExecuteProcess(Path, Param, NoWindow);
+		hProcess.WaitForExit(); // èàóùÇ™èIÇÌÇÈÇ‹Ç≈ë“Ç¬
+
+		//hProcess.CloseMainWindow();
+		hProcess.Close();
+		hProcess.Dispose();
+
+		IsTaskRun = false;
+	});
+}
+
+public Process ExecuteProcess(String ExecPath, String Param = "", Boolean NoWindow = false)
+{
+	ProcessStartInfo psInfo = new ProcessStartInfo();
+	psInfo.FileName = ExecPath;
+	psInfo.Arguments = Param;
+
+	if (NoWindow == true)
+	{
+		psInfo.WindowStyle = ProcessWindowStyle.Hidden;
+	}
+	return Process.Start(psInfo);
+}
