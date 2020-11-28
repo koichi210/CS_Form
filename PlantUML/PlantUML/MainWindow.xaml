@@ -1,0 +1,15 @@
+﻿<Window x:Class="PlantUML.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="217" Width="731">
+    <Grid>
+        <Label Content="PlantUMLでシーケンス図を作成する" Height="28" HorizontalAlignment="Left" Name="label1" VerticalAlignment="Top" Margin="12,12,0,0" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="47,54,0,0" Name="textBlock1" Text="入力ファイル" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="125,51,0,0" Name="InFile" VerticalAlignment="Top" Width="576" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="34,82,0,0" Name="textBlock2" Text="Configファイル" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="125,81,0,0" Name="ConfigFile" VerticalAlignment="Top" Width="576" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="34,112,0,0" Name="textBlock3" Text="plantumlパス" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="125,111,0,0" Name="PlantumlPath" VerticalAlignment="Top" Width="576" />
+        <Button Content="実行" Height="23" HorizontalAlignment="Left" Margin="626,141,0,0" Name="Execute" VerticalAlignment="Top" Width="75" Click="button1_Click" />
+    </Grid>
+</Window>

@@ -1,0 +1,5 @@
+skinparam classArrowFontSize 20
+skinparam classAttributeFontSize 20
+skinparam classFontSize 20
+skinparam classStereotypeFontSize 20
+skinparam classAttributeIconSize 0

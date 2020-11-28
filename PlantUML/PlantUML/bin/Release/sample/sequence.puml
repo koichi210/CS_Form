@@ -1,0 +1,60 @@
+@startuml{sequence.png}
+title Sequence Chart
+hide footbox
+
+box "LifeLine" #LightBlue
+actor John #silver
+participant Sam #99FF99
+end box
+participant Amanda
+
+note right of John: Rigth of John
+
+Create Amanda
+John -> Amanda : Hello!!
+activate Amanda #DarkSalmon
+John <-- Amanda :
+deactivate Amanda
+destroy Amanda
+
+John -> Sam: Sync Message
+note left : Note of FirstMessage
+|||
+John <-- Sam: return Message
+note right #aqua : Note of NextMessage
+
+John ->> Sam: Async Mesage
+
+John -> John: Message Own
+
+Sam -> Sam : Message Own
+note left
+	Block Comment
+	Wide Line Comment
+end note
+
+[-> John: Dowork!
+
+John ->] : Request
+
+[<- John: Done
+
+John -> Sam: aaa
+
+== Initialize ==
+
+alt authentication SUCCESS
+	John <- Sam : welcome
+else authentication FAILE
+	John <- Sam : get out it
+end
+
+opt Enable Administrator
+	Sam -> Sam : Administrator Menu
+end
+
+loop 5, Value
+	John -> Sam : Input Any...
+end
+
+@enduml
