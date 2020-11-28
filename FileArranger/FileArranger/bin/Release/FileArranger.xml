@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<root>
+  <Param File="Version">1</Param>
+  <Setting Common="cmn_textBox_Reference">Work\Dest</Setting>
+  <Setting Common="cmn_textBox_AddList">タイトル[地域] 
+aaaa</Setting>
+  <Setting Common="cmn_textBox_AddListSuffix">【作成中】_00-01</Setting>
+  <Setting MoveDir="md_textBox_SourceDir">Work\DirList</Setting>
+  <Setting RenameDir="rd_textBox_RenameDir">Work\DirList</Setting>
+  <Setting RenameDir="rd_textBox_ExistItemDir">Work\Dest</Setting>
+  <Setting RenameDir="rd_textBox_SplitWord3">【</Setting>
+  <Setting RenameDir="rd_textBox_AddTitlePreWord">第</Setting>
+  <Setting RenameDir="rd_textBox_SearchTitleLine">4</Setting>
+  <Setting RenameDir="rd_textBox_SearchTitleLength">
+  </Setting>
+  <Setting SortFileName="sf_textBox_TargetFile">Work\Stack</Setting>
+  <Setting MoveFile="mf_textBox_SourceDir">Work\Stack</Setting>
+  <Setting MoveFile="mf_textBox_TargetDir">Work\FileList</Setting>
+  <Setting PartitionFile="pf_textBox_TargetFile">Work\FileList</Setting>
+  <Setting PartitionFile="pf_textBox_RefrenceFile">Work\Dest</Setting>
+  <Setting PartitionFile="pf_textBox_TargetSeprator">第</Setting>
+  <Setting PartitionFile="pf_textBox_SearchTitleLine">2</Setting>
+  <Setting PartitionFile="pf_textBox_SearchTitleLength">2</Setting>
+  <Setting RenameDir="rd_checkBox_FileOpen">False</Setting>
+  <Setting PartitionFile="pf_checkBox_CreateNewDir">False</Setting>
+  <Setting MoveDir="md_comboBox_TargetDir">Work\FileList</Setting>
+  <Setting RenameDir="rd_comboBox_MergeWord">タイトル[地域] </Setting>
+  <Setting RenameDir="rd_comboBox_AddTitlePostWord">
+  </Setting>
+  <Setting MoveDir="md_comboBox_TargetDir0">Work\FileList</Setting>
+  <Setting RefrenceCandidate="Value_0">Work\Dest\はじめからココまで[思い出] 【作成中】_01-03</Setting>
+  <Setting RefrenceCandidate="Value_1">Work\Dest\タイトル[地域] 【作成中】_01-02</Setting>
+</root>
