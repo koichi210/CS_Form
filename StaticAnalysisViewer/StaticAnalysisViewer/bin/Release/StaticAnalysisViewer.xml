@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<root>
+  <Setting Environment="TextBox_LoadDataList">List\20140101\Data.csv
+List\20140108\Data.csv
+List\20140115\Data.csv
+List\20140122\Data.csv</Setting>
+  <Setting Environment="TextBox_TopRankingNum">30</Setting>
+  <Setting Environment="HelpLink">https://www.google.co.jp</Setting>
+</root>
