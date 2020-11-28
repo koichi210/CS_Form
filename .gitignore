@@ -1,0 +1,77 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+#*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+#*.exe
+#*.xml
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.clw
+*.ncb
+*.aps
+*.mak
+*.suo
+*.cache
+*.resources
+*.FileListAbsolute.txt
+*.baml
+*.g.cs
+*.g.i.cs
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+*.manifest
+*.vshost.exe
+FileArranger/FileArranger/bin/Release/FileArranger_C.xml
+FileArranger/FileArranger/bin/Release/FileArranger_M.xml
+FFEdit/FFEdit/bin/Release/FFEdit.xml
+FileArranger/FileArranger/bin/Release/FileArranger_N.xml
+Cheetos/Cheetos/bin/Release/Youtube.xml
+TrimFileData/TrimFileData/bin/Release/TrimFileData_C.xml
+TrimHtmlData/TrimHtmlData/bin/Release/TrimHtmlData_C.xml
+Cheetos/Cheetos/bin/Release/小学校1.xml
+Cheetos/Cheetos/bin/Release/小学校2_回転戻す.xml
+Cheetos/Cheetos/bin/Release/_Rotate.xml
+Cheetos/Cheetos/bin/Release/_sample.xml
