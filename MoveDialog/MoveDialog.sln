@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoveDialog", "MoveDialog\MoveDialog.csproj", "{AC4FD256-3D71-4417-B87C-9CB363078822}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC4FD256-3D71-4417-B87C-9CB363078822}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC4FD256-3D71-4417-B87C-9CB363078822}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC4FD256-3D71-4417-B87C-9CB363078822}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC4FD256-3D71-4417-B87C-9CB363078822}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC2BC528-CA4F-462B-8A8B-1E14B01D3133}
+	EndGlobalSection
+EndGlobal
