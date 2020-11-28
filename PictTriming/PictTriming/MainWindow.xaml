@@ -1,0 +1,42 @@
+﻿<Window x:Class="PictTriming.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PictTriming" Height="379" Width="459">
+    <Grid>
+        <Label Content="フォルダパス" Height="28" HorizontalAlignment="Left" Margin="20,10,0,0" Name="label1" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="108,12,0,0" Name="SourceFolderPath" VerticalAlignment="Top" Width="225" TabIndex="1" KeyDown="SourceFolderPath_KeyDown" />
+        <Label Content="原点(X)" Height="28" HorizontalAlignment="Left" Margin="69,73,0,0" Name="label2" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="128,75,0,0" Name="BaseX" VerticalAlignment="Top" Width="50" TabIndex="3" />
+        <Label Content="原点(Y)" Height="28" HorizontalAlignment="Left" Margin="69,100,0,0" Name="label3" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="128,102,0,0" Name="BaseY" VerticalAlignment="Top" Width="50" TabIndex="4" />
+        <Button Content="リストアップ" Height="24" HorizontalAlignment="Left" Margin="339,12,0,0" Name="Button_Listup" VerticalAlignment="Top" Width="82" Click="Button_Listup_Click" TabIndex="2" />
+        <RadioButton Content="座標" Height="16" HorizontalAlignment="Left" Margin="51,188,0,0" Name="Radio_SelectPointOfEnd" VerticalAlignment="Top" TabIndex="5" />
+        <RadioButton Content="サイズ" Height="16" HorizontalAlignment="Left" Margin="51,207,0,0" Name="Radio_SelectSizeOfEnd" VerticalAlignment="Top" TabIndex="6" />
+        <Label Content="X or 幅" Height="28" HorizontalAlignment="Left" Margin="68,229,0,0" Name="label4" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="127,231,0,0" Name="TargetX" VerticalAlignment="Top" Width="50" TabIndex="7" />
+        <Label Content="Y or 高さ" Height="28" HorizontalAlignment="Left" Margin="58,256,0,0" Name="label5" VerticalAlignment="Top" />
+        <TextBox Height="24" HorizontalAlignment="Left" Margin="127,258,0,0" Name="TargetY" VerticalAlignment="Top" Width="50" TabIndex="8" />
+        <ListBox Height="242" HorizontalAlignment="Left" Margin="202,57,0,0" Name="ListBox_ListUp" VerticalAlignment="Top" Width="219" TabIndex="10" SelectionMode="Extended" />
+        <Button Content="切り取り" Height="23" HorizontalAlignment="Left" Margin="339,305,0,0" Name="Button_Trim" VerticalAlignment="Top" Width="82" Click="Button_Trim_Click" TabIndex="10" />
+        <GroupBox Header="始点" Height="96" HorizontalAlignment="Left" Margin="23,46,0,0" Name="groupBox1" VerticalAlignment="Top" Width="169">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30*" />
+                    <ColumnDefinition Width="135*" />
+                </Grid.ColumnDefinitions>
+                <GroupBox Grid.ColumnSpan="2" Header="始点" Height="105" HorizontalAlignment="Left" Margin="13,120,0,0" Name="groupBox2" VerticalAlignment="Top" Width="177">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30*" />
+                            <ColumnDefinition Width="135*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="終点の指定" Height="146" HorizontalAlignment="Left" Margin="20,159,0,0" Name="groupBox3" VerticalAlignment="Top" Width="175">
+            <Grid />
+        </GroupBox>
+        <Button Content="設定値保存" Height="23" HorizontalAlignment="Left" Margin="251,305,0,0" Name="SaveSetting" TabIndex="10" VerticalAlignment="Top" Width="82" Click="SaveSetting_Click" />
+    </Grid>
+</Window>
