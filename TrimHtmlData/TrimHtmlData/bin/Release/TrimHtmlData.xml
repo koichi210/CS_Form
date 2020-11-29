@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<root>
+  <Param File="Version">1</Param>
+  <Param Common="textBox_SourceList">https://ameblo.jp/only-human/entry-10104676221.html</Param>
+  <Param Common="textBox_DestList">
+  </Param>
+  <Param Common="textBox_SearchWord">これで</Param>
+  <Param Common="textBox_DelimiterWord">
+  </Param>
+  <Param Common="textBox_TrimLineNum">5</Param>
+  <Param Common="textBox_TestPattern">4</Param>
+</root>
