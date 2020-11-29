@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<root>
+  <Param File="Version">1</Param>
+  <Param Common="textBox_ReferencePath">Sample\List.txt</Param>
+  <Param Common="textBox_SerchWordList">aaa
+bbb</Param>
+  <Param Common="textBox_SerchResultList">
+  </Param>
+  <Param Common="checkBox_FirstWordOnly">True</Param>
+</root>
