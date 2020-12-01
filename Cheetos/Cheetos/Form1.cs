@@ -1,17 +1,7 @@
-﻿﻿﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.IO;
-using System.Xml;
-using System.Threading.Tasks;
 using StandardTemplate;
-using Picture;
 
 namespace Cheetos
 {
@@ -22,7 +12,7 @@ namespace Cheetos
             EDIT_BOX,
             CHECK_BOX,
             DROP_DOWN,
-        } ;
+        };
 
         private struct DataGridClass
         {
@@ -163,15 +153,6 @@ namespace Cheetos
             }
         }
 
-        private void fc_SourceFolderPath_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(fc_SourceFolderPath.Text, e);
-        }
-
-        private void fc_DestFolderPath_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(fc_DestFolderPath.Text, e);
-        }
 
         private void fc_Button_Collect_Click(object sender, EventArgs e)
         {
@@ -325,9 +306,9 @@ namespace Cheetos
         {
             DataGridView dgv = (DataGridView)sender;
 
-            switch(DataGridParam[e.ColumnIndex].Type)
+            switch (DataGridParam[e.ColumnIndex].Type)
             {
-                case  DataGridType.DROP_DOWN :
+                case DataGridType.DROP_DOWN:
                     dgv.BeginEdit(false);
                     var edt = cw_dataGridView.EditingControl as DataGridViewComboBoxEditingControl;
                     edt.DroppedDown = true;
@@ -337,7 +318,7 @@ namespace Cheetos
                     // TODO：ダブルクリックで値を設定したい
                     break;
 
-                default :
+                default:
                     break;
             }
         }
@@ -387,39 +368,36 @@ namespace Cheetos
             util.SelectAll(e);
         }
 
-        private void pt_Label_SourceFolderPath_DoubleClick(object sender, EventArgs e)
+        private void UpdateReadOnly(object sender, EventArgs e)
         {
-            pt_SourceFolderPath.ReadOnly = !pt_SourceFolderPath.ReadOnly;
+            switch ((sender as Label).Name)
+            {
+                case "pt_Label_SourceFolderPath":
+                    pt_SourceFolderPath.ReadOnly = !pt_SourceFolderPath.ReadOnly;
+                    break;
+                case "pr_Label_SourceFolderPath":
+                    pr_SourceFolderPath.ReadOnly = !pr_SourceFolderPath.ReadOnly;
+                    break;
+                case "do_Label_SourceFolderPath":
+                    do_SourceFolderPath.ReadOnly = !do_SourceFolderPath.ReadOnly;
+                    break;
+                case "do_Label_DestPortFolderPath":
+                    do_DestPortFolderPath.ReadOnly = !do_DestPortFolderPath.ReadOnly;
+                    break;
+                case "do_Label_DestLandFolderPath":
+                    do_DestLandFolderPath.ReadOnly = !do_DestLandFolderPath.ReadOnly;
+                    break;
+                case "pm_Label_SourceFolderPath":
+                    pm_SourceFolderPath.ReadOnly = !pm_SourceFolderPath.ReadOnly;
+                    break;
+                case "fc_Label_SourceFolderPath":
+                    fc_SourceFolderPath.ReadOnly = !fc_SourceFolderPath.ReadOnly;
+                    break;
+            }
         }
-
-        private void pr_Label_SourceFolderPath_DoubleClick(object sender, EventArgs e)
+        private void ExecutePath(object sender, KeyEventArgs e)
         {
-            pr_SourceFolderPath.ReadOnly = !pr_SourceFolderPath.ReadOnly;
-        }
-
-        private void do_Label_SourceFolderPath_DoubleClick(object sender, EventArgs e)
-        {
-            do_SourceFolderPath.ReadOnly = !do_SourceFolderPath.ReadOnly;
-        }
-
-        private void do_Label_DestPortFolderPath_DoubleClick(object sender, EventArgs e)
-        {
-            do_DestPortFolderPath.ReadOnly = !do_DestPortFolderPath.ReadOnly;
-        }
-
-        private void do_Label_DestLandFolderPath_DoubleClick(object sender, EventArgs e)
-        {
-            do_DestLandFolderPath.ReadOnly = !do_DestLandFolderPath.ReadOnly;
-        }
-
-        private void pm_Label_SourceFolderPath_DoubleClick(object sender, EventArgs e)
-        {
-            pm_SourceFolderPath.ReadOnly = !pm_SourceFolderPath.ReadOnly;
-        }
-
-        private void fc_Label_SourceFolderPath_DoubleClick(object sender, EventArgs e)
-        {
-            fc_SourceFolderPath.ReadOnly = !fc_SourceFolderPath.ReadOnly;
+            util.ExecutePath((sender as TextBox).Text, e);
         }
     }
 }

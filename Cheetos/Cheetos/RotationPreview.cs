@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.ComponentModel;
 using System.Drawing;
-using Picture;
 namespace Cheetos
 {
     public partial class RotationPreview : Form

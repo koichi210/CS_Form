@@ -350,6 +350,7 @@
             this.cw_TextBox_SavePath.Size = new System.Drawing.Size(291, 19);
             this.cw_TextBox_SavePath.TabIndex = 1;
             this.cw_TextBox_SavePath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cw_TextBox_SavePath_KeyDown);
+            this.cw_TextBox_SavePath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.cw_TextBox_SavePath_KeyUp);
             // 
             // label1
             // 
@@ -539,7 +540,7 @@
             this.pt_SourceFolderPath.ReadOnly = true;
             this.pt_SourceFolderPath.Size = new System.Drawing.Size(274, 19);
             this.pt_SourceFolderPath.TabIndex = 1;
-            this.pt_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SourceFolderPath_KeyDown);
+            this.pt_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // pt_Label_SourceFolderPath
             // 
@@ -549,7 +550,7 @@
             this.pt_Label_SourceFolderPath.Size = new System.Drawing.Size(65, 12);
             this.pt_Label_SourceFolderPath.TabIndex = 0;
             this.pt_Label_SourceFolderPath.Text = "フォルダパス：";
-            this.pt_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.pt_Label_SourceFolderPath_DoubleClick);
+            this.pt_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // pt_Button_Listup
             // 
@@ -693,7 +694,7 @@
             this.pr_SourceFolderPath.ReadOnly = true;
             this.pr_SourceFolderPath.Size = new System.Drawing.Size(274, 19);
             this.pr_SourceFolderPath.TabIndex = 1;
-            this.pr_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pr_SourceFolderPath_KeyDown);
+            this.pr_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // pr_Label_SourceFolderPath
             // 
@@ -703,7 +704,7 @@
             this.pr_Label_SourceFolderPath.Size = new System.Drawing.Size(65, 12);
             this.pr_Label_SourceFolderPath.TabIndex = 0;
             this.pr_Label_SourceFolderPath.Text = "フォルダパス：";
-            this.pr_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.pr_Label_SourceFolderPath_DoubleClick);
+            this.pr_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // pr_Button_Listup
             // 
@@ -845,7 +846,7 @@
             this.do_Label_DestLandFolderPath.Size = new System.Drawing.Size(67, 12);
             this.do_Label_DestLandFolderPath.TabIndex = 4;
             this.do_Label_DestLandFolderPath.Text = "移動先[横]：";
-            this.do_Label_DestLandFolderPath.DoubleClick += new System.EventHandler(this.do_Label_DestLandFolderPath_DoubleClick);
+            this.do_Label_DestLandFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // do_Label_DestPortFolderPath
             // 
@@ -855,7 +856,7 @@
             this.do_Label_DestPortFolderPath.Size = new System.Drawing.Size(67, 12);
             this.do_Label_DestPortFolderPath.TabIndex = 2;
             this.do_Label_DestPortFolderPath.Text = "移動先[縦]：";
-            this.do_Label_DestPortFolderPath.DoubleClick += new System.EventHandler(this.do_Label_DestPortFolderPath_DoubleClick);
+            this.do_Label_DestPortFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // do_DestLandFolderPath
             // 
@@ -866,7 +867,7 @@
             this.do_DestLandFolderPath.ReadOnly = true;
             this.do_DestLandFolderPath.Size = new System.Drawing.Size(343, 19);
             this.do_DestLandFolderPath.TabIndex = 5;
-            this.do_DestLandFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.do_DestLandFolderPath_KeyDown);
+            this.do_DestLandFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // do_DestPortFolderPath
             // 
@@ -877,7 +878,7 @@
             this.do_DestPortFolderPath.ReadOnly = true;
             this.do_DestPortFolderPath.Size = new System.Drawing.Size(343, 19);
             this.do_DestPortFolderPath.TabIndex = 3;
-            this.do_DestPortFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.do_DestPortFolderPath_KeyDown);
+            this.do_DestPortFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // do_Label_SourceFolderPath
             // 
@@ -887,7 +888,7 @@
             this.do_Label_SourceFolderPath.Size = new System.Drawing.Size(47, 12);
             this.do_Label_SourceFolderPath.TabIndex = 0;
             this.do_Label_SourceFolderPath.Text = "移動元：";
-            this.do_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.do_Label_SourceFolderPath_DoubleClick);
+            this.do_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // do_SourceFolderPath
             // 
@@ -898,7 +899,7 @@
             this.do_SourceFolderPath.ReadOnly = true;
             this.do_SourceFolderPath.Size = new System.Drawing.Size(343, 19);
             this.do_SourceFolderPath.TabIndex = 1;
-            this.do_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.do_SourceFolderPath_KeyDown);
+            this.do_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // do_Distribute
             // 
@@ -1038,7 +1039,7 @@
             this.pm_SourceFolderPath.ReadOnly = true;
             this.pm_SourceFolderPath.Size = new System.Drawing.Size(273, 19);
             this.pm_SourceFolderPath.TabIndex = 1;
-            this.pm_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pm_SourceFolderPath_KeyDown);
+            this.pm_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // pm_Label_SourceFolderPath
             // 
@@ -1048,7 +1049,7 @@
             this.pm_Label_SourceFolderPath.Size = new System.Drawing.Size(65, 12);
             this.pm_Label_SourceFolderPath.TabIndex = 0;
             this.pm_Label_SourceFolderPath.Text = "フォルダパス：";
-            this.pm_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.pm_Label_SourceFolderPath_DoubleClick);
+            this.pm_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // pm_Button_Listup
             // 
@@ -1113,7 +1114,7 @@
             this.fc_DestFolderPath.Name = "fc_DestFolderPath";
             this.fc_DestFolderPath.Size = new System.Drawing.Size(361, 19);
             this.fc_DestFolderPath.TabIndex = 3;
-            this.fc_DestFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.fc_DestFolderPath_KeyDown);
+            this.fc_DestFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // fc_Label_SourceFolderPath
             // 
@@ -1123,7 +1124,7 @@
             this.fc_Label_SourceFolderPath.Size = new System.Drawing.Size(47, 12);
             this.fc_Label_SourceFolderPath.TabIndex = 0;
             this.fc_Label_SourceFolderPath.Text = "移動元：";
-            this.fc_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.fc_Label_SourceFolderPath_DoubleClick);
+            this.fc_Label_SourceFolderPath.DoubleClick += new System.EventHandler(this.UpdateReadOnly);
             // 
             // fc_SourceFolderPath
             // 
@@ -1134,7 +1135,7 @@
             this.fc_SourceFolderPath.ReadOnly = true;
             this.fc_SourceFolderPath.Size = new System.Drawing.Size(361, 19);
             this.fc_SourceFolderPath.TabIndex = 1;
-            this.fc_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.fc_SourceFolderPath_KeyDown);
+            this.fc_SourceFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ExecutePath);
             // 
             // fc_MoveFile
             // 

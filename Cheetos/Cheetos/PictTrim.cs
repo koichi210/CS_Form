@@ -1,7 +1,5 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
@@ -13,11 +11,6 @@ namespace Cheetos
     // PictTrim
     public partial class Cheetos : Form
     {
-        private void SourceFolderPath_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(pt_SourceFolderPath.Text, e);
-        }
-
         private void Button_TrimListup_Click(object sender, EventArgs e)
         {
             ListupTrim();
@@ -157,31 +150,24 @@ namespace Cheetos
                 {
                     continue;
                 }
-                Debug.WriteData(Environment.NewLine + "Trim " + (ItemIdx + 1).ToString() + " / " + TargetNameAry.Length.ToString());
 
                 String FilePath = SourceFolderPath + @"\" + TargetNameAry[ItemIdx];
                 String BackUpFilePath = BackUpDirPath + @"\" + TargetNameAry[ItemIdx];
-                Debug.WriteData("FilePath=" + FilePath);
-                Debug.WriteData("BackUpFilePath=" + BackUpFilePath);
 
                 // オリジナルファイルをバックアップ
                 File.Copy(FilePath, BackUpFilePath, true);
 
                 // トリミング
                 // キャンバス作成
-                Debug.WriteData("PicEdit(" + Target_Width.ToString() + "," + Target_Height.ToString() + ")");
                 PicEdit trm = new PicEdit(Target_Width, Target_Height);
 
                 // 切り取り
-                Debug.WriteData("Rectangle Pos(" + BaseX.ToString() + "," + BaseY.ToString() + ")");
-                Debug.WriteData("Rectangle Size(" + Target_Width.ToString() + "," + Target_Height.ToString() + ")");
                 Rectangle CutParam = new Rectangle(BaseX, BaseY, Target_Width, Target_Height);
 
                 Point PutParam = new Point(0, 0);
                 trm.TrimExec(BackUpFilePath, CutParam, PutParam);
 
                 // キャンバス保存
-                Debug.WriteData("SaveCanvas FilePath=" + FilePath);
                 trm.SaveCanvas(FilePath);
 
                 // 進捗率

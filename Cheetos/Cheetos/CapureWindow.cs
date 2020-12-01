@@ -1,13 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.IO;
-using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using Picture;
 using System.Threading.Tasks;
 using StandardTemplate;
 
@@ -60,7 +53,7 @@ namespace Cheetos
             }
         }
 
-        private void cw_TextBox_SavePath_KeyDown(object sender, KeyEventArgs e)
+        private void cw_TextBox_SavePath_KeyUp(object sender, KeyEventArgs e)
         {
             pt_SourceFolderPath.Text = cw_TextBox_SavePath.Text;
             pr_SourceFolderPath.Text = cw_TextBox_SavePath.Text;
@@ -69,6 +62,10 @@ namespace Cheetos
             do_DestLandFolderPath.Text = cw_TextBox_SavePath.Text + "_land";
             pm_SourceFolderPath.Text = cw_TextBox_SavePath.Text;
             fc_SourceFolderPath.Text = cw_TextBox_SavePath.Text;
+
+        }
+        private void cw_TextBox_SavePath_KeyDown(object sender, KeyEventArgs e)
+        {
             util.ExecutePath(cw_TextBox_SavePath.Text, e);
         }
 

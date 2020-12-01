@@ -1,7 +1,5 @@
-﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -13,21 +11,6 @@ namespace Cheetos
     // DistOrient
     public partial class Cheetos : Form
     {
-        private void do_SourceFolderPath_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(do_SourceFolderPath.Text, e);
-        }
-
-        private void do_DestPortFolderPath_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(do_DestPortFolderPath.Text, e);
-        }
-
-        private void do_DestLandFolderPath_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(do_DestLandFolderPath.Text, e);
-        }
-
         private void do_Distribute_Click(object sender, EventArgs e)
         {
             if (!Directory.Exists(do_SourceFolderPath.Text))
@@ -81,11 +64,7 @@ namespace Cheetos
             Size pict_sz = util.GetPictSize(TargetFileName);
 
             // 指定幅より画像サイズが小さければ、画像サイズの幅に合わせる
-            int width = WhiteWidth;
-            if (width > pict_sz.Width)
-            {
-                width = pict_sz.Width;
-            }
+            int width = Math.Min(WhiteWidth, pict_sz.Width);
 
             // WhiteCoefは、WhiteAreaを算出するための係数(実測値)
             int BaseSize = width * pict_sz.Height / WhiteCoef;
