@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<root>
+  <Param File="Version">1</Param>
+  <Setting Common="textBox_BrowserPath">C:\Program Files\Google\Chrome\Application\chrome.exe</Setting>
+  <Setting Common="textBox_MailTo">to_address@example.com</Setting>
+  <Setting Common="textBox_MailCc">cc_address@example.com</Setting>
+  <Setting Common="textBox_MailBcc">bcc_address@example.com</Setting>
+  <Setting Common="textBox_MailSubject">subject</Setting>
+  <Setting Common="textBox_MailBody">body and signature</Setting>
+</root>
