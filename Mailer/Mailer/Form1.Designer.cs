@@ -73,6 +73,7 @@
             this.textBox_BrowserPath.Name = "textBox_BrowserPath";
             this.textBox_BrowserPath.Size = new System.Drawing.Size(871, 25);
             this.textBox_BrowserPath.TabIndex = 2;
+            this.textBox_BrowserPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_BrowserPath_KeyDown);
             // 
             // label1
             // 

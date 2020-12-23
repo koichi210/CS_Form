@@ -56,8 +56,12 @@ namespace Mailer
 
         private void button_OpenBrowse_Click(object sender, EventArgs e)
         {
-            String BrowseUrl = MailUrl;
+            if (!CheckParam())
+            {
+                return;
+            }
 
+            String BrowseUrl = MailUrl;
             if (textBox_MailTo.Text != String.Empty)
             {
                 BrowseUrl += "&to=" + textBox_MailTo.Text;
@@ -80,7 +84,25 @@ namespace Mailer
             {
                 BrowseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
             }
+
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+        }
+
+        private Boolean CheckParam()
+        {
+            if( !util.IsExistFileNameInEnvironment(textBox_BrowserPath.Text) )
+            {
+                MessageBox.Show("ファイルが存在しません" + Environment.NewLine + textBox_BrowserPath.Text);
+                return false;
+            }
+            
+            return true;
+        }
+
+        private void textBox_BrowserPath_KeyDown(object sender, KeyEventArgs e)
+        {
+            util.ExecutePath(textBox_BrowserPath.Text, e);
+
         }
     }
 }
