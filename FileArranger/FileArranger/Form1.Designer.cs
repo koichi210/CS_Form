@@ -75,7 +75,6 @@
             this.rd_label_ExistItemDir = new System.Windows.Forms.Label();
             this.rd_button_Listup_Target = new System.Windows.Forms.Button();
             this.rd_listView_Target = new System.Windows.Forms.ListView();
-            this.rd_textBox_RenameDir = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.tab_SortFileRename = new System.Windows.Forms.TabPage();
             this.label23 = new System.Windows.Forms.Label();
@@ -127,6 +126,7 @@
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.progressText = new System.Windows.Forms.TextBox();
             this.bgPartition = new System.ComponentModel.BackgroundWorker();
+            this.rd_comboBox_RenameDir = new System.Windows.Forms.ComboBox();
             this.tabControl.SuspendLayout();
             this.tab_Common.SuspendLayout();
             this.tab_MoveDir.SuspendLayout();
@@ -429,6 +429,7 @@
             // 
             // tab_RenameDir
             // 
+            this.tab_RenameDir.Controls.Add(this.rd_comboBox_RenameDir);
             this.tab_RenameDir.Controls.Add(this.rd_comboBox_AddTitlePostWord);
             this.tab_RenameDir.Controls.Add(this.label18);
             this.tab_RenameDir.Controls.Add(this.rd_label_SelectNum);
@@ -452,7 +453,6 @@
             this.tab_RenameDir.Controls.Add(this.rd_label_ExistItemDir);
             this.tab_RenameDir.Controls.Add(this.rd_button_Listup_Target);
             this.tab_RenameDir.Controls.Add(this.rd_listView_Target);
-            this.tab_RenameDir.Controls.Add(this.rd_textBox_RenameDir);
             this.tab_RenameDir.Controls.Add(this.label4);
             this.tab_RenameDir.Location = new System.Drawing.Point(4, 28);
             this.tab_RenameDir.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -472,7 +472,7 @@
             this.rd_comboBox_AddTitlePostWord.Name = "rd_comboBox_AddTitlePostWord";
             this.rd_comboBox_AddTitlePostWord.Size = new System.Drawing.Size(117, 26);
             this.rd_comboBox_AddTitlePostWord.Sorted = true;
-            this.rd_comboBox_AddTitlePostWord.TabIndex = 20;
+            this.rd_comboBox_AddTitlePostWord.TabIndex = 16;
             this.rd_comboBox_AddTitlePostWord.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
             this.rd_comboBox_AddTitlePostWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
@@ -721,6 +721,7 @@
             this.rd_listView_Target.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.rd_listView_Target.HideSelection = false;
             this.rd_listView_Target.Location = new System.Drawing.Point(33, 226);
             this.rd_listView_Target.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.rd_listView_Target.Name = "rd_listView_Target";
@@ -730,17 +731,6 @@
             this.rd_listView_Target.SelectedIndexChanged += new System.EventHandler(this.rd_listView_Rename_SelectedIndexChanged);
             this.rd_listView_Target.DoubleClick += new System.EventHandler(this.rd_listView_Rename_DoubleClick);
             this.rd_listView_Target.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_listView_Target_KeyDown);
-            // 
-            // rd_textBox_RenameDir
-            // 
-            this.rd_textBox_RenameDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rd_textBox_RenameDir.Location = new System.Drawing.Point(180, 50);
-            this.rd_textBox_RenameDir.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.rd_textBox_RenameDir.Name = "rd_textBox_RenameDir";
-            this.rd_textBox_RenameDir.Size = new System.Drawing.Size(734, 25);
-            this.rd_textBox_RenameDir.TabIndex = 2;
-            this.rd_textBox_RenameDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_textBox_RenameDir_KeyDown);
             // 
             // label4
             // 
@@ -1244,6 +1234,7 @@
             this.pf_listView_Target.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.pf_listView_Target.HideSelection = false;
             this.pf_listView_Target.Location = new System.Drawing.Point(33, 187);
             this.pf_listView_Target.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.pf_listView_Target.Name = "pf_listView_Target";
@@ -1357,6 +1348,17 @@
             this.bgPartition.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgPartition_ProgressChanged);
             this.bgPartition.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgPartition_RunWorkerCompleted);
             // 
+            // rd_comboBox_RenameDir
+            // 
+            this.rd_comboBox_RenameDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rd_comboBox_RenameDir.FormattingEnabled = true;
+            this.rd_comboBox_RenameDir.Location = new System.Drawing.Point(180, 50);
+            this.rd_comboBox_RenameDir.Name = "rd_comboBox_RenameDir";
+            this.rd_comboBox_RenameDir.Size = new System.Drawing.Size(734, 26);
+            this.rd_comboBox_RenameDir.TabIndex = 2;
+            this.rd_comboBox_RenameDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_RenameDir_KeyDown);
+            // 
             // FileArranger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
@@ -1404,7 +1406,6 @@
         public System.Windows.Forms.Button md_button_Listup;
         public System.Windows.Forms.ListBox md_listBox_Listup;
         public System.Windows.Forms.Button rd_button_Listup_Target;
-        public System.Windows.Forms.TextBox rd_textBox_RenameDir;
         public System.Windows.Forms.Label label4;
         public System.Windows.Forms.Button pf_button_CreateFolderAndMoveFile;
         public System.Windows.Forms.TextBox pf_textBox_TargetFile;
@@ -1492,6 +1493,7 @@
         public System.Windows.Forms.CheckBox pf_checkBox_CreateNewDir;
         public System.Windows.Forms.ComboBox md_comboBox_TargetDir;
         public System.Windows.Forms.ComboBox rd_comboBox_AddTitlePostWord;
+        public System.Windows.Forms.ComboBox rd_comboBox_RenameDir;
     }
 }
 

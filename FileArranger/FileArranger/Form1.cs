@@ -84,11 +84,6 @@ namespace FileArranger
             util.SelectAll(e);
         }
 
-        private void rd_textBox_RenameDir_KeyDown(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(rd_textBox_RenameDir.Text, e);
-        }
-
         private void rd_button_Listup_Target_Click(object sender, EventArgs e)
         {
             ListupRenameTargetDirectory();
@@ -282,8 +277,8 @@ namespace FileArranger
                 idx = rd_listView_Target.SelectedItems[i].Index;
 
                 // 変更するファイル名
-                String SrcName = rd_textBox_RenameDir.Text + @"\" + rd_listView_Target.Items[idx].SubItems[RenameSrcIdx].Text;
-                String DestName = rd_textBox_RenameDir.Text + @"\" + rd_listView_Target.Items[idx].SubItems[RenameDestIdx].Text;
+                String SrcName = rd_comboBox_RenameDir.Text + @"\" + rd_listView_Target.Items[idx].SubItems[RenameSrcIdx].Text;
+                String DestName = rd_comboBox_RenameDir.Text + @"\" + rd_listView_Target.Items[idx].SubItems[RenameDestIdx].Text;
 
                 // ファイル名の重複回避
                 util.CreateFileNameOverLapShirk(ref DestName, i);
@@ -297,19 +292,19 @@ namespace FileArranger
 
         private void ListupRenameTargetDirectory(int ScrollbarPos = 0)
         {
-            if (!Directory.Exists(rd_textBox_RenameDir.Text))
+            if (!Directory.Exists(rd_comboBox_RenameDir.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + rd_textBox_RenameDir.Text );
+                MessageBox.Show("フォルダパスが不正です。" + rd_comboBox_RenameDir.Text );
                 return;
             }
 
             rd_listView_Target.Items.Clear();
 
             // フォルダをリストアップ
-            String[] Folders = Directory.GetDirectories(rd_textBox_RenameDir.Text);
+            String[] Folders = Directory.GetDirectories(rd_comboBox_RenameDir.Text);
             for (int i = 0; i < Folders.Length; i++)
             {
-                String FileName = Folders[i].Remove(0, rd_textBox_RenameDir.Text.Length + 1);   // "\\"の分を1加算
+                String FileName = Folders[i].Remove(0, rd_comboBox_RenameDir.Text.Length + 1);   // "\\"の分を1加算
 
                 String[] item = { FileName, "" };
                 rd_listView_Target.Items.Add(new ListViewItem(item));
@@ -394,7 +389,7 @@ namespace FileArranger
 
         private void rd_listView_Rename_DoubleClick(object sender, EventArgs e)
         {
-            String FilePath = rd_textBox_RenameDir.Text + @"\" + rd_listView_Target.SelectedItems[SortFileRenameTargetIdx].SubItems[RenameSrcIdx].Text;
+            String FilePath = rd_comboBox_RenameDir.Text + @"\" + rd_listView_Target.SelectedItems[SortFileRenameTargetIdx].SubItems[RenameSrcIdx].Text;
             if (Directory.Exists(FilePath))
             {
                 if (rd_checkBox_FileOpen.Checked)
@@ -1258,6 +1253,12 @@ namespace FileArranger
         private void pf_checkBox_CreateNewDir_CheckedChanged(object sender, EventArgs e)
         {
             ListupTargetMoveDirectory();
+        }
+
+        private void rd_comboBox_RenameDir_KeyDown(object sender, KeyEventArgs e)
+        {
+
+            util.ExecutePath(rd_comboBox_RenameDir.Text, e);
         }
     }
 }

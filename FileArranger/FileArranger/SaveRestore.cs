@@ -22,8 +22,10 @@ namespace FileArranger
             RegistCtrl("MoveDir", "md_textBox_SourceDir", Parent.md_textBox_SourceDir);
             RegistCtrlList("MoveDir", "md_comboBox_TargetDir", Parent.md_comboBox_TargetDir);
             RegistCtrl("MoveDir", "md_comboBox_TargetDir", Parent.md_comboBox_TargetDir);
-            
-            RegistCtrl("RenameDir", "rd_textBox_RenameDir", Parent.rd_textBox_RenameDir);
+
+           
+            RegistCtrlList("MoveDir", "rd_comboBox_RenameDir", Parent.rd_comboBox_RenameDir);
+            RegistCtrl("MoveDir", "rd_comboBox_RenameDir", Parent.rd_comboBox_RenameDir);
             RegistCtrl("RenameDir", "rd_textBox_ExistItemDir", Parent.rd_textBox_ExistItemDir);
             RegistCtrl("RenameDir", "rd_comboBox_MergeWord", Parent.rd_comboBox_MergeWord);
             RegistCtrl("RenameDir", "rd_checkBox_FileOpen", Parent.rd_checkBox_FileOpen);
@@ -73,6 +75,7 @@ namespace FileArranger
             StcUtils util = new StcUtils();         // ツール系
 
             util.ModifyCombBoxList(Parent.md_comboBox_TargetDir);
+            util.ModifyCombBoxList(Parent.rd_comboBox_RenameDir);
             util.ModifyCombBoxList(Parent.rd_comboBox_AddTitlePostWord);
             
             XmlDocument document = OpenSaveXmlFile();
