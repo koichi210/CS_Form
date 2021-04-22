@@ -150,7 +150,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 18);
             this.label5.TabIndex = 6;
-            this.label5.Text = "宛先：";
+            this.label5.Text = "件名：";
             // 
             // textBox_MailBcc
             // 
