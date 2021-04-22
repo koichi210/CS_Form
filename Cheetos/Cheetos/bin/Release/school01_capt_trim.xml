@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<root>
+  <Param File="Version">1</Param>
+  <Setting CaptureWindow="cw_TextBox_SavePath">D:\Cheetos</Setting>
+  <Setting CaptureWindow="cw_TextBox_SaveFilePrifix">
+  </Setting>
+  <Setting CaptureWindow="cw_TextBox_Sleep">2000</Setting>
+  <Setting CaptureWindow="cw_TextBox_Loop">8</Setting>
+  <Setting PictTrim="pt_SourceFolderPath">D:\Cheetos</Setting>
+  <Setting PictTrim="pt_BaseX">606</Setting>
+  <Setting PictTrim="pt_BaseY">104</Setting>
+  <Setting PictTrim="pt_TargetX">3231</Setting>
+  <Setting PictTrim="pt_TargetY">1976</Setting>
+  <Setting Rotation="pr_SourceFolderPath">D:\Cheetos</Setting>
+  <Setting Rotation="pr_BaseX">
+  </Setting>
+  <Setting Rotation="pr_BaseY">
+  </Setting>
+  <Setting Rotation="pr_Angle">
+  </Setting>
+  <Setting DistOrient="do_SourceFolderPath">D:\Cheetos</Setting>
+  <Setting DistOrient="do_DestPortFolderPath">D:\Cheetos_port</Setting>
+  <Setting DistOrient="do_DestLandFolderPath">D:\Cheetos_land</Setting>
+  <Setting DistOrient="do_TargetFileName">
+  </Setting>
+  <Setting DistOrient="do_WhiteLength">
+  </Setting>
+  <Setting DistOrient="do_WhiteCoef">30</Setting>
+  <Setting DistOrient="do_SampleFilePath">
+  </Setting>
+  <Setting PictMerge="pm_SourceFolderPath">D:\Cheetos</Setting>
+  <Setting PictMerge="pm_SourceFile1Prefix">
+  </Setting>
+  <Setting PictMerge="pm_SourceFile2Prefix">
+  </Setting>
+  <Setting PictMerge="pm_TrimingHeight">
+  </Setting>
+  <Setting FileCollect="fc_SourceFolderPath">D:\Cheetos</Setting>
+  <Setting FileCollect="fc_DestFolderPath">
+  </Setting>
+  <Setting FileCollect="fc_TargetFileName">
+  </Setting>
+  <Setting CaptureWindow="cw_Radio_FullScreen">True</Setting>
+  <Setting CaptureWindow="cw_Radio_CurrentScreen">False</Setting>
+  <Setting CaptureWindow="cw_Radio_CurrentWindow">False</Setting>
+  <Setting PictTrim="pt_Radio_SelectPointOfEnd">True</Setting>
+  <Setting PictTrim="pt_Radio_SelectSizeOfEnd">False</Setting>
+  <Setting CaptureWindow="cw_checkBox_AddTimeStump">True</Setting>
+  <Setting DataGrid="RowCount">9</Setting>
+  <Setting DataGrid="Cell_0-0">200</Setting>
+  <Setting DataGrid="Cell_0-1">1300</Setting>
+  <Setting DataGrid="Cell_0-2">400</Setting>
+  <Setting DataGrid="Cell_0-3">Move</Setting>
+  <Setting DataGrid="Cell_0-4">×</Setting>
+  <Setting DataGrid="Cell_1-0">1500</Setting>
+  <Setting DataGrid="Cell_1-1">1300</Setting>
+  <Setting DataGrid="Cell_1-2">400</Setting>
+  <Setting DataGrid="Cell_1-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_1-4">〇</Setting>
+  <Setting DataGrid="Cell_2-0">200</Setting>
+  <Setting DataGrid="Cell_2-1">2400</Setting>
+  <Setting DataGrid="Cell_2-2">400</Setting>
+  <Setting DataGrid="Cell_2-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_2-4">×</Setting>
+  <Setting DataGrid="Cell_3-0">200</Setting>
+  <Setting DataGrid="Cell_3-1">1000</Setting>
+  <Setting DataGrid="Cell_3-2">950</Setting>
+  <Setting DataGrid="Cell_3-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_3-4">×</Setting>
+  <Setting DataGrid="Cell_4-0">1500</Setting>
+  <Setting DataGrid="Cell_4-1">1300</Setting>
+  <Setting DataGrid="Cell_4-2">400</Setting>
+  <Setting DataGrid="Cell_4-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_4-4">〇</Setting>
+  <Setting DataGrid="Cell_5-0">200</Setting>
+  <Setting DataGrid="Cell_5-1">2400</Setting>
+  <Setting DataGrid="Cell_5-2">400</Setting>
+  <Setting DataGrid="Cell_5-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_5-4">×</Setting>
+  <Setting DataGrid="Cell_6-0">200</Setting>
+  <Setting DataGrid="Cell_6-1">1000</Setting>
+  <Setting DataGrid="Cell_6-2">950</Setting>
+  <Setting DataGrid="Cell_6-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_6-4">×</Setting>
+  <Setting DataGrid="Cell_7-0">200</Setting>
+  <Setting DataGrid="Cell_7-1">1600</Setting>
+  <Setting DataGrid="Cell_7-2">1400</Setting>
+  <Setting DataGrid="Cell_7-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_7-4">×</Setting>
+  <Setting DataGrid="Cell_8-0">0</Setting>
+  <Setting DataGrid="Cell_8-1">2500</Setting>
+  <Setting DataGrid="Cell_8-2">50</Setting>
+  <Setting DataGrid="Cell_8-3">Move</Setting>
+  <Setting DataGrid="Cell_8-4">×</Setting>
+</root>

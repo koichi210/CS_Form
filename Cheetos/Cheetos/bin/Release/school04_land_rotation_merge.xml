@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<root>
+  <Param File="Version">1</Param>
+  <Setting CaptureWindow="cw_TextBox_SavePath">D:\Cheetos\land</Setting>
+  <Setting CaptureWindow="cw_TextBox_SaveFilePrifix">02_</Setting>
+  <Setting CaptureWindow="cw_TextBox_Sleep">2000</Setting>
+  <Setting CaptureWindow="cw_TextBox_Loop">30</Setting>
+  <Setting PictTrim="pt_SourceFolderPath">D:\Cheetos\land</Setting>
+  <Setting PictTrim="pt_BaseX">645</Setting>
+  <Setting PictTrim="pt_BaseY">0</Setting>
+  <Setting PictTrim="pt_TargetX">1980</Setting>
+  <Setting PictTrim="pt_TargetY">1872</Setting>
+  <Setting Rotation="pr_SourceFolderPath">D:\Cheetos\land</Setting>
+  <Setting Rotation="pr_BaseX">1350</Setting>
+  <Setting Rotation="pr_BaseY">0</Setting>
+  <Setting Rotation="pr_Angle">45</Setting>
+  <Setting DistOrient="do_SourceFolderPath">D:\Cheetos\land</Setting>
+  <Setting DistOrient="do_DestPortFolderPath">D:\Cheetos\land_port</Setting>
+  <Setting DistOrient="do_DestLandFolderPath">D:\Cheetos\land_land</Setting>
+  <Setting DistOrient="do_TargetFileName">
+  </Setting>
+  <Setting DistOrient="do_WhiteLength">
+  </Setting>
+  <Setting DistOrient="do_WhiteCoef">30</Setting>
+  <Setting DistOrient="do_SampleFilePath">
+  </Setting>
+  <Setting PictMerge="pm_SourceFolderPath">D:\Cheetos\land</Setting>
+  <Setting PictMerge="pm_SourceFile1Prefix">_1</Setting>
+  <Setting PictMerge="pm_SourceFile2Prefix">_2</Setting>
+  <Setting PictMerge="pm_TrimingHeight">100,170
+380,550
+870,940
+1260,1320
+1640,1710
+2030,2090
+2410,2480
+2800,2870</Setting>
+  <Setting FileCollect="fc_SourceFolderPath">D:\Cheetos\land</Setting>
+  <Setting FileCollect="fc_DestFolderPath">
+  </Setting>
+  <Setting FileCollect="fc_TargetFileName">
+  </Setting>
+  <Setting CaptureWindow="cw_Radio_FullScreen">True</Setting>
+  <Setting CaptureWindow="cw_Radio_CurrentScreen">False</Setting>
+  <Setting CaptureWindow="cw_Radio_CurrentWindow">False</Setting>
+  <Setting PictTrim="pt_Radio_SelectPointOfEnd">True</Setting>
+  <Setting PictTrim="pt_Radio_SelectSizeOfEnd">False</Setting>
+  <Setting CaptureWindow="cw_checkBox_AddTimeStump">True</Setting>
+  <Setting DataGrid="RowCount">7</Setting>
+  <Setting DataGrid="Cell_0-0">200</Setting>
+  <Setting DataGrid="Cell_0-1">1300</Setting>
+  <Setting DataGrid="Cell_0-2">400</Setting>
+  <Setting DataGrid="Cell_0-3">Move</Setting>
+  <Setting DataGrid="Cell_0-4">×</Setting>
+  <Setting DataGrid="Cell_1-0">1000</Setting>
+  <Setting DataGrid="Cell_1-1">1300</Setting>
+  <Setting DataGrid="Cell_1-2">400</Setting>
+  <Setting DataGrid="Cell_1-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_1-4">〇</Setting>
+  <Setting DataGrid="Cell_2-0">200</Setting>
+  <Setting DataGrid="Cell_2-1">2400</Setting>
+  <Setting DataGrid="Cell_2-2">400</Setting>
+  <Setting DataGrid="Cell_2-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_2-4">×</Setting>
+  <Setting DataGrid="Cell_3-0">200</Setting>
+  <Setting DataGrid="Cell_3-1">1000</Setting>
+  <Setting DataGrid="Cell_3-2">950</Setting>
+  <Setting DataGrid="Cell_3-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_3-4">×</Setting>
+  <Setting DataGrid="Cell_4-0">1000</Setting>
+  <Setting DataGrid="Cell_4-1">1300</Setting>
+  <Setting DataGrid="Cell_4-2">400</Setting>
+  <Setting DataGrid="Cell_4-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_4-4">〇</Setting>
+  <Setting DataGrid="Cell_5-0">200</Setting>
+  <Setting DataGrid="Cell_5-1">2400</Setting>
+  <Setting DataGrid="Cell_5-2">400</Setting>
+  <Setting DataGrid="Cell_5-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_5-4">×</Setting>
+  <Setting DataGrid="Cell_6-0">200</Setting>
+  <Setting DataGrid="Cell_6-1">1600</Setting>
+  <Setting DataGrid="Cell_6-2">1400</Setting>
+  <Setting DataGrid="Cell_6-3">LeftDown</Setting>
+  <Setting DataGrid="Cell_6-4">×</Setting>
+</root>
