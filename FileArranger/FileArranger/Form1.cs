@@ -401,6 +401,7 @@ namespace FileArranger
                     }
                 }
                 System.Diagnostics.Process.Start(FilePath);
+                rd_comboBox_MergeWord.Focus();
             }
         }
 
@@ -980,6 +981,7 @@ namespace FileArranger
             if (e.Control == true && e.KeyCode == Keys.Enter)
             {
                 rd_button_Execute_Rename_Click(sender, e);
+                rd_comboBox_MergeWord.Focus();
             }
             else if (e.Control == true && e.KeyCode == Keys.C)
             {
