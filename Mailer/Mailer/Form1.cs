@@ -77,7 +77,8 @@ namespace Mailer
 
             if (textBox_MailSubject.Text != String.Empty)
             {
-                BrowseUrl += "&su=" + textBox_MailSubject.Text.Replace(" ", "+");
+                String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
+                BrowseUrl += "&su=" + GetText(ChromeFormatText);
             }
 
             if (textBox_MailBody.Text != String.Empty)
@@ -86,6 +87,24 @@ namespace Mailer
             }
 
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+        }
+
+        private String GetText(String SrcText)
+        {
+            String DestText = "";
+            DestText = ReplaceToday(SrcText, "%%TODAY%%");
+            return DestText; 
+        }
+
+        private String ReplaceToday(String SrcText, String KeyName)
+        {
+            DateTime dt = DateTime.Now;
+            String DateString = "";
+            DateString += dt.Year.ToString();
+            DateString += "/" + dt.Month.ToString();
+            DateString += "/" + dt.Day.ToString();
+
+            return SrcText.Replace(KeyName, DateString);
         }
 
         private Boolean CheckParam()
