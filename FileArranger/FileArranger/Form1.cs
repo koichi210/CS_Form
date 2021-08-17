@@ -111,7 +111,7 @@ namespace FileArranger
 
         private void mf_textBox_TargetDir_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(md_comboBox_TargetDir.Text, e);
+            util.ExecutePath(mf_textBox_TargetDir.Text, e);
         }
 
         private void mf_listBox_Listup_MouseDoubleClick(object sender, MouseEventArgs e)
