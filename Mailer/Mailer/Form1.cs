@@ -92,16 +92,27 @@ namespace Mailer
         private String GetText(String SrcText)
         {
             String DestText = "";
-            DestText = ReplaceToday(SrcText, "%%TODAY%%");
+            DestText = ReplaceTodayYYYYMMDD(SrcText, "%%TODAY%%");
+            DestText = ReplaceTodayMMDD(SrcText, "%%today%%");
             return DestText; 
         }
 
-        private String ReplaceToday(String SrcText, String KeyName)
+        private String ReplaceTodayYYYYMMDD(String SrcText, String KeyName)
         {
             DateTime dt = DateTime.Now;
             String DateString = "";
             DateString += dt.Year.ToString();
             DateString += "/" + dt.Month.ToString();
+            DateString += "/" + dt.Day.ToString();
+
+            return SrcText.Replace(KeyName, DateString);
+        }
+
+        private String ReplaceTodayMMDD(String SrcText, String KeyName)
+        {
+            DateTime dt = DateTime.Now;
+            String DateString = "";
+            DateString += dt.Month.ToString();
             DateString += "/" + dt.Day.ToString();
 
             return SrcText.Replace(KeyName, DateString);
