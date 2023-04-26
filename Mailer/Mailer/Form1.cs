@@ -93,7 +93,7 @@ namespace Mailer
         {
             String DestText = "";
             DestText = ReplaceTodayYYYYMMDD(SrcText, "%%TODAY%%");
-            DestText = ReplaceTodayMMDD(SrcText, "%%today%%");
+            DestText = ReplaceTodayMMDD(DestText, "%%today%%");
             return DestText; 
         }
 
