@@ -516,9 +516,9 @@ namespace FileArranger
                 }
             }
 
-            // TODO：呼び出し側の責務にしたい
             if (Count == 0)
             {
+               // 今回新規追加時の初期値
                 Count = 1;
             }
             return Count;
@@ -635,22 +635,22 @@ namespace FileArranger
                 String TargetFolderName = "";
 
                 Boolean IsSuccess = false;
-                if (!pf_checkBox_CreateNewDir.Checked)
-                {
-                    // ListViewに既出であれば流量
-                    IsSuccess = GetPartitionNameFromListView(ref SrcFolderName, ref TargetFolderName, SrcFileName);
+                // ListViewに既出であれば流量
+                IsSuccess = GetPartitionNameFromListView(ref SrcFolderName, ref TargetFolderName, SrcFileName);
 
-                    if (!IsSuccess)
-                    {
-                        // ListViewに無ければCombBoxから検索
-                        IsSuccess = GetPartitionNameFromComboBox(ref SrcFolderName, ref TargetFolderName, SrcFileName);
-                    }
+                if (!IsSuccess)
+                {
+                    // ListViewに無ければCombBoxから検索
+                    IsSuccess = GetPartitionNameFromComboBox(ref SrcFolderName, ref TargetFolderName, SrcFileName);
                 }
 
                 if (!IsSuccess)
                 {
-                    // CombBoxにもなかったら新規作成
-                    CreatePartitionName(ref SrcFolderName, ref TargetFolderName, SrcFileName);
+                    if (pf_checkBox_CreateNewDir.Checked)
+                    {
+                        // CombBoxにもなかったら新規作成
+                        CreatePartitionName(ref SrcFolderName, ref TargetFolderName, SrcFileName);
+                    }
                 }
 
                 pf_listView_Target.Items[idx].SubItems[CreateFolderMoveSrcIdx].Text = SrcFolderName;
