@@ -183,6 +183,17 @@ namespace FileArranger
 
         private void mf_button_Delete_Click(object sender, EventArgs e)
         {
+            if (!fio.IsExistDirectory(md_comboBox_TargetDir.Text))
+            {
+                return;
+            }
+
+            if (md_listBox_Listup.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("項目が選択されていません。");
+                return;
+            }
+
             for (int i = 0; i < md_listBox_Listup.SelectedItems.Count; i++)
             {
                 String DelPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItems[i].ToString();
@@ -314,7 +325,11 @@ namespace FileArranger
             {
                 ScrollbarPos = Folders.Length - 1;
             }
-            rd_listView_Target.EnsureVisible(ScrollbarPos);
+
+            if (ScrollbarPos > 0)
+            {
+                rd_listView_Target.EnsureVisible(ScrollbarPos);
+            }
 
             rd_label_TotalNum.Text = "フォルダ数：" + Folders.Length.ToString();
             rd_listView_Target.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
@@ -460,11 +475,14 @@ namespace FileArranger
             pf_listView_Target.Columns.AddRange(colHeaderRegValue);
         }
 
-        private void ListupTargetMoveDirectory()
+        private void ListupTargetMoveDirectory(bool IsErrorPopup = true)
         {
             if (!Directory.Exists(pf_textBox_TargetFile.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + pf_textBox_TargetFile.Text );
+                if (IsErrorPopup )
+                {
+                    MessageBox.Show("フォルダパスが不正です。" + pf_textBox_TargetFile.Text);
+                }
                 return;
             }
 
@@ -1160,7 +1178,7 @@ namespace FileArranger
             }
 
             // リストを更新
-            ListupTargetMoveDirectory();
+            ListupTargetMoveDirectory(false);
 
             //リファレンスフォルダは自動更新しない
             //UpdateMoveDestDirComboBox();
@@ -1254,7 +1272,7 @@ namespace FileArranger
 
         private void pf_checkBox_CreateNewDir_CheckedChanged(object sender, EventArgs e)
         {
-            ListupTargetMoveDirectory();
+            ListupTargetMoveDirectory(false);
         }
 
         private void rd_comboBox_RenameDir_KeyDown(object sender, KeyEventArgs e)
