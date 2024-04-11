@@ -78,7 +78,7 @@ namespace Mailer
             if (textBox_MailSubject.Text != String.Empty)
             {
                 String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                BrowseUrl += "&su=" + GetText(ChromeFormatText);
+                BrowseUrl += "&su=" + GetDateText(ChromeFormatText);
             }
 
             if (textBox_MailBody.Text != String.Empty)
@@ -89,32 +89,28 @@ namespace Mailer
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
         }
 
-        private String GetText(String SrcText)
+        private String GetDateText(String SrcText)
         {
             String DestText = "";
-            DestText = ReplaceTodayYYYYMMDD(SrcText, "%%TODAY%%");
-            DestText = ReplaceTodayMMDD(DestText, "%%today%%");
+            DestText = ReplaceDay(SrcText, "%%TODAY%%");
+            DestText = ReplaceDay(DestText, "%%today%%", false);
+            DestText = ReplaceDay(DestText, "%%TOMORROW%%", true, 1);
+            DestText = ReplaceDay(DestText, "%%tomorrow%%", false, 1);
             return DestText; 
         }
 
-        private String ReplaceTodayYYYYMMDD(String SrcText, String KeyName)
+        private String ReplaceDay(String SrcText, String KeyName, bool IsYear = true, int DayOffset = 0)
         {
             DateTime dt = DateTime.Now;
+            int Day = dt.Day + DayOffset;
             String DateString = "";
-            DateString += dt.Year.ToString();
-            DateString += "/" + dt.Month.ToString();
-            DateString += "/" + dt.Day.ToString();
-
-            return SrcText.Replace(KeyName, DateString);
-        }
-
-        private String ReplaceTodayMMDD(String SrcText, String KeyName)
-        {
-            DateTime dt = DateTime.Now;
-            String DateString = "";
-            DateString += dt.Month.ToString();
-            DateString += "/" + dt.Day.ToString();
-
+            if ( IsYear )
+            {
+                DateString += dt.Year.ToString() + "/";
+            }
+            DateString += dt.Month.ToString() +"/";
+            DateString += Day.ToString();
+ 
             return SrcText.Replace(KeyName, DateString);
         }
 
