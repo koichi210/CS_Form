@@ -53,7 +53,7 @@ namespace Mailer
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }
-
+        
         private void button_OpenBrowse_Click(object sender, EventArgs e)
         {
             if (!CheckParam())
@@ -89,19 +89,29 @@ namespace Mailer
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
         }
 
+        private String GetUsersDay(DateTime dt, String SrcText, int DayOffset)
+        {
+            String DestText = "";
+            DestText = ReplaceDay(dt, SrcText, "%%USERSDAY%%", true, DayOffset);
+            DestText = ReplaceDay(dt, DestText, "%%usersday%%", false, DayOffset);
+
+            return DestText;
+        }
+
         private String GetDateText(String SrcText)
         {
             String DestText = "";
-            DestText = ReplaceDay(SrcText, "%%TODAY%%");
-            DestText = ReplaceDay(DestText, "%%today%%", false);
-            DestText = ReplaceDay(DestText, "%%TOMORROW%%", true, 1);
-            DestText = ReplaceDay(DestText, "%%tomorrow%%", false, 1);
+            DateTime dt = DateTime.Now;
+            DestText = ReplaceDay(dt, SrcText, "%%TODAY%%");
+            DestText = ReplaceDay(dt, DestText, "%%today%%", false);
+            DestText = ReplaceDay(dt, DestText, "%%TOMORROW%%", true, 1);
+            DestText = ReplaceDay(dt, DestText, "%%tomorrow%%", false, 1);
+
             return DestText; 
         }
 
-        private String ReplaceDay(String SrcText, String KeyName, bool IsYear = true, int DayOffset = 0)
+        private String ReplaceDay(DateTime dt, String SrcText, String KeyName, bool IsYear = true, int DayOffset = 0)
         {
-            DateTime dt = DateTime.Now;
             int Day = dt.Day + DayOffset;
             String DateString = "";
             if ( IsYear )
@@ -129,6 +139,60 @@ namespace Mailer
         {
             util.ExecutePath(textBox_BrowserPath.Text, e);
 
+        }
+
+        private void button_Help_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("to be Update");
+        }
+
+        private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
+        {
+            if (!CheckParam())
+            {
+                return;
+            }
+
+            DateTime dt = new DateTime(
+                dateTimePicker_Calendar.Value.Year,
+                dateTimePicker_Calendar.Value.Month,
+                dateTimePicker_Calendar.Value.Day,
+                dateTimePicker_Calendar.Value.Hour,
+                dateTimePicker_Calendar.Value.Minute,
+                dateTimePicker_Calendar.Value.Second,
+                0);
+
+
+            int num = Int32.Parse(textBox_CreateNum.Text);
+            for (int i = 0; i < num; i++)
+            {
+                String BrowseUrl = MailUrl;
+                if (textBox_MailTo.Text != String.Empty)
+                {
+                    BrowseUrl += "&to=" + textBox_MailTo.Text;
+                }
+                if (textBox_MailCc.Text != String.Empty)
+                {
+                    BrowseUrl += "&cc=" + textBox_MailCc.Text;
+                }
+                if (textBox_MailBcc.Text != String.Empty)
+                {
+                    BrowseUrl += "&bcc=" + textBox_MailBcc.Text;
+                }
+
+                if (textBox_MailSubject.Text != String.Empty)
+                {
+                    String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
+                    BrowseUrl += "&su=" + GetUsersDay(dt, ChromeFormatText, i);
+                }
+
+                if (textBox_MailBody.Text != String.Empty)
+                {
+                    BrowseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
+                }
+
+                util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+            }
         }
     }
 }
