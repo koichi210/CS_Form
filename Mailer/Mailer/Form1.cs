@@ -89,11 +89,11 @@ namespace Mailer
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
         }
 
-        private String GetUsersDay(DateTime dt, String SrcText, int DayOffset)
+        private String GetUsersDay(DateTime dt, String SrcText)
         {
             String DestText = "";
-            DestText = ReplaceDay(dt, SrcText, "%%USERSDAY%%", true, DayOffset);
-            DestText = ReplaceDay(dt, DestText, "%%usersday%%", false, DayOffset);
+            DestText = ReplaceDay(dt, SrcText, "%%USERSDAY%%");
+            DestText = ReplaceDay(dt, DestText, "%%usersday%%", false);
 
             return DestText;
         }
@@ -101,25 +101,26 @@ namespace Mailer
         private String GetDateText(String SrcText)
         {
             String DestText = "";
-            DateTime dt = DateTime.Now;
-            DestText = ReplaceDay(dt, SrcText, "%%TODAY%%");
-            DestText = ReplaceDay(dt, DestText, "%%today%%", false);
-            DestText = ReplaceDay(dt, DestText, "%%TOMORROW%%", true, 1);
-            DestText = ReplaceDay(dt, DestText, "%%tomorrow%%", false, 1);
+            DateTime today = DateTime.Now;
+            DestText = ReplaceDay(today, SrcText, "%%TODAY%%");
+            DestText = ReplaceDay(today, DestText, "%%today%%", false);
+
+            DateTime tomorrow = today.AddDays(1);
+            DestText = ReplaceDay(tomorrow, DestText, "%%TOMORROW%%");
+            DestText = ReplaceDay(tomorrow, DestText, "%%tomorrow%%", false);
 
             return DestText; 
         }
 
-        private String ReplaceDay(DateTime dt, String SrcText, String KeyName, bool IsYear = true, int DayOffset = 0)
+        private String ReplaceDay(DateTime dt, String SrcText, String KeyName, bool IsYear = true)
         {
-            int Day = dt.Day + DayOffset;
             String DateString = "";
             if ( IsYear )
             {
                 DateString += dt.Year.ToString() + "/";
             }
             DateString += dt.Month.ToString() +"/";
-            DateString += Day.ToString();
+            DateString += dt.Day.ToString();
  
             return SrcText.Replace(KeyName, DateString);
         }
@@ -153,7 +154,7 @@ namespace Mailer
                 return;
             }
 
-            DateTime dt = new DateTime(
+            DateTime now = new DateTime(
                 dateTimePicker_Calendar.Value.Year,
                 dateTimePicker_Calendar.Value.Month,
                 dateTimePicker_Calendar.Value.Day,
@@ -183,7 +184,8 @@ namespace Mailer
                 if (textBox_MailSubject.Text != String.Empty)
                 {
                     String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                    BrowseUrl += "&su=" + GetUsersDay(dt, ChromeFormatText, i);
+                    DateTime dt = now.AddDays(i);
+                    BrowseUrl += "&su=" + GetUsersDay(dt, ChromeFormatText);
                 }
 
                 if (textBox_MailBody.Text != String.Empty)
