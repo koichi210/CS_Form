@@ -21,8 +21,6 @@ namespace Mailer
             RegistCtrl("Common", "textBox_MailBcc", Parent.textBox_MailBcc);
             RegistCtrl("Common", "textBox_MailSubject", Parent.textBox_MailSubject);
             RegistCtrl("Common", "textBox_MailBody", Parent.textBox_MailBody);
-            RegistCtrl("Common", "textBox_CreateNum", Parent.textBox_CreateNum, "5");
-            
         }
 
         public Boolean LoadProc(String LoadFileName, Form1 Parent)
