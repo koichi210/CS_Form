@@ -47,12 +47,14 @@
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.dateTimePicker_Calendar = new System.Windows.Forms.DateTimePicker();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.check_BoxReverse = new System.Windows.Forms.CheckBox();
             this.textBox_CreateNum = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.button_OpenBrowse_OneWeek = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.button_Help = new System.Windows.Forms.Button();
-            this.checkBoxReverse = new System.Windows.Forms.CheckBox();
+            this.textBox_IntervalMsec = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -243,14 +245,16 @@
             // 
             this.dateTimePicker_Calendar.Location = new System.Drawing.Point(78, 15);
             this.dateTimePicker_Calendar.Name = "dateTimePicker_Calendar";
-            this.dateTimePicker_Calendar.Size = new System.Drawing.Size(142, 19);
+            this.dateTimePicker_Calendar.Size = new System.Drawing.Size(134, 19);
             this.dateTimePicker_Calendar.TabIndex = 1;
             // 
             // groupBox3
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.checkBoxReverse);
+            this.groupBox3.Controls.Add(this.textBox_IntervalMsec);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.check_BoxReverse);
             this.groupBox3.Controls.Add(this.textBox_CreateNum);
             this.groupBox3.Controls.Add(this.label8);
             this.groupBox3.Controls.Add(this.button_OpenBrowse_OneWeek);
@@ -263,12 +267,24 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "お試し機能";
             // 
+            // check_BoxReverse
+            // 
+            this.check_BoxReverse.AutoSize = true;
+            this.check_BoxReverse.Checked = true;
+            this.check_BoxReverse.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.check_BoxReverse.Location = new System.Drawing.Point(78, 42);
+            this.check_BoxReverse.Name = "check_BoxReverse";
+            this.check_BoxReverse.Size = new System.Drawing.Size(66, 16);
+            this.check_BoxReverse.TabIndex = 2;
+            this.check_BoxReverse.Text = "Reverse";
+            this.check_BoxReverse.UseVisualStyleBackColor = true;
+            // 
             // textBox_CreateNum
             // 
-            this.textBox_CreateNum.Location = new System.Drawing.Point(77, 40);
+            this.textBox_CreateNum.Location = new System.Drawing.Point(324, 15);
             this.textBox_CreateNum.Name = "textBox_CreateNum";
-            this.textBox_CreateNum.Size = new System.Drawing.Size(71, 19);
-            this.textBox_CreateNum.TabIndex = 3;
+            this.textBox_CreateNum.Size = new System.Drawing.Size(43, 19);
+            this.textBox_CreateNum.TabIndex = 4;
             this.textBox_CreateNum.Text = "5";
             this.textBox_CreateNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_CreateNum.WordWrap = false;
@@ -276,18 +292,18 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(30, 43);
+            this.label8.Location = new System.Drawing.Point(271, 18);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(47, 12);
-            this.label8.TabIndex = 2;
+            this.label8.TabIndex = 3;
             this.label8.Text = "生成数：";
             // 
             // button_OpenBrowse_OneWeek
             // 
-            this.button_OpenBrowse_OneWeek.Location = new System.Drawing.Point(226, 15);
+            this.button_OpenBrowse_OneWeek.Location = new System.Drawing.Point(373, 15);
             this.button_OpenBrowse_OneWeek.Name = "button_OpenBrowse_OneWeek";
-            this.button_OpenBrowse_OneWeek.Size = new System.Drawing.Size(292, 44);
-            this.button_OpenBrowse_OneWeek.TabIndex = 4;
+            this.button_OpenBrowse_OneWeek.Size = new System.Drawing.Size(145, 44);
+            this.button_OpenBrowse_OneWeek.TabIndex = 7;
             this.button_OpenBrowse_OneWeek.Text = "一括表示";
             this.button_OpenBrowse_OneWeek.UseVisualStyleBackColor = true;
             this.button_OpenBrowse_OneWeek.Click += new System.EventHandler(this.button_OpenBrowse_OneWeek_Click);
@@ -312,17 +328,24 @@
             this.button_Help.UseVisualStyleBackColor = true;
             this.button_Help.Click += new System.EventHandler(this.button_Help_Click);
             // 
-            // checkBoxReverse
+            // textBox_IntervalMsec
             // 
-            this.checkBoxReverse.AutoSize = true;
-            this.checkBoxReverse.Checked = true;
-            this.checkBoxReverse.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxReverse.Location = new System.Drawing.Point(154, 42);
-            this.checkBoxReverse.Name = "checkBoxReverse";
-            this.checkBoxReverse.Size = new System.Drawing.Size(66, 16);
-            this.checkBoxReverse.TabIndex = 5;
-            this.checkBoxReverse.Text = "Reverse";
-            this.checkBoxReverse.UseVisualStyleBackColor = true;
+            this.textBox_IntervalMsec.Location = new System.Drawing.Point(324, 40);
+            this.textBox_IntervalMsec.Name = "textBox_IntervalMsec";
+            this.textBox_IntervalMsec.Size = new System.Drawing.Size(43, 19);
+            this.textBox_IntervalMsec.TabIndex = 6;
+            this.textBox_IntervalMsec.Text = "1500";
+            this.textBox_IntervalMsec.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_IntervalMsec.WordWrap = false;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(216, 43);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(102, 12);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "インターバル(msec)：";
             // 
             // Form1
             // 
@@ -375,7 +398,9 @@
         private System.Windows.Forms.Button button_Help;
         public System.Windows.Forms.TextBox textBox_CreateNum;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.CheckBox checkBoxReverse;
+        private System.Windows.Forms.CheckBox check_BoxReverse;
+        public System.Windows.Forms.TextBox textBox_IntervalMsec;
+        private System.Windows.Forms.Label label9;
     }
 }
 

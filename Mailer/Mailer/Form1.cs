@@ -21,6 +21,14 @@ namespace Mailer
         private SaveRestore sr = new SaveRestore();
         private StcUtils util = new StcUtils();
 
+        private ExecParam param = new ExecParam();
+
+        class ExecParam
+        {
+            public int CreateNum = 0;
+            public int IntervalMsec = 0;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -56,7 +64,7 @@ namespace Mailer
         
         private void button_OpenBrowse_Click(object sender, EventArgs e)
         {
-            if (!CheckParam())
+            if (!GetUIParam())
             {
                 return;
             }
@@ -66,7 +74,7 @@ namespace Mailer
 
         private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
         {
-            if (!CheckParam())
+            if (!GetUIParam())
             {
                 return;
             }
@@ -80,19 +88,7 @@ namespace Mailer
                 dateTimePicker_Calendar.Value.Second,
                 0);
 
-            int num;
-            int.TryParse(textBox_CreateNum.Text, out num);
-
-            var offsetDay = new List<int>();
-            for (var i = 0; i < num; i++)
-            {
-                offsetDay.Add(i);
-            }
-            if (checkBoxReverse.Checked)
-            {
-                offsetDay.Sort((x, y) => y - x);
-            }
-
+            var offsetDay = GetLoopList();
             foreach (var ofs in offsetDay)
             {
                 OpenBrowse(now, ofs);
@@ -128,7 +124,7 @@ namespace Mailer
             }
 
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(param.IntervalMsec);
         }
 
         private String GetReplaceDay(String SrcText, DateTime dt)
@@ -172,17 +168,34 @@ namespace Mailer
             return SrcText.Replace(KeyName, DateString);
         }
 
-        private Boolean CheckParam()
+        private Boolean GetUIParam()
         {
             if( !util.IsExistFileNameInEnvironment(textBox_BrowserPath.Text) )
             {
                 MessageBox.Show("ファイルが存在しません" + Environment.NewLine + textBox_BrowserPath.Text);
                 return false;
             }
-            
+
+            int.TryParse(textBox_CreateNum.Text, out param.CreateNum);
+            int.TryParse(textBox_IntervalMsec.Text, out param.IntervalMsec);
+
             return true;
         }
 
+        private List<int> GetLoopList()
+        {
+            var offsetDay = new List<int>();
+            for (var i = 0; i < param.CreateNum; i++)
+            {
+                offsetDay.Add(i);
+            }
+            if (check_BoxReverse.Checked)
+            {
+                offsetDay.Sort((x, y) => y - x);
+            }
+            return offsetDay;
+        }
+        
         private void textBox_BrowserPath_KeyDown(object sender, KeyEventArgs e)
         {
             util.ExecutePath(textBox_BrowserPath.Text, e);
