@@ -130,15 +130,22 @@ namespace Mailer
         private String GetReplaceDay(String SrcText, DateTime dt)
         {
             var NewText = GetUsersDay(SrcText, dt);
-            return GetDateText(NewText, dt);
+            NewText = GetDateText(NewText, dt);
+            NewText = GetDayOfWeek(NewText, dt);
+            return NewText;
         }
 
+        private String GetDayOfWeek(String SrcText, DateTime dt)
+        {
+            String DestText = SrcText.Replace("%%dayofweek%%", dt.ToString("ddd"));
+            DestText = DestText.Replace("%%DAYOFWEEK%%", dt.ToString("dddd"));
+            return DestText;
+        }
         private String GetUsersDay(String SrcText, DateTime dt)
         {
             String DestText = "";
             DestText = ReplaceDay(dt, SrcText, "%%USERSDAY%%");
             DestText = ReplaceDay(dt, DestText, "%%usersday%%", false);
-
             return DestText;
         }
 
@@ -151,7 +158,6 @@ namespace Mailer
             var nextDay = dt.AddDays(1);
             DestText = ReplaceDay(nextDay, DestText, "%%TOMORROW%%");
             DestText = ReplaceDay(nextDay, DestText, "%%tomorrow%%", false);
-
             return DestText; 
         }
 
