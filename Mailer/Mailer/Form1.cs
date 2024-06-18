@@ -61,33 +61,7 @@ namespace Mailer
                 return;
             }
 
-            DateTime today = DateTime.Now;
-            String BrowseUrl = MailUrl;
-            if (textBox_MailTo.Text != String.Empty)
-            {
-                BrowseUrl += "&to=" + textBox_MailTo.Text;
-            }
-            if (textBox_MailCc.Text != String.Empty)
-            {
-                BrowseUrl += "&cc=" + textBox_MailCc.Text;
-            }
-            if (textBox_MailBcc.Text != String.Empty)
-            {
-                BrowseUrl += "&bcc=" + textBox_MailBcc.Text;
-            }
-
-            if (textBox_MailSubject.Text != String.Empty)
-            {
-                String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, today);
-            }
-
-            if (textBox_MailBody.Text != String.Empty)
-            {
-                BrowseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
-            }
-
-            util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+            OpenBrowse(DateTime.Now);
         }
 
         private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
@@ -106,27 +80,26 @@ namespace Mailer
                 dateTimePicker_Calendar.Value.Second,
                 0);
 
-            int num = Int32.Parse(textBox_CreateNum.Text);
+            int num;
+            int.TryParse(textBox_CreateNum.Text, out num);
 
-            if (!checkBoxReverse.Checked)
+            var offsetDay = new List<int>();
+            for (var i = 0; i < num; i++)
             {
-                for (int i = 0; i < num; i++)
-                {
-                    OpenBrowse(now, i);
-                    System.Threading.Thread.Sleep(500);
-                }
+                offsetDay.Add(i);
             }
-            else
+            if (checkBoxReverse.Checked)
             {
-                for (int i = num - 1; i >= 0; i--)
-                {
-                    OpenBrowse(now, i);
-                    System.Threading.Thread.Sleep(500);
-                }
+                offsetDay.Sort((x, y) => y - x);
+            }
+
+            foreach (var ofs in offsetDay)
+            {
+                OpenBrowse(now, ofs);
             }
         }
 
-        private void OpenBrowse(DateTime now, int daysOffset)
+        private void OpenBrowse(DateTime srcDt, int daysOffset = 0)
         {
             String BrowseUrl = MailUrl;
             if (textBox_MailTo.Text != String.Empty)
@@ -144,7 +117,7 @@ namespace Mailer
 
             if (textBox_MailSubject.Text != String.Empty)
             {
-                DateTime dt = now.AddDays(daysOffset);
+                DateTime dt = srcDt.AddDays(daysOffset);
                 String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
                 BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, dt);
             }
@@ -155,6 +128,7 @@ namespace Mailer
             }
 
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+            System.Threading.Thread.Sleep(500);
         }
 
         private String GetReplaceDay(String SrcText, DateTime dt)
