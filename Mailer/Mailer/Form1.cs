@@ -61,6 +61,7 @@ namespace Mailer
                 return;
             }
 
+            DateTime today = DateTime.Now;
             String BrowseUrl = MailUrl;
             if (textBox_MailTo.Text != String.Empty)
             {
@@ -78,7 +79,7 @@ namespace Mailer
             if (textBox_MailSubject.Text != String.Empty)
             {
                 String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                BrowseUrl += "&su=" + GetDateText(ChromeFormatText);
+                BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, today);
             }
 
             if (textBox_MailBody.Text != String.Empty)
@@ -89,7 +90,80 @@ namespace Mailer
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
         }
 
-        private String GetUsersDay(DateTime dt, String SrcText)
+        private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
+        {
+            if (!CheckParam())
+            {
+                return;
+            }
+
+            DateTime now = new DateTime(
+                dateTimePicker_Calendar.Value.Year,
+                dateTimePicker_Calendar.Value.Month,
+                dateTimePicker_Calendar.Value.Day,
+                dateTimePicker_Calendar.Value.Hour,
+                dateTimePicker_Calendar.Value.Minute,
+                dateTimePicker_Calendar.Value.Second,
+                0);
+
+            int num = Int32.Parse(textBox_CreateNum.Text);
+
+            if (!checkBoxReverse.Checked)
+            {
+                for (int i = 0; i < num; i++)
+                {
+                    OpenBrowse(now, i);
+                    System.Threading.Thread.Sleep(500);
+                }
+            }
+            else
+            {
+                for (int i = num - 1; i >= 0; i--)
+                {
+                    OpenBrowse(now, i);
+                    System.Threading.Thread.Sleep(500);
+                }
+            }
+        }
+
+        private void OpenBrowse(DateTime now, int daysOffset)
+        {
+            String BrowseUrl = MailUrl;
+            if (textBox_MailTo.Text != String.Empty)
+            {
+                BrowseUrl += "&to=" + textBox_MailTo.Text;
+            }
+            if (textBox_MailCc.Text != String.Empty)
+            {
+                BrowseUrl += "&cc=" + textBox_MailCc.Text;
+            }
+            if (textBox_MailBcc.Text != String.Empty)
+            {
+                BrowseUrl += "&bcc=" + textBox_MailBcc.Text;
+            }
+
+            if (textBox_MailSubject.Text != String.Empty)
+            {
+                DateTime dt = now.AddDays(daysOffset);
+                String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
+                BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, dt);
+            }
+
+            if (textBox_MailBody.Text != String.Empty)
+            {
+                BrowseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
+            }
+
+            util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+        }
+
+        private String GetReplaceDay(String SrcText, DateTime dt)
+        {
+            var NewText = GetUsersDay(SrcText, dt);
+            return GetDateText(NewText, dt);
+        }
+
+        private String GetUsersDay(String SrcText, DateTime dt)
         {
             String DestText = "";
             DestText = ReplaceDay(dt, SrcText, "%%USERSDAY%%");
@@ -98,16 +172,15 @@ namespace Mailer
             return DestText;
         }
 
-        private String GetDateText(String SrcText)
+        private String GetDateText(String SrcText, DateTime dt)
         {
             String DestText = "";
-            DateTime today = DateTime.Now;
-            DestText = ReplaceDay(today, SrcText, "%%TODAY%%");
-            DestText = ReplaceDay(today, DestText, "%%today%%", false);
+            DestText = ReplaceDay(dt, SrcText, "%%TODAY%%");
+            DestText = ReplaceDay(dt, DestText, "%%today%%", false);
 
-            DateTime tomorrow = today.AddDays(1);
-            DestText = ReplaceDay(tomorrow, DestText, "%%TOMORROW%%");
-            DestText = ReplaceDay(tomorrow, DestText, "%%tomorrow%%", false);
+            var nextDay = dt.AddDays(1);
+            DestText = ReplaceDay(nextDay, DestText, "%%TOMORROW%%");
+            DestText = ReplaceDay(nextDay, DestText, "%%tomorrow%%", false);
 
             return DestText; 
         }
@@ -145,56 +218,6 @@ namespace Mailer
         private void button_Help_Click(object sender, EventArgs e)
         {
             MessageBox.Show("to be Update");
-        }
-
-        private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
-        {
-            if (!CheckParam())
-            {
-                return;
-            }
-
-            DateTime now = new DateTime(
-                dateTimePicker_Calendar.Value.Year,
-                dateTimePicker_Calendar.Value.Month,
-                dateTimePicker_Calendar.Value.Day,
-                dateTimePicker_Calendar.Value.Hour,
-                dateTimePicker_Calendar.Value.Minute,
-                dateTimePicker_Calendar.Value.Second,
-                0);
-
-
-            int num = Int32.Parse(textBox_CreateNum.Text);
-            for (int i = 0; i < num; i++)
-            {
-                String BrowseUrl = MailUrl;
-                if (textBox_MailTo.Text != String.Empty)
-                {
-                    BrowseUrl += "&to=" + textBox_MailTo.Text;
-                }
-                if (textBox_MailCc.Text != String.Empty)
-                {
-                    BrowseUrl += "&cc=" + textBox_MailCc.Text;
-                }
-                if (textBox_MailBcc.Text != String.Empty)
-                {
-                    BrowseUrl += "&bcc=" + textBox_MailBcc.Text;
-                }
-
-                if (textBox_MailSubject.Text != String.Empty)
-                {
-                    String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                    DateTime dt = now.AddDays(i);
-                    BrowseUrl += "&su=" + GetUsersDay(dt, ChromeFormatText);
-                }
-
-                if (textBox_MailBody.Text != String.Empty)
-                {
-                    BrowseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
-                }
-
-                util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
-            }
         }
     }
 }

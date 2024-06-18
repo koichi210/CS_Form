@@ -47,11 +47,12 @@
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.dateTimePicker_Calendar = new System.Windows.Forms.DateTimePicker();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.button_OpenBrowse_OneWeek = new System.Windows.Forms.Button();
-            this.button_Help = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
             this.textBox_CreateNum = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.button_OpenBrowse_OneWeek = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.button_Help = new System.Windows.Forms.Button();
+            this.checkBoxReverse = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -249,6 +250,7 @@
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.checkBoxReverse);
             this.groupBox3.Controls.Add(this.textBox_CreateNum);
             this.groupBox3.Controls.Add(this.label8);
             this.groupBox3.Controls.Add(this.button_OpenBrowse_OneWeek);
@@ -261,14 +263,24 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "お試し機能";
             // 
-            // label7
+            // textBox_CreateNum
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(30, 18);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(47, 12);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "起点日：";
+            this.textBox_CreateNum.Location = new System.Drawing.Point(77, 40);
+            this.textBox_CreateNum.Name = "textBox_CreateNum";
+            this.textBox_CreateNum.Size = new System.Drawing.Size(71, 19);
+            this.textBox_CreateNum.TabIndex = 3;
+            this.textBox_CreateNum.Text = "5";
+            this.textBox_CreateNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_CreateNum.WordWrap = false;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(30, 43);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(47, 12);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "生成数：";
             // 
             // button_OpenBrowse_OneWeek
             // 
@@ -279,6 +291,15 @@
             this.button_OpenBrowse_OneWeek.Text = "一括表示";
             this.button_OpenBrowse_OneWeek.UseVisualStyleBackColor = true;
             this.button_OpenBrowse_OneWeek.Click += new System.EventHandler(this.button_OpenBrowse_OneWeek_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(30, 18);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(47, 12);
+            this.label7.TabIndex = 0;
+            this.label7.Text = "起点日：";
             // 
             // button_Help
             // 
@@ -291,24 +312,17 @@
             this.button_Help.UseVisualStyleBackColor = true;
             this.button_Help.Click += new System.EventHandler(this.button_Help_Click);
             // 
-            // label8
+            // checkBoxReverse
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(30, 43);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(47, 12);
-            this.label8.TabIndex = 2;
-            this.label8.Text = "生成数：";
-            // 
-            // textBox_CreateNum
-            // 
-            this.textBox_CreateNum.Location = new System.Drawing.Point(77, 40);
-            this.textBox_CreateNum.Name = "textBox_CreateNum";
-            this.textBox_CreateNum.Size = new System.Drawing.Size(143, 19);
-            this.textBox_CreateNum.TabIndex = 3;
-            this.textBox_CreateNum.Text = "5";
-            this.textBox_CreateNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_CreateNum.WordWrap = false;
+            this.checkBoxReverse.AutoSize = true;
+            this.checkBoxReverse.Checked = true;
+            this.checkBoxReverse.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxReverse.Location = new System.Drawing.Point(154, 42);
+            this.checkBoxReverse.Name = "checkBoxReverse";
+            this.checkBoxReverse.Size = new System.Drawing.Size(66, 16);
+            this.checkBoxReverse.TabIndex = 5;
+            this.checkBoxReverse.Text = "Reverse";
+            this.checkBoxReverse.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -361,6 +375,7 @@
         private System.Windows.Forms.Button button_Help;
         public System.Windows.Forms.TextBox textBox_CreateNum;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.CheckBox checkBoxReverse;
     }
 }
 
