@@ -27,6 +27,7 @@ namespace Mailer
         {
             public int CreateNum = 0;
             public int IntervalMsec = 0;
+            public DateTime UserDate;
         }
 
         public Form1()
@@ -61,7 +62,7 @@ namespace Mailer
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }
-        
+ 
         private void button_OpenBrowse_Click(object sender, EventArgs e)
         {
             if (!GetUIParam())
@@ -69,7 +70,7 @@ namespace Mailer
                 return;
             }
 
-            OpenBrowse(DateTime.Now);
+            OpenBrowse();
         }
 
         private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
@@ -78,24 +79,14 @@ namespace Mailer
             {
                 return;
             }
-
-            DateTime now = new DateTime(
-                dateTimePicker_Calendar.Value.Year,
-                dateTimePicker_Calendar.Value.Month,
-                dateTimePicker_Calendar.Value.Day,
-                dateTimePicker_Calendar.Value.Hour,
-                dateTimePicker_Calendar.Value.Minute,
-                dateTimePicker_Calendar.Value.Second,
-                0);
-
             var offsetDay = GetLoopList();
             foreach (var ofs in offsetDay)
             {
-                OpenBrowse(now, ofs);
+                OpenBrowse(ofs);
             }
         }
 
-        private void OpenBrowse(DateTime srcDt, int daysOffset = 0)
+        private void OpenBrowse(int daysOffset = 0)
         {
             String BrowseUrl = MailUrl;
             if (textBox_MailTo.Text != String.Empty)
@@ -113,9 +104,9 @@ namespace Mailer
 
             if (textBox_MailSubject.Text != String.Empty)
             {
-                DateTime dt = srcDt.AddDays(daysOffset);
+                DateTime UserDate = param.UserDate.AddDays(daysOffset);
                 String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, dt);
+                BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, UserDate);
             }
 
             if (textBox_MailBody.Text != String.Empty)
@@ -127,11 +118,11 @@ namespace Mailer
             System.Threading.Thread.Sleep(param.IntervalMsec);
         }
 
-        private String GetReplaceDay(String SrcText, DateTime dt)
+        private String GetReplaceDay(String SrcText, DateTime UserDate)
         {
-            var NewText = GetUsersDay(SrcText, dt);
-            NewText = GetDateText(NewText, dt);
-            NewText = GetDayOfWeek(NewText, dt);
+            var NewText = GetUsersDay(SrcText, UserDate);
+            NewText = GetDateText(NewText);
+            NewText = GetDayOfWeek(NewText, UserDate);
             return NewText;
         }
 
@@ -141,23 +132,24 @@ namespace Mailer
             DestText = DestText.Replace("%%DAYOFWEEK%%", dt.ToString("dddd"));
             return DestText;
         }
-        private String GetUsersDay(String SrcText, DateTime dt)
+        private String GetUsersDay(String SrcText, DateTime UserDate)
         {
             String DestText = "";
-            DestText = ReplaceDay(dt, SrcText, "%%USERSDAY%%");
-            DestText = ReplaceDay(dt, DestText, "%%usersday%%", false);
+            DestText = ReplaceDay(UserDate, SrcText, "%%USERSDAY%%");
+            DestText = ReplaceDay(UserDate, DestText, "%%usersday%%", false);
             return DestText;
         }
 
-        private String GetDateText(String SrcText, DateTime dt)
+        private String GetDateText(String SrcText)
         {
+            DateTime today = DateTime.Now;
             String DestText = "";
-            DestText = ReplaceDay(dt, SrcText, "%%TODAY%%");
-            DestText = ReplaceDay(dt, DestText, "%%today%%", false);
+            DestText = ReplaceDay(today, SrcText, "%%TODAY%%");
+            DestText = ReplaceDay(today, DestText, "%%today%%", false);
 
-            var nextDay = dt.AddDays(1);
-            DestText = ReplaceDay(nextDay, DestText, "%%TOMORROW%%");
-            DestText = ReplaceDay(nextDay, DestText, "%%tomorrow%%", false);
+            var tomorrow = today.AddDays(1);
+            DestText = ReplaceDay(tomorrow, DestText, "%%TOMORROW%%");
+            DestText = ReplaceDay(tomorrow, DestText, "%%tomorrow%%", false);
             return DestText; 
         }
 
@@ -185,6 +177,14 @@ namespace Mailer
             int.TryParse(textBox_CreateNum.Text, out param.CreateNum);
             int.TryParse(textBox_IntervalMsec.Text, out param.IntervalMsec);
 
+            param.UserDate = new DateTime(
+                dateTimePicker_Calendar.Value.Year,
+                dateTimePicker_Calendar.Value.Month,
+                dateTimePicker_Calendar.Value.Day,
+                dateTimePicker_Calendar.Value.Hour,
+                dateTimePicker_Calendar.Value.Minute,
+                dateTimePicker_Calendar.Value.Second,
+                0);
             return true;
         }
 
@@ -210,7 +210,16 @@ namespace Mailer
 
         private void button_Help_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("to be Update");
+            var Message = "USAGE:" + Environment.NewLine +
+                "  %%today%% ・・・・        1/1" + Environment.NewLine +
+                "  %%TODAY%% ・・・・   2024/1/1" + Environment.NewLine +
+                "  %%tomorrow%% ・・・       1/2" + Environment.NewLine +
+                "  %%TOMORROW%% ・・・  2024/1/2" + Environment.NewLine +
+                "  %%usersday%% ・・・       2/3 (select day)" + Environment.NewLine +
+                "  %%USERSDAY%% ・・・  2024/2/3 (select day)" + Environment.NewLine +
+                "  %%dayofweek%% ・・・ 月       (is selected 2024/1/1)" + Environment.NewLine +
+                "  %%DAYOFWEEK%% ・・・ 月曜日   (is selected 2024/1/1)";
+            MessageBox.Show(Message);
         }
     }
 }
