@@ -150,6 +150,10 @@ namespace Mailer
             var tomorrow = today.AddDays(1);
             DestText = ReplaceDay(tomorrow, DestText, "%%TOMORROW%%");
             DestText = ReplaceDay(tomorrow, DestText, "%%tomorrow%%", false);
+
+            DateTime friday = today.AddDays( today.DayOfWeek == DayOfWeek.Friday ? 0 : 5 - (int)today.DayOfWeek);
+            DestText = ReplaceDay(friday, DestText, "%%WEEKEND%%");
+            DestText = ReplaceDay(friday, DestText, "%%weekend%%", false);
             return DestText; 
         }
 
@@ -215,6 +219,8 @@ namespace Mailer
                 "  %%TODAY%% ・・・・   2024/1/1" + Environment.NewLine +
                 "  %%tomorrow%% ・・・       1/2" + Environment.NewLine +
                 "  %%TOMORROW%% ・・・  2024/1/2" + Environment.NewLine +
+                "  %%weekend%% ・・・  (金曜日の日付）" + Environment.NewLine +
+                "  %%WEEKEND%% ・・・  (金曜日の日付）" + Environment.NewLine +
                 "  %%usersday%% ・・・       2/3 (select day)" + Environment.NewLine +
                 "  %%USERSDAY%% ・・・  2024/2/3 (select day)" + Environment.NewLine +
                 "  %%dayofweek%% ・・・ 月       (is selected 2024/1/1)" + Environment.NewLine +

@@ -47,14 +47,14 @@
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.dateTimePicker_Calendar = new System.Windows.Forms.DateTimePicker();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBox_IntervalMsec = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.check_BoxReverse = new System.Windows.Forms.CheckBox();
             this.textBox_CreateNum = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.button_OpenBrowse_OneWeek = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.button_Help = new System.Windows.Forms.Button();
-            this.textBox_IntervalMsec = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -267,6 +267,25 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "お試し機能";
             // 
+            // textBox_IntervalMsec
+            // 
+            this.textBox_IntervalMsec.Location = new System.Drawing.Point(324, 40);
+            this.textBox_IntervalMsec.Name = "textBox_IntervalMsec";
+            this.textBox_IntervalMsec.Size = new System.Drawing.Size(43, 19);
+            this.textBox_IntervalMsec.TabIndex = 6;
+            this.textBox_IntervalMsec.Text = "5000";
+            this.textBox_IntervalMsec.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_IntervalMsec.WordWrap = false;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(216, 43);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(102, 12);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "インターバル(msec)：";
+            // 
             // check_BoxReverse
             // 
             this.check_BoxReverse.AutoSize = true;
@@ -327,25 +346,6 @@
             this.button_Help.Text = "ヘルプ";
             this.button_Help.UseVisualStyleBackColor = true;
             this.button_Help.Click += new System.EventHandler(this.button_Help_Click);
-            // 
-            // textBox_IntervalMsec
-            // 
-            this.textBox_IntervalMsec.Location = new System.Drawing.Point(324, 40);
-            this.textBox_IntervalMsec.Name = "textBox_IntervalMsec";
-            this.textBox_IntervalMsec.Size = new System.Drawing.Size(43, 19);
-            this.textBox_IntervalMsec.TabIndex = 6;
-            this.textBox_IntervalMsec.Text = "1500";
-            this.textBox_IntervalMsec.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_IntervalMsec.WordWrap = false;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(216, 43);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(102, 12);
-            this.label9.TabIndex = 5;
-            this.label9.Text = "インターバル(msec)：";
             // 
             // Form1
             // 
