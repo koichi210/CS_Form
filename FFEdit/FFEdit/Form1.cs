@@ -62,6 +62,10 @@ namespace FFEdit
             {
                 util.SelectAll(e);
             }
+            else if (e.KeyCode == Keys.C && e.Control == true && e.Shift == true)
+            {
+                util.CopyToClipboard(e, listBox, comboBox_TargetDir.Text);
+            }
             else if (e.KeyCode == Keys.C && e.Control == true)
             {
                 util.CopyToClipboard(e, listBox);
