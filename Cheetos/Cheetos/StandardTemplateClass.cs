@@ -2333,7 +2333,7 @@ namespace StandardTemplate
         // フォルダパス取得ダイアログ
         public String GetDirectoryPath(String Title = "フォルダを指定してください。", String DefaultPath = "", Boolean IsNewFolder = false)
         {
-            String PathName = "";
+            String PathName = DefaultPath;
 
             FolderBrowserDialog fd = new FolderBrowserDialog();
 

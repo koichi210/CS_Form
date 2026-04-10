@@ -70,7 +70,7 @@ namespace BackGroundWorker
                 }
             }
 
-            // このメソッドからの戻り値
+            // このメソッドからの戻り値(好きな値を渡せる）
             e.Result = "すべて完了";
 
             // ⇒RunWorkerCompleted()

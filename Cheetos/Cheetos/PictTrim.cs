@@ -183,6 +183,8 @@ namespace Cheetos
                 }
             }
             worker.ReportProgress(TargetNameAry.Length);      // ⇒ProgressChanged()
+
+            e.Result = "値も渡せます";
         }
 
         private void bkgWorkerTrim_ProgressChanged(object sender, ProgressChangedEventArgs e)
