@@ -83,5 +83,11 @@ TrimFileData/TrimFileData/bin/Release/TrimFileData_M.xml
 Mailer/Mailer/bin/Release/Office.xml
 TrimHtmlData/TrimHtmlData/bin/Release/TrimHtmlData_C_Title.xml
 
-# ビルド出力（Debug構成のみ無視。Release配下はあえてコミットしている）
+# ビルド出力（Debug構成は丸ごと無視。Release配下のexeはあえてコミットしている）
 **/bin/Debug/
+
+# ツールの設定プリセット（実行するたびに増えるユーザーデータなのでコミットしない）
+**/bin/Release/*.xml
+# ただしライブラリ付属のドキュメントとサンプルデータは追跡を続ける
+!WebCamera/WebCamera/bin/Release/*.xml
+!XmlReadWrite/XmlReadWrite/bin/Release/Sample.xml
