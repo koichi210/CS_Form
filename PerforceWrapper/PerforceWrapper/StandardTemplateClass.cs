@@ -265,6 +265,11 @@ namespace StandardTemplate
             return false;
         }
 
+        public String GetAbsolutePath(String RelativePath)
+        {
+            return Path.GetFullPath(RelativePath);
+        }
+
         // ファイルパス実行
         public Boolean ExecutePath(String ExecPath, Boolean NoWindow = false)
         {
@@ -838,7 +843,10 @@ namespace StandardTemplate
             if (e.KeyCode == Keys.C && e.Control == true)
             {
                 String TargetName = GetSelectListName(ListViewCtrl, RootPath, index);
-                Clipboard.SetText(TargetName);
+	            if (!TargetName.Equals(String.Empty))
+	            {
+	                Clipboard.SetText(TargetName);
+	            }
             }
         }
 
@@ -948,7 +956,8 @@ namespace StandardTemplate
                 // 文字の絞り込み
                 if (LimitString != String.Empty)
                 {
-                    if (ValueName.IndexOf(ComboCtrl.Text) < 0)
+                    // 大文字小文字を区別せずに部分一致で検索
+                    if (ValueName.IndexOf(ComboCtrl.Text,StringComparison.OrdinalIgnoreCase) < 0)
                     {
                         continue;
                     }
@@ -1948,6 +1957,11 @@ namespace StandardTemplate
         // ファイル保存[StringArray]
         public void SaveXmlParamAll(String AttrName, String AttrValue, String[] StrArray)
         {
+            if(StrArray == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < StrArray.Length; i++)
             {
                 SaveXmlString(AttrName, AttrValue + i.ToString(), StrArray[i]);
@@ -1963,6 +1977,11 @@ namespace StandardTemplate
         // ファイル保存[byte]
         public void SaveXmlManageParam(String AttrName, String AttrValue, byte[] Value)
         {
+            if (Value == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < Value.Length; i++)
             {
                 SaveXmlString(AttrName, AttrValue + i.ToString(), Value[i].ToString());

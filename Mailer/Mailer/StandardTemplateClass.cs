@@ -1957,6 +1957,11 @@ namespace StandardTemplate
         // ファイル保存[StringArray]
         public void SaveXmlParamAll(String AttrName, String AttrValue, String[] StrArray)
         {
+            if(StrArray == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < StrArray.Length; i++)
             {
                 SaveXmlString(AttrName, AttrValue + i.ToString(), StrArray[i]);
@@ -1972,6 +1977,11 @@ namespace StandardTemplate
         // ファイル保存[byte]
         public void SaveXmlManageParam(String AttrName, String AttrValue, byte[] Value)
         {
+            if (Value == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < Value.Length; i++)
             {
                 SaveXmlString(AttrName, AttrValue + i.ToString(), Value[i].ToString());

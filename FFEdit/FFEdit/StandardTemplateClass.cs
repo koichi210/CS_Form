@@ -265,6 +265,11 @@ namespace StandardTemplate
             return false;
         }
 
+        public String GetAbsolutePath(String RelativePath)
+        {
+            return Path.GetFullPath(RelativePath);
+        }
+
         // ファイルパス実行
         public Boolean ExecutePath(String ExecPath, Boolean NoWindow = false)
         {
@@ -838,7 +843,10 @@ namespace StandardTemplate
             if (e.KeyCode == Keys.C && e.Control == true)
             {
                 String TargetName = GetSelectListName(ListViewCtrl, RootPath, index);
-                Clipboard.SetText(TargetName);
+	            if (!TargetName.Equals(String.Empty))
+	            {
+	                Clipboard.SetText(TargetName);
+	            }
             }
         }
 
@@ -912,7 +920,7 @@ namespace StandardTemplate
         }
 
         // 文字配列（SubString）をコンボボックスにセット
-        public void SetComboBoxFromArraySubString(ComboBox ComboCtrl, String[] Array, int StartIdx, String EndDelimiter = "", String LimitString = "")
+        public void SetComboBoxFromArraySubString(ComboBox ComboCtrl, String[] Array, int StartIdx, String EndDelimiter = "", String LimitString = "", Boolean IsReverse = false)
         {
             ComboCtrl.Items.Clear();
             for (int i = 0; i < Array.Length; i++)
@@ -926,7 +934,16 @@ namespace StandardTemplate
                 }
 
                 // 文字列生成
-                int Length = ValueName.IndexOf(EndDelimiter);
+                int Length;
+                if (!IsReverse)
+                {
+                    Length = ValueName.IndexOf(EndDelimiter);
+                }
+                else
+                {
+                    Length = ValueName.LastIndexOf(EndDelimiter);
+                }
+
                 if (Length >= 0 && Length > StartIdx)
                 {
                     ValueName = ValueName.Substring(StartIdx, Length - StartIdx);
@@ -939,7 +956,8 @@ namespace StandardTemplate
                 // 文字の絞り込み
                 if (LimitString != String.Empty)
                 {
-                    if (ValueName.IndexOf(ComboCtrl.Text) < 0)
+                    // 大文字小文字を区別せずに部分一致で検索
+                    if (ValueName.IndexOf(ComboCtrl.Text,StringComparison.OrdinalIgnoreCase) < 0)
                     {
                         continue;
                     }
@@ -994,7 +1012,7 @@ namespace StandardTemplate
         }
 
         // コンボボックスの中から目的の文字列を探す
-        public String FindStringFromComboBox(ComboBox CmbCtrl, String SrcName, String TrimName = "")
+        public String FindStringFromComboBox(ComboBox CmbCtrl, String SrcName, String TrimName = "", Boolean IsReverse = false)
         {
             String SerchName = SrcName;
             String DestName = "";
@@ -1002,7 +1020,16 @@ namespace StandardTemplate
             // SrcTrimNameが設定されていたら、特定の文字列で区切る
             if (TrimName != String.Empty)
             {
-                int FileNameidx = SrcName.IndexOf(TrimName);
+                int FileNameidx;
+                if (!IsReverse)
+                {
+                    FileNameidx = SrcName.IndexOf(TrimName);
+                }
+                else
+                {
+                    FileNameidx = SrcName.LastIndexOf(TrimName);
+                }
+
                 if (0 <= FileNameidx)
                 {
                     SerchName = SrcName.Substring(0, FileNameidx);
@@ -1106,6 +1133,22 @@ namespace StandardTemplate
                 IsNumber = true;
             }
             return IsNumber;
+        }
+
+        public Boolean GetDataGridCellBool(DataGridView dgv, int RowCount, int ColumnCount)
+        {
+            Boolean IsTrue = false;
+            String CellData = GetDataGridCell(dgv, RowCount, ColumnCount);
+            if (CellData.Equals("True"))
+            {
+                IsTrue = true;
+            }
+            return IsTrue;
+        }
+
+        public void SetDataGridCell(DataGridView dgv, int RowCount, int ColumnCount, String Val)
+        {
+            dgv.Rows[RowCount].Cells[ColumnCount].Value = Val;
         }
 
         public String GetDataGridCell(DataGridView dgv, int RowCount, int ColumnCount)
@@ -1914,6 +1957,11 @@ namespace StandardTemplate
         // ファイル保存[StringArray]
         public void SaveXmlParamAll(String AttrName, String AttrValue, String[] StrArray)
         {
+            if(StrArray == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < StrArray.Length; i++)
             {
                 SaveXmlString(AttrName, AttrValue + i.ToString(), StrArray[i]);
@@ -1929,6 +1977,11 @@ namespace StandardTemplate
         // ファイル保存[byte]
         public void SaveXmlManageParam(String AttrName, String AttrValue, byte[] Value)
         {
+            if (Value == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < Value.Length; i++)
             {
                 SaveXmlString(AttrName, AttrValue + i.ToString(), Value[i].ToString());
@@ -3011,6 +3064,14 @@ namespace StandardTemplate
             CURRENT_WINDOW,
         };
 
+        public enum MOUSE_EVENT
+        {
+            MOVE,
+            LEFT_CLICK,
+            LEFT_DOWN,
+            LEFT_UP,
+        };
+
         // TODO：パラメータの意味が分かり難い
         public Boolean IsStopRequest;
         public Boolean IsCaptureCase;
@@ -3019,7 +3080,10 @@ namespace StandardTemplate
         public int FileIdx;
         public CAPTURE_TARGET CaptureTarget;
 
-        public Point MousePt;               // TODO：ListCtrlにできるとステキ。
+        public Point MousePt;
+        public MOUSE_EVENT MouseEvent = MOUSE_EVENT.LEFT_CLICK;
+        public Boolean IsMouseMove = true;
+        public Boolean IsRestoreMousePos = false;
         public TimeSpan SleepTimeMsec;    // Sleepする時間
         public TimeSpan SleepCycleMsec;   // Sleepを刻む感覚
 
@@ -3050,6 +3114,18 @@ namespace StandardTemplate
         public void Stop()
         {
             IsStopRequest = true;
+        }
+
+        // マウスを移動させるか
+        public void SetMouseMove(Boolean IsMove)
+        {
+            IsMouseMove = IsMove;
+        }
+
+        // マウス移動後にもとの位置へ戻すか
+        public void RestoreMousePosition(Boolean IsResotre)
+        {
+            IsRestoreMousePos = IsResotre;
         }
 
         // キャプチャ対象
@@ -3093,6 +3169,11 @@ namespace StandardTemplate
             return IsSetPoint;
         }
 
+        public void SetMouseEvent(MOUSE_EVENT Event)
+        {
+            MouseEvent = Event;
+        }
+
         // ファイルフォーマット設定
         public void SetFileFormat(String format)
         {
@@ -3108,11 +3189,6 @@ namespace StandardTemplate
         // Sleep
         public void ExecuteSleep()
         {
-            if (IsCaptureCase == false)
-            {
-                return;
-            }
-
             for (TimeSpan Timer = TimeSpan.FromMilliseconds(0); Timer < SleepTimeMsec; Timer += SleepCycleMsec)
             {
                 if (IsStopRequest)
@@ -3258,16 +3334,19 @@ namespace StandardTemplate
         }
 
         // マウスのイベント処理
-        public void MouseEvent(String x, String y)
+        public void MouseProc(String x, String y, MOUSE_EVENT Event)
         {
-            if (SetMousePoint(x, y))
+            // 座標設定
+            if (!SetMousePoint(x, y))
             {
-                MouseEvent();
+                return;
             }
+            SetMouseEvent(Event);
+            MouseProc();
         }
 
         // マウスのイベント処理
-        public void MouseEvent()
+        public void MouseProc()
         {
             if (IsStopRequest)
             {
@@ -3277,27 +3356,45 @@ namespace StandardTemplate
             Point MousePtOrg = new Point(Cursor.Position.X, Cursor.Position.Y);
 
             //マウス移動
-            Cursor.Position = new Point(MousePt.X, MousePt.Y);
+            if (IsMouseMove)
+            {
+                Cursor.Position = new Point(MousePt.X, MousePt.Y);
+            }
 
             //struct 配列の宣言
             INPUT[] input = new INPUT[2];
+            uint input_num = 0;
 
-            //左ボタン Down
-            //input[0].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_LEFTDOWN;
-            input[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-            //input[0].mi.dx = int.Parse(cw_TextBox_MouseX.Text);
-            //input[0].mi.dy = int.Parse(cw_TextBox_MouseY.Text);
-
-            //左ボタン Up
-            input[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
-            //input[1].mi.dx = input[0].mi.dx;
-            //input[1].mi.dy = input[0].mi.dy;
+            switch(MouseEvent)
+            {
+                case MOUSE_EVENT.LEFT_CLICK:
+                    input[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                    input[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                    input_num = 2;
+                    break;
+                case MOUSE_EVENT.LEFT_DOWN:
+                    input[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                    input_num = 1;
+                    break;
+                case MOUSE_EVENT.LEFT_UP:
+                    input[0].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                    input_num = 1;
+                    break;
+                default:
+                    break;
+            }
 
             //イベントの一括生成
-            SendInput(2, input, Marshal.SizeOf(input[0]));
+            SendInput(input_num, input, Marshal.SizeOf(input[0]));
 
-            // マウスの位置をもとに戻す
-            Cursor.Position = new Point(MousePtOrg.X, MousePtOrg.Y);
+            if ( IsMouseMove)
+            {
+                // マウスの位置をもとに戻す
+                if (IsRestoreMousePos)
+                {
+                    Cursor.Position = new Point(MousePtOrg.X, MousePtOrg.Y);
+                }
+            }
         }
     }
 
@@ -3467,9 +3564,10 @@ namespace StandardTemplate
     // Debug
     public class StcDebug
     {
-        private Boolean IsDebugMode = false;
-        private Boolean UseTimeInFileName = false;
-        private String DebugLogFile = "Log.txt";
+        private Boolean IsDebugMode = false;        // デバッグモードOnOff
+        private Boolean UseTimeInFileName = false;  // ファイル名に時間を入れる
+        private Boolean IsWriteTime = false;		// デバッグログに時間を入れる
+        private String DebugLogFile = "DebugLog.txt";
 
         private int FileIndex = 1;
         private int FileIndexDigit = 2;
@@ -3505,6 +3603,16 @@ namespace StandardTemplate
             return UseTimeInFileName;
         }
 
+        public void SetWriteTime(Boolean WriteTime)
+        {
+            IsWriteTime = WriteTime;
+        }
+
+        public Boolean GetWriteTime()
+        {
+            return IsWriteTime;
+        }
+
         public String GetDebugLogFilename()
         {
             return DebugLogFile;
@@ -3521,7 +3629,13 @@ namespace StandardTemplate
             if (IsDebugMode == true)
             {
                 StcFileInputOutput fio = new StcFileInputOutput();
-                fio.SaveFile(DebugLogFile, Data + Environment.NewLine, IsAppend);
+                String WriteData = "";
+                if (IsWriteTime)
+                {
+                    WriteData = DateTime.Now.ToString() + "  : ";
+                }
+                WriteData += Data + Environment.NewLine;
+                fio.SaveFile(DebugLogFile, WriteData, IsAppend);
             }
         }
 
