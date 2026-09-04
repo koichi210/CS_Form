@@ -86,7 +86,9 @@
     <Compile Include="FileMng.cs" />
     <Compile Include="Rename.cs" />
     <Compile Include="SaveRestore.cs" />
-    <Compile Include="StandardTemplateClass.cs" />
+    <Compile Include="..\..\_Common\StandardTemplateClass.cs">
+      <Link>StandardTemplateClass.cs</Link>
+    </Compile>
     <Compile Include="TimeStump.cs" />
     <EmbeddedResource Include="ErrorMsg.resx">
       <DependentUpon>ErrorMsg.cs</DependentUpon>

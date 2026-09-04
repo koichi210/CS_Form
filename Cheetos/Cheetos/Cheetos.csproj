@@ -74,7 +74,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="SaveRestore.cs" />
-    <Compile Include="StandardTemplateClass.cs" />
+    <Compile Include="..\..\_Common\StandardTemplateClass.cs">
+      <Link>StandardTemplateClass.cs</Link>
+    </Compile>
     <Compile Include="PictTrim.cs">
       <SubType>Form</SubType>
     </Compile>
