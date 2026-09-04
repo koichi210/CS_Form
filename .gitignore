@@ -82,3 +82,6 @@ Cheetos/Cheetos/bin/Release/ランモバ_サムネイル.xml
 TrimFileData/TrimFileData/bin/Release/TrimFileData_M.xml
 Mailer/Mailer/bin/Release/Office.xml
 TrimHtmlData/TrimHtmlData/bin/Release/TrimHtmlData_C_Title.xml
+
+# ビルド出力（Debug構成のみ無視。Release配下はあえてコミットしている）
+**/bin/Debug/
