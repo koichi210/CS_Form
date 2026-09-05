@@ -23,7 +23,6 @@ namespace VisualStudioBuilder
         private readonly String StrDataGridHeaderProjectPath = "プロジェクトフルパス";
 
         private readonly String ExtSln = ".sln";
-        private readonly String ExtLog = ".log";
 
         private const int BuildEnableIdx = 0;
         private const int SolutionNameIdx = 1;
@@ -107,7 +106,7 @@ namespace VisualStudioBuilder
                     }
 
                     String SolutionName = GetCellData(i, SolutionNameIdx);
-                    DetectTargetLogList += GetLogPathName(textBox_LogDirectory.Text, SolutionName);
+                    DetectTargetLogList += Logic.GetLogPathName(textBox_LogDirectory.Text, SolutionName);
                     DetectTargetLogList += Environment.NewLine;
                 }
             }
@@ -126,7 +125,7 @@ namespace VisualStudioBuilder
             {
                 String SolutionName = GetCellData(i, SolutionNameIdx);
                 String ProjectPath = GetCellData(i, ProjectPathIdx);
-                String SolutionPath = GetSolutionPathName(ProjectPath, SolutionName);
+                String SolutionPath = Logic.GetSolutionPathName(ProjectPath, SolutionName);
 
                 if (!File.Exists(SolutionPath))
                 {
@@ -322,27 +321,13 @@ namespace VisualStudioBuilder
             }
 
             // ヘッダー生成
-            String Script = CreateScriptHeader();
+            String Script = Logic.CreateScriptHeader(textBox_VisualStudioExePath.Text, textBox_BuildOption.Text);
 
             // GridDataからビルド設定コマンド生成
             for (int i = 0; i < dataGridView.RowCount; i++)
             {
                 Script += CreateBuildScript(i, IsExportLog);
             }
-
-            return Script;
-        }
-
-        private String CreateScriptHeader()
-        {
-            String Script = "";
-
-            //Script += @"set DEV_ENV=\""C:\Program Files (x86)\""Microsoft Visual Studio 10.0\""Common7\""IDE\""devenv.exe";
-            Script += @"set DEV_ENV=""" + textBox_VisualStudioExePath.Text + @"""" + Environment.NewLine;
-
-            //Script += @"set BUILD_OPT=/rebuild release";
-            Script += "set BUILD_OPT=" + textBox_BuildOption.Text + Environment.NewLine;
-            Script += Environment.NewLine;
 
             return Script;
         }
@@ -363,55 +348,13 @@ namespace VisualStudioBuilder
             dataGridView.Rows[RowCount].Cells[ColumnCount].Value = CellData;
         }
 
-        private String GetFilePathName(String PathName, String FileName, String Ext = "")
-        {
-            return PathName.TrimEnd('\\') + '\\' + FileName + Ext;
-        }
-
-        private String GetSolutionPathName(String PathName, String FileName)
-        {
-            return GetFilePathName(PathName, FileName);
-        }
-
-        private String GetLogPathName(String PathName, String FileName)
-        {
-            return GetFilePathName(PathName, FileName.Replace(ExtSln, ExtLog));
-        }
-
         private String CreateBuildScript(int RowCount, Boolean IsExportLog)
         {
             String BuildEnable = GetCellData(RowCount, BuildEnableIdx);
             String SolutionName = GetCellData(RowCount, SolutionNameIdx);
             String ProjectPath = GetCellData(RowCount, ProjectPathIdx);
 
-            // パラメータチェック
-            if (BuildEnable != StrDataGridBuildListEnable ||
-                SolutionName == String.Empty ||
-                ProjectPath == String.Empty)
-            {
-                return "";
-            }
-
-            String SolutionPath = GetSolutionPathName(ProjectPath, SolutionName);
-            String LogName = GetLogPathName(textBox_LogDirectory.Text, SolutionName);
-
-            String Script = "";
-            if (IsExportLog)
-            {
-                // ファイルが存在したら削除
-                if (File.Exists(LogName))
-                {
-                    Script += "del " + LogName + Environment.NewLine;
-                }
-                Script += @"%DEV_ENV% %BUILD_OPT% /out " + LogName + " " + SolutionPath + Environment.NewLine;
-            }
-            else
-            {
-                Script += @"%DEV_ENV% %BUILD_OPT% " + SolutionPath + Environment.NewLine;
-            }
-            Script += Environment.NewLine;
-
-            return Script;
+            return Logic.CreateBuildScript(BuildEnable, SolutionName, ProjectPath, textBox_LogDirectory.Text, IsExportLog);
         }
 
         private void button_AddRaw_Click(object sender, EventArgs e)
@@ -524,7 +467,7 @@ namespace VisualStudioBuilder
             {
                 case SolutionNameIdx :
 
-                    ExecPath = GetSolutionPathName(
+                    ExecPath = Logic.GetSolutionPathName(
                         GetCellData(e.RowIndex, ProjectPathIdx),
                         GetCellData(e.RowIndex, SolutionNameIdx));
                     break;
