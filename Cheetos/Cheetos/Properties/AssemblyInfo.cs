@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（SaveRestore など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("Cheetos.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("08bc4d21-1477-495c-808e-b707d2cbe190")]
 

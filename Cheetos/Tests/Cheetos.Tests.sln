@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cheetos.Tests", "Cheetos.Tests\Cheetos.Tests.csproj", "{D7A23E4B-2356-4F66-A24C-187918712320}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cheetos", "..\Cheetos\Cheetos.csproj", "{C32D9515-3CF9-4382-9F42-A6B255DF62B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7A23E4B-2356-4F66-A24C-187918712320}.Debug|x86.ActiveCfg = Debug|x86
+		{D7A23E4B-2356-4F66-A24C-187918712320}.Debug|x86.Build.0 = Debug|x86
+		{D7A23E4B-2356-4F66-A24C-187918712320}.Release|x86.ActiveCfg = Release|x86
+		{D7A23E4B-2356-4F66-A24C-187918712320}.Release|x86.Build.0 = Release|x86
+		{C32D9515-3CF9-4382-9F42-A6B255DF62B4}.Debug|x86.ActiveCfg = Debug|x86
+		{C32D9515-3CF9-4382-9F42-A6B255DF62B4}.Debug|x86.Build.0 = Debug|x86
+		{C32D9515-3CF9-4382-9F42-A6B255DF62B4}.Release|x86.ActiveCfg = Release|x86
+		{C32D9515-3CF9-4382-9F42-A6B255DF62B4}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DEB642E5-41BE-4508-93DA-1FC9E833204C}
+	EndGlobalSection
+EndGlobal
