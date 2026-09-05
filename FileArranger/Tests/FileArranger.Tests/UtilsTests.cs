@@ -67,6 +67,18 @@ namespace FileArranger.Tests
             StringAssert.StartsWith(path, original + "_Cnt3_");
         }
 
+        [TestMethod]
+        public void CreateFolderNameOverLapShirk_LoopIdxが0でも連番0として埋め込む()
+        {
+            string original = Path.Combine(tempDirectory, "exists_zero");
+            Directory.CreateDirectory(original);
+            string path = original;
+
+            util.CreateFolderNameOverLapShirk(ref path, 0);
+
+            StringAssert.StartsWith(path, original + "_Cnt0_");
+        }
+
         // ------------------------------------------------------------------
         // CreateFileNameOverLapShirk
         // ------------------------------------------------------------------
@@ -94,6 +106,18 @@ namespace FileArranger.Tests
             Assert.IsFalse(result);
             Assert.AreNotEqual(original, path);
             StringAssert.StartsWith(path, original + "_Cnt2_");
+        }
+
+        [TestMethod]
+        public void CreateFileNameOverLapShirk_LoopIdxが0でも連番0として埋め込む()
+        {
+            string original = Path.Combine(tempDirectory, "dup_zero.txt");
+            File.WriteAllText(original, "dummy");
+            string path = original;
+
+            util.CreateFileNameOverLapShirk(ref path, 0);
+
+            StringAssert.StartsWith(path, original + "_Cnt0_");
         }
 
         [TestMethod]

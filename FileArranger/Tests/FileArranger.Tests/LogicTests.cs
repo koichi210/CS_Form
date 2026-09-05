@@ -220,5 +220,27 @@ namespace FileArranger.Tests
 
             Assert.AreEqual(0, added.Length);
         }
+
+        [TestMethod]
+        public void DeleteDuplicate_追加リストが空なら空配列のまま()
+        {
+            string[] legacy = { "apple_folder" };
+            string[] added = new string[0];
+
+            Logic.DeleteDuplicate(legacy, ref added, "_");
+
+            Assert.AreEqual(0, added.Length);
+        }
+
+        [TestMethod]
+        public void DeleteDuplicate_既存リストが空なら何も除外されない()
+        {
+            string[] legacy = new string[0];
+            string[] added = { "apple", "cherry" };
+
+            Logic.DeleteDuplicate(legacy, ref added, "_");
+
+            CollectionAssert.AreEqual(new[] { "apple", "cherry" }, added);
+        }
     }
 }

@@ -56,6 +56,34 @@ namespace FileArranger.Tests
         }
 
         [TestMethod]
+        public void SortFolder_空フォルダを渡しても例外にならない()
+        {
+            // ファイルが1件も無い場合、Directory.GetFiles は空配列を返し、
+            // リネーム対象が無いので何も起きない。
+            var sorter = new FileSorter();
+
+            sorter.SortFolder(tempDirectory);
+
+            Assert.AreEqual(0, Directory.GetFiles(tempDirectory).Length);
+        }
+
+        [TestMethod]
+        public void SortFolder_空フォルダのあとCommitしてもRestoreはtrueを返す()
+        {
+            // 記録するものが何も無いので、実際に元へ戻す対象は無い。それでも
+            // DecrementRegistNumber 自体は成功する（CommitBatchでCurrentIdxを1つ
+            // 進めているので）ため、Restore() の戻り値は true になる。
+            // 「戻せた」ではなく「巻き戻しの帳尻は合った」という意味の true であることに注意。
+            // FFEdit の Function.Copy 後の Restore と同じ仕様（呼び出し元は判断できない）。
+            var sorter = new FileSorter();
+
+            sorter.SortFolder(tempDirectory);
+            sorter.CommitBatch();
+
+            Assert.IsTrue(sorter.Restore());
+        }
+
+        [TestMethod]
         public void SortFolder_拡張子は維持される()
         {
             CreateFile("a.jpg");
