@@ -61,7 +61,7 @@ namespace TrimHtmlData
             // 出力先をクリア
             textBox_DestList.Text = "";
 
-            int TrimLineNum = GetTrimLine();
+            int TrimLineNum = Logic.GetTrimLine(textBox_TrimLineNum.Text);
 
             StringComparison CmpOpt = StringComparison.OrdinalIgnoreCase;
             if (checkBox_OrdinalCase.Checked)
@@ -80,24 +80,13 @@ namespace TrimHtmlData
                 String HtmlSource = GetHtmlSource(SourceArray[i]);
                 dbg.WriteDataInNewFile(HtmlSource, "_1_source");
 
-                String Result = GetSearchString(HtmlSource, textBox_SearchWord.Text, TrimLineNum, CmpOpt);
+                String Result = Logic.GetSearchString(HtmlSource, textBox_SearchWord.Text, TrimLineNum, CmpOpt, checkBox_FirstWordOnly.Checked);
                 dbg.WriteDataInNewFile(Result, "_2_search");
 
                 textBox_DestList.Text += Result;
             }
 
             Clipboard.SetText(textBox_DestList.Text);
-        }
-
-        private int GetTrimLine()
-        {
-            int TrimLineNum = util.GetInteger(textBox_TrimLineNum.Text);
-            if (TrimLineNum == 0)
-            {
-                TrimLineNum = 1;
-            }
-
-            return TrimLineNum;
         }
 
         /// <summary>
@@ -132,41 +121,6 @@ namespace TrimHtmlData
 
             String PicFileName = @"D:\tmp\sample.jpg";
             File.WriteAllBytes(PicFileName, data);
-        }
-
-        /// <summary>
-        /// HtmlSourceから目的の文字列を検索し、ヒット行を取得
-        /// </summary>
-        /// <param name="SourceList"></param>
-        /// <param name="SearchWord"></param>
-        /// <returns></returns>
-        private String GetSearchString(String SourceList, String SearchWord, int TrimLineNum, StringComparison CmpOpt)
-        {
-            String[] StringArray = SourceList.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            String ResultString = "";
-
-            for (int i = 0; i < StringArray.Length; i++)
-            {
-                if (StringArray[i].IndexOf(SearchWord, CmpOpt) != -1)
-                {
-                    // Hitした行を含む指定行数分取得
-                    for (int j = 0; j < TrimLineNum; j++)
-                    {
-                        ResultString += StringArray[i + j] + Environment.NewLine;
-                    }
-
-                    // 最初に見つかったワードのみ
-                    if (checkBox_FirstWordOnly.Checked)
-                    {
-                        break;
-                    }
-
-                    // 次のワードとの境界
-                    ResultString += Environment.NewLine;
-                }
-            }
-
-            return ResultString + Environment.NewLine;
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
