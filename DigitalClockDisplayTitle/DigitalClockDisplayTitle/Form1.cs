@@ -45,7 +45,7 @@ namespace DigitalClockDisplayTitle
         private void UpdateTime()
         {
             DateTime d = DateTime.Now;
-            this.Text = String.Format("{0:00}:{1:00}:{2:00}", d.Hour, d.Minute, d.Second);
+            this.Text = Logic.FormatTime(d);
         }
 
         protected override void WndProc(ref Message m)
