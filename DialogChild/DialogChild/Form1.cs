@@ -20,46 +20,22 @@ namespace DialogChild
             child.Show();
         }
 
-        private int getSubValue(int currentValue, int distanceValue, int offsetValue = 0)
-        {
-            int determiningValue = currentValue - distanceValue - offsetValue;
-            if (determiningValue < 0)
-            {
-                // 座標が負値になる場合、画面端に張り付く
-                determiningValue = 0;
-            }
-
-            return determiningValue;
-        }
-
-        private int getAddValue(int maxValue, int currentValue, int distanceValue, int offsetValue = 0)
-        {
-            int determiningValue = currentValue + distanceValue;
-            if (determiningValue > maxValue - offsetValue)
-            {
-                // 座標が画角を超える場合、画面端に張り付く
-                determiningValue = maxValue - offsetValue;
-            }
-
-            return determiningValue;
-        }
-
         private void updatePosition(object sender, EventArgs e)
         {
             //if (sender.Equals(this.buttonMoveDirectionUp))
             switch ((sender as Button).Name)
             {
             case "buttonMoveDirectionUp":
-                child.Top = getSubValue(child.Top, trackBarMoveDistance.Value);
+                child.Top = Logic.GetSubValue(child.Top, trackBarMoveDistance.Value);
                 break;
             case "buttonMoveDirectionDown":
-                child.Top = getAddValue(trackBarWindowHeight.Maximum, child.Top, trackBarMoveDistance.Value, child.Height);
+                child.Top = Logic.GetAddValue(trackBarWindowHeight.Maximum, child.Top, trackBarMoveDistance.Value, child.Height);
                 break;
             case "buttonMoveDirectionLeft":
-                child.Left = getSubValue(child.Left, trackBarMoveDistance.Value);
+                child.Left = Logic.GetSubValue(child.Left, trackBarMoveDistance.Value);
                 break;
             case "buttonMoveDirectionRight":
-                child.Left = getAddValue(trackBarWindowWidth.Maximum, child.Left, trackBarMoveDistance.Value, child.Width);
+                child.Left = Logic.GetAddValue(trackBarWindowWidth.Maximum, child.Left, trackBarMoveDistance.Value, child.Width);
                 break;
             default:
                 // buttonMoveDirectionCentor
