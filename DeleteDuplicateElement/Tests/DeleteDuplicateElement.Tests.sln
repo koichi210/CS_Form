@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteDuplicateElement.Tests", "DeleteDuplicateElement.Tests\DeleteDuplicateElement.Tests.csproj", "{EAC63822-15B2-49C3-B032-6E7BA49F1184}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteDuplicateElement", "..\DeleteDuplicateElement\DeleteDuplicateElement.csproj", "{837B1A60-AE66-4E87-8146-5630807C5D17}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EAC63822-15B2-49C3-B032-6E7BA49F1184}.Debug|x86.ActiveCfg = Debug|x86
+		{EAC63822-15B2-49C3-B032-6E7BA49F1184}.Debug|x86.Build.0 = Debug|x86
+		{EAC63822-15B2-49C3-B032-6E7BA49F1184}.Release|x86.ActiveCfg = Release|x86
+		{EAC63822-15B2-49C3-B032-6E7BA49F1184}.Release|x86.Build.0 = Release|x86
+		{837B1A60-AE66-4E87-8146-5630807C5D17}.Debug|x86.ActiveCfg = Debug|x86
+		{837B1A60-AE66-4E87-8146-5630807C5D17}.Debug|x86.Build.0 = Debug|x86
+		{837B1A60-AE66-4E87-8146-5630807C5D17}.Release|x86.ActiveCfg = Release|x86
+		{837B1A60-AE66-4E87-8146-5630807C5D17}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4CAC4B32-B2DC-41C0-9A06-E34A0E10D392}
+	EndGlobalSection
+EndGlobal
