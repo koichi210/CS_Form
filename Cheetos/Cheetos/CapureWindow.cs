@@ -34,7 +34,7 @@ namespace Cheetos
             }
 
             fio.IsExistDirectory(cw_TextBox_SavePath.Text, true);
-            String FileBaseFormat = GetFileBaseFormat(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrifix.Text);
+            String FileBaseFormat = Logic.GetFileBaseFormat(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrifix.Text, cw_checkBox_AddTimeStump.Checked);
 
             int Loop = 1;
             if (cw_TextBox_Loop.Text != String.Empty)
@@ -69,20 +69,6 @@ namespace Cheetos
             util.ExecutePath(cw_TextBox_SavePath.Text, e);
         }
 
-        private String GetFileBaseFormat(String DirectoryPath, String Prifix)
-        {
-            String FileBaseFormat = DirectoryPath + @"\";
-            if (Prifix != String.Empty)
-            {
-                FileBaseFormat += Prifix + "_";
-            }
-            if (cw_checkBox_AddTimeStump.Checked)
-            {
-                FileBaseFormat += System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_");
-            }
-
-            return FileBaseFormat;
-        }
 
         private void CaptureForeground(String FileBaseFormat, int Loop)
         {

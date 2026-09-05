@@ -57,6 +57,9 @@
   <ItemGroup>
     <Compile Include="SaveRestoreTests.cs" />
     <Compile Include="PicEditTests.cs" />
+    <Compile Include="LogicTests.cs" />
+    <Compile Include="RotationTests.cs" />
+    <Compile Include="PictMergeTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -55,77 +55,7 @@ namespace Cheetos
                 return;
             }
 
-            IsPortrait(do_SampleFilePath.Text, int.Parse(do_WhiteLength.Text), int.Parse(do_WhiteCoef.Text), true);
-        }
-
-        private bool IsPortrait(String TargetFileName, int WhiteWidth, int WhiteCoef, Boolean IsSample = false)
-        {
-            Boolean IsPort = true;
-            Size pict_sz = util.GetPictSize(TargetFileName);
-
-            // 指定幅より画像サイズが小さければ、画像サイズの幅に合わせる
-            int width = Math.Min(WhiteWidth, pict_sz.Width);
-
-            // WhiteCoefは、WhiteAreaを算出するための係数(実測値)
-            int BaseSize = width * pict_sz.Height / WhiteCoef;
-
-            // 左端
-            long LeftPictSize = 0;
-            if (IsPort == true)
-            {
-                Rectangle CutParam = new Rectangle(0, 0, width, pict_sz.Height);
-                LeftPictSize = GetBinSize(TargetFileName, CutParam);
-                if (BaseSize < LeftPictSize)
-                {
-                    IsPort = false;
-                }
-            }
-
-            // 右端
-            long RightPictSize = 0;
-            if (IsPort == true)
-            {
-                Rectangle CutParam = new Rectangle(pict_sz.Width - width, 0, width, pict_sz.Height);
-                RightPictSize = GetBinSize(TargetFileName, CutParam);
-                if (BaseSize < RightPictSize)
-                {
-                    IsPort = false;
-                }
-            }
-
-            if (IsSample)
-            {
-                String ResultStr = "IsPortrait=" + IsPort.ToString() + Environment.NewLine +
-                    "BaseSize=" + BaseSize.ToString() + Environment.NewLine +
-                    "LeftPictSize=" + LeftPictSize.ToString() + Environment.NewLine +
-                    "RightPictSize=" + RightPictSize.ToString();
-                MessageBox.Show(ResultStr,"画像情報");
-            }
-
-            return IsPort;
-        }
-
-        private long GetBinSize(String FileName, Rectangle CutParam)
-        {
-            // TODO:tempファイルを作らずにファイルサイズを知りたい
-            String TempFileName = fio.CreateTempFile("png");
-            PicEdit trm = new PicEdit(CutParam.Width, CutParam.Height);
-
-            // 切り取り
-            Point PutParam = new Point(0, 0);
-            trm.TrimExec(FileName, CutParam, PutParam);
-
-            // キャンバス保存
-            trm.SaveCanvas(TempFileName);
-
-            FileInfo fi = new FileInfo(TempFileName);
-            long Length = fi.Length;
-
-            // Tempファイルを削除
-            File.Delete(TempFileName);
-
-            trm.Dispose();
-            return Length;
+            Logic.IsPortrait(do_SampleFilePath.Text, int.Parse(do_WhiteLength.Text), int.Parse(do_WhiteCoef.Text), true);
         }
 
         private void sample2(String filePath, int WhiteLength)
@@ -195,7 +125,7 @@ namespace Cheetos
             for (int i = 0; i <= files.Length - 1; i++)
             {
                 String DestName;
-                if (IsPortrait(files[i], WhiteLength, WhiteCoef))
+                if (Logic.IsPortrait(files[i], WhiteLength, WhiteCoef))
                 {
                     DestName = DestPortFolderPath;
                 }

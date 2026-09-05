@@ -239,19 +239,19 @@ namespace Cheetos
 
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginX.Text = UpdateValue(textBox_OriginX.Text, e);
+            textBox_OriginX.Text = Logic.UpdateValue(textBox_OriginX.Text, e);
             Draw();
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginY.Text = UpdateValue(textBox_OriginY.Text, e);
+            textBox_OriginY.Text = Logic.UpdateValue(textBox_OriginY.Text, e);
             Draw();
         }
 
         private void textBox_Angle_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_angle.Text = UpdateValue(textBox_angle.Text, e);
+            textBox_angle.Text = Logic.UpdateValue(textBox_angle.Text, e);
             Draw();
         }
 
@@ -351,30 +351,5 @@ namespace Cheetos
             pictureBox_Dest.Image = canvas;
         }
 
-        private String UpdateValue(String base_value, KeyEventArgs e)
-        {
-            int add_value = 0;
-            switch (e.KeyCode)
-            {
-                case Keys.Up:
-                    add_value = 1;
-                    break;
-                case Keys.Down:
-                    add_value = -1;
-                    break;
-                case Keys.Enter:
-                    break;
-                default:
-                    break;
-            }
-
-            int val;
-            if (Int32.TryParse(base_value.ToString(), out val))
-            {
-                val += add_value;
-                return val.ToString();
-            }
-            return base_value;
-        }
     }
 }
