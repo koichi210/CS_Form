@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Logic など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("Bmp2Gif.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("36a446c3-b0bc-459a-81b3-29a205e56f06")]
 

@@ -22,29 +22,7 @@ namespace Bmp2Gif
 
         private void button_Change_Click(object sender, EventArgs e)
         {
-            Bitmap bmp = new Bitmap(textBox_SrcBmp.Text);
-            Graphics g = Graphics.FromImage(bmp);
-
-            if (checkBoxAddComent.Checked)
-            {
-                g.FillRectangle(
-                    new SolidBrush(Color.OrangeRed),
-                    0,
-                    0,
-                    400,
-                    100);
-
-                g.DrawString(
-                    "gifに変換",
-                    new Font("Times New Roman", 20),
-                    new SolidBrush(Color.White),
-                    40,
-                    25);
-            }
-            bmp.Save(textBox_DstGif.Text, ImageFormat.Gif);
-
-            g.Dispose();
-            bmp.Dispose();
+            Logic.ConvertBmpToGif(textBox_SrcBmp.Text, textBox_DstGif.Text, checkBoxAddComent.Checked);
         }
     }
 }
