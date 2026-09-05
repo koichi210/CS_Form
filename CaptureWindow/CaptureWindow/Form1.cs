@@ -212,72 +212,34 @@ namespace CaptureWindow
 
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            XmlDocument document = new XmlDocument();
-
-            XmlDeclaration declaration = document.CreateXmlDeclaration("1.0", "UTF-8", null);  // XML宣言
-            XmlElement root = document.CreateElement("root");  // ルート要素
-
-            document.AppendChild(declaration);
-            document.AppendChild(root);
-
-            XmlElement element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TextBox_SavePath");
-            element.InnerText = TextBox_SavePath.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TextBox_MouseX");
-            element.InnerText = TextBox_MouseX.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TextBox_MouseY");
-            element.InnerText = TextBox_MouseY.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TextBox_Sleep");
-            element.InnerText = TextBox_Sleep.Text;
-            root.AppendChild(element);
-
-            // ファイルに保存する
-            document.Save(SaveXmlFile);
+            Logic.SaveSettingXml(SaveXmlFile, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            if (!File.Exists(SaveXmlFile))
+            Logic.Settings settings = Logic.LoadSettingXml(SaveXmlFile);
+            if (settings == null)
             {
                 return;
             }
 
-            // ファイルから読み込む
-            XmlDocument document = new XmlDocument();
-            document.Load(SaveXmlFile);
-
-            foreach (XmlElement element in document.DocumentElement)
+            if (settings.SavePath != null)
             {
-                string attribute = element.GetAttribute("attribute");   // 属性
-                string text = element.InnerText;                        // 要素の内容
-
-                if (attribute.Equals("TextBox_SavePath"))
-                {
-                    TextBox_SavePath.Text = text;
-                }
-                else if (attribute.Equals("TextBox_MouseX"))
-                {
-                    TextBox_MouseX.Text = text;
-                }
-                else if (attribute.Equals("TextBox_MouseY"))
-                {
-                    TextBox_MouseY.Text = text;
-                }
-                else if (attribute.Equals("TextBox_Sleep"))
-                {
-                    TextBox_Sleep.Text = text;
-                }
+                TextBox_SavePath.Text = settings.SavePath;
+            }
+            if (settings.MouseX != null)
+            {
+                TextBox_MouseX.Text = settings.MouseX;
+            }
+            if (settings.MouseY != null)
+            {
+                TextBox_MouseY.Text = settings.MouseY;
+            }
+            if (settings.Sleep != null)
+            {
+                TextBox_Sleep.Text = settings.Sleep;
             }
         }
     }
