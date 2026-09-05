@@ -66,8 +66,11 @@ namespace WebCamera
             while (!backgroundWorker1.CancellationPending)
             {
                 //画像取得
-                capture.Grab();
-                NativeMethods.videoio_VideoCapture_operatorRightShift_Mat(capture.CvPtr, frame.CvPtr);
+                // 以前は capture.Grab() + 内部API(NativeMethods.videoio_VideoCapture_operatorRightShift_Mat)
+                // の組み合わせで C++ の "cap >> frame;" を模していたが、この内部APIは
+                // OpenCvSharp のバージョンアップで名前が変わり参照できなくなった。
+                // 同じ「取得してframeへ書き込む」動作をする公開APIの Read に置き換える。
+                capture.Read(frame);
 
                 bw.ReportProgress(0);
             }
