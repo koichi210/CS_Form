@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Logic など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("Rotation.Tests")]
+
 // このプロジェクトが COM に公開される場合、次の GUID が typelib の ID になります
 [assembly: Guid("6760990c-abd6-4fe2-aad3-b63665758722")]
 

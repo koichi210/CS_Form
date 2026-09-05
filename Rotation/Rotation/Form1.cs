@@ -44,46 +44,20 @@ namespace Rotation
 
         private void textBox_angle_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_angle.Text = UpdateValue(textBox_angle.Text, e);
+            textBox_angle.Text = Logic.UpdateValue(textBox_angle.Text, e.KeyCode);
             Draw();
         }
 
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginX.Text = UpdateValue(textBox_OriginX.Text, e);
+            textBox_OriginX.Text = Logic.UpdateValue(textBox_OriginX.Text, e.KeyCode);
             Draw();
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginY.Text = UpdateValue(textBox_OriginY.Text, e);
+            textBox_OriginY.Text = Logic.UpdateValue(textBox_OriginY.Text, e.KeyCode);
             Draw();
-        }
-
-        private String UpdateValue(String base_value, KeyEventArgs e)
-        {
-            int add_value = 0;
-            switch (e.KeyCode)
-            {
-                case Keys.Up:
-                    add_value = 1;
-                    break;
-                case Keys.Down:
-                    add_value = -1;
-                    break;
-                case Keys.Enter:
-                    break;
-                default:
-                    break;
-            }
-
-            int val;
-            if ( Int32.TryParse(base_value.ToString(), out val) )
-            {
-                val += add_value;
-                return val.ToString();
-            }
-            return base_value;
         }
 
         private void DrawPicturebox(Boolean IsSave = false)
@@ -132,17 +106,11 @@ namespace Rotation
         private void DrawPicturebox2(Boolean IsSave = false)
         {
             Bitmap img = new Bitmap(textBox_loadfiepath.Text);
-            int max = img.Width;
-            if (img.Width < img.Height)
-            {
-                max = img.Height;
-            }
-            pictureBox_Dest.Size = new Size(max * 2, max * 2);
+            pictureBox_Dest.Size = Logic.ComputeCanvasSize(img.Width, img.Height);
             Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
 
             //ラジアン単位に変換
             int angle = Int32.Parse(textBox_angle.Text.ToString());
-            double d = angle / (180 / Math.PI);
 
             //新しい座標位置を計算する
             float x;
@@ -155,18 +123,8 @@ namespace Rotation
                 return;
             }
 
-            float x1 = x + img.Width * (float)Math.Cos(d);
-            float y1 = y + img.Width * (float)Math.Sin(d);
-            float x2 = x - img.Height * (float)Math.Sin(d);
-            float y2 = y + img.Height * (float)Math.Cos(d);
-
             //PointF配列を作成
-            PointF[] destinationPoints =
-            {
-                new PointF(x, y),
-                new PointF(x1, y1),
-                new PointF(x2, y2)
-            };
+            PointF[] destinationPoints = Logic.ComputeDestinationPoints(img.Width, img.Height, angle, x, y);
 
             using (Graphics g = Graphics.FromImage(canvas))
             {
