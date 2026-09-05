@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Perforce / SaveRestore など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("PerforceWrapper.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("4a4c989f-66e4-464e-9069-8a51e5199ffb")]
 
