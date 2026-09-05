@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Logic など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("FizzBuzz.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("37d86413-51e4-452e-b3ee-4556d3a8fe1e")]
 

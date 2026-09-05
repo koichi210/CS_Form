@@ -24,41 +24,8 @@ namespace FizzBuzz
                 MessageBox.Show("pls set number");
                 return;
             }
-            textBox_Result.Text = FizzBuzz(int.Parse(textBox_Number.Text));
+            textBox_Result.Text = Logic.FizzBuzz(int.Parse(textBox_Number.Text));
 
-        }
-
-        private String FizzBuzz(int Number)
-        {
-            String Result = "";
-
-            for (int i = 1; i <= Number; i++)
-            {
-                Result += i.ToString() + " : ";
-
-                String Add = "";
-                if (i % 3 == 0)
-                {
-                    Add += "Fizz";
-                }
-                if (i % 5 == 0)
-                {
-                    Add += "Buzz";
-                }
-                if (i % 7 == 0)
-                {
-                    Add += "Woof";
-                }
-
-                if (Add == String.Empty)
-                {
-                    Add = i.ToString();
-                }
-
-                Result += Add + System.Environment.NewLine;
-            }
-
-            return Result;
         }
     }
 }
