@@ -9,7 +9,7 @@ namespace HelloWolrd
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine(Logic.GetGreeting());
 
             // Keep the console window open in debug mode.
             Console.WriteLine("Press any key to exit.");
