@@ -64,61 +64,8 @@ namespace TrimFileData
             String[] ReferList = ReferData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // 検索結果をコントロールにセット
-            textBox_SerchResultList.Text = GetSearchData(SourceArray, ReferList);
+            textBox_SerchResultList.Text = Logic.GetSearchData(SourceArray, ReferList, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SerchCommonWord.Text);
             Clipboard.SetText(textBox_SerchResultList.Text);
-        }
-
-        private String GetSearchData(String[] SourceArray, String[] ReferList)
-        {
-            StringComparison CmpOpt = StringComparison.OrdinalIgnoreCase;
-            if (checkBox_OrdinalCase.Checked)
-            {
-                CmpOpt = StringComparison.Ordinal;
-            }
-
-            String Result = "";
-            for (int i = 0; i < SourceArray.Length; i++)
-            {
-                Result += "◆" + SourceArray[i] + Environment.NewLine;
-
-                String[] SourceList = SourceArray[i].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                String Candidate = GetHitWord(SourceList, ReferList, CmpOpt);
-                Result += util.TrimDuplication(Candidate, Environment.NewLine);
-                Result += Environment.NewLine + Environment.NewLine;
-            }
-
-            return Result;
-        }
-
-        private String GetHitWord(String[] SourceList, String[] ReferList, StringComparison CmpOpt)
-        {
-            String Result = "";
-
-            for (int j = 0; j < SourceList.Length; j++)
-            {
-                for (int k = 0; k < ReferList.Length; k++)
-                {
-                    if (textBox_SerchCommonWord.Text != "" &&
-                        ReferList[k].IndexOf(textBox_SerchCommonWord.Text, CmpOpt) == -1)
-                    {
-                        continue;
-                    }
-
-                    if (ReferList[k].IndexOf(SourceList[j], CmpOpt) != -1)
-                    {
-                        //Fileから抽出
-                        Result += ReferList[k] + Environment.NewLine;
-
-                        // 最初に見つかった項目のみ抽出
-                        if (checkBox_FirstWordOnly.Checked)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return Result;
         }
 
         private void textBox_ReferencePath_KeyDown(object sender, KeyEventArgs e)

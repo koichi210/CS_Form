@@ -58,6 +58,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveRestore.cs" />
+    <Compile Include="Logic.cs" />
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>
     </Compile>
