@@ -50,7 +50,7 @@ namespace DigitalClock
         private void UpdateTime()
         {
             DateTime d = DateTime.Now;
-            label_time.Text = String.Format("{0:00}:{1:00}:{2:00}", d.Hour, d.Minute, d.Second);
+            label_time.Text = Logic.FormatTime(d);
         }
 
         private void label_time_MouseDown(object sender, MouseEventArgs e)
