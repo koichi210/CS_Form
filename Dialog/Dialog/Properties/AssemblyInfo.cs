@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（DialogDynamic など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("Dialog.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("c0aaadd9-f938-4c66-bafe-c5ae50f01511")]
 
