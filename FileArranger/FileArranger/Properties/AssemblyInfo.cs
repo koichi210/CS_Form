@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Utils など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("FileArranger.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("e5c5e4fb-61c1-40f3-8f75-7239da4b5895")]
 
