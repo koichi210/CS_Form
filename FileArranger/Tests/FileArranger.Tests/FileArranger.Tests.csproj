@@ -60,6 +60,7 @@
     <Compile Include="ProcessMemoryTests.cs" />
     <Compile Include="LogicTests.cs" />
     <Compile Include="FileSorterTests.cs" />
+    <Compile Include="SaveRestoreTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
