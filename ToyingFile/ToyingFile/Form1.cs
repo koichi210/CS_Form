@@ -72,55 +72,13 @@ namespace ToyingFile
 
         private void FunctionDeleteString(String[] FileList)
         {
-            StringComparison CmpOpt = StringComparison.OrdinalIgnoreCase;
-            if (checkBox_WideNarrow.Checked)
-            {
-                CmpOpt = StringComparison.Ordinal;
-            }
-
             String[] DeleteArray = textBox_DeleteString.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             StcFileInputOutput fio = new StcFileInputOutput();
             for (int i = 0; i < FileList.Length; i++)
             {
-                // FileをStringに変換
                 String FileData = fio.LoadFile(FileList[i]);
-                String[] FileDataArray = FileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
-                var list = new List<String>();
-                list.AddRange(FileDataArray);
-
-                for (int j = 0; j < list.Count; j++)
-                {
-                    if (list[j] == String.Empty)
-                    {
-                        continue;
-                    }
-
-                    for (int k = 0; k < DeleteArray.Length; k++)
-                    {
-                        //削除対象の行か判別
-                        if (list[j].IndexOf(DeleteArray[k], CmpOpt) != -1)
-                        {
-                            if (checkBox_DeleteLine.Checked)
-                            {
-                                // 一行削除&空行追加
-                                list.RemoveAt(j);
-                                list.Insert(j, "");
-                            }
-                            else
-                            {
-                                // 文字だけ削除ならReplace
-                                list[j] = list[j].Replace(DeleteArray[k], "");
-                            }
-                        }
-                    }
-                }
-
-                //StringをFileに変換
-                String ResultData = String.Join(Environment.NewLine, list.ToArray());
-
-                //FileSave
+                String ResultData = Logic.DeleteStringFromContent(FileData, DeleteArray, checkBox_WideNarrow.Checked, checkBox_DeleteLine.Checked);
                 fio.SaveFile(FileList[i], ResultData);
             }
         }
