@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mailer.Tests", "Mailer.Tests\Mailer.Tests.csproj", "{10E3FF6F-D377-4FC4-B7DA-ADE2946D02B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mailer", "..\Mailer\Mailer.csproj", "{51B13418-67AD-4D09-AA33-42EF664F5688}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{10E3FF6F-D377-4FC4-B7DA-ADE2946D02B1}.Debug|x86.ActiveCfg = Debug|x86
+		{10E3FF6F-D377-4FC4-B7DA-ADE2946D02B1}.Debug|x86.Build.0 = Debug|x86
+		{10E3FF6F-D377-4FC4-B7DA-ADE2946D02B1}.Release|x86.ActiveCfg = Release|x86
+		{10E3FF6F-D377-4FC4-B7DA-ADE2946D02B1}.Release|x86.Build.0 = Release|x86
+		{51B13418-67AD-4D09-AA33-42EF664F5688}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{51B13418-67AD-4D09-AA33-42EF664F5688}.Debug|x86.Build.0 = Debug|Any CPU
+		{51B13418-67AD-4D09-AA33-42EF664F5688}.Release|x86.ActiveCfg = Release|Any CPU
+		{51B13418-67AD-4D09-AA33-42EF664F5688}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95A0B02F-436A-45C2-8CB3-A3C6D46578F5}
+	EndGlobalSection
+EndGlobal

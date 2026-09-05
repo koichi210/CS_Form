@@ -79,7 +79,7 @@ namespace Mailer
             {
                 return;
             }
-            var offsetDay = GetLoopList();
+            var offsetDay = Logic.GetLoopList(param.CreateNum, check_BoxReverse.Checked);
             foreach (var ofs in offsetDay)
             {
                 OpenBrowse(ofs);
@@ -106,7 +106,7 @@ namespace Mailer
             {
                 DateTime UserDate = param.UserDate.AddDays(daysOffset);
                 String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                BrowseUrl += "&su=" + GetReplaceDay(ChromeFormatText, UserDate);
+                BrowseUrl += "&su=" + Logic.GetReplaceDay(ChromeFormatText, UserDate);
             }
 
             if (textBox_MailBody.Text != String.Empty)
@@ -116,58 +116,6 @@ namespace Mailer
 
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
             System.Threading.Thread.Sleep(param.IntervalMsec);
-        }
-
-        private String GetReplaceDay(String SrcText, DateTime UserDate)
-        {
-            var NewText = GetUsersDay(SrcText, UserDate);
-            NewText = GetDateText(NewText);
-            NewText = GetDayOfWeek(NewText, UserDate);
-            return NewText;
-        }
-
-        private String GetDayOfWeek(String SrcText, DateTime dt)
-        {
-            String DestText = SrcText.Replace("%%dayofweek%%", dt.ToString("ddd"));
-            DestText = DestText.Replace("%%DAYOFWEEK%%", dt.ToString("dddd"));
-            return DestText;
-        }
-        private String GetUsersDay(String SrcText, DateTime UserDate)
-        {
-            String DestText = "";
-            DestText = ReplaceDay(UserDate, SrcText, "%%USERSDAY%%");
-            DestText = ReplaceDay(UserDate, DestText, "%%usersday%%", false);
-            return DestText;
-        }
-
-        private String GetDateText(String SrcText)
-        {
-            DateTime today = DateTime.Now;
-            String DestText = "";
-            DestText = ReplaceDay(today, SrcText, "%%TODAY%%");
-            DestText = ReplaceDay(today, DestText, "%%today%%", false);
-
-            var tomorrow = today.AddDays(1);
-            DestText = ReplaceDay(tomorrow, DestText, "%%TOMORROW%%");
-            DestText = ReplaceDay(tomorrow, DestText, "%%tomorrow%%", false);
-
-            DateTime friday = today.AddDays( today.DayOfWeek == DayOfWeek.Friday ? 0 : 5 - (int)today.DayOfWeek);
-            DestText = ReplaceDay(friday, DestText, "%%WEEKEND%%");
-            DestText = ReplaceDay(friday, DestText, "%%weekend%%", false);
-            return DestText; 
-        }
-
-        private String ReplaceDay(DateTime dt, String SrcText, String KeyName, bool IsYear = true)
-        {
-            String DateString = "";
-            if ( IsYear )
-            {
-                DateString += dt.Year.ToString() + "/";
-            }
-            DateString += dt.Month.ToString() +"/";
-            DateString += dt.Day.ToString();
- 
-            return SrcText.Replace(KeyName, DateString);
         }
 
         private Boolean GetUIParam()
@@ -192,20 +140,6 @@ namespace Mailer
             return true;
         }
 
-        private List<int> GetLoopList()
-        {
-            var offsetDay = new List<int>();
-            for (var i = 0; i < param.CreateNum; i++)
-            {
-                offsetDay.Add(i);
-            }
-            if (check_BoxReverse.Checked)
-            {
-                offsetDay.Sort((x, y) => y - x);
-            }
-            return offsetDay;
-        }
-        
         private void textBox_BrowserPath_KeyDown(object sender, KeyEventArgs e)
         {
             util.ExecutePath(textBox_BrowserPath.Text, e);
