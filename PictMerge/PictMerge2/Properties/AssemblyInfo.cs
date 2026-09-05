@@ -21,6 +21,9 @@ using System.Windows;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（PicEdit など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("PictMerge2.Tests")]
+
 //ローカライズ可能なアプリケーションのビルドを開始するには、
 //.csproj ファイルの <UICulture>CultureYouAreCodingWith</UICulture> を
 //<PropertyGroup> 内部で設定します。たとえば、
