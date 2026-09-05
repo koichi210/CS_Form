@@ -59,38 +59,10 @@ namespace PictTriming
                 File.Copy(FilePath, BackUpFilePath, true);
 
                 // トリミング
-                Triming(FilePath, BackUpFilePath, Target_Width, Target_Height);
+                Logic.Triming(FilePath, BackUpFilePath, int.Parse(BaseX.Text), int.Parse(BaseY.Text), Target_Width, Target_Height);
             }
 
             //ListupExecute();
-        }
-
-        private void Triming(String TargetFilePath, String SourceFilePath, int Target_Width, int Target_Height)
-        {
-            //描画先とするImageオブジェクトを作成
-            //Bitmap canvas = new Bitmap(PictureBox1.Width, PictureBox1.Height);
-            Bitmap canvas = new Bitmap(Target_Width, Target_Height);
-
-            //画像ファイルのImageオブジェクトを作成
-            //Bitmap img = new Bitmap(@"C:\test\1.jpg");
-            Bitmap img = new Bitmap(SourceFilePath);
-
-            //切り取る部分の範囲を決定
-            System.Drawing.Rectangle srcRect = new System.Drawing.Rectangle(int.Parse(BaseX.Text), int.Parse(BaseY.Text), Target_Width, Target_Height);
-
-            //描画する部分の範囲を決定
-            System.Drawing.Rectangle desRect = new System.Drawing.Rectangle(0, 0, Target_Width, Target_Height);
-
-            //ImageオブジェクトのGraphicsオブジェクトを作成
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                g.DrawImage(img, desRect, srcRect, GraphicsUnit.Pixel);
-                g.Dispose();
-            }
-            img.Dispose();
-
-            canvas.Save(TargetFilePath);
-            canvas.Dispose();
         }
 
         private void Button_Listup_Click(object sender, RoutedEventArgs e)
@@ -119,83 +91,40 @@ namespace PictTriming
 
         private void SaveSetting_Click(object sender, RoutedEventArgs e)
         {
-            XmlDocument document = new XmlDocument();
-
-            XmlDeclaration declaration = document.CreateXmlDeclaration("1.0", "UTF-8", null);  // XML宣言
-            XmlElement root = document.CreateElement("root");  // ルート要素
-
-            document.AppendChild(declaration);
-            document.AppendChild(root);
-
-            XmlElement element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "SourceFolderPath");
-            element.InnerText = SourceFolderPath.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "BaseX");
-            element.InnerText = BaseX.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "BaseY");
-            element.InnerText = BaseY.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TargetX");
-            element.InnerText = TargetX.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TargetY");
-            element.InnerText = TargetY.Text;
-            root.AppendChild(element);
-
-            // ファイルに保存する
-            document.Save(SaveXmlFile);
+            Logic.SaveSettingXml(SaveXmlFile, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            if ( ! File.Exists(SaveXmlFile))
+            Logic.Settings settings = Logic.LoadSettingXml(SaveXmlFile);
+            if (settings == null)
             {
                 return;
             }
 
-            // ファイルから読み込む
-            XmlDocument document = new XmlDocument();
-            document.Load(SaveXmlFile);
-
-            foreach (XmlElement element in document.DocumentElement)
+            if (settings.SourceFolderPath != null)
             {
-                string attribute = element.GetAttribute("attribute");   // 属性
-                string text = element.InnerText;                        // 要素の内容
-
-                if (attribute.Equals("SourceFolderPath"))
-                {
-                    SourceFolderPath.Text = text;
-                }
-                else if (attribute.Equals("BaseX"))
-                {
-                    BaseX.Text = text;
-                }
-                else if (attribute.Equals("BaseY"))
-                {
-                    BaseY.Text = text;
-                }
-                else if (attribute.Equals("TargetX"))
-                {
-                    TargetX.Text = text;
-                }
-                else if (attribute.Equals("TargetY"))
-                {
-                    TargetY.Text = text;
-                }
+                SourceFolderPath.Text = settings.SourceFolderPath;
             }
-          }
+            if (settings.BaseX != null)
+            {
+                BaseX.Text = settings.BaseX;
+            }
+            if (settings.BaseY != null)
+            {
+                BaseY.Text = settings.BaseY;
+            }
+            if (settings.TargetX != null)
+            {
+                TargetX.Text = settings.TargetX;
+            }
+            if (settings.TargetY != null)
+            {
+                TargetY.Text = settings.TargetY;
+            }
+        }
 
         private void SourceFolderPath_KeyDown(object sender, KeyEventArgs e)
         {
