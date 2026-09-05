@@ -33,14 +33,7 @@ namespace PlantUML
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            String CommandParam;
-
-            CommandParam = string.Format(@"java -jar " + PlantumlPath.Text);
-            if (System.IO.File.Exists(ConfigFile.Text) )
-            {
-                CommandParam += string.Format(" -config {0}", ConfigFile.Text);
-            }
-            CommandParam += string.Format(" -charset UTF-8 {0}", InFile.Text);
+            String CommandParam = Logic.BuildCommandParam(PlantumlPath.Text, ConfigFile.Text, System.IO.File.Exists(ConfigFile.Text), InFile.Text);
 
             System.IO.StreamWriter writer = new System.IO.StreamWriter(ScriptName);
             writer.WriteLine(CommandParam);
