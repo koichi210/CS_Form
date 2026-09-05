@@ -8,10 +8,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Xml;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
 using StandardTemplate;
-using Microsoft.VisualBasic;
 
 namespace FileArranger
 {
@@ -22,7 +20,6 @@ namespace FileArranger
         private readonly String[] RenameDirColumn = { "変更前", "変更後" };
         private readonly String[] PartitionFileColumn = { "対象", "移動前名称", "移動後名称" };
 
-        private readonly int PaddingMinNum = 2;
         private readonly int RenameSrcIdx = 0;
         private readonly int RenameDestIdx = 1;
 
@@ -38,7 +35,7 @@ namespace FileArranger
         private SaveRestore sr = new SaveRestore();
         private Utils util = new Utils();
         private ProcessMemory pmd = new ProcessMemory();
-        private ProcessMemory pmf = new ProcessMemory();
+        private FileSorter sorter = new FileSorter();
 
         public FileArranger()
         {
@@ -367,19 +364,6 @@ namespace FileArranger
             rd_listView_Rename_UpdteListBox();
         }
 
-        private String ChangeWide2Narrow(String SrcString)
-        {
-            String RegesStr = "[０-９Ａ-Ｚａ-ｚ　]";
-            Regex re = new Regex(RegesStr);
-            return re.Replace(SrcString, myReplacer);
-        }
-
-        private String myReplacer(Match m)
-        {
-            // Memo: 参照設定に「Microsoft.VisualBasic」が必要
-            return Strings.StrConv(m.Value, VbStrConv.Narrow);
-        }
-
         private void rd_listView_Rename_UpdteListBox()
         {
             rd_label_SelectNum.Text = "選択数：" + rd_listView_Target.SelectedItems.Count.ToString();
@@ -389,12 +373,12 @@ namespace FileArranger
                 int idx = rd_listView_Target.SelectedItems[i].Index;
 
                 //文字列から数値を取得
-                String SrcString = ChangeWide2Narrow(rd_listView_Target.Items[idx].SubItems[RenameSrcIdx].Text);
+                String SrcString = Logic.ChangeWide2Narrow(rd_listView_Target.Items[idx].SubItems[RenameSrcIdx].Text);
                 long DestNumber = util.GetNumberFromRear(SrcString,
                     rd_textBox_SearchTitleLine.Text,
                     rd_textBox_SearchTitleLength.Text);
 
-                String Number = GetNumber(DestNumber);
+                String Number = Logic.GetNumber(DestNumber);
 
                 // 変更後ファイル名を生成
                 String DestName = rd_comboBox_MergeWord.Text + rd_textBox_AddTitlePreWord.Text + Number + rd_comboBox_AddTitlePostWord.Text;
@@ -503,45 +487,6 @@ namespace FileArranger
             pf_listView_Target_Update();
         }
 
-        private int GetAddCount(ListView lv, String FileName, String TrimName, Boolean IsReverse = false)
-        {
-            int Count = 0;
-            String SerchName = "";
-
-            int FileNameidx;
-            if (!IsReverse)
-            {
-                FileNameidx = FileName.IndexOf(TrimName);
-            }
-            else
-            {
-                FileNameidx = FileName.LastIndexOf(TrimName);
-            }
-
-            if (0 <= FileNameidx)
-            {
-                SerchName = FileName.Substring(0, FileNameidx);
-            }
-
-            for (int i = 0; i < lv.SelectedItems.Count; i++)
-            {
-                int idx = lv.SelectedItems[i].Index;
-                String SrcFileName = lv.Items[idx].SubItems[CreateFolderTargetIdx].Text;
-
-                if (SrcFileName.IndexOf(SerchName) != -1)
-                {
-                    Count ++;
-                }
-            }
-
-            if (Count == 0)
-            {
-               // 今回新規追加時の初期値
-                Count = 1;
-            }
-            return Count;
-        }
-
         private void pf_listView_Target_SelectedIndexChanged(object sender, EventArgs e)
         {
             pf_button_ClearSelect_Click(sender, e);
@@ -610,35 +555,12 @@ namespace FileArranger
         private String GetPatitionTargetNameWithNumber(String SrcFolderName, String SrcFileName, String DefaultNumber)
         {
             long SrcNumber = util.GetNumberFromRear(SrcFolderName, pf_textBox_SearchTitleLine.Text, pf_textBox_SearchTitleLength.Text, DefaultNumber);
-            int AddCount = GetAddCount(pf_listView_Target, SrcFileName, pf_textBox_TargetSeprator.Text, true);
+            int AddCount = Logic.GetAddCount(pf_listView_Target, SrcFileName, pf_textBox_TargetSeprator.Text, true);
 
-            String Number = GetNumber(SrcNumber, AddCount);
-            int SrcNumberDigit = GetPadding(SrcNumber);
+            String Number = Logic.GetNumber(SrcNumber, AddCount);
+            int SrcNumberDigit = Logic.GetPadding(SrcNumber);
 
             return SrcFolderName.Substring(0, SrcFolderName.Length - SrcNumberDigit) + Number;
-        }
-
-        private String GetNumber(long SrcNumber, int AddCount = 0)
-        {
-            long DestNumber = SrcNumber + AddCount;
-
-            int PaddingDigit = GetPadding(DestNumber);
-            return DestNumber.ToString().PadLeft(PaddingDigit, '0');
-        }
-
-        private int GetPadding(long Number, Boolean ThroughNumberZero = false)
-        {
-            int PaddingDigit = 0;
-
-            if ( ThroughNumberZero && Number == 0)
-            {
-                // 数値が「0」のときは、桁数も「0」とする
-            }
-            else if (Number.ToString().Length <= PaddingMinNum)
-            {
-                PaddingDigit = PaddingMinNum;
-            }
-            return PaddingDigit;
         }
 
         private void UpdatePartitionFileList()
@@ -787,37 +709,16 @@ namespace FileArranger
             for (int i = 0; i < sf_listBox_Target.SelectedItems.Count; i++)
             {
                 String FilePath = sf_textBox_TargetFile.Text + @"\" + sf_listBox_Target.SelectedItems[i].ToString();
-                SortFile(FilePath);
+                sorter.SortFolder(FilePath);
             }
-            pmf.IncrementRegistNumber();
+            sorter.CommitBatch();
         }
 
         private void sf_button_Sort_Restore_Click(object sender, EventArgs e)
         {
-            if (!pmf.DecrementRegistNumber())
+            if (!sorter.Restore())
             {
                 MessageBox.Show("これ以上復元できません");
-                return;
-            }
-
-            while (pmf.IsExistRestoreList())
-            {
-                String SrcName = "";
-                String DestName = "";
-                pmf.GetRestoreList(ref SrcName, ref DestName);
-                File.Move(DestName, SrcName);
-            }
-        }
-
-        private void SortFile(String FilePath)
-        {
-            String[] Files = Directory.GetFiles(FilePath);
-            for (int i = 0; i < Files.Length; i++)
-            {
-                String Ext = Path.GetExtension(Files[i]);
-                String DestName = FilePath + @"\" + String.Format("{0:D3}", i) + Ext;
-                File.Move(Files[i], DestName);
-                pmf.SetRestoreList(Files[i], DestName);
             }
         }
 
@@ -1215,7 +1116,7 @@ namespace FileArranger
             if ( !cmn_textBox_AddList.Text.Equals(String.Empty) )
             {
                 String[] AddRefrenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                DeleteDuplicate(RefrenceCandidateFolders, ref AddRefrenceList, rd_textBox_SplitWord3.Text);
+                Logic.DeleteDuplicate(RefrenceCandidateFolders, ref AddRefrenceList, rd_textBox_SplitWord3.Text);
                 AddRefrenceList = AddRefrenceList.Select(str => cmn_textBox_Reference.Text + @"\" + str + cmn_textBox_AddListSuffix.Text).ToArray();
 
                 String[] SumRefrenceList = new String[RefrenceCandidateFolders.Length + AddRefrenceList.Length];
@@ -1227,29 +1128,6 @@ namespace FileArranger
             // コンボボックス更新
             UpdateRenameComboBox();
             UpdateMoveDestDirComboBox();
-        }
-
-        private void DeleteDuplicate(String[] LegacyArray, ref String[] NewArray, String Delimiter)
-        {
-            var NewList = new List<String>();
-            NewList.AddRange(NewArray);
-
-            for (int i = 0; i < NewList.Count; i++)
-            {
-                for (int j = 0; j < LegacyArray.Length; j++)
-                {
-                    if (-1 != LegacyArray[j].IndexOf(NewList[i]))
-                    {
-                        NewList.RemoveAt(i);
-                        i--;    // TODO：他にもっと良いやり方があるはず
-                        break;
-                    }
-                }
-            }
-
-            //String[] OrganizeArray;
-            //OrganizeArray = NewList.ToArray();
-            NewArray = NewList.ToArray();
         }
 
         private void rd_comboBox_MergeWord_DropDown(object sender, EventArgs e)
