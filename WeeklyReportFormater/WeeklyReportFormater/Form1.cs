@@ -16,8 +16,6 @@ namespace WeeklyReportFormater
         private StcUtils util = new StcUtils();
         private StcFileInputOutput fio = new StcFileInputOutput();
         
-        private int NextWeekSetNum = 3;
-        private int PerforceSetNum = 2;
         private String SaveFileName = "WhoAmI.txt";
 
         public Form1()
@@ -71,19 +69,7 @@ namespace WeeklyReportFormater
                 return;
             }
 
-            String[] Line = textBox_ThisWeekBefore.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < Line.Length; i++)
-            {
-                String NewLine = Line[i];
-                NewLine = NewLine.TrimEnd();
-                NewLine = NewLine.Replace("\t", "");                                // タブ ⇒ スペース
-                NewLine = "\t" + NewLine;                                           // 先頭にタブ挿入
-                NewLine = NewLine.Replace(textBox_UserName.Text + " ", "(") + ")";  // ユーザー名削除
-                NewLine = NewLine.Replace(".0)", ")");                              // ストーリーポイントの".0"が邪魔
-                NewLine += System.Environment.NewLine;                              // 終端に改行挿入
-
-                textBox_ThisWeekAfter.Text += NewLine;
-            }
+            textBox_ThisWeekAfter.Text = Logic.FormatThisWeek(textBox_ThisWeekBefore.Text, textBox_UserName.Text);
             Clipboard.SetText(textBox_ThisWeekAfter.Text);
         }
 
@@ -96,34 +82,7 @@ namespace WeeklyReportFormater
                 return;
             }
 
-            String[] Line = textBox_NextWeekBefore.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < Line.Length; i++)
-            {
-                String NewLine = Line[i];
-                NewLine = NewLine.TrimEnd();
-
-                switch (i % NextWeekSetNum)
-                {
-                    case 0 :
-                        NewLine = "\t" + NewLine;   // 先頭にタブ挿入
-                        break;
-
-                    case 1:
-                        NewLine = " " + NewLine;   // 課題Noと課題名の間にスペース
-                        break;
-
-                    case 2:
-                        int NameIdx = NewLine.IndexOf(textBox_UserName.Text);   // ユーザー名の先頭
-                        NameIdx += textBox_UserName.Text.Length;                // ユーザー名の終端
-                        NewLine = " (" + NewLine.Substring(NameIdx) + ")" + System.Environment.NewLine;  // ストーリーポイント
-                        break;
-
-                    default:
-                        break;
-                }
-
-                textBox_NextWeekAfter.Text += NewLine;
-            }
+            textBox_NextWeekAfter.Text = Logic.FormatNextWeek(textBox_NextWeekBefore.Text, textBox_UserName.Text);
             Clipboard.SetText(textBox_NextWeekAfter.Text);
         }
 
@@ -136,29 +95,7 @@ namespace WeeklyReportFormater
                 return;
             }
 
-            
-            String[] Line = textBox_PerforceBefore.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            String NewLine = "";
-            for (int i = 0; i < Line.Length; i++)
-            {
-                Line[i] = Line[i].TrimStart();
-                Line[i] = Line[i].TrimEnd();
-
-                switch (i % PerforceSetNum)
-                {
-                    case 0 :
-                        NewLine += Line[i] + " ";     // ProjectID
-                        break;
-
-                    case 1 :
-                        NewLine += Line[i];     	  // Summary
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            textBox_PerforceAfter.Text += NewLine;
+            textBox_PerforceAfter.Text = Logic.FormatPerforce(textBox_PerforceBefore.Text);
             Clipboard.SetText(textBox_PerforceAfter.Text);
         }
     }
