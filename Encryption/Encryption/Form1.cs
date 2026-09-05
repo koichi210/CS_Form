@@ -30,40 +30,7 @@ namespace Encryption
 
         private void button_Execute_Click(object sender, EventArgs e)
         {
-            var line = textBox_Table.Text;
-
-            string[] key_s = line.Split(' ');
-            int[] key_i = key_s.Select(str => int.Parse(str)).ToArray();
-
-            bool encdec = true;
-            if (radioButton_Decode.Checked)
-            {
-                encdec = false;
-            }
-
-            // Key
-            int word = int.Parse(textBox_Key.Text);
-
-            // decodeのときはテーブルを反転
-
-            if (!encdec)
-            {
-                int[] key_ii = key_s.Select(str => int.Parse(str)).ToArray();
-                for (int i = 0; i < key_ii.Length; i++)
-                {
-                    int idx = key_ii[i];
-                    key_i[idx] = i;
-                }
-            }
-
-            string ans = "";
-            while (word != 0)
-            {
-                int idx = word % 10;
-                word /= 10;
-                ans = key_i[idx].ToString() + ans;
-            }
-            textBox_Result.Text = ans;
+            textBox_Result.Text = Logic.Execute(textBox_Table.Text, radioButton_Decode.Checked, textBox_Key.Text);
         }
     }
 }
