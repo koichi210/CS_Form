@@ -7,8 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using StandardTemplate;
-using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
 
 namespace ToyingData
 {
@@ -77,56 +75,18 @@ namespace ToyingData
         private String[] ChangeWide2Narrow(String[] StrArray)
         {
             String RegesStr = "";
-            if (!GetRegesStr(out RegesStr))
+            if (!Logic.GetRegesStr(
+                checkBox_Wide2Narrow_Number.Checked,
+                checkBox_Wide2Narrow_Alpha_Large.Checked,
+                checkBox_Wide2Narrow_Alpha_Small.Checked,
+                checkBox_Wide2Narrow_Space.Checked,
+                out RegesStr))
             {
                 MessageBox.Show("変換対象が選ばれませんでした");
                 return null;
             }
 
-            Regex re = new Regex(RegesStr);
-            return StrArray.Select(str => re.Replace(str, myReplacer)).ToArray();
-
-            // 全置換（カナ含む）
-            //return StrArray.Select(str => Strings.StrConv(str, VbStrConv.Narrow)).ToArray();
-        }
-
-        private Boolean GetRegesStr(out String RegesStr)
-        {
-            Boolean IsSuccess = false;
-
-            RegesStr = "[";
-            if (checkBox_Wide2Narrow_Number.Checked)
-            {
-                RegesStr += "０-９";
-                IsSuccess = true;
-            }
-
-            if (checkBox_Wide2Narrow_Alpha_Large.Checked)
-            {
-                RegesStr += "Ａ-Ｚ";
-                IsSuccess = true;
-            }
-
-            if (checkBox_Wide2Narrow_Alpha_Small.Checked)
-            {
-                RegesStr += "ａ-ｚ";
-                IsSuccess = true;
-            }
- 
-            if (checkBox_Wide2Narrow_Space.Checked)
-            {
-                RegesStr += "　";
-                IsSuccess = true;
-            }
-            RegesStr += "]";
-
-            return IsSuccess;
-        }
-
-        private String myReplacer(Match m)
-        {
-            // Memo: 参照設定に「Microsoft.VisualBasic」が必要
-            return Strings.StrConv(m.Value, VbStrConv.Narrow);
+            return Logic.ApplyWide2Narrow(StrArray, RegesStr);
         }
     }
 }

@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Logic など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("ToyingData.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("92d0d6f0-5b39-402f-b110-29f5c94e86ec")]
 
