@@ -20,13 +20,6 @@ namespace PerforceWrapper
         private StcUtils util = new StcUtils();
         private Boolean m_IsDebug = false;
 
-        enum TAB_ID{
-            BASE_OPERATION,
-            SET_LABEL,
-            DIFF_LABEL,
-            APPLY_LABEL,
-        }
-
         public Form1()
         {
             InitializeComponent();
@@ -57,29 +50,6 @@ namespace PerforceWrapper
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_profile.Text;
             sr.LoadProc(LoadFileName);
-        }
-
-        private Perforce.OPERATOR_TYPE GetOperatorType()
-        {
-            Perforce.OPERATOR_TYPE OperatorType = Perforce.OPERATOR_TYPE.SYNC;
-            if (radioButton_so_menu_checkout.Checked)
-            {
-                OperatorType = Perforce.OPERATOR_TYPE.EDIT;
-            }
-            else if (radioButton_so_menu_restore.Checked)
-            {
-                OperatorType = Perforce.OPERATOR_TYPE.REVENT;
-            }
-            else if (radioButton_so_menu_delete.Checked)
-            {
-                OperatorType = Perforce.OPERATOR_TYPE.DELETE;
-            }
-            else if (radioButton_so_menu_get_latest.Checked)
-            {
-                OperatorType = Perforce.OPERATOR_TYPE.SYNC;
-            }
-
-            return OperatorType;            
         }
 
         private void textBox_tree_list_KeyDown(object sender, KeyEventArgs e)
@@ -136,35 +106,6 @@ namespace PerforceWrapper
             pf.SetUserPass(textbox_perforce_password.Text);
         }
 
-        private TAB_ID GetCurrentTabId()
-        {
-            TAB_ID TabId = TAB_ID.BASE_OPERATION;
-            switch (tabControl.SelectedIndex)
-            {
-                case 0:
-                    TabId = TAB_ID.BASE_OPERATION;
-                    break;
-
-                case 1:
-                    TabId = TAB_ID.SET_LABEL;
-                    break;
-
-                case 2:
-                    TabId = TAB_ID.DIFF_LABEL;
-                    break;
-                
-                case 3:
-                    TabId = TAB_ID.APPLY_LABEL;
-                    break;
-                
-                default:
-                    break;
-            }
-
-            return TabId;
-        }
-
-
         private void UpdateControlUI(object sender, EventArgs e)
         {
             Boolean IsStandardChangeListEnable = false;
@@ -175,8 +116,8 @@ namespace PerforceWrapper
             textBox_so_changelist.Enabled = IsStandardChangeListEnable;
 
             Boolean IsTreeEnable = true;
-            TAB_ID CurrentTabId = GetCurrentTabId();
-            if (CurrentTabId == TAB_ID.DIFF_LABEL)
+            Logic.TAB_ID CurrentTabId = Logic.GetCurrentTabId(tabControl.SelectedIndex);
+            if (CurrentTabId == Logic.TAB_ID.DIFF_LABEL)
             {
                 IsTreeEnable = false;
             }
@@ -185,23 +126,23 @@ namespace PerforceWrapper
 
         private void button_execute_Click(object sender, EventArgs e)
         {
-            TAB_ID TabId = GetCurrentTabId();
+            Logic.TAB_ID TabId = Logic.GetCurrentTabId(tabControl.SelectedIndex);
 
             switch(TabId)
             {
-            case TAB_ID.BASE_OPERATION:
+            case Logic.TAB_ID.BASE_OPERATION:
                 BaseOperationExecute();
                 break;
 
-            case TAB_ID.SET_LABEL:
+            case Logic.TAB_ID.SET_LABEL:
                 SetLabelExecute();
                 break;
 
-            case TAB_ID.DIFF_LABEL:
+            case Logic.TAB_ID.DIFF_LABEL:
                 DiffLabelExecute();
                 break;
 
-            case TAB_ID.APPLY_LABEL:
+            case Logic.TAB_ID.APPLY_LABEL:
                 ApplyLabelExecute();
                 break;
 
@@ -222,7 +163,11 @@ namespace PerforceWrapper
             SetPerforceEnv(pf);
 
             // 選択された操作のコマンド生成
-            Perforce.OPERATOR_TYPE OperatorType = GetOperatorType();
+            Perforce.OPERATOR_TYPE OperatorType = Logic.GetOperatorType(
+                radioButton_so_menu_checkout.Checked,
+                radioButton_so_menu_restore.Checked,
+                radioButton_so_menu_delete.Checked,
+                radioButton_so_menu_get_latest.Checked);
             pf.SetOperatorType(OperatorType);
             if (OperatorType == Perforce.OPERATOR_TYPE.SYNC)
             {

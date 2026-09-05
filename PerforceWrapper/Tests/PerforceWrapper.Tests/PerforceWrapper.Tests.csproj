@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="PerforceTests.cs" />
     <Compile Include="SaveRestoreTests.cs" />
+    <Compile Include="LogicTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
