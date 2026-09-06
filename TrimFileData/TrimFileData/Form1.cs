@@ -13,24 +13,18 @@ using StandardTemplate;
 
 namespace TrimFileData
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private readonly String SettingFile = @"TrimFileData.xml";
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private StcUtils util = new StcUtils();
-        private SaveRestore sr = new SaveRestore();
 
         public Form1()
         {
             InitializeComponent();
 
-            this.Icon = Properties.Resources.TrimFileData;
-
-            util.SetCurrentDirectory();
-
             sr.RegistItem(this);
-            sr.LoadProc(SettingFile);
+            InitializeCommonSettings(Properties.Resources.TrimFileData, SettingFile);
             util.UpdateProfileList(ref comboBox_LoadSetting, SettingFile);
         }
 
