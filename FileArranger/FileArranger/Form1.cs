@@ -974,13 +974,17 @@ namespace FileArranger
             String TargetDir = (String)genericlist[1];
             int ItemCount = (int)genericlist[2];
 
-            int generic_index = 3;
+            // 以前は"generic_index"という1つの変数を「先頭からのオフセット」と
+            // 「1件あたりの間隔(ストライド)」の2つの意味で使い回していた
+            // (たまたま両方とも3だったので動いていたが、読み手には分かりにくかった)。
+            // 意味ごとに変数を分けて、それぞれの役割を明確にした(値・挙動は変えていない)。
+            const int BaseOffset = 3;   // 4個目(genericlist[3])から対象データが始まる
+            const int Stride = 3;       // 1件あたり(対象名/移動前名称/移動後名称)3個おき
             for (int i = 0; i < ItemCount; i++)
             {
-                // TODO：いけてない。
-                String TargetName = (String)genericlist[generic_index + i * generic_index + 0]; // 4個目以降が対象[3個おき]
-                String MoveSrc = (String)genericlist[generic_index + i * generic_index + 1];    // 5個目以降が対象[3個おき]
-                String MoveDest = (String)genericlist[generic_index + i * generic_index + 2];   // 6個目以降が対象[3個おき]
+                String TargetName = (String)genericlist[BaseOffset + i * Stride + 0]; // 4個目以降が対象[3個おき]
+                String MoveSrc = (String)genericlist[BaseOffset + i * Stride + 1];    // 5個目以降が対象[3個おき]
+                String MoveDest = (String)genericlist[BaseOffset + i * Stride + 2];   // 6個目以降が対象[3個おき]
 
                 if (MoveDest == String.Empty)
                 {

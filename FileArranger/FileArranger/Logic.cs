@@ -112,23 +112,29 @@ namespace FileArranger
         /// </summary>
         public static void DeleteDuplicate(String[] LegacyArray, ref String[] NewArray, String Delimiter)
         {
-            var NewList = new List<String>();
-            NewList.AddRange(NewArray);
-
-            for (int i = 0; i < NewList.Count; i++)
+            // 以前は走査中のリストから自分自身の要素を削除しながらインデックスを
+            // 巻き戻す(i--)という紛らわしい書き方をしていた。走査対象(NewArray)と
+            // 結果(Result)を分けることでインデックス操作を無くした(挙動は変えていない)。
+            var Result = new List<String>();
+            foreach (String NewItem in NewArray)
             {
-                for (int j = 0; j < LegacyArray.Length; j++)
+                Boolean IsDuplicate = false;
+                foreach (String LegacyItem in LegacyArray)
                 {
-                    if (-1 != LegacyArray[j].IndexOf(NewList[i]))
+                    if (LegacyItem.IndexOf(NewItem) != -1)
                     {
-                        NewList.RemoveAt(i);
-                        i--;    // TODO：他にもっと良いやり方があるはず
+                        IsDuplicate = true;
                         break;
                     }
                 }
+
+                if (!IsDuplicate)
+                {
+                    Result.Add(NewItem);
+                }
             }
 
-            NewArray = NewList.ToArray();
+            NewArray = Result.ToArray();
         }
     }
 }
