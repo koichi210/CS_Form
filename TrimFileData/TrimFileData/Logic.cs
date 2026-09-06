@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 using StandardTemplate;
 
 namespace TrimFileData
@@ -18,38 +20,47 @@ namespace TrimFileData
 
             StcUtils util = new StcUtils();
 
-            String Result = "";
+            // String +=はループの度に文字列全体をコピーし直すため、行数が多いと遅くなる。
+            // StringBuilderに溜めてから最後に1回だけToString()する。
+            StringBuilder ResultBuilder = new StringBuilder();
             for (int i = 0; i < SourceArray.Length; i++)
             {
-                Result += "◆" + SourceArray[i] + Environment.NewLine;
+                ResultBuilder.Append("◆").Append(SourceArray[i]).Append(Environment.NewLine);
 
                 String[] SourceList = SourceArray[i].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
                 String Candidate = GetHitWord(SourceList, ReferList, CmpOpt, firstWordOnly, searchCommonWord);
-                Result += util.TrimDuplication(Candidate, Environment.NewLine);
-                Result += Environment.NewLine + Environment.NewLine;
+                ResultBuilder.Append(util.TrimDuplication(Candidate, Environment.NewLine));
+                ResultBuilder.Append(Environment.NewLine).Append(Environment.NewLine);
             }
 
-            return Result;
+            return ResultBuilder.ToString();
         }
 
         public static String GetHitWord(String[] SourceList, String[] ReferList, StringComparison CmpOpt, Boolean firstWordOnly, String searchCommonWord)
         {
-            String Result = "";
+            // searchCommonWordによる絞り込みはSourceListのどの単語(j)でも結果が変わらないため、
+            // 以前は単語数(j)×参照行数(k)回、毎回同じIndexOf判定を繰り返していた。
+            // 単語ループに入る前に1回だけReferListを絞り込んでおけば、絞り込み自体はO(k)で済む。
+            Boolean HasCommonWord = searchCommonWord != "";
+            List<String> FilteredRefer = new List<String>(ReferList.Length);
+            foreach (String line in ReferList)
+            {
+                if (!HasCommonWord || line.IndexOf(searchCommonWord, CmpOpt) != -1)
+                {
+                    FilteredRefer.Add(line);
+                }
+            }
+
+            StringBuilder ResultBuilder = new StringBuilder();
 
             for (int j = 0; j < SourceList.Length; j++)
             {
-                for (int k = 0; k < ReferList.Length; k++)
+                for (int k = 0; k < FilteredRefer.Count; k++)
                 {
-                    if (searchCommonWord != "" &&
-                        ReferList[k].IndexOf(searchCommonWord, CmpOpt) == -1)
-                    {
-                        continue;
-                    }
-
-                    if (ReferList[k].IndexOf(SourceList[j], CmpOpt) != -1)
+                    if (FilteredRefer[k].IndexOf(SourceList[j], CmpOpt) != -1)
                     {
                         //Fileから抽出
-                        Result += ReferList[k] + Environment.NewLine;
+                        ResultBuilder.Append(FilteredRefer[k]).Append(Environment.NewLine);
 
                         // 最初に見つかった項目のみ抽出
                         if (firstWordOnly)
@@ -60,7 +71,7 @@ namespace TrimFileData
                 }
             }
 
-            return Result;
+            return ResultBuilder.ToString();
         }
     }
 }
