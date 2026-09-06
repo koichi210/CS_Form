@@ -26,74 +26,81 @@ namespace Cheetos
         /// </summary>
         public static bool IsPortrait(String TargetFileName, int WhiteWidth, int WhiteCoef, Boolean IsSample = false)
         {
-            StcUtils util = new StcUtils();
-
             Boolean IsPort = true;
-            Size pict_sz = util.GetPictSize(TargetFileName);
 
-            // 指定幅より画像サイズが小さければ、画像サイズの幅に合わせる
-            int width = Math.Min(WhiteWidth, pict_sz.Width);
-
-            // WhiteCoefは、WhiteAreaを算出するための係数(実測値)
-            int BaseSize = width * pict_sz.Height / WhiteCoef;
-
-            // 左端
-            long LeftPictSize = 0;
-            if (IsPort == true)
+            // 以前はサイズ取得(GetPictSize)・左端切り出し・右端切り出しのそれぞれで
+            // 同じ元ファイルをフルデコードしており、1枚の画像につき都合3回デコードしていた。
+            // ここで1回だけデコードしたBitmapを使い回すことでデコード回数を1回に減らす。
+            using (Bitmap SourceImg = new Bitmap(TargetFileName))
             {
-                Rectangle CutParam = new Rectangle(0, 0, width, pict_sz.Height);
-                LeftPictSize = GetBinSize(TargetFileName, CutParam);
-                if (BaseSize < LeftPictSize)
+                Size pict_sz = new Size(SourceImg.Width, SourceImg.Height);
+
+                // 指定幅より画像サイズが小さければ、画像サイズの幅に合わせる
+                int width = Math.Min(WhiteWidth, pict_sz.Width);
+
+                // WhiteCoefは、WhiteAreaを算出するための係数(実測値)
+                int BaseSize = width * pict_sz.Height / WhiteCoef;
+
+                // 左端
+                long LeftPictSize = 0;
+                if (IsPort == true)
                 {
-                    IsPort = false;
+                    Rectangle CutParam = new Rectangle(0, 0, width, pict_sz.Height);
+                    LeftPictSize = GetBinSize(SourceImg, CutParam);
+                    if (BaseSize < LeftPictSize)
+                    {
+                        IsPort = false;
+                    }
                 }
-            }
 
-            // 右端
-            long RightPictSize = 0;
-            if (IsPort == true)
-            {
-                Rectangle CutParam = new Rectangle(pict_sz.Width - width, 0, width, pict_sz.Height);
-                RightPictSize = GetBinSize(TargetFileName, CutParam);
-                if (BaseSize < RightPictSize)
+                // 右端
+                long RightPictSize = 0;
+                if (IsPort == true)
                 {
-                    IsPort = false;
+                    Rectangle CutParam = new Rectangle(pict_sz.Width - width, 0, width, pict_sz.Height);
+                    RightPictSize = GetBinSize(SourceImg, CutParam);
+                    if (BaseSize < RightPictSize)
+                    {
+                        IsPort = false;
+                    }
                 }
-            }
 
-            if (IsSample)
-            {
-                String ResultStr = "IsPortrait=" + IsPort.ToString() + Environment.NewLine +
-                    "BaseSize=" + BaseSize.ToString() + Environment.NewLine +
-                    "LeftPictSize=" + LeftPictSize.ToString() + Environment.NewLine +
-                    "RightPictSize=" + RightPictSize.ToString();
-                MessageBox.Show(ResultStr, "画像情報");
-            }
+                if (IsSample)
+                {
+                    String ResultStr = "IsPortrait=" + IsPort.ToString() + Environment.NewLine +
+                        "BaseSize=" + BaseSize.ToString() + Environment.NewLine +
+                        "LeftPictSize=" + LeftPictSize.ToString() + Environment.NewLine +
+                        "RightPictSize=" + RightPictSize.ToString();
+                    MessageBox.Show(ResultStr, "画像情報");
+                }
 
-            return IsPort;
+                return IsPort;
+            }
         }
 
-        /// <summary>画像の指定範囲を切り出して一時PNGに保存し、そのファイルサイズを返す。</summary>
+        /// <summary>画像の指定範囲を切り出して、PNGエンコードした場合のバイト数を返す。</summary>
         public static long GetBinSize(String FileName, Rectangle CutParam)
         {
-            StcFileInputOutput fio = new StcFileInputOutput();
+            // ファイルパスからは1回だけデコードし、実際の計測は共通処理(Bitmap版)に委ねる。
+            using (Bitmap SourceImg = new Bitmap(FileName))
+            {
+                return GetBinSize(SourceImg, CutParam);
+            }
+        }
 
-            // TODO:tempファイルを作らずにファイルサイズを知りたい
-            String TempFileName = fio.CreateTempFile("png");
+        /// <summary>既にデコード済みのBitmapから指定範囲を切り出し、PNGエンコードした場合のバイト数を返す。</summary>
+        private static long GetBinSize(Bitmap SourceImg, Rectangle CutParam)
+        {
             PicEdit trm = new PicEdit(CutParam.Width, CutParam.Height);
 
             // 切り取り
             Point PutParam = new Point(0, 0);
-            trm.TrimExec(FileName, CutParam, PutParam);
+            trm.TrimExec(SourceImg, CutParam, PutParam);
 
-            // キャンバス保存
-            trm.SaveCanvas(TempFileName);
-
-            FileInfo fi = new FileInfo(TempFileName);
-            long Length = fi.Length;
-
-            // Tempファイルを削除
-            File.Delete(TempFileName);
+            // 以前は一時PNGファイルをディスクに書いてFileInfo.Lengthを見ていたが、
+            // ディスクI/O(書き込み+削除)自体が無駄なので、メモリ上でPNGエンコードして
+            // そのバイト数を見るだけにした。
+            long Length = trm.GetCanvasPngByteLength();
 
             trm.Dispose();
             return Length;

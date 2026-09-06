@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 
 namespace Picture
 {
@@ -64,6 +65,31 @@ namespace Picture
                     //g.Dispose();
                 }
                 //img.Dispose();
+            }
+        }
+
+        // 既にデコード済みのBitmapから切り取る版。呼び出し側が同じ元画像から複数回
+        // 切り出したい場合(Cheetos.Logic.IsPortrait等)、ファイルパス版を複数回呼ぶと
+        // その都度フルデコードが走ってしまうため、デコード済みのBitmapを使い回せるように
+        // 用意した。渡されたBitmapの所有権は呼び出し側のままなので、ここではDisposeしない。
+        public void TrimExec(Bitmap SourceImg, Rectangle CutParam, Point PutParam)
+        {
+            Rectangle PasteRect = new Rectangle(PutParam.X, PutParam.Y, CutParam.Width, CutParam.Height);
+
+            using (Graphics g = Graphics.FromImage(m_Canvas))
+            {
+                g.DrawImage(SourceImg, PasteRect, CutParam, GraphicsUnit.Pixel);
+            }
+        }
+
+        // キャンバスをディスクに書き出さずに、PNGエンコード後のバイト数だけを知りたい場合に使う。
+        // SaveCanvasと違いキャンバスの破棄はしない(呼び出し側で明示的にDisposeする)。
+        public long GetCanvasPngByteLength()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                m_Canvas.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                return ms.Length;
             }
         }
 
