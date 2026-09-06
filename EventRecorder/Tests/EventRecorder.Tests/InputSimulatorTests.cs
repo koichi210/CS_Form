@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
-using EventRecorder.Windows.Simulation;
+using InputSimulation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EventRecorder.Tests

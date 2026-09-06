@@ -75,17 +75,17 @@ namespace EventRecorder
 
         private void button3_Click(object sender, EventArgs e)
         {
-            List<EventRecorder.Windows.Simulation.InputSimulator.Input> inputs = new List<EventRecorder.Windows.Simulation.InputSimulator.Input>();
-            List<EventRecorder.Windows.Simulation.InputSimulator.MouseStroke> flags = new List<EventRecorder.Windows.Simulation.InputSimulator.MouseStroke>();
+            List<InputSimulation.InputSimulator.Input> inputs = new List<InputSimulation.InputSimulator.Input>();
+            List<InputSimulation.InputSimulator.MouseStroke> flags = new List<InputSimulation.InputSimulator.MouseStroke>();
 
-            flags.Add(EventRecorder.Windows.Simulation.InputSimulator.MouseStroke.LEFT_DOWN);
-            flags.Add(EventRecorder.Windows.Simulation.InputSimulator.MouseStroke.LEFT_UP);
-            flags.Add(EventRecorder.Windows.Simulation.InputSimulator.MouseStroke.MOVE);
+            flags.Add(InputSimulation.InputSimulator.MouseStroke.LEFT_DOWN);
+            flags.Add(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
+            flags.Add(InputSimulation.InputSimulator.MouseStroke.MOVE);
 
-            EventRecorder.Windows.Simulation.InputSimulator.AddMouseInput(ref inputs, flags, 0, false, 0, 50);
-            EventRecorder.Windows.Simulation.InputSimulator.AddKeyboardInput(ref inputs, "ゆっくりしていってね！！");
+            InputSimulation.InputSimulator.AddMouseInput(ref inputs, flags, 0, false, 0, 50);
+            InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, "ゆっくりしていってね！！");
 
-            EventRecorder.Windows.Simulation.InputSimulator.SendInput(inputs);
+            InputSimulation.InputSimulator.SendInput(inputs);
         }
 
     }

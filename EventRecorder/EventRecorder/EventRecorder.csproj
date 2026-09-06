@@ -63,7 +63,9 @@
     <Compile Include="..\..\_Common\GlobalHook.cs">
       <Link>GlobalHook.cs</Link>
     </Compile>
-    <Compile Include="Trace.cs" />
+    <Compile Include="..\..\_Common\InputSimulator.cs">
+      <Link>InputSimulator.cs</Link>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
