@@ -13,22 +13,18 @@ using StandardTemplate;
 
 namespace TrimHtmlData
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private Boolean IsDebug = false;
         private readonly String SettingFile = @"TrimHtmlData.xml";
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
-        private StcUtils util = new StcUtils();
 
         public Form1()
         {
             InitializeComponent();
 
-            this.Icon = Properties.Resources.TrimHtmlData;
-
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.TrimHtmlData);
 
             sr.RegistItem(this);
             sr.LoadProc(SettingFile);

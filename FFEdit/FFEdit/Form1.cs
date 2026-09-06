@@ -6,7 +6,7 @@ using StandardTemplate;
 
 namespace FFEdit
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private readonly String SettingFileName = @"FFEdit.xml";
         private readonly String[] IncrCycleArray = { "無し", "秒", "分", "時間", "日" };
@@ -15,9 +15,7 @@ namespace FFEdit
         private const int TabIdxTimeStump = 1;
         private const int TabIdxFuntion = 2;
 
-        private StcUtils util = new StcUtils();
         private FileMng fm = new FileMng();
-        private SaveRestore sr = new SaveRestore();
 
         private Rename rename = new Rename();
         private Function fs = new Function();
@@ -25,8 +23,7 @@ namespace FFEdit
         public Form1()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.FFEdit;
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.FFEdit);
 
             sr.RegistItem(this);
             sr.LoadProc(SettingFileName, this);

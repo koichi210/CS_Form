@@ -9,7 +9,7 @@ using Picture;
 namespace Cheetos
 {
     // PictTrim
-    public partial class Cheetos : Form
+    partial class Cheetos
     {
         private void Button_TrimListup_Click(object sender, EventArgs e)
         {

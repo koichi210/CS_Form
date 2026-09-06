@@ -7,7 +7,7 @@ using StandardTemplate;
 namespace Cheetos
 {
     // PictTrim
-    public partial class Cheetos : Form
+    partial class Cheetos
     {
         public CaptWindow cw = new CaptWindow();
 

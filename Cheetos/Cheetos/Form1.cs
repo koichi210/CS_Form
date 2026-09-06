@@ -5,7 +5,7 @@ using StandardTemplate;
 
 namespace Cheetos
 {
-    public partial class Cheetos : Form
+    partial class Cheetos : StcBaseForm<SaveRestore>
     {
         private enum DataGridType
         {
@@ -53,8 +53,6 @@ namespace Cheetos
         };
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
-        private StcUtils util = new StcUtils();
         private StcFileInputOutput FileIO = new StcFileInputOutput();
         private StcDebug Debug = new StcDebug();
         private bool IsTaskRun = false;
@@ -63,11 +61,7 @@ namespace Cheetos
         {
             InitializeComponent();
 
-            // アイコン設定
-            this.Icon = Properties.Resources.Cheetos;
-
-            // カレントディレクトリ移動
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.Cheetos);
 
             // デバッグログに時間を表示
             Debug.SetWriteTime(true);

@@ -12,14 +12,12 @@ using StandardTemplate;
 
 namespace Mailer
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         readonly String SettingFileName = @"Mailer.xml";
         readonly String MailUrl = @"https://mail.google.com/mail/?view=cm&fs=1";
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
-        private StcUtils util = new StcUtils();
 
         private ExecParam param = new ExecParam();
 
@@ -33,10 +31,8 @@ namespace Mailer
         public Form1()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.Mailer;
+            InitializeCommonSettings(Properties.Resources.Mailer);
 
-            // カレントディレクトリ移動
-            util.SetCurrentDirectory();
             sr.RegistLoadItem(this);
             sr.LoadProc(SettingFileName);
             util.UpdateProfileList(ref comboBox_LoadSetting);

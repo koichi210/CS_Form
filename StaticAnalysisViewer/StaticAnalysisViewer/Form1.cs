@@ -12,12 +12,10 @@ using StandardTemplate;
 
 namespace StaticAnalysisViewer
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private StcFileInputOutput fio = new StcFileInputOutput();
         private DataBase DB = new DataBase();
-        private SaveRestore sr = new SaveRestore();
-        private StcUtils util = new StcUtils();     // ツール系
 
         // Default値
         private readonly String SettingFileName = @"StaticAnalysisViewer.xml";
@@ -29,10 +27,7 @@ namespace StaticAnalysisViewer
         public Form1()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.StaticAnalysisViewer;
-
-            // カレントディレクトリ移動
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.StaticAnalysisViewer);
 
             sr.RegistItem(this);
             sr.LoadProc(SettingFileName, this);

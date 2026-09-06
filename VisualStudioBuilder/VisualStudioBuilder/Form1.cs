@@ -11,7 +11,7 @@ using StandardTemplate;
 
 namespace VisualStudioBuilder
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private readonly String DefaultSettingFileName = "VisualStudioBuilder.xml";
 
@@ -29,8 +29,6 @@ namespace VisualStudioBuilder
         private const int ProjectPathIdx = 2;
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
-        private StcUtils util = new StcUtils();
 
         public class BuildWorkerInfo
         {
@@ -48,11 +46,7 @@ namespace VisualStudioBuilder
         {
             InitializeComponent();
 
-            // アイコン設定
-            this.Icon = Properties.Resources.VisualStudioBuilder; 
-
-            // カレントディレクトリ移動
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.VisualStudioBuilder);
 
             // DataGridViewの初期設定
             InitializeDataGridView();

@@ -86,7 +86,7 @@ namespace Cheetos
         }
     }
 
-    public partial class Cheetos : Form
+    partial class Cheetos
     {
         private void pr_Button_RotationPreview_Click(object sender, EventArgs e)
         {

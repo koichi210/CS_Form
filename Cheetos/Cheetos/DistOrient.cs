@@ -9,7 +9,7 @@ using Picture;
 namespace Cheetos
 {
     // DistOrient
-    public partial class Cheetos : Form
+    partial class Cheetos
     {
         private void do_Distribute_Click(object sender, EventArgs e)
         {

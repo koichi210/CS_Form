@@ -11,11 +11,9 @@ using StandardTemplate;
 
 namespace ImageViewer
 {
-    public partial class ImageViewer : Form
+    partial class ImageViewer : StcBaseForm<SaveRestore>
     {
-        private StcUtils util = new StcUtils();
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
         private readonly String DefaultSaveName = @"ImageViewer.xml";
 
         public ImageViewer()
@@ -30,10 +28,7 @@ namespace ImageViewer
             hScrollBar_Scaling.SmallChange = 1;     // 矢印クリック
             hScrollBar_Scaling.Value = 100;
 
-            this.Icon = Properties.Resources.ImageViewer;
-
-            // カレントディレクトリ移動
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.ImageViewer);
 
             sr.RegistItem(this);
             sr.LoadXmlFile(DefaultSaveName);

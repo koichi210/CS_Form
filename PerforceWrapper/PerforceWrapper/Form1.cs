@@ -11,24 +11,18 @@ using StandardTemplate;
 
 namespace PerforceWrapper
 {
-    public partial class Form1 : Form
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private readonly String SettingFileName = "PerforceWrapper.xml";
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
-        private StcUtils util = new StcUtils();
         private Boolean m_IsDebug = false;
 
         public Form1()
         {
             InitializeComponent();
 
-            // アイコン設定
-            this.Icon = Properties.Resources.PerforceWrapper;
-
-            // カレントディレクトリ移動
-            util.SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.PerforceWrapper);
 
             sr.RegistItem(this);
             sr.LoadProc(SettingFileName);

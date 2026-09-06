@@ -150,7 +150,7 @@ namespace Cheetos
     }
 
     // PictMerge
-    public partial class Cheetos : Form
+    partial class Cheetos
     {
         private void MergeExec()
         {
