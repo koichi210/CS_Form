@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using StandardTemplate;
 
 namespace TrimHtmlData
@@ -32,7 +33,9 @@ namespace TrimHtmlData
         public static String GetSearchString(String SourceList, String SearchWord, int TrimLineNum, StringComparison CmpOpt, Boolean firstWordOnly)
         {
             String[] StringArray = SourceList.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            String ResultString = "";
+            // String +=はヒット行数が多いほど文字列全体のコピーが積み上がって遅くなるため、
+            // StringBuilderに置き換える(ロジック・境界チェックの挙動は変えていない)。
+            StringBuilder ResultBuilder = new StringBuilder();
 
             for (int i = 0; i < StringArray.Length; i++)
             {
@@ -41,7 +44,7 @@ namespace TrimHtmlData
                     // Hitした行を含む指定行数分取得
                     for (int j = 0; j < TrimLineNum; j++)
                     {
-                        ResultString += StringArray[i + j] + Environment.NewLine;
+                        ResultBuilder.Append(StringArray[i + j]).Append(Environment.NewLine);
                     }
 
                     // 最初に見つかったワードのみ
@@ -51,11 +54,11 @@ namespace TrimHtmlData
                     }
 
                     // 次のワードとの境界
-                    ResultString += Environment.NewLine;
+                    ResultBuilder.Append(Environment.NewLine);
                 }
             }
 
-            return ResultString + Environment.NewLine;
+            return ResultBuilder.Append(Environment.NewLine).ToString();
         }
     }
 }
