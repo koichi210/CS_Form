@@ -13,7 +13,7 @@ using StandardTemplate;
 
 namespace FileArranger
 {
-    public partial class FileArranger : Form
+    partial class FileArranger : StcBaseForm<SaveRestore>
     {
         readonly String SettingFileName = @"FileArranger.xml";
 
@@ -32,18 +32,18 @@ namespace FileArranger
         public String[] RefrenceCandidateFolders;      // リファレンス名の候補
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private SaveRestore sr = new SaveRestore();
-        private Utils util = new Utils();
+        // StcBaseForm<SaveRestore>のprotected StcUtils utilを、FileArranger固有の拡張
+        // メソッド(CreateFolderNameOverLapShirk等)を持つUtilsで意図的に隠す。
+        // UtilsはStcUtilsを継承しているだけなので、既存のutil.ExecutePath()等の呼び出しは
+        // そのまま継承元のメソッドとして動く。
+        private new Utils util = new Utils();
         private ProcessMemory pmd = new ProcessMemory();
         private FileSorter sorter = new FileSorter();
 
         public FileArranger()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.FileArranger;
-
-            // カレントディレクトリ移動
-            new StcUtils().SetCurrentDirectory();
+            InitializeCommonSettings(Properties.Resources.FileArranger);
 
             //ListView初期設定
             rd_listView_Target_Update();
