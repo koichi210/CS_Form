@@ -23,8 +23,10 @@ namespace TrimFileData
         {
             InitializeComponent();
 
+            InitializeCommonSettings(Properties.Resources.TrimFileData);
+
             sr.RegistItem(this);
-            InitializeCommonSettings(Properties.Resources.TrimFileData, SettingFile);
+            sr.LoadProc(SettingFile);
             util.UpdateProfileList(ref comboBox_LoadSetting, SettingFile);
         }
 
