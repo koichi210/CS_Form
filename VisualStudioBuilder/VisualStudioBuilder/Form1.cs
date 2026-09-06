@@ -52,7 +52,7 @@ namespace VisualStudioBuilder
             this.Icon = Properties.Resources.VisualStudioBuilder; 
 
             // カレントディレクトリ移動
-            System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            util.SetCurrentDirectory();
 
             // DataGridViewの初期設定
             InitializeDataGridView();

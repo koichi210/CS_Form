@@ -67,7 +67,7 @@ namespace Cheetos
             this.Icon = Properties.Resources.Cheetos;
 
             // カレントディレクトリ移動
-            System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            util.SetCurrentDirectory();
 
             // デバッグログに時間を表示
             Debug.SetWriteTime(true);

@@ -43,7 +43,7 @@ namespace FileArranger
             this.Icon = Properties.Resources.FileArranger;
 
             // カレントディレクトリ移動
-            System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            new StcUtils().SetCurrentDirectory();
 
             //ListView初期設定
             rd_listView_Target_Update();

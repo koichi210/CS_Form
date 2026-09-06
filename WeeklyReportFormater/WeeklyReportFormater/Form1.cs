@@ -24,7 +24,7 @@ namespace WeeklyReportFormater
             this.Icon = Properties.Resources.WeeklyReportFormater;
 
             // カレントディレクトリ移動
-            System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            util.SetCurrentDirectory();
 
             String UserName = fio.LoadFile(SaveFileName);
             textBox_UserName.Text = UserName;

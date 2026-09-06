@@ -36,7 +36,7 @@ namespace Mailer
             this.Icon = Properties.Resources.Mailer;
 
             // カレントディレクトリ移動
-            System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            util.SetCurrentDirectory();
             sr.RegistLoadItem(this);
             sr.LoadProc(SettingFileName);
             util.UpdateProfileList(ref comboBox_LoadSetting);

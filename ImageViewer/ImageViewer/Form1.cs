@@ -33,7 +33,7 @@ namespace ImageViewer
             this.Icon = Properties.Resources.ImageViewer;
 
             // カレントディレクトリ移動
-            Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            util.SetCurrentDirectory();
 
             sr.RegistItem(this);
             sr.LoadXmlFile(DefaultSaveName);

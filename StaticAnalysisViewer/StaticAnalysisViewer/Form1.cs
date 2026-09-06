@@ -32,7 +32,7 @@ namespace StaticAnalysisViewer
             this.Icon = Properties.Resources.StaticAnalysisViewer;
 
             // カレントディレクトリ移動
-            System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            util.SetCurrentDirectory();
 
             sr.RegistItem(this);
             sr.LoadProc(SettingFileName, this);
