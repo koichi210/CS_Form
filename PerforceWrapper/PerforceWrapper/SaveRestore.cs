@@ -46,15 +46,8 @@ namespace PerforceWrapper
             RegistCtrl("Perforce", "radioButton_al_merge", Parent.radioButton_al_merge, "False");
         }
 
-        public bool LoadProc(String LoadFileName)
-        {
-            if (LoadFileName == String.Empty)
-            {
-                return false;
-            }
-
-            return LoadXmlFile(LoadFileName);
-        }
+        // LoadProc(string) は StcSaveRestore 側の共通実装をそのまま使う
+        // （「空なら何もしない→委譲」という中身が完全に同じだったため）。
 
         public bool SaveSetting(String SaveFileName, Form1 Parent)
         {

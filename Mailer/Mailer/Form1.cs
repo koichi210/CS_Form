@@ -38,14 +38,14 @@ namespace Mailer
             // カレントディレクトリ移動
             System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
             sr.RegistLoadItem(this);
-            sr.LoadProc(SettingFileName, this);
+            sr.LoadProc(SettingFileName);
             util.UpdateProfileList(ref comboBox_LoadSetting);
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_LoadSetting.Text;
-            sr.LoadProc(LoadFileName, this);
+            sr.LoadProc(LoadFileName);
         }
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
@@ -56,7 +56,7 @@ namespace Mailer
                 FileName = SettingFileName;
             }
             String SaveFileName = fio.SelectSaveFileName(FileName);
-            if (sr.SaveSetting(SaveFileName, this))
+            if (sr.SaveSetting(SaveFileName))
             {
                 util.UpdateProfileList(ref comboBox_LoadSetting, Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);

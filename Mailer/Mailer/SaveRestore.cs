@@ -23,16 +23,10 @@ namespace Mailer
             RegistCtrl("Common", "textBox_MailBody", Parent.textBox_MailBody);
         }
 
-        public Boolean LoadProc(String LoadFileName, Form1 Parent)
-        {
-            return LoadXmlFile(LoadFileName);
-        }
-
-        public Boolean SaveSetting(String SaveFileName, Form1 Parent)
-        {
-            XmlDocument document = OpenSaveXmlFile();
-            SaveXmlFile(document);
-            return CloseSaveXmlFile(SaveFileName);
-        }
+        // 以前ここにあった LoadProc(string, Form1)/SaveSetting(string, Form1) は、
+        // Parentを一切使わずLoadXmlFile/SaveXmlFileへそのまま委譲するだけだった
+        // （SaveSettingの Open→Write→Close の3行も、StcSaveRestore.SaveXmlFile(string)が
+        // 内部で行っているのと同じ内容）。呼び出し元をLoadProc(string)/SaveSetting(string)
+        // というStcSaveRestore側の共通実装に直接向けるよう変更し、このラッパーは削除した。
     }
 }

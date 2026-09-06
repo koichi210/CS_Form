@@ -53,13 +53,13 @@ namespace Mailer.Tests
                 var sr = new SaveRestore();
                 sr.RegistLoadItem(writer);
                 string path = Path.Combine(tempDirectory, "setting.xml");
-                Assert.IsTrue(sr.SaveSetting(path, writer));
+                Assert.IsTrue(sr.SaveSetting(path));
 
                 using (Form1 reader = NewForm())
                 {
                     var readerSr = new SaveRestore();
                     readerSr.RegistLoadItem(reader);
-                    Assert.IsTrue(readerSr.LoadProc(path, reader));
+                    Assert.IsTrue(readerSr.LoadProc(path));
 
                     Assert.AreEqual(@"C:\chrome.exe", reader.textBox_BrowserPath.Text);
                     Assert.AreEqual("to@example.com", reader.textBox_MailTo.Text);
@@ -79,7 +79,7 @@ namespace Mailer.Tests
                 var sr = new SaveRestore();
                 sr.RegistLoadItem(form);
 
-                Assert.IsFalse(sr.LoadProc(Path.Combine(tempDirectory, "nothing.xml"), form));
+                Assert.IsFalse(sr.LoadProc(Path.Combine(tempDirectory, "nothing.xml")));
             }
         }
     }

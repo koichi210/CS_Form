@@ -19,24 +19,7 @@ namespace TrimFileData
             RegistCtrl("Common", "textBox_SerchResultList", Parent.textBox_SerchResultList);
         }
 
-        public bool LoadProc(String LoadFileName)
-        {
-            if (LoadFileName == String.Empty)
-            {
-                return false;
-            }
-
-            return LoadXmlFile(LoadFileName);
-        }
-
-        public bool SaveSetting(String SaveFileName)
-        {
-            if (SaveFileName == String.Empty)
-            {
-                return false;
-            }
-
-            return SaveXmlFile(SaveFileName);
-        }
+        // LoadProc(string) / SaveSetting(string) は StcSaveRestore 側の共通実装をそのまま使う
+        // （「空なら何もしない→委譲」という中身が完全に同じだったため）。
     }
 }
