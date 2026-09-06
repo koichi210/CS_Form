@@ -139,14 +139,21 @@ namespace CaptureWindow
 
         private void SaveWithCaptureCurrentScreen()
         {
-            Bitmap bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
-                                    Screen.PrimaryScreen.Bounds.Height);
+            // 以前はScreen.PrimaryScreen(メイン画面)を決め打ちで参照していたため、
+            // 「CurrentScreen」という名前なのに実質「常にメイン画面」を撮っていた
+            // (マルチモニタ環境でこのウィンドウを拡張画面に置いても、メイン画面が
+            // キャプチャされてしまうバグ)。このウィンドウが実際に今あるスクリーンを
+            // Screen.FromControlで取得し、その範囲をキャプチャするように直した。
+            Screen CurrentScreen = Screen.FromControl(this);
+
+            Bitmap bmp = new Bitmap(CurrentScreen.Bounds.Width,
+                                    CurrentScreen.Bounds.Height);
 
             //Graphicsの作成
             using (Graphics g = Graphics.FromImage(bmp))
             {
-                //画面全体をコピーする
-                g.CopyFromScreen(new Point(0, 0), new Point(0, 0), bmp.Size);
+                //画面全体をコピーする(コピー元の起点は、そのスクリーンの左上座標)
+                g.CopyFromScreen(CurrentScreen.Bounds.Location, new Point(0, 0), bmp.Size);
 
                 //解放
                 g.Dispose();
