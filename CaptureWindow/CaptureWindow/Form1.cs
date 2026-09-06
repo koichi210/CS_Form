@@ -14,14 +14,15 @@ namespace CaptureWindow
 {
     public partial class Form1 : Form
     {
-        // 以前はSendInput/INPUT/MOUSEINPUTのP/Invoke一式とMouseProc()をこのファイルで
-        // 個別に持っていたが、_Common.CaptWindowに全く同じ処理(座標指定クリック→元の
-        // 位置へ戻す)が既にあったので、そちらを使う形に統一した(重複撲滅#3)。
-        // ※実際にマウスカーソルを動かして物理クリックを送る処理なので、自動テストでは
-        // 検証できない。挙動が変わっていないか、Captureボタンを押しての実機確認が必要。
+        // 以前はSendInput/INPUT/MOUSEINPUTのP/Invoke一式、MouseProc()、
+        // Full/Current/CurrentWindowの3種のキャプチャ処理をこのファイルで個別に
+        // 持っていたが、_Common.CaptWindowに全く同じ機能が既にあった(Cheetosは
+        // 元からこちらを使っていた)ので、そちらへ統一した(重複撲滅#3)。
+        // ※実際にマウスカーソルを動かして物理クリックを送る/画面を撮る処理なので、
+        // 自動テストでは検証できない。挙動が変わっていないか、Captureボタンを押しての
+        // 実機確認が必要。
         private readonly CaptWindow cw = new CaptWindow();
 
-        String SaveFileName;
         readonly String SaveXmlFile = @"CaptureWindow.xml";
 
         public Form1()
@@ -37,6 +38,9 @@ namespace CaptureWindow
             // 以前のMouseProc()と同じ「指定座標をクリックしてから元の位置に戻す」動作にする設定
             cw.SetMouseMove(true);
             cw.RestoreMousePosition(true);
+            // CURRENT_SCREENキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
+            cw.TargetWindow = this;
+            cw.SetCaptureCase(true);
 
             LoadSetting();
         }
@@ -50,20 +54,35 @@ namespace CaptureWindow
 
             String FileFormat = TextBox_SavePath.Text + @"\" + System.DateTime.Now.ToString("yyyy_dd_mm_HH_mm_ss");
 
-            SaveFileName = FileFormat + "_1.png";
-            CaptureProc();
+            cw.SetFileFormat(FileFormat);
+            cw.SetFileIdx(1);
+            cw.SetCaptureTarget(GetSelectedCaptureTarget());
+
+            cw.CaptureProc();   // "_1.png" として保存、呼ぶたびにFileIdxが自動で進む
 
             if (!TextBox_MouseX.Text.Equals("") && !TextBox_MouseY.Text.Equals(""))
             {
-                SaveFileName = FileFormat + "_2.png";
                 cw.MouseProc(TextBox_MouseX.Text, TextBox_MouseY.Text, CaptWindow.MOUSE_EVENT.LEFT_CLICK);
 
                 if (!TextBox_Sleep.Text.Equals(""))
                 {
                     System.Threading.Thread.Sleep(int.Parse(TextBox_Sleep.Text)*1000);
                 }
-                CaptureProc();
+                cw.CaptureProc();   // "_2.png" として保存
             }
+        }
+
+        private CaptWindow.CAPTURE_TARGET GetSelectedCaptureTarget()
+        {
+            if (Radio_FullScreen.Checked)
+            {
+                return CaptWindow.CAPTURE_TARGET.FULL_SCREEN;
+            }
+            if (Radio_CurrentScreen.Checked)
+            {
+                return CaptWindow.CAPTURE_TARGET.CURRENT_SCREEN;
+            }
+            return CaptWindow.CAPTURE_TARGET.CURRENT_WINDOW;
         }
 
         private bool IsExistSavePath()
@@ -88,80 +107,6 @@ namespace CaptureWindow
             }
 
             return IsExist;
-        }
-
-        // キャプチャ処理
-        private void CaptureProc()
-        {
-            if (Radio_FullScreen.Checked == true)
-            {
-                SaveWithCaptureFullScreen();
-            }
-            else if (Radio_CurrentScreen.Checked == true)
-            {
-                SaveWithCaptureCurrentScreen();
-            }
-            else // Radio_CurrentWindow
-            {
-                SaveWithCaptureCurrentWindow();
-            }
-        }
-
-        private void SaveWithCaptureFullScreen()
-        {
-            SendKeys.SendWait("^{PRTSC}");      // 全画面
-            IDataObject d = Clipboard.GetDataObject();
-            if (d != null)
-            {
-                //ビットマップデータ形式に関連付けられているデータを取得
-                Image img = (Image)d.GetData(DataFormats.Bitmap);
-                if (img != null)
-                {
-                    img.Save(SaveFileName);
-                }
-            }
-        }
-
-        private void SaveWithCaptureCurrentWindow()
-        {
-            SendKeys.SendWait("%{PRTSC}");      // Current Windowのみ
-            IDataObject d = Clipboard.GetDataObject();
-            if (d != null)
-            {
-                //ビットマップデータ形式に関連付けられているデータを取得
-                Image img = (Image)d.GetData(DataFormats.Bitmap);
-                if (img != null)
-                {
-                    img.Save(SaveFileName);
-                }
-            }
-        }
-
-        private void SaveWithCaptureCurrentScreen()
-        {
-            // 以前はScreen.PrimaryScreen(メイン画面)を決め打ちで参照していたため、
-            // 「CurrentScreen」という名前なのに実質「常にメイン画面」を撮っていた
-            // (マルチモニタ環境でこのウィンドウを拡張画面に置いても、メイン画面が
-            // キャプチャされてしまうバグ)。このウィンドウが実際に今あるスクリーンを
-            // Screen.FromControlで取得し、その範囲をキャプチャするように直した。
-            Screen CurrentScreen = Screen.FromControl(this);
-
-            Bitmap bmp = new Bitmap(CurrentScreen.Bounds.Width,
-                                    CurrentScreen.Bounds.Height);
-
-            //Graphicsの作成
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                //画面全体をコピーする(コピー元の起点は、そのスクリーンの左上座標)
-                g.CopyFromScreen(CurrentScreen.Bounds.Location, new Point(0, 0), bmp.Size);
-
-                //解放
-                g.Dispose();
-            }
-
-            // ファイル保存
-            bmp.Save(SaveFileName);
-            bmp.Dispose();
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)

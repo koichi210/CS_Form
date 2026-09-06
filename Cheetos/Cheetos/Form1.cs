@@ -63,6 +63,9 @@ namespace Cheetos
 
             InitializeCommonSettings(Properties.Resources.Cheetos);
 
+            // CURRENT_SCREENキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
+            cw.TargetWindow = this;
+
             // デバッグログに時間を表示
             Debug.SetWriteTime(true);
 
