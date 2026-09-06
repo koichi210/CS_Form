@@ -7,40 +7,19 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.Xml;
+using StandardTemplate;
 
 namespace CaptureWindow
 {
     public partial class Form1 : Form
     {
-        ///////////////////////////////////////////////////////////////////////////////////////////////
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        extern static uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct INPUT
-        {
-            public int type;
-            public MOUSEINPUT mi;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct MOUSEINPUT
-        {
-            public int dx;
-            public int dy;
-            public int mouseData;
-            public int dwFlags;
-            public int time;
-            public IntPtr dwExtraInfo;
-        }
-
-        const int MOUSEEVENTF_MOVE      = 0x0001;   // 移動
-        const int MOUSEEVENTF_LEFTDOWN  = 0x0002;   // 左ボタン Down
-        const int MOUSEEVENTF_LEFTUP    = 0x0004;   // 左ボタン Up
-        const int MOUSEEVENTF_ABSOLUTE  = 0x8000;   // 絶対値指定
-        ///////////////////////////////////////////////////////////////////////////////////////////////
+        // 以前はSendInput/INPUT/MOUSEINPUTのP/Invoke一式とMouseProc()をこのファイルで
+        // 個別に持っていたが、_Common.CaptWindowに全く同じ処理(座標指定クリック→元の
+        // 位置へ戻す)が既にあったので、そちらを使う形に統一した(重複撲滅#3)。
+        // ※実際にマウスカーソルを動かして物理クリックを送る処理なので、自動テストでは
+        // 検証できない。挙動が変わっていないか、Captureボタンを押しての実機確認が必要。
+        private readonly CaptWindow cw = new CaptWindow();
 
         String SaveFileName;
         readonly String SaveXmlFile = @"CaptureWindow.xml";
@@ -54,6 +33,10 @@ namespace CaptureWindow
             TextBox_MouseX.Text = @"500";
             TextBox_MouseY.Text = @"500";
             TextBox_Sleep.Text = @"3";
+
+            // 以前のMouseProc()と同じ「指定座標をクリックしてから元の位置に戻す」動作にする設定
+            cw.SetMouseMove(true);
+            cw.RestoreMousePosition(true);
 
             LoadSetting();
         }
@@ -73,7 +56,7 @@ namespace CaptureWindow
             if (!TextBox_MouseX.Text.Equals("") && !TextBox_MouseY.Text.Equals(""))
             {
                 SaveFileName = FileFormat + "_2.png";
-                MouseProc();
+                cw.MouseProc(TextBox_MouseX.Text, TextBox_MouseY.Text, CaptWindow.MOUSE_EVENT.LEFT_CLICK);
 
                 if (!TextBox_Sleep.Text.Equals(""))
                 {
@@ -122,37 +105,6 @@ namespace CaptureWindow
             {
                 SaveWithCaptureCurrentWindow();
             }
-        }
-
-        // マウス処理
-        private void MouseProc()
-        {
-            Point MousePt = new Point(Cursor.Position.X, Cursor.Position.Y);
-
-            //マウス移動
-            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(
-                                                    int.Parse(TextBox_MouseX.Text),
-                                                    int.Parse(TextBox_MouseY.Text));
-
-            //struct 配列の宣言
-            INPUT[] input = new INPUT[2];
-
-            //左ボタン Down
-            //input[0].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_LEFTDOWN;
-            input[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-            //input[0].mi.dx = int.Parse(TextBox_MouseX.Text);
-            //input[0].mi.dy = int.Parse(TextBox_MouseY.Text);
-
-            //左ボタン Up
-            input[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
-            //input[1].mi.dx = input[0].mi.dx;
-            //input[1].mi.dy = input[0].mi.dy;
-
-            //イベントの一括生成
-            SendInput(2, input, Marshal.SizeOf(input[0]));
-
-            // マウスの位置をもとに戻す
-            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(MousePt.X, MousePt.Y);
         }
 
         private void SaveWithCaptureFullScreen()
