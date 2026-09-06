@@ -27,8 +27,15 @@ namespace Picture
         ~PicEdit()
         {
             // リソース解放
+            // m_SourceImgはCreateSourceImg()を呼ぶまでnullのまま(MergeExec系を
+            // 使わないインスタンスだと一度も設定されない)。以前は無条件にDispose()
+            // していたため、その場合ファイナライザ内でNullReferenceExceptionが
+            // 起きるバグだった(TODO「必ず走るけどok？」が指摘していた通り)。
             m_Canvas.Dispose();
-            m_SourceImg.Dispose();       // TODO：必ず走るけどok？
+            if (m_SourceImg != null)
+            {
+                m_SourceImg.Dispose();
+            }
         }
 
         public void SaveCanvas(String SavePictFile)
@@ -68,7 +75,12 @@ namespace Picture
 
         public void ReleaseSourceImg()
         {
-            m_SourceImg.Dispose();
+            // 上のファイナライザと同じ理由でnullチェックを追加(CreateSourceImg未実行なら
+            // m_SourceImgはnullのまま)
+            if (m_SourceImg != null)
+            {
+                m_SourceImg.Dispose();
+            }
         }
 
         public void MergeExec(Rectangle CutParam)
