@@ -224,22 +224,16 @@ namespace FileArranger
             String[] files = Directory.GetDirectories(md_textBox_SourceDir.Text, "*", SearchOption.AllDirectories);
             for (int i = 0; i < files.Length; i++)
             {
-                // ファイル or フォルダをリストアップ
-                String[] entries = Directory.GetFileSystemEntries(files[i]);
-                if (entries.Length == 0)
+                // フォルダ直下にファイルが1つでもあればリストアップ。
+                // 以前はGetFileSystemEntries(ファイル+サブフォルダ両方を一括取得)してから
+                // File.Existsで1件ずつ判定していたが、EnumerateFilesなら最初から
+                // ファイルだけを対象にでき、かつ遅延列挙なので最初の1件が見つかった時点で
+                // Any()が打ち切ってくれる(フォルダ内の全件を毎回列挙しなくて済む)。
+                if (Directory.EnumerateFiles(files[i]).Any())
                 {
-                    continue;
-                }
-
-                for (int j = 0; j < entries.Length; j++)
-                {
-                    if (File.Exists(entries[j]))
-                    {
-                        String FileName = files[i].Remove(0, md_textBox_SourceDir.Text.Length + 1);   // "\\"の分を1加算
-                        md_listBox_Listup.Items.Add(FileName);
-                        RegistNum++;
-                        break;
-                    }
+                    String FileName = files[i].Remove(0, md_textBox_SourceDir.Text.Length + 1);   // "\\"の分を1加算
+                    md_listBox_Listup.Items.Add(FileName);
+                    RegistNum++;
                 }
             }
             md_listBox_Listup.TopIndex = ScrollBarPos;
