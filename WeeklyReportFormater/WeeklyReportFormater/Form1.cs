@@ -26,7 +26,7 @@ namespace WeeklyReportFormater
             // カレントディレクトリ移動
             System.Environment.CurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            String UserName = fio.GetFileData(SaveFileName);
+            String UserName = fio.LoadFile(SaveFileName);
             textBox_UserName.Text = UserName;
         }
 

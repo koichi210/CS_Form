@@ -50,7 +50,7 @@ namespace TrimFileData
             textBox_SerchResultList.Text = "";
 
             StcFileInputOutput fio = new StcFileInputOutput();
-            String ReferData = fio.GetFileData(textBox_ReferencePath.Text);
+            String ReferData = fio.LoadFile(textBox_ReferencePath.Text);
             if (ReferData == String.Empty)
             {
                 MessageBox.Show("リファレンスファイルが開けません。" + Environment.NewLine + textBox_ReferencePath.Text);

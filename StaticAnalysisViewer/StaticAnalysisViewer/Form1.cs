@@ -126,7 +126,7 @@ namespace StaticAnalysisViewer
             DB.Initialize();
             for (int i = ProgressBar_LoadStatus.Minimum; i < ProgressBar_LoadStatus.Maximum; i++, ProgressBar_LoadStatus.Value++)
             {
-                string Data = fio.GetFileData(TextBox_LoadDataList.Lines[i]);
+                string Data = fio.LoadFile(TextBox_LoadDataList.Lines[i]);
                 if (Data.Equals(""))
                 {
                     //ファイルパスが無効だったら次へ
