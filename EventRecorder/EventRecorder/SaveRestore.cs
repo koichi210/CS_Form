@@ -12,7 +12,7 @@ namespace EventRecorder
             SetElement("Setting");
 
             RegistCtrl("Record", "textBox_Loop", Parent.textBox_Loop, "1");
-            RegistCtrl("Record", "Cell", "RowCount", Parent.dataGridView1);
+            RegistCtrl("Record", "Cell", "RowCount", Parent.dataGridView_Events);
         }
 
         public Boolean LoadProc(String LoadFileName, Form1 Parent)
@@ -22,7 +22,7 @@ namespace EventRecorder
                 return false;
             }
 
-            Parent.dataGridView1.Rows.Clear();
+            Parent.dataGridView_Events.Rows.Clear();
             return LoadXmlFile(LoadFileName);
         }
     }
