@@ -37,7 +37,7 @@ namespace othello
 
         // COMの手を少し間を置いてから打つためのタイマー(人間の手と同じ速さで即打つと
         // 何が起きたか分かりにくいため)。
-        private readonly Timer comMoveTimer = new Timer { Interval = 500 };
+        private readonly Timer comMoveTimer = new Timer { Interval = 150 };
 
         // 持ち時間のカウントダウン用タイマー。C++版 COUNT_DOWN_CYC(100ms)相当。
         // 常に「今の手番」の残り時間を減らす(手番が変わればおのずと対象も切り替わる)。
