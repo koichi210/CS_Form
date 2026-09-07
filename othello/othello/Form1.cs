@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -43,6 +44,11 @@ namespace othello
         // 常に「今の手番」の残り時間を減らす(手番が変わればおのずと対象も切り替わる)。
         private readonly Timer countdownTimer = new Timer { Interval = 100 };
 
+        // pictureBoxFieldの「上下の余白の合計」と「左右の余白の合計」の差。
+        // リサイズ中にウィンドウの高さを幅から逆算し、盤面(pictureBoxField)が
+        // 常に正方形になるようにするために使う(WM_SIZINGで利用)。
+        private int boardHeightOffset;
+
         public Form1()
         {
             InitializeComponent();
@@ -51,6 +57,12 @@ namespace othello
             // これより小さくはリサイズできないようにし、盤面が0サイズになる事態を防ぐ。
             this.MinimumSize = this.Size;
 
+            int leftGap = pictureBoxField.Left;
+            int rightGap = this.ClientSize.Width - pictureBoxField.Right;
+            int topGap = pictureBoxField.Top;
+            int bottomGap = this.ClientSize.Height - pictureBoxField.Bottom;
+            boardHeightOffset = (topGap + bottomGap) - (leftGap + rightGap);
+
             comMoveTimer.Tick += ComMoveTimer_Tick;
             countdownTimer.Tick += CountdownTimer_Tick;
 
@@ -58,6 +70,67 @@ namespace othello
 
             draw.SetDrawArea(pictureBoxField);
             RedrawBoard();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        private const int WM_SIZING = 0x0214;
+        private const int WMSZ_TOP = 3;
+        private const int WMSZ_TOPLEFT = 4;
+        private const int WMSZ_TOPRIGHT = 5;
+
+        /// <summary>
+        /// ドラッグでのリサイズ中(WM_SIZING)に、幅から高さを逆算して盤面(pictureBoxField)が
+        /// 常に正方形になるよう、OSがこれから適用しようとしているウィンドウ矩形を書き換える。
+        /// </summary>
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_SIZING)
+            {
+                AdjustResizingRectForSquareBoard(m);
+            }
+
+            base.WndProc(ref m);
+        }
+
+        private void AdjustResizingRectForSquareBoard(Message m)
+        {
+            RECT rect = (RECT)Marshal.PtrToStructure(m.LParam, typeof(RECT));
+
+            int borderWidth = this.Width - this.ClientSize.Width;
+            int borderHeight = this.Height - this.ClientSize.Height;
+
+            int outerWidth = rect.Right - rect.Left;
+            int clientWidth = outerWidth - borderWidth;
+
+            int desiredClientHeight = clientWidth + boardHeightOffset;
+            int desiredOuterHeight = desiredClientHeight + borderHeight;
+
+            // 最小サイズより小さくはしない
+            desiredOuterHeight = Math.Max(desiredOuterHeight, this.MinimumSize.Height);
+
+            int edge = m.WParam.ToInt32();
+            bool draggingTopEdge = edge == WMSZ_TOP || edge == WMSZ_TOPLEFT || edge == WMSZ_TOPRIGHT;
+
+            if (draggingTopEdge)
+            {
+                // 上端をドラッグしている時は下端を固定し、上端の位置を合わせる
+                rect.Top = rect.Bottom - desiredOuterHeight;
+            }
+            else
+            {
+                // それ以外(左右・下・左下・右下)は上端を固定し、下端の位置を合わせる
+                rect.Bottom = rect.Top + desiredOuterHeight;
+            }
+
+            Marshal.StructureToPtr(rect, m.LParam, true);
         }
 
         /// <summary>
