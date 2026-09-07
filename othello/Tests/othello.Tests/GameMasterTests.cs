@@ -113,5 +113,66 @@ namespace othello.Tests
             }
             Assert.AreEqual(4, count);
         }
+
+        [TestMethod]
+        public void Undoで直前の手が取り消され盤面と手番が1手前に戻る()
+        {
+            var gm = new GameMaster();
+            gm.Initialize();
+            gm.TryPut(2, 3); // 黒 -> 白番、(3,3)がひっくり返る
+
+            bool result = gm.Undo();
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(StoneColor.Unknown, gm.Table[3, 2]); // 打った石が消える
+            Assert.AreEqual(StoneColor.White, gm.Table[3, 3]); // ひっくり返しも元に戻る
+            Assert.AreEqual(StoneColor.Black, gm.CurrentTurn); // 手番も戻る
+            Assert.AreEqual(0, gm.TurnCount);
+            Assert.IsFalse(gm.CanUndo);
+            Assert.IsTrue(gm.CanRedo);
+        }
+
+        [TestMethod]
+        public void RedoでUndoした手をやり直せる()
+        {
+            var gm = new GameMaster();
+            gm.Initialize();
+            gm.TryPut(2, 3);
+            gm.Undo();
+
+            bool result = gm.Redo();
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(StoneColor.Black, gm.Table[3, 2]);
+            Assert.AreEqual(StoneColor.Black, gm.Table[3, 3]);
+            Assert.AreEqual(StoneColor.White, gm.CurrentTurn);
+            Assert.IsFalse(gm.CanRedo);
+        }
+
+        [TestMethod]
+        public void 手がない状態でのUndoRedoはfalseを返す()
+        {
+            var gm = new GameMaster();
+            gm.Initialize();
+
+            Assert.IsFalse(gm.Undo());
+            Assert.IsFalse(gm.Redo());
+        }
+
+        [TestMethod]
+        public void Undo後に新しい手を打つとRedoの分岐が破棄される()
+        {
+            var gm = new GameMaster();
+            gm.Initialize();
+            gm.TryPut(2, 3); // 黒
+            gm.Undo();
+
+            gm.TryPut(3, 2); // 黒(別の手)。Redoできたはずの分岐は消えるはず
+
+            Assert.IsFalse(gm.CanRedo);
+            Assert.AreEqual(1, gm.History.Count);
+            Assert.AreEqual(3, gm.History[0].X);
+            Assert.AreEqual(2, gm.History[0].Y);
+        }
     }
 }

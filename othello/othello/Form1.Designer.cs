@@ -36,6 +36,8 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuItem_Game = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Start = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Undo = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Redo = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuItem_Exit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -128,6 +130,8 @@
             //
             this.menuItem_Game.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_Start,
+            this.menuItem_Undo,
+            this.menuItem_Redo,
             this.toolStripSeparator1,
             this.menuItem_Exit,
             this.toolStripSeparator2,
@@ -143,6 +147,20 @@
             this.menuItem_Start.Size = new System.Drawing.Size(180, 22);
             this.menuItem_Start.Text = "開始(&S)";
             this.menuItem_Start.Click += new System.EventHandler(this.menuItem_Start_Click);
+            //
+            // menuItem_Undo
+            //
+            this.menuItem_Undo.Name = "menuItem_Undo";
+            this.menuItem_Undo.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Undo.Text = "一手戻す(&U)";
+            this.menuItem_Undo.Click += new System.EventHandler(this.menuItem_Undo_Click);
+            //
+            // menuItem_Redo
+            //
+            this.menuItem_Redo.Name = "menuItem_Redo";
+            this.menuItem_Redo.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Redo.Text = "一手進める(&R)";
+            this.menuItem_Redo.Click += new System.EventHandler(this.menuItem_Redo_Click);
             //
             // toolStripSeparator1
             //
@@ -383,6 +401,8 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Game;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Start;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Undo;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Redo;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Exit;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;

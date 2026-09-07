@@ -74,6 +74,34 @@ namespace othello
             whiteTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
         }
 
+        /// <summary>
+        /// メニュー「ゲーム」→「一手戻す」。C++版 VersProc/OnMenuitemVers 相当
+        /// (このプロジェクトではUndoに相当する側)。
+        /// </summary>
+        private void menuItem_Undo_Click(object sender, EventArgs e)
+        {
+            comMoveTimer.Stop();
+            if (gm.Undo())
+            {
+                isTimedOut = false;
+                RedrawBoard();
+            }
+        }
+
+        /// <summary>
+        /// メニュー「ゲーム」→「一手進める」。Undoで戻した手をやり直す(Redo)。
+        /// C++版 ReVersProc/OnMenuitemRevers 相当。
+        /// </summary>
+        private void menuItem_Redo_Click(object sender, EventArgs e)
+        {
+            comMoveTimer.Stop();
+            if (gm.Redo())
+            {
+                isTimedOut = false;
+                RedrawBoard();
+            }
+        }
+
         private void button_ReStart_Click(object sender, EventArgs e)
         {
             DialogResult DlgResult = MessageBox.Show(
@@ -457,6 +485,9 @@ namespace othello
             draw.DrawField(gm.Table, validMoves);
             UpdateStatusLabel();
             UpdateTimeLabel();
+
+            menuItem_Undo.Enabled = gm.CanUndo;
+            menuItem_Redo.Enabled = gm.CanRedo;
 
             if (!isTimedOut && !gm.IsGameEnd && timeLimitSeconds >= 0)
             {

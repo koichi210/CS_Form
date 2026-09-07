@@ -54,6 +54,16 @@ namespace othello
 
         public void Initialize()
         {
+            ResetBoardOnly();
+            History = new List<KihuMove>();
+        }
+
+        /// <summary>
+        /// 盤面・手番・手数だけを初期状態に戻す(棋譜Historyはそのまま残す)。
+        /// Undo/Redoで「最初から履歴をN手だけ再生し直す」ために使う。
+        /// </summary>
+        private void ResetBoardOnly()
+        {
             Table = new StoneColor[BoardSize, BoardSize];
             Table[3, 3] = StoneColor.White;
             Table[3, 4] = StoneColor.Black;
@@ -63,7 +73,6 @@ namespace othello
             CurrentTurn = StoneColor.Black;
             IsGameEnd = false;
             TurnCount = 0;
-            History = new List<KihuMove>();
         }
 
         /// <summary>
@@ -213,8 +222,31 @@ namespace othello
         /// <summary>
         /// (x, y)にCurrentTurnの石を置き、ひっくり返し、次の手番(パス・終局判定込み)に進める。
         /// 置けない場所を指定した場合は何もせずfalseを返す。
+        /// Undoで過去に戻っている状態から新しい手を打った場合、そこから先の(やり直せたはずの)
+        /// 棋譜は破棄される(C++版 UpDateKihu の turning_point = turn_cnt 相当)。
         /// </summary>
         public bool TryPut(int x, int y)
+        {
+            if (!ApplyMove(x, y))
+            {
+                return false;
+            }
+
+            if (History.Count > TurnCount)
+            {
+                History.RemoveRange(TurnCount, History.Count - TurnCount);
+            }
+
+            History.Add(new KihuMove { X = x, Y = y, Color = Table[y, x] });
+            TurnCount++;
+            return true;
+        }
+
+        /// <summary>
+        /// (x, y)にCurrentTurnの石を置き、ひっくり返し、次の手番に進める(Historyへの記録はしない)。
+        /// Undo/Redoで盤面を再構築する際に使う内部処理。
+        /// </summary>
+        private bool ApplyMove(int x, int y)
         {
             if (IsGameEnd)
             {
@@ -241,11 +273,60 @@ namespace othello
                 }
             }
 
-            History.Add(new KihuMove { X = x, Y = y, Color = CurrentTurn });
-
-            TurnCount++;
             AdvanceTurn();
             return true;
+        }
+
+        // 過去に打った手をUndoでき、Redoでき、を判定する
+        public bool CanUndo => TurnCount > 0;
+        public bool CanRedo => TurnCount < History.Count;
+
+        /// <summary>
+        /// 直前の一手を取り消す(C++版 ReVersProc相当)。
+        /// 実装は「最初から履歴を1手少なく再生し直す」方式で、ひっくり返した石を
+        /// 逆算する処理を個別に持たずに済むようにしている。
+        /// </summary>
+        public bool Undo()
+        {
+            if (!CanUndo)
+            {
+                return false;
+            }
+
+            ReplayHistory(TurnCount - 1);
+            return true;
+        }
+
+        /// <summary>
+        /// Undoで戻した手をやり直す(C++版 VersProc相当)。
+        /// </summary>
+        public bool Redo()
+        {
+            if (!CanRedo)
+            {
+                return false;
+            }
+
+            ReplayHistory(TurnCount + 1);
+            return true;
+        }
+
+        /// <summary>
+        /// 盤面を初期状態に戻し、Historyの先頭からtargetCount手だけ再生する。
+        /// </summary>
+        private void ReplayHistory(int targetCount)
+        {
+            List<KihuMove> savedHistory = History;
+
+            ResetBoardOnly();
+
+            for (int i = 0; i < targetCount; i++)
+            {
+                ApplyMove(savedHistory[i].X, savedHistory[i].Y);
+            }
+
+            History = savedHistory;
+            TurnCount = targetCount;
         }
 
         /// <summary>
