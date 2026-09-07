@@ -137,9 +137,11 @@ namespace othello
         }
 
         /// <summary>
-        /// 盤面(格子線)と全マスの石をまとめて描画する
+        /// 盤面(格子線)と全マスの石をまとめて描画する。
+        /// validMovesを渡すと、石が無く置ける(true)マスに置ける場所のマークも描画する。
+        /// C++版 DrawNotice 相当。
         /// </summary>
-        public void DrawField(StoneColor[,] table)
+        public void DrawField(StoneColor[,] table, bool[,] validMoves = null)
         {
             InitField();
 
@@ -148,8 +150,47 @@ namespace othello
                 for (int x = 0; x < CellMax; x++)
                 {
                     DrawStone(x, y, table[y, x]);
+
+                    if (validMoves != null && validMoves[y, x])
+                    {
+                        DrawNotice(x, y);
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// マス目座標(cellX, cellY)に「置ける場所」の小さなマークを描画する。
+        /// </summary>
+        public void DrawNotice(int cellX, int cellY)
+        {
+            if (pb.Image == null)
+            {
+                return;
+            }
+
+            GetCellRangeX(cellX, out int left, out int right);
+            GetCellRangeY(cellY, out int top, out int bottom);
+
+            int cellWidth = right - left;
+            int cellHeight = bottom - top;
+            int noticeWidth = Math.Max(2, cellWidth / 4);
+            int noticeHeight = Math.Max(2, cellHeight / 4);
+
+            Rectangle rect = new Rectangle(
+                left + (cellWidth - noticeWidth) / 2,
+                top + (cellHeight - noticeHeight) / 2,
+                noticeWidth,
+                noticeHeight);
+
+            Bitmap canvas = GetCanvas();
+            using (Graphics g = Graphics.FromImage(canvas))
+            using (Brush brush = new SolidBrush(Color.FromArgb(140, Color.DarkGray)))
+            {
+                g.FillEllipse(brush, rect);
+            }
+
+            pb.Image = canvas;
         }
 
         /// <summary>

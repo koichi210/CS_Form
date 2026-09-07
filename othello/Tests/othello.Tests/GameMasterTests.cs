@@ -88,5 +88,30 @@ namespace othello.Tests
             gm.TryPut(2, 2); // 白の有効手 → 黒番になるはず
             Assert.AreEqual(StoneColor.Black, gm.CurrentTurn);
         }
+
+        [TestMethod]
+        public void GetValidMovesは初期状態で黒の4箇所を返す()
+        {
+            var gm = new GameMaster();
+            gm.Initialize();
+
+            bool[,] validMoves = gm.GetValidMoves(StoneColor.Black);
+
+            // オセロの初期配置で黒が置ける定番の4箇所(0-indexed)
+            Assert.IsTrue(validMoves[3, 2]);
+            Assert.IsTrue(validMoves[2, 3]);
+            Assert.IsTrue(validMoves[5, 4]);
+            Assert.IsTrue(validMoves[4, 5]);
+
+            int count = 0;
+            foreach (bool v in validMoves)
+            {
+                if (v)
+                {
+                    count++;
+                }
+            }
+            Assert.AreEqual(4, count);
+        }
     }
 }

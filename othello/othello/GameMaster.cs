@@ -114,6 +114,27 @@ namespace othello
         }
 
         /// <summary>
+        /// colorが置ける全マスをTableと同じ8x8のbool配列で返す(true=置ける)。
+        /// 「置ける場所のマーク表示」用。C++版 DrawNotice/GetPutNotice 相当。
+        /// </summary>
+        public bool[,] GetValidMoves(StoneColor color)
+        {
+            bool[,] result = new bool[BoardSize, BoardSize];
+            int[] flipCounts = new int[DirX.Length];
+
+            for (int y = 0; y < BoardSize; y++)
+            {
+                for (int x = 0; x < BoardSize; x++)
+                {
+                    Array.Clear(flipCounts, 0, flipCounts.Length);
+                    result[y, x] = PutCheck(x, y, color, flipCounts);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// (x, y)にCurrentTurnの石を置き、ひっくり返し、次の手番(パス・終局判定込み)に進める。
         /// 置けない場所を指定した場合は何もせずfalseを返す。
         /// </summary>

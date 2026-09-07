@@ -25,8 +25,7 @@ namespace othello
             gm.Initialize();
 
             draw.SetDrawArea(pictureBoxField);
-            draw.DrawField(gm.Table);
-            UpdateStatusLabel();
+            RedrawBoard();
         }
 
         private void button_ReStart_Click(object sender, EventArgs e)
@@ -39,8 +38,7 @@ namespace othello
             if (DlgResult == DialogResult.Yes)
             {
                 gm.Initialize();
-                draw.DrawField(gm.Table);
-                UpdateStatusLabel();
+                RedrawBoard();
             }
         }
 
@@ -50,8 +48,7 @@ namespace othello
         private void menuItem_Start_Click(object sender, EventArgs e)
         {
             gm.Initialize();
-            draw.DrawField(gm.Table);
-            UpdateStatusLabel();
+            RedrawBoard();
         }
 
         private void menuItem_Exit_Click(object sender, EventArgs e)
@@ -129,8 +126,7 @@ namespace othello
 
             if (gm.TryPut(x, y))
             {
-                draw.DrawField(gm.Table);
-                UpdateStatusLabel();
+                RedrawBoard();
             }
         }
 
@@ -159,8 +155,19 @@ namespace othello
                 }
 
                 draw.CreateCanvas();
-                draw.DrawField(gm.Table);
+                RedrawBoard();
             });
+        }
+
+        /// <summary>
+        /// 盤面・置ける場所のマーク・手番表示をまとめて再描画する。
+        /// 終局している場合は置ける場所のマークは出さない。
+        /// </summary>
+        private void RedrawBoard()
+        {
+            bool[,] validMoves = gm.IsGameEnd ? null : gm.GetValidMoves(gm.CurrentTurn);
+            draw.DrawField(gm.Table, validMoves);
+            UpdateStatusLabel();
         }
 
         /// <summary>
