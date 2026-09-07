@@ -61,8 +61,8 @@ $buildFailures = @()
 
 foreach ($proj in $testProjects) {
     Write-Output "=== Build: $($proj.Name) ==="
-    # Platformは明示的に指定しない。各Testsプロジェクトは既定でx86を持っているが、
-    # 外部から/p:Platform=x86を強制すると、依存先の本体プロジェクトがAnyCPU専用
+    # Platformは明示的に指定しない。各Testsプロジェクトは既定でx64を持っているが、
+    # 外部から/p:Platform=x64を強制すると、依存先の本体プロジェクトがAnyCPU専用
     # (例: DialogChild)の場合にBaseOutputPath未設定エラーで壊れてしまうため。
     & $MSBuild $proj.FullName /p:Configuration=$Configuration /nologo /v:minimal
     if ($LASTEXITCODE -ne 0) {
@@ -93,7 +93,10 @@ if ($builtDlls.Count -eq 0) {
 
 # --- テスト実行(まとめて1回) ---
 Write-Output "=== $($builtDlls.Count) 件のテストDLLをまとめて実行 ==="
-& $VsTest $builtDlls /Platform:x86 /Framework:.NETFramework,Version=v4.7.2
+
+# Platform:x64に統一済み。Frameworkはプロジェクトごとにv4.7.2/v4.8が混在する
+# ようになったため、特定バージョンを明示指定せず自動判定に任せる。
+& $VsTest $builtDlls /Platform:x64
 
 $testExitCode = $LASTEXITCODE
 

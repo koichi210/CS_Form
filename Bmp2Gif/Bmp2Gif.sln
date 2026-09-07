@@ -5,14 +5,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bmp2Gif", "Bmp2Gif\Bmp2Gif.
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x86 = Debug|x86
-		Release|x86 = Release|x86
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Debug|x86.ActiveCfg = Debug|x86
-		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Debug|x86.Build.0 = Debug|x86
-		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Release|x86.ActiveCfg = Release|x86
-		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Release|x86.Build.0 = Release|x86
+		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Debug|x64.ActiveCfg = Debug|x64
+		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Debug|x64.Build.0 = Debug|x64
+		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Release|x64.ActiveCfg = Release|x64
+		{0FF858A2-84AB-4B01-AD09-F8F075DDF565}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

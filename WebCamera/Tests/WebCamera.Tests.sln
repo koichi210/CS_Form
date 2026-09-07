@@ -9,18 +9,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebCamera.Tests", "WebCamer
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x86 = Debug|x86
-		Release|x86 = Release|x86
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{83E86F13-CBE9-46CF-BBBC-A45903793C80}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{83E86F13-CBE9-46CF-BBBC-A45903793C80}.Debug|x86.Build.0 = Debug|Any CPU
 		{83E86F13-CBE9-46CF-BBBC-A45903793C80}.Release|x86.ActiveCfg = Release|Any CPU
 		{83E86F13-CBE9-46CF-BBBC-A45903793C80}.Release|x86.Build.0 = Release|Any CPU
-		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Debug|x86.ActiveCfg = Debug|x86
-		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Debug|x86.Build.0 = Debug|x86
-		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Release|x86.ActiveCfg = Release|x86
-		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Release|x86.Build.0 = Release|x86
+		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Debug|x64.ActiveCfg = Debug|x64
+		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Debug|x64.Build.0 = Debug|x64
+		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Release|x64.ActiveCfg = Release|x64
+		{1E7A4C9D-3B6F-4A2E-8D5C-9F1B6E3A7C0D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
