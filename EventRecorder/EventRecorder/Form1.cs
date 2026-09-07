@@ -336,6 +336,24 @@ namespace EventRecorder
 
         private void PlayLoop(List<String[]> rows, int loopCount)
         {
+            PlayRows(rows, loopCount);
+
+            // マウスカーソルを再生開始前の位置に戻す
+            Cursor.Position = cursorPositionBeforePlay;
+
+            isPlaying = false;
+            stopPlayRequested = false;
+            this.Invoke((MethodInvoker)(() =>
+            {
+                button_Play.Text = "再生";
+                HighlightPlayingRow(-1);
+            }));
+        }
+
+        // rowsをloopCount回再生する処理そのもの(前後の状態管理は呼び出し元の責務)。
+        // タブ1の単発再生・タブ2のプレイリスト再生の両方から共通で使う
+        private void PlayRows(List<String[]> rows, int loopCount)
+        {
             for (int i = 0; i < loopCount && !stopPlayRequested; i++)
             {
                 for (int idx = 0; idx < rows.Count && !stopPlayRequested; idx++)
@@ -353,17 +371,6 @@ namespace EventRecorder
                     PlayOneEvent(r[0], r[1], r[2], r[3]);
                 }
             }
-
-            // マウスカーソルを再生開始前の位置に戻す
-            Cursor.Position = cursorPositionBeforePlay;
-
-            isPlaying = false;
-            stopPlayRequested = false;
-            this.Invoke((MethodInvoker)(() =>
-            {
-                button_Play.Text = "再生";
-                HighlightPlayingRow(-1);
-            }));
         }
 
         // 再生中の行の背景色を変えて、今どの行を実行中か分かるようにする。
@@ -543,9 +550,11 @@ namespace EventRecorder
         }
 
         // 行ヘッダー(左端)に行番号(0始まりのインデックス)を描画する。
-        // DataGridViewには自動で行番号を出す機能が無いので、定番のRowPostPaintで自前描画する
+        // DataGridViewには自動で行番号を出す機能が無いので、定番のRowPostPaintで自前描画する。
+        // dataGridView_Events・dataGridView_Playlist両方から共用するので、対象はsenderから取る
         private void dataGridView_Events_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
+            DataGridView grid = (DataGridView)sender;
             String rowIndexStr = e.RowIndex.ToString();
             StringFormat format = new StringFormat()
             {
@@ -553,8 +562,8 @@ namespace EventRecorder
                 LineAlignment = StringAlignment.Center
             };
 
-            Rectangle headerBounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, dataGridView_Events.RowHeadersWidth, e.RowBounds.Height);
-            e.Graphics.DrawString(rowIndexStr, dataGridView_Events.Font, SystemBrushes.ControlText, headerBounds, format);
+            Rectangle headerBounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, grid.RowHeadersWidth, e.RowBounds.Height);
+            e.Graphics.DrawString(rowIndexStr, grid.Font, SystemBrushes.ControlText, headerBounds, format);
         }
 
         // マウスイベントの行なのにKey列にも値が入っているか判定する。
@@ -710,6 +719,181 @@ namespace EventRecorder
                 util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存したよ♪" + Environment.NewLine + SaveFileName);
             }
+        }
+
+        // *******************************************************************************
+        // プレイリスト(タブ2): 複数の設定ファイルを指定した順番で連続再生する
+
+        // 右クリックしたセルの行(プレイリスト側)。右クリック無しの状態(-1)なら末尾扱い
+        private int contextMenuPlaylistRowIndex = -1;
+
+        // タブを切り替えたタイミングで、プレイリストのプルダウンの中身を
+        // 「設定値読込/保存」で使っているのと同じ*.xml一覧に更新する
+        private void tabControl_Main_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl_Main.SelectedTab == tabPage_Playlist)
+            {
+                RefreshPlaylistFileList();
+            }
+        }
+
+        private void RefreshPlaylistFileList()
+        {
+            col_PlaylistFile.Items.Clear();
+            col_PlaylistFile.Items.AddRange(GetProfileFileNames().ToArray());
+        }
+
+        // util.UpdateProfileListが内部でやっているのと同じ「カレントフォルダ配下の*.xmlをファイル名一覧にする」
+        // 処理。comboBox_Profileの選択状態には触りたくないので、直接ファイルシステムから作り直す
+        private List<String> GetProfileFileNames()
+        {
+            List<String> names = new List<String>();
+            String dir = System.IO.Directory.GetCurrentDirectory();
+            if (!System.IO.Directory.Exists(dir))
+            {
+                return names;
+            }
+
+            String[] files = System.IO.Directory.GetFiles(dir, "*.xml", System.IO.SearchOption.AllDirectories);
+            foreach (String f in files)
+            {
+                names.Add(f.Substring(dir.Length + 1));
+            }
+
+            return names;
+        }
+
+        private void dataGridView_Playlist_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right)
+            {
+                return;
+            }
+
+            contextMenuPlaylistRowIndex = e.RowIndex;
+            if (e.RowIndex >= 0)
+            {
+                dataGridView_Playlist.ClearSelection();
+                dataGridView_Playlist.Rows[e.RowIndex].Selected = true;
+            }
+        }
+
+        private void contextMenuStrip_Playlist_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (isRecording || isPlaying)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            menuItem_PlaylistDeleteRow.Enabled = contextMenuPlaylistRowIndex >= 0 && contextMenuPlaylistRowIndex < dataGridView_Playlist.Rows.Count;
+        }
+
+        private void menuItem_PlaylistAddRow_Click(object sender, EventArgs e)
+        {
+            int insertAt = (contextMenuPlaylistRowIndex >= 0) ? contextMenuPlaylistRowIndex + 1 : dataGridView_Playlist.Rows.Count;
+            dataGridView_Playlist.Rows.Insert(insertAt, 1);
+        }
+
+        private void menuItem_PlaylistDeleteRow_Click(object sender, EventArgs e)
+        {
+            if (contextMenuPlaylistRowIndex >= 0 && contextMenuPlaylistRowIndex < dataGridView_Playlist.Rows.Count)
+            {
+                dataGridView_Playlist.Rows.RemoveAt(contextMenuPlaylistRowIndex);
+            }
+        }
+
+        // プレイリストの各行で選ばれているファイル名を、上から順番に取り出す(空行は無視する)
+        private List<String> GetPlaylistFiles()
+        {
+            List<String> files = new List<String>();
+            foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
+                if (!String.IsNullOrEmpty(fileName))
+                {
+                    files.Add(fileName);
+                }
+            }
+
+            return files;
+        }
+
+        // 記録・再生タブと同じ理由(isRecording/isPlayingの使い回し)で、
+        // 記録中や単発再生中はプレイリストの実行を弾く。実行中の停止も同じボタンで行う
+        private void button_PlaylistRun_Click(object sender, EventArgs e)
+        {
+            if (isPlaying)
+            {
+                stopPlayRequested = true;
+                return;
+            }
+
+            if (isRecording)
+            {
+                return;
+            }
+
+            List<String> files = GetPlaylistFiles();
+            if (files.Count == 0)
+            {
+                return;
+            }
+
+            cursorPositionBeforePlay = Cursor.Position;
+            isPlaying = true;
+            stopPlayRequested = false;
+            button_PlaylistRun.Text = "停止";
+
+            Task.Run(() => PlaylistPlayLoop(files));
+        }
+
+        // ファイルを1つずつ読み込んでは、そのファイルに保存されているループ回数の分だけ再生する、を
+        // リストの先頭から順番に繰り返す
+        private void PlaylistPlayLoop(List<String> files)
+        {
+            for (int i = 0; i < files.Count && !stopPlayRequested; i++)
+            {
+                String fileName = files[i];
+                int fileNo = i + 1;
+                List<String[]> rows = null;
+                int loopCount = 1;
+
+                this.Invoke((MethodInvoker)(() =>
+                {
+                    label_PlaylistStatus.Text = "実行中: " + fileName + " (" + fileNo + "/" + files.Count + ")";
+
+                    String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), fileName);
+                    sr.LoadProc(fullPath, this);
+                    rows = SnapshotRows();
+                    loopCount = util.GetInteger(textBox_Loop.Text);
+                    if (loopCount <= 0)
+                    {
+                        loopCount = 1;
+                    }
+                }));
+
+                if (rows != null && rows.Count > 0)
+                {
+                    PlayRows(rows, loopCount);
+                }
+            }
+
+            Cursor.Position = cursorPositionBeforePlay;
+
+            isPlaying = false;
+            stopPlayRequested = false;
+            this.Invoke((MethodInvoker)(() =>
+            {
+                button_PlaylistRun.Text = "実行";
+                label_PlaylistStatus.Text = "";
+                HighlightPlayingRow(-1);
+            }));
         }
     }
 }
