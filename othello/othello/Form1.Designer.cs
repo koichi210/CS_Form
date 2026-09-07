@@ -45,6 +45,10 @@
             this.menuItem_PC = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_CP = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_CC = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_ComLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_ComLevel1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_ComLevel2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_ComLevel3 = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxField)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -86,7 +90,8 @@
             //
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_Game,
-            this.menuItem_PlayMode});
+            this.menuItem_PlayMode,
+            this.menuItem_ComLevel});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(224, 24);
@@ -185,6 +190,39 @@
             this.menuItem_CC.Text = "COM vs COM";
             this.menuItem_CC.Click += new System.EventHandler(this.menuItem_PlayMode_Click);
             //
+            // menuItem_ComLevel
+            //
+            this.menuItem_ComLevel.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItem_ComLevel1,
+            this.menuItem_ComLevel2,
+            this.menuItem_ComLevel3});
+            this.menuItem_ComLevel.Name = "menuItem_ComLevel";
+            this.menuItem_ComLevel.Size = new System.Drawing.Size(76, 20);
+            this.menuItem_ComLevel.Text = "COMレベル(&L)";
+            //
+            // menuItem_ComLevel1
+            //
+            this.menuItem_ComLevel1.Checked = true;
+            this.menuItem_ComLevel1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuItem_ComLevel1.Name = "menuItem_ComLevel1";
+            this.menuItem_ComLevel1.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_ComLevel1.Text = "レベル1";
+            this.menuItem_ComLevel1.Click += new System.EventHandler(this.menuItem_ComLevel_Click);
+            //
+            // menuItem_ComLevel2
+            //
+            this.menuItem_ComLevel2.Name = "menuItem_ComLevel2";
+            this.menuItem_ComLevel2.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_ComLevel2.Text = "レベル2";
+            this.menuItem_ComLevel2.Click += new System.EventHandler(this.menuItem_ComLevel_Click);
+            //
+            // menuItem_ComLevel3
+            //
+            this.menuItem_ComLevel3.Name = "menuItem_ComLevel3";
+            this.menuItem_ComLevel3.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_ComLevel3.Text = "レベル3";
+            this.menuItem_ComLevel3.Click += new System.EventHandler(this.menuItem_ComLevel_Click);
+            //
             // Form1
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -223,6 +261,10 @@
         private System.Windows.Forms.ToolStripMenuItem menuItem_PC;
         private System.Windows.Forms.ToolStripMenuItem menuItem_CP;
         private System.Windows.Forms.ToolStripMenuItem menuItem_CC;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel1;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel2;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel3;
     }
 }
 

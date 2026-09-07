@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace othello
 {
@@ -29,6 +31,10 @@ namespace othello
         // どちらも置けなくなり終局したかどうか
         public bool IsGameEnd { get; private set; }
 
+        // これまでに置かれた石の総数(初期4石は含まない)。C++版 turn_cnt 相当。
+        // COMの思考(序盤/中盤/終盤の判定、最初の2手はランダムにする等)に使う。
+        public int TurnCount { get; private set; }
+
         // 8方向(左, 右, 上, 下, 左上, 左下, 右上, 右下)
         private static readonly int[] DirX = { -1, 1, 0, 0, -1, -1, 1, 1 };
         private static readonly int[] DirY = { 0, 0, -1, 1, -1, 1, -1, 1 };
@@ -43,6 +49,23 @@ namespace othello
 
             CurrentTurn = StoneColor.Black;
             IsGameEnd = false;
+            TurnCount = 0;
+        }
+
+        /// <summary>
+        /// 現在の盤面状態をコピーした別のGameMasterを作る。
+        /// COMの思考で「実際には置かず、仮に置いた場合どうなるか」を試すのに使う。
+        /// </summary>
+        public GameMaster Clone()
+        {
+            GameMaster clone = new GameMaster
+            {
+                Table = (StoneColor[,])Table.Clone(),
+                CurrentTurn = CurrentTurn,
+                IsGameEnd = IsGameEnd,
+                TurnCount = TurnCount,
+            };
+            return clone;
         }
 
         private static StoneColor GetEnemyColor(StoneColor color)
@@ -135,6 +158,44 @@ namespace othello
         }
 
         /// <summary>
+        /// (x, y)にcolorを置いた場合に実際にはひっくり返さず、ひっくり返る石の座標だけを返す。
+        /// COMの思考(開放度計算など)で「置いたと仮定した場合」を調べるのに使う。
+        /// </summary>
+        public IEnumerable<Point> GetFlippedPositions(int x, int y, StoneColor color)
+        {
+            int[] flipCounts = new int[DirX.Length];
+            if (!PutCheck(x, y, color, flipCounts))
+            {
+                yield break;
+            }
+
+            for (int dir = 0; dir < DirX.Length; dir++)
+            {
+                int cx = x;
+                int cy = y;
+                for (int i = 0; i < flipCounts[dir]; i++)
+                {
+                    cx += DirX[dir];
+                    cy += DirY[dir];
+                    yield return new Point(cx, cy);
+                }
+            }
+        }
+
+        /// <summary>
+        /// (x, y)にcolorを置いた場合にひっくり返る石の総数を返す(置けない場合は0)。
+        /// </summary>
+        public int CountFlips(int x, int y, StoneColor color)
+        {
+            int count = 0;
+            foreach (Point p in GetFlippedPositions(x, y, color))
+            {
+                count++;
+            }
+            return count;
+        }
+
+        /// <summary>
         /// (x, y)にCurrentTurnの石を置き、ひっくり返し、次の手番(パス・終局判定込み)に進める。
         /// 置けない場所を指定した場合は何もせずfalseを返す。
         /// </summary>
@@ -165,6 +226,7 @@ namespace othello
                 }
             }
 
+            TurnCount++;
             AdvanceTurn();
             return true;
         }

@@ -11,8 +11,26 @@ namespace othello
 {
     public partial class Form1 : Form
     {
+        /// <summary>
+        /// 対戦モード。C++版 PLAYER_PLAYER/PLAYER_COM/COM_PLAYER/COM_COM 相当。
+        /// PC/CPは「先に書かれている方が黒(先手)」という命名。
+        /// </summary>
+        private enum PlayMode
+        {
+            PlayerPlayer,
+            PlayerCom,
+            ComPlayer,
+            ComCom,
+        }
+
         private Draw draw = new Draw();
         private GameMaster gm = new GameMaster();
+        private PlayMode playMode = PlayMode.PlayerPlayer;
+        private int comLevel = 1;
+
+        // COMの手を少し間を置いてから打つためのタイマー(人間の手と同じ速さで即打つと
+        // 何が起きたか分かりにくいため)。
+        private readonly Timer comMoveTimer = new Timer { Interval = 500 };
 
         public Form1()
         {
@@ -21,6 +39,8 @@ namespace othello
             // 初期デザインのサイズを下限にする(C++版のWIN_MIN_SIZE相当)。
             // これより小さくはリサイズできないようにし、盤面が0サイズになる事態を防ぐ。
             this.MinimumSize = this.Size;
+
+            comMoveTimer.Tick += ComMoveTimer_Tick;
 
             gm.Initialize();
 
@@ -37,6 +57,7 @@ namespace othello
                 MessageBoxIcon.Warning);
             if (DlgResult == DialogResult.Yes)
             {
+                comMoveTimer.Stop();
                 gm.Initialize();
                 RedrawBoard();
             }
@@ -47,6 +68,7 @@ namespace othello
         /// </summary>
         private void menuItem_Start_Click(object sender, EventArgs e)
         {
+            comMoveTimer.Stop();
             gm.Initialize();
             RedrawBoard();
         }
@@ -79,32 +101,119 @@ namespace othello
         }
 
         /// <summary>
-        /// メニュー「対戦モード」。COM対戦(AI)は未実装のため、
-        /// 人 vs 人以外を選ぶと案内を出して選択を人 vs 人に戻す。
+        /// メニュー「対戦モード」。選び直したら新規対局から始める。
         /// </summary>
         private void menuItem_PlayMode_Click(object sender, EventArgs e)
         {
             var clicked = (ToolStripMenuItem)sender;
 
-            if (clicked != menuItem_PP)
+            if (clicked == menuItem_PP)
             {
-                MessageBox.Show(
-                    "COM対戦(AI)はまだ実装されていないよ。\n人 vs 人で遊んでね。",
-                    "対戦モード",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                clicked = menuItem_PP;
+                playMode = PlayMode.PlayerPlayer;
+            }
+            else if (clicked == menuItem_PC)
+            {
+                playMode = PlayMode.PlayerCom;
+            }
+            else if (clicked == menuItem_CP)
+            {
+                playMode = PlayMode.ComPlayer;
+            }
+            else if (clicked == menuItem_CC)
+            {
+                playMode = PlayMode.ComCom;
             }
 
             menuItem_PP.Checked = clicked == menuItem_PP;
             menuItem_PC.Checked = clicked == menuItem_PC;
             menuItem_CP.Checked = clicked == menuItem_CP;
             menuItem_CC.Checked = clicked == menuItem_CC;
+
+            comMoveTimer.Stop();
+            gm.Initialize();
+            RedrawBoard();
+        }
+
+        /// <summary>
+        /// メニュー「COMレベル」。
+        /// </summary>
+        private void menuItem_ComLevel_Click(object sender, EventArgs e)
+        {
+            var clicked = (ToolStripMenuItem)sender;
+
+            if (clicked == menuItem_ComLevel1)
+            {
+                comLevel = 1;
+            }
+            else if (clicked == menuItem_ComLevel2)
+            {
+                comLevel = 2;
+            }
+            else if (clicked == menuItem_ComLevel3)
+            {
+                comLevel = 3;
+            }
+
+            menuItem_ComLevel1.Checked = clicked == menuItem_ComLevel1;
+            menuItem_ComLevel2.Checked = clicked == menuItem_ComLevel2;
+            menuItem_ComLevel3.Checked = clicked == menuItem_ComLevel3;
+        }
+
+        /// <summary>
+        /// 現在の対戦モードで、colorがCOM操作かどうか。
+        /// </summary>
+        private bool IsComTurn(StoneColor color)
+        {
+            switch (playMode)
+            {
+                case PlayMode.PlayerCom:
+                    return color == StoneColor.White;
+                case PlayMode.ComPlayer:
+                    return color == StoneColor.Black;
+                case PlayMode.ComCom:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// 現在の手番がCOMなら、少し間を置いてからCOMに一手打たせる。
+        /// </summary>
+        private void MaybeTriggerComMove()
+        {
+            if (!gm.IsGameEnd && IsComTurn(gm.CurrentTurn))
+            {
+                comMoveTimer.Start();
+            }
+        }
+
+        private void ComMoveTimer_Tick(object sender, EventArgs e)
+        {
+            comMoveTimer.Stop();
+
+            if (gm.IsGameEnd || !IsComTurn(gm.CurrentTurn))
+            {
+                return;
+            }
+
+            if (ComPlayer.TryGetMove(gm, gm.CurrentTurn, comLevel, out int x, out int y))
+            {
+                gm.TryPut(x, y);
+            }
+
+            RedrawBoard();
         }
 
         private void pictureBoxField_MouseClick(object sender, MouseEventArgs e)
         {
             if (gm.IsGameEnd)
+            {
+                return;
+            }
+
+            // COMの手番中(タイマー待ち)は人間のクリックを受け付けない
+            if (IsComTurn(gm.CurrentTurn))
             {
                 return;
             }
@@ -160,14 +269,18 @@ namespace othello
         }
 
         /// <summary>
-        /// 盤面・置ける場所のマーク・手番表示をまとめて再描画する。
-        /// 終局している場合は置ける場所のマークは出さない。
+        /// 盤面・置ける場所のマーク・手番表示をまとめて再描画し、COMの手番なら次の一手を予約する。
+        /// 終局している場合や、これから打つのがCOMの場合は置ける場所のマークは出さない
+        /// (マークは「あなたがここに置けるよ」という案内なので)。
         /// </summary>
         private void RedrawBoard()
         {
-            bool[,] validMoves = gm.IsGameEnd ? null : gm.GetValidMoves(gm.CurrentTurn);
+            bool showNotice = !gm.IsGameEnd && !IsComTurn(gm.CurrentTurn);
+            bool[,] validMoves = showNotice ? gm.GetValidMoves(gm.CurrentTurn) : null;
             draw.DrawField(gm.Table, validMoves);
             UpdateStatusLabel();
+
+            MaybeTriggerComMove();
         }
 
         /// <summary>

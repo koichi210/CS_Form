@@ -52,6 +52,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComPlayerTests.cs" />
     <Compile Include="DrawTests.cs" />
     <Compile Include="Form1Tests.cs" />
     <Compile Include="GameMasterTests.cs" />
