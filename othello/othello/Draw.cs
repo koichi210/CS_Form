@@ -69,10 +69,15 @@ namespace othello
             }
         }
 
-        public Bitmap GetCanvas()
+        /// <summary>
+        /// 現在描画中のBitmapそのもの(コピーではなく参照)を返す。
+        /// 描画メソッドはこれを直接書き換えることで、毎回盤面全体をコピーする
+        /// 無駄なコストを避けている(以前は石や線を1つ描くたびに全体コピーしていたため、
+        /// 盤面が埋まってくるほど描画がどんどん重くなっていた)。
+        /// </summary>
+        private Bitmap GetCanvas()
         {
-            Bitmap canvas = new Bitmap(pb.Image);
-            return canvas;
+            return (Bitmap)pb.Image;
         }
 
         /// <summary>
@@ -183,14 +188,13 @@ namespace othello
                 noticeWidth,
                 noticeHeight);
 
-            Bitmap canvas = GetCanvas();
-            using (Graphics g = Graphics.FromImage(canvas))
+            using (Graphics g = Graphics.FromImage(GetCanvas()))
             using (Brush brush = new SolidBrush(Color.FromArgb(140, Color.DarkGray)))
             {
                 g.FillEllipse(brush, rect);
             }
 
-            pb.Image = canvas;
+            pb.Invalidate();
         }
 
         /// <summary>
@@ -215,43 +219,35 @@ namespace othello
 
             Brush brush = color == StoneColor.Black ? Brushes.Black : Brushes.White;
 
-            Bitmap canvas = GetCanvas();
-            using (Graphics g = Graphics.FromImage(canvas))
+            using (Graphics g = Graphics.FromImage(GetCanvas()))
             {
                 g.FillEllipse(brush, rect);
             }
 
-            pb.Image = canvas;
+            pb.Invalidate();
         }
 
         public void FillBackground(Brush color)
         {
             Rectangle rect = new Rectangle(0, 0, pb.Width, pb.Height);
 
-            Bitmap canvas = GetCanvas();
-            using (Graphics g = Graphics.FromImage(canvas))
+            using (Graphics g = Graphics.FromImage(GetCanvas()))
             {
                 g.FillRectangle(color, rect);
-                g.Dispose();
             }
 
-            pb.Image = canvas;
+            pb.Invalidate();
         }
 
         public void WriteLine(Point MovePt, Point LinePt, Color clr, int LineWidth)
         {
-            Bitmap canvas = GetCanvas();
-            using (Graphics g = Graphics.FromImage(canvas))
+            using (Graphics g = Graphics.FromImage(GetCanvas()))
+            using (Pen pen = new Pen(clr, LineWidth))
             {
-                using (Pen pen = new Pen(clr, LineWidth))
-                {
-                    g.DrawLine(pen, MovePt, LinePt);
-                    pen.Dispose();
-                    g.Dispose();
-                }
+                g.DrawLine(pen, MovePt, LinePt);
             }
 
-            pb.Image = canvas;
+            pb.Invalidate();
         }
     }
 }
