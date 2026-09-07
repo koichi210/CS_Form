@@ -1,4 +1,4 @@
-﻿namespace EventRecorder
+namespace EventRecorder
 {
     partial class Form1
     {
@@ -28,85 +28,153 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button_Setting = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.col_Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_X = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Wait = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.button_Record = new System.Windows.Forms.Button();
+            this.button_Play = new System.Windows.Forms.Button();
+            this.button_Clear = new System.Windows.Forms.Button();
+            this.button_Save = new System.Windows.Forms.Button();
+            this.button_Load = new System.Windows.Forms.Button();
+            this.label_Loop = new System.Windows.Forms.Label();
+            this.textBox_Loop = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // button_Setting
-            // 
-            this.button_Setting.Location = new System.Drawing.Point(59, 12);
-            this.button_Setting.Name = "button_Setting";
-            this.button_Setting.Size = new System.Drawing.Size(51, 23);
-            this.button_Setting.TabIndex = 0;
-            this.button_Setting.Text = "設定";
-            this.button_Setting.UseVisualStyleBackColor = true;
-            this.button_Setting.Click += new System.EventHandler(this.button_Setting_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(35, 41);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "MouseHook";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(35, 70);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "KeyHook";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(33, 99);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "Play";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(116, 10);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(164, 144);
-            this.textBox1.TabIndex = 4;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(10, 135);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(100, 19);
-            this.textBox2.TabIndex = 5;
-            // 
+            //
+            // dataGridView1
+            //
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToResizeRows = false;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.col_Type,
+            this.col_X,
+            this.col_Y,
+            this.col_Key,
+            this.col_Wait});
+            this.dataGridView1.Location = new System.Drawing.Point(12, 12);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowHeadersWidth = 30;
+            this.dataGridView1.Size = new System.Drawing.Size(406, 296);
+            this.dataGridView1.TabIndex = 0;
+            //
+            // col_Type
+            //
+            this.col_Type.HeaderText = "Event";
+            this.col_Type.Name = "col_Type";
+            this.col_Type.Width = 90;
+            //
+            // col_X
+            //
+            this.col_X.HeaderText = "X";
+            this.col_X.Name = "col_X";
+            this.col_X.Width = 55;
+            //
+            // col_Y
+            //
+            this.col_Y.HeaderText = "Y";
+            this.col_Y.Name = "col_Y";
+            this.col_Y.Width = 55;
+            //
+            // col_Key
+            //
+            this.col_Key.HeaderText = "Key";
+            this.col_Key.Name = "col_Key";
+            this.col_Key.Width = 80;
+            //
+            // col_Wait
+            //
+            this.col_Wait.HeaderText = "Wait(ms)";
+            this.col_Wait.Name = "col_Wait";
+            this.col_Wait.Width = 70;
+            //
+            // button_Record
+            //
+            this.button_Record.Location = new System.Drawing.Point(12, 318);
+            this.button_Record.Name = "button_Record";
+            this.button_Record.Size = new System.Drawing.Size(80, 27);
+            this.button_Record.TabIndex = 1;
+            this.button_Record.Text = "記録";
+            this.button_Record.UseVisualStyleBackColor = true;
+            this.button_Record.Click += new System.EventHandler(this.button_Record_Click);
+            //
+            // button_Play
+            //
+            this.button_Play.Location = new System.Drawing.Point(98, 318);
+            this.button_Play.Name = "button_Play";
+            this.button_Play.Size = new System.Drawing.Size(80, 27);
+            this.button_Play.TabIndex = 2;
+            this.button_Play.Text = "再生";
+            this.button_Play.UseVisualStyleBackColor = true;
+            this.button_Play.Click += new System.EventHandler(this.button_Play_Click);
+            //
+            // button_Clear
+            //
+            this.button_Clear.Location = new System.Drawing.Point(184, 318);
+            this.button_Clear.Name = "button_Clear";
+            this.button_Clear.Size = new System.Drawing.Size(80, 27);
+            this.button_Clear.TabIndex = 3;
+            this.button_Clear.Text = "クリア";
+            this.button_Clear.UseVisualStyleBackColor = true;
+            this.button_Clear.Click += new System.EventHandler(this.button_Clear_Click);
+            //
+            // button_Save
+            //
+            this.button_Save.Location = new System.Drawing.Point(12, 351);
+            this.button_Save.Name = "button_Save";
+            this.button_Save.Size = new System.Drawing.Size(80, 27);
+            this.button_Save.TabIndex = 4;
+            this.button_Save.Text = "保存";
+            this.button_Save.UseVisualStyleBackColor = true;
+            this.button_Save.Click += new System.EventHandler(this.button_Save_Click);
+            //
+            // button_Load
+            //
+            this.button_Load.Location = new System.Drawing.Point(98, 351);
+            this.button_Load.Name = "button_Load";
+            this.button_Load.Size = new System.Drawing.Size(80, 27);
+            this.button_Load.TabIndex = 5;
+            this.button_Load.Text = "読込";
+            this.button_Load.UseVisualStyleBackColor = true;
+            this.button_Load.Click += new System.EventHandler(this.button_Load_Click);
+            //
+            // label_Loop
+            //
+            this.label_Loop.AutoSize = true;
+            this.label_Loop.Location = new System.Drawing.Point(190, 357);
+            this.label_Loop.Name = "label_Loop";
+            this.label_Loop.Size = new System.Drawing.Size(56, 12);
+            this.label_Loop.TabIndex = 6;
+            this.label_Loop.Text = "ループ回数";
+            //
+            // textBox_Loop
+            //
+            this.textBox_Loop.Location = new System.Drawing.Point(252, 353);
+            this.textBox_Loop.Name = "textBox_Loop";
+            this.textBox_Loop.Size = new System.Drawing.Size(48, 19);
+            this.textBox_Loop.TabIndex = 7;
+            this.textBox_Loop.Text = "1";
+            //
             // Form1
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(301, 169);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.button_Setting);
+            this.ClientSize = new System.Drawing.Size(430, 390);
+            this.Controls.Add(this.textBox_Loop);
+            this.Controls.Add(this.label_Loop);
+            this.Controls.Add(this.button_Load);
+            this.Controls.Add(this.button_Save);
+            this.Controls.Add(this.button_Clear);
+            this.Controls.Add(this.button_Play);
+            this.Controls.Add(this.button_Record);
+            this.Controls.Add(this.dataGridView1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "EventRecorder";
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -114,12 +182,18 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button_Setting;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        internal System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Type;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_X;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Y;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Key;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Wait;
+        private System.Windows.Forms.Button button_Record;
+        private System.Windows.Forms.Button button_Play;
+        private System.Windows.Forms.Button button_Clear;
+        private System.Windows.Forms.Button button_Save;
+        private System.Windows.Forms.Button button_Load;
+        private System.Windows.Forms.Label label_Loop;
+        internal System.Windows.Forms.TextBox textBox_Loop;
     }
 }
-
