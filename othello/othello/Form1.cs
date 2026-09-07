@@ -28,9 +28,20 @@ namespace othello
         private PlayMode playMode = PlayMode.PlayerPlayer;
         private int comLevel = 1;
 
+        // 持ち時間(秒)。-1は「なし」。C++版 time_limit 相当。
+        private int timeLimitSeconds = -1;
+        private int blackTimeMs;
+        private int whiteTimeMs;
+        // 時間切れで終局したかどうか(GameMaster.IsGameEndとは別に管理する)
+        private bool isTimedOut;
+
         // COMの手を少し間を置いてから打つためのタイマー(人間の手と同じ速さで即打つと
         // 何が起きたか分かりにくいため)。
         private readonly Timer comMoveTimer = new Timer { Interval = 500 };
+
+        // 持ち時間のカウントダウン用タイマー。C++版 COUNT_DOWN_CYC(100ms)相当。
+        // 常に「今の手番」の残り時間を減らす(手番が変わればおのずと対象も切り替わる)。
+        private readonly Timer countdownTimer = new Timer { Interval = 100 };
 
         public Form1()
         {
@@ -41,11 +52,26 @@ namespace othello
             this.MinimumSize = this.Size;
 
             comMoveTimer.Tick += ComMoveTimer_Tick;
+            countdownTimer.Tick += CountdownTimer_Tick;
 
-            gm.Initialize();
+            ResetGame();
 
             draw.SetDrawArea(pictureBoxField);
             RedrawBoard();
+        }
+
+        /// <summary>
+        /// 新規対局を始める(盤面・手番・持ち時間・時間切れ状態を初期化する)。
+        /// </summary>
+        private void ResetGame()
+        {
+            comMoveTimer.Stop();
+            countdownTimer.Stop();
+
+            gm.Initialize();
+            isTimedOut = false;
+            blackTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
+            whiteTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
         }
 
         private void button_ReStart_Click(object sender, EventArgs e)
@@ -57,8 +83,7 @@ namespace othello
                 MessageBoxIcon.Warning);
             if (DlgResult == DialogResult.Yes)
             {
-                comMoveTimer.Stop();
-                gm.Initialize();
+                ResetGame();
                 RedrawBoard();
             }
         }
@@ -68,8 +93,7 @@ namespace othello
         /// </summary>
         private void menuItem_Start_Click(object sender, EventArgs e)
         {
-            comMoveTimer.Stop();
-            gm.Initialize();
+            ResetGame();
             RedrawBoard();
         }
 
@@ -129,8 +153,7 @@ namespace othello
             menuItem_CP.Checked = clicked == menuItem_CP;
             menuItem_CC.Checked = clicked == menuItem_CC;
 
-            comMoveTimer.Stop();
-            gm.Initialize();
+            ResetGame();
             RedrawBoard();
         }
 
@@ -157,6 +180,61 @@ namespace othello
             menuItem_ComLevel1.Checked = clicked == menuItem_ComLevel1;
             menuItem_ComLevel2.Checked = clicked == menuItem_ComLevel2;
             menuItem_ComLevel3.Checked = clicked == menuItem_ComLevel3;
+        }
+
+        /// <summary>
+        /// メニュー「持ち時間」。選び直したら新規対局から始める。
+        /// </summary>
+        private void menuItem_TimeLimit_Click(object sender, EventArgs e)
+        {
+            var clicked = (ToolStripMenuItem)sender;
+
+            if (clicked == menuItem_TimeNone)
+            {
+                timeLimitSeconds = -1;
+            }
+            else if (clicked == menuItem_Time30s)
+            {
+                timeLimitSeconds = 30;
+            }
+            else if (clicked == menuItem_Time1m)
+            {
+                timeLimitSeconds = 60;
+            }
+            else if (clicked == menuItem_Time2m)
+            {
+                timeLimitSeconds = 120;
+            }
+            else if (clicked == menuItem_Time3m)
+            {
+                timeLimitSeconds = 180;
+            }
+            else if (clicked == menuItem_Time5m)
+            {
+                timeLimitSeconds = 300;
+            }
+            else if (clicked == menuItem_Time10m)
+            {
+                timeLimitSeconds = 600;
+            }
+            else if (clicked == menuItem_Time15m)
+            {
+                timeLimitSeconds = 900;
+            }
+
+            menuItem_TimeNone.Checked = clicked == menuItem_TimeNone;
+            menuItem_Time30s.Checked = clicked == menuItem_Time30s;
+            menuItem_Time1m.Checked = clicked == menuItem_Time1m;
+            menuItem_Time2m.Checked = clicked == menuItem_Time2m;
+            menuItem_Time3m.Checked = clicked == menuItem_Time3m;
+            menuItem_Time5m.Checked = clicked == menuItem_Time5m;
+            menuItem_Time10m.Checked = clicked == menuItem_Time10m;
+            menuItem_Time15m.Checked = clicked == menuItem_Time15m;
+
+            label_Time.Visible = timeLimitSeconds >= 0;
+
+            ResetGame();
+            RedrawBoard();
         }
 
         /// <summary>
@@ -192,7 +270,7 @@ namespace othello
         {
             comMoveTimer.Stop();
 
-            if (gm.IsGameEnd || !IsComTurn(gm.CurrentTurn))
+            if (isTimedOut || gm.IsGameEnd || !IsComTurn(gm.CurrentTurn))
             {
                 return;
             }
@@ -205,9 +283,35 @@ namespace othello
             RedrawBoard();
         }
 
+        /// <summary>
+        /// 持ち時間のカウントダウン。今の手番の残り時間を100msずつ減らし、
+        /// 0になったらその手番の時間切れ負けとして対局を止める(C++版 OnTimer/TimeOutProc)。
+        /// </summary>
+        private void CountdownTimer_Tick(object sender, EventArgs e)
+        {
+            if (gm.CurrentTurn == StoneColor.Black)
+            {
+                blackTimeMs -= countdownTimer.Interval;
+            }
+            else
+            {
+                whiteTimeMs -= countdownTimer.Interval;
+            }
+
+            UpdateTimeLabel();
+
+            if (blackTimeMs <= 0 || whiteTimeMs <= 0)
+            {
+                countdownTimer.Stop();
+                comMoveTimer.Stop();
+                isTimedOut = true;
+                UpdateStatusLabel();
+            }
+        }
+
         private void pictureBoxField_MouseClick(object sender, MouseEventArgs e)
         {
-            if (gm.IsGameEnd)
+            if (isTimedOut || gm.IsGameEnd)
             {
                 return;
             }
@@ -275,12 +379,37 @@ namespace othello
         /// </summary>
         private void RedrawBoard()
         {
-            bool showNotice = !gm.IsGameEnd && !IsComTurn(gm.CurrentTurn);
+            bool showNotice = !isTimedOut && !gm.IsGameEnd && !IsComTurn(gm.CurrentTurn);
             bool[,] validMoves = showNotice ? gm.GetValidMoves(gm.CurrentTurn) : null;
             draw.DrawField(gm.Table, validMoves);
             UpdateStatusLabel();
+            UpdateTimeLabel();
+
+            if (!isTimedOut && !gm.IsGameEnd && timeLimitSeconds >= 0)
+            {
+                countdownTimer.Start();
+            }
+            else
+            {
+                countdownTimer.Stop();
+            }
 
             MaybeTriggerComMove();
+        }
+
+        /// <summary>
+        /// 持ち時間の残りをlabel_Timeに表示する(持ち時間「なし」なら何も表示しない)。
+        /// </summary>
+        private void UpdateTimeLabel()
+        {
+            if (timeLimitSeconds < 0)
+            {
+                return;
+            }
+
+            int blackSec = Math.Max(0, blackTimeMs) / 1000;
+            int whiteSec = Math.Max(0, whiteTimeMs) / 1000;
+            label_Time.Text = string.Format("残り時間 黒:{0}秒 白:{1}秒", blackSec, whiteSec);
         }
 
         /// <summary>
@@ -289,6 +418,14 @@ namespace othello
         private void UpdateStatusLabel()
         {
             gm.CountStone(out int blackCount, out int whiteCount);
+
+            if (isTimedOut)
+            {
+                string loserName = blackTimeMs <= 0 ? "黒" : "白";
+                string winnerName = blackTimeMs <= 0 ? "白" : "黒";
+                label_Status.Text = string.Format("時間切れ({0}) {1}の勝ち 黒:{2} 白:{3}", loserName, winnerName, blackCount, whiteCount);
+                return;
+            }
 
             if (gm.IsGameEnd)
             {

@@ -32,6 +32,7 @@
             this.pictureBoxField = new System.Windows.Forms.PictureBox();
             this.button_ReStart = new System.Windows.Forms.Button();
             this.label_Status = new System.Windows.Forms.Label();
+            this.label_Time = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuItem_Game = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Start = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,6 +50,15 @@
             this.menuItem_ComLevel1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_ComLevel2 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_ComLevel3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_TimeLimit = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_TimeNone = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time30s = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time1m = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time2m = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time3m = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time5m = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time10m = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Time15m = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxField)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -75,10 +85,20 @@
             this.label_Status.TabIndex = 2;
             this.label_Status.Text = "label_Status";
             //
+            // label_Time
+            //
+            this.label_Time.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label_Time.Location = new System.Drawing.Point(12, 258);
+            this.label_Time.Name = "label_Time";
+            this.label_Time.Size = new System.Drawing.Size(200, 18);
+            this.label_Time.TabIndex = 4;
+            this.label_Time.Text = "";
+            this.label_Time.Visible = false;
+            //
             // button_ReStart
             //
             this.button_ReStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_ReStart.Location = new System.Drawing.Point(137, 264);
+            this.button_ReStart.Location = new System.Drawing.Point(137, 282);
             this.button_ReStart.Name = "button_ReStart";
             this.button_ReStart.Size = new System.Drawing.Size(75, 23);
             this.button_ReStart.TabIndex = 1;
@@ -91,7 +111,8 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_Game,
             this.menuItem_PlayMode,
-            this.menuItem_ComLevel});
+            this.menuItem_ComLevel,
+            this.menuItem_TimeLimit});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(224, 24);
@@ -223,11 +244,85 @@
             this.menuItem_ComLevel3.Text = "レベル3";
             this.menuItem_ComLevel3.Click += new System.EventHandler(this.menuItem_ComLevel_Click);
             //
+            // menuItem_TimeLimit
+            //
+            this.menuItem_TimeLimit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItem_TimeNone,
+            this.menuItem_Time30s,
+            this.menuItem_Time1m,
+            this.menuItem_Time2m,
+            this.menuItem_Time3m,
+            this.menuItem_Time5m,
+            this.menuItem_Time10m,
+            this.menuItem_Time15m});
+            this.menuItem_TimeLimit.Name = "menuItem_TimeLimit";
+            this.menuItem_TimeLimit.Size = new System.Drawing.Size(76, 20);
+            this.menuItem_TimeLimit.Text = "持ち時間(&T)";
+            //
+            // menuItem_TimeNone
+            //
+            this.menuItem_TimeNone.Checked = true;
+            this.menuItem_TimeNone.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuItem_TimeNone.Name = "menuItem_TimeNone";
+            this.menuItem_TimeNone.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_TimeNone.Text = "なし";
+            this.menuItem_TimeNone.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time30s
+            //
+            this.menuItem_Time30s.Name = "menuItem_Time30s";
+            this.menuItem_Time30s.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time30s.Text = "30秒";
+            this.menuItem_Time30s.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time1m
+            //
+            this.menuItem_Time1m.Name = "menuItem_Time1m";
+            this.menuItem_Time1m.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time1m.Text = "1分";
+            this.menuItem_Time1m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time2m
+            //
+            this.menuItem_Time2m.Name = "menuItem_Time2m";
+            this.menuItem_Time2m.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time2m.Text = "2分";
+            this.menuItem_Time2m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time3m
+            //
+            this.menuItem_Time3m.Name = "menuItem_Time3m";
+            this.menuItem_Time3m.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time3m.Text = "3分";
+            this.menuItem_Time3m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time5m
+            //
+            this.menuItem_Time5m.Name = "menuItem_Time5m";
+            this.menuItem_Time5m.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time5m.Text = "5分";
+            this.menuItem_Time5m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time10m
+            //
+            this.menuItem_Time10m.Name = "menuItem_Time10m";
+            this.menuItem_Time10m.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time10m.Text = "10分";
+            this.menuItem_Time10m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
+            // menuItem_Time15m
+            //
+            this.menuItem_Time15m.Name = "menuItem_Time15m";
+            this.menuItem_Time15m.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Time15m.Text = "15分";
+            this.menuItem_Time15m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
+            //
             // Form1
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(224, 298);
+            this.ClientSize = new System.Drawing.Size(224, 322);
+            this.Controls.Add(this.label_Time);
             this.Controls.Add(this.label_Status);
             this.Controls.Add(this.button_ReStart);
             this.Controls.Add(this.pictureBoxField);
@@ -247,6 +342,7 @@
 
         private System.Windows.Forms.Button button_ReStart;
         private System.Windows.Forms.Label label_Status;
+        private System.Windows.Forms.Label label_Time;
         public System.Windows.Forms.PictureBox pictureBoxField;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Game;
@@ -265,6 +361,15 @@
         private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel1;
         private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel2;
         private System.Windows.Forms.ToolStripMenuItem menuItem_ComLevel3;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_TimeLimit;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_TimeNone;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time30s;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time1m;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time2m;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time3m;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time5m;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time10m;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Time15m;
     }
 }
 
