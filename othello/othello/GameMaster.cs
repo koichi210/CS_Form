@@ -15,6 +15,16 @@ namespace othello
     }
 
     /// <summary>
+    /// 棋譜の1手分。C++版 StrKihuTable(KihuTable配列の要素)相当。
+    /// </summary>
+    public struct KihuMove
+    {
+        public int X;
+        public int Y;
+        public StoneColor Color;
+    }
+
+    /// <summary>
     /// オセロの盤面状態とルール(石を置く・ひっくり返す・手番交代・終局判定)を管理するクラス。
     /// C++版 COthelloBase(othellobase.h/.cpp)のロジックを移植したもの。
     /// </summary>
@@ -35,6 +45,9 @@ namespace othello
         // COMの思考(序盤/中盤/終盤の判定、最初の2手はランダムにする等)に使う。
         public int TurnCount { get; private set; }
 
+        // これまでに打たれた手の履歴(棋譜)。C++版 KihuTable 相当。
+        public List<KihuMove> History { get; private set; }
+
         // 8方向(左, 右, 上, 下, 左上, 左下, 右上, 右下)
         private static readonly int[] DirX = { -1, 1, 0, 0, -1, -1, 1, 1 };
         private static readonly int[] DirY = { 0, 0, -1, 1, -1, 1, -1, 1 };
@@ -50,6 +63,7 @@ namespace othello
             CurrentTurn = StoneColor.Black;
             IsGameEnd = false;
             TurnCount = 0;
+            History = new List<KihuMove>();
         }
 
         /// <summary>
@@ -64,6 +78,7 @@ namespace othello
                 CurrentTurn = CurrentTurn,
                 IsGameEnd = IsGameEnd,
                 TurnCount = TurnCount,
+                History = new List<KihuMove>(History),
             };
             return clone;
         }
@@ -225,6 +240,8 @@ namespace othello
                     Table[cy, cx] = CurrentTurn;
                 }
             }
+
+            History.Add(new KihuMove { X = x, Y = y, Color = CurrentTurn });
 
             TurnCount++;
             AdvanceTurn();

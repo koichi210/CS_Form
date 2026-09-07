@@ -59,6 +59,10 @@
             this.menuItem_Time5m = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Time10m = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Time15m = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Kihu = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_KihuShow = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_KihuSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_KihuLoad = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxField)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -112,7 +116,8 @@
             this.menuItem_Game,
             this.menuItem_PlayMode,
             this.menuItem_ComLevel,
-            this.menuItem_TimeLimit});
+            this.menuItem_TimeLimit,
+            this.menuItem_Kihu});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(224, 24);
@@ -317,6 +322,37 @@
             this.menuItem_Time15m.Text = "15分";
             this.menuItem_Time15m.Click += new System.EventHandler(this.menuItem_TimeLimit_Click);
             //
+            // menuItem_Kihu
+            //
+            this.menuItem_Kihu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItem_KihuShow,
+            this.menuItem_KihuSave,
+            this.menuItem_KihuLoad});
+            this.menuItem_Kihu.Name = "menuItem_Kihu";
+            this.menuItem_Kihu.Size = new System.Drawing.Size(58, 20);
+            this.menuItem_Kihu.Text = "棋譜(&K)";
+            //
+            // menuItem_KihuShow
+            //
+            this.menuItem_KihuShow.Name = "menuItem_KihuShow";
+            this.menuItem_KihuShow.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_KihuShow.Text = "表示(&V)";
+            this.menuItem_KihuShow.Click += new System.EventHandler(this.menuItem_KihuShow_Click);
+            //
+            // menuItem_KihuSave
+            //
+            this.menuItem_KihuSave.Name = "menuItem_KihuSave";
+            this.menuItem_KihuSave.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_KihuSave.Text = "保存(&S)...";
+            this.menuItem_KihuSave.Click += new System.EventHandler(this.menuItem_KihuSave_Click);
+            //
+            // menuItem_KihuLoad
+            //
+            this.menuItem_KihuLoad.Name = "menuItem_KihuLoad";
+            this.menuItem_KihuLoad.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_KihuLoad.Text = "読込(&L)...";
+            this.menuItem_KihuLoad.Click += new System.EventHandler(this.menuItem_KihuLoad_Click);
+            //
             // Form1
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -370,6 +406,10 @@
         private System.Windows.Forms.ToolStripMenuItem menuItem_Time5m;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Time10m;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Time15m;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Kihu;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_KihuShow;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_KihuSave;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_KihuLoad;
     }
 }
 

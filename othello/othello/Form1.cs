@@ -238,6 +238,79 @@ namespace othello
         }
 
         /// <summary>
+        /// メニュー「棋譜」→「表示」。ここまでの手順をメッセージボックスに表示する。
+        /// </summary>
+        private void menuItem_KihuShow_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(Kihu.ToText(gm.History), "棋譜", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// メニュー「棋譜」→「保存」。ここまでの手順をテキストファイルに保存する。
+        /// </summary>
+        private void menuItem_KihuSave_Click(object sender, EventArgs e)
+        {
+            if (gm.History.Count == 0)
+            {
+                MessageBox.Show("まだ1手も打たれていないよ。", "棋譜の保存", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "棋譜ファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*";
+                dialog.FileName = "othello_kihu.txt";
+
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    System.IO.File.WriteAllText(dialog.FileName, Kihu.ToText(gm.History));
+                }
+            }
+        }
+
+        /// <summary>
+        /// メニュー「棋譜」→「読込」。テキストファイルから手順を読み込み、最初から再生する。
+        /// </summary>
+        private void menuItem_KihuLoad_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "棋譜ファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*";
+
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                string text;
+                try
+                {
+                    text = System.IO.File.ReadAllText(dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("棋譜ファイルを読み込めなかったよ。\n" + ex.Message, "棋譜の読込", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                comMoveTimer.Stop();
+                countdownTimer.Stop();
+
+                bool ok = Kihu.TryReplay(text, gm, out string errorMessage);
+                isTimedOut = false;
+                blackTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
+                whiteTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
+
+                RedrawBoard();
+
+                if (!ok)
+                {
+                    MessageBox.Show(errorMessage ?? "棋譜を読み込めなかったよ。", "棋譜の読込", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        /// <summary>
         /// 現在の対戦モードで、colorがCOM操作かどうか。
         /// </summary>
         private bool IsComTurn(StoneColor color)
