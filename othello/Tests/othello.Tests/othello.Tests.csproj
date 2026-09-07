@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="DrawTests.cs" />
     <Compile Include="Form1Tests.cs" />
+    <Compile Include="GameMasterTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
