@@ -263,9 +263,17 @@ namespace EventRecorder
 
             dataGridView_Events.ResumeLayout();
 
-            if (lastIdx >= 0)
+            if (lastIdx >= 0 && dataGridView_Events.Visible && dataGridView_Events.RowCount > 0)
             {
-                dataGridView_Events.FirstDisplayedScrollingRowIndex = lastIdx;
+                try
+                {
+                    dataGridView_Events.FirstDisplayedScrollingRowIndex = lastIdx;
+                }
+                catch (InvalidOperationException)
+                {
+                    // グリッドが未表示/高さ0等で行を表示できないタイミングでは
+                    // スクロール位置合わせを諦めて記録自体は継続する(既知のWinForms挙動)
+                }
             }
         }
 
@@ -385,7 +393,19 @@ namespace EventRecorder
             if (idx >= 0 && idx < dataGridView_Events.Rows.Count)
             {
                 dataGridView_Events.Rows[idx].DefaultCellStyle.BackColor = Color.LightYellow;
-                dataGridView_Events.FirstDisplayedScrollingRowIndex = idx;
+
+                if (dataGridView_Events.Visible)
+                {
+                    try
+                    {
+                        dataGridView_Events.FirstDisplayedScrollingRowIndex = idx;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // グリッドが未表示/高さ0等で行を表示できないタイミングでは
+                        // スクロール位置合わせを諦めて再生自体は継続する(既知のWinForms挙動)
+                    }
+                }
             }
 
             highlightedRowIndex = idx;
