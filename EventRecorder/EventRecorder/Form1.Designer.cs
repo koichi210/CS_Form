@@ -50,12 +50,18 @@ namespace EventRecorder
             this.tabPage_Record = new System.Windows.Forms.TabPage();
             this.tabPage_Playlist = new System.Windows.Forms.TabPage();
             this.dataGridView_Playlist = new System.Windows.Forms.DataGridView();
+            this.col_PlaylistEnabled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.col_PlaylistFile = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.col_PlaylistLoopCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label_PlaylistLoop = new System.Windows.Forms.Label();
+            this.textBox_PlaylistLoop = new System.Windows.Forms.TextBox();
             this.button_PlaylistRun = new System.Windows.Forms.Button();
             this.label_PlaylistStatus = new System.Windows.Forms.Label();
             this.contextMenuStrip_Playlist = new System.Windows.Forms.ContextMenuStrip();
             this.menuItem_PlaylistAddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistDeleteRow = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_PlaylistCheckAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_PlaylistUncheckAll = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Events)).BeginInit();
             this.contextMenuStrip_Grid.SuspendLayout();
             this.tabControl_Main.SuspendLayout();
@@ -241,7 +247,7 @@ namespace EventRecorder
             this.tabControl_Main.Location = new System.Drawing.Point(0, 0);
             this.tabControl_Main.Name = "tabControl_Main";
             this.tabControl_Main.SelectedIndex = 0;
-            this.tabControl_Main.Size = new System.Drawing.Size(430, 468);
+            this.tabControl_Main.Size = new System.Drawing.Size(430, 486);
             this.tabControl_Main.TabIndex = 0;
             this.tabControl_Main.SelectedIndexChanged += new System.EventHandler(this.tabControl_Main_SelectedIndexChanged);
             //
@@ -268,24 +274,29 @@ namespace EventRecorder
             // tabPage_Playlist
             //
             this.tabPage_Playlist.Controls.Add(this.label_PlaylistStatus);
+            this.tabPage_Playlist.Controls.Add(this.textBox_PlaylistLoop);
+            this.tabPage_Playlist.Controls.Add(this.label_PlaylistLoop);
             this.tabPage_Playlist.Controls.Add(this.button_PlaylistRun);
             this.tabPage_Playlist.Controls.Add(this.dataGridView_Playlist);
             this.tabPage_Playlist.Location = new System.Drawing.Point(4, 22);
             this.tabPage_Playlist.Name = "tabPage_Playlist";
             this.tabPage_Playlist.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_Playlist.Size = new System.Drawing.Size(422, 442);
+            this.tabPage_Playlist.Size = new System.Drawing.Size(422, 460);
             this.tabPage_Playlist.TabIndex = 1;
             this.tabPage_Playlist.Text = "プレイリスト";
             this.tabPage_Playlist.UseVisualStyleBackColor = true;
             //
             // dataGridView_Playlist
             //
-            // 1タブ目の「設定値読込/保存」と同じ一覧(*.xml)から選ぶプルダウン列を1つだけ持つグリッド。
+            // 1タブ目の「設定値読込/保存」と同じ一覧(*.xml)から選ぶプルダウン列(col_PlaylistFile)に加え、
+            // 実行対象かどうかのチェック列(col_PlaylistEnabled)・行ごとのループ回数列(col_PlaylistLoopCount)を持つ。
             // 上から順に実行する(並び替えは今回未対応、行のドラッグ&ドロップで別途対応予定)
             this.dataGridView_Playlist.AllowUserToAddRows = false;
             this.dataGridView_Playlist.AllowUserToResizeRows = false;
             this.dataGridView_Playlist.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.col_PlaylistFile});
+            this.col_PlaylistEnabled,
+            this.col_PlaylistFile,
+            this.col_PlaylistLoopCount});
             this.dataGridView_Playlist.ContextMenuStrip = this.contextMenuStrip_Playlist;
             this.dataGridView_Playlist.Location = new System.Drawing.Point(6, 6);
             this.dataGridView_Playlist.Name = "dataGridView_Playlist";
@@ -294,13 +305,27 @@ namespace EventRecorder
             this.dataGridView_Playlist.TabIndex = 0;
             this.dataGridView_Playlist.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_Playlist_CellMouseDown);
             this.dataGridView_Playlist.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView_Events_RowPostPaint);
+            // チェックボックスは1クリックで即座に値を反映させたいので、Dirty状態変化時にCommitする
+            this.dataGridView_Playlist.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridView_Playlist_CurrentCellDirtyStateChanged);
+            //
+            // col_PlaylistEnabled
+            //
+            this.col_PlaylistEnabled.HeaderText = "実行";
+            this.col_PlaylistEnabled.Name = "col_PlaylistEnabled";
+            this.col_PlaylistEnabled.Width = 40;
             //
             // col_PlaylistFile
             //
             this.col_PlaylistFile.HeaderText = "設定ファイル";
             this.col_PlaylistFile.Name = "col_PlaylistFile";
-            this.col_PlaylistFile.Width = 300;
+            this.col_PlaylistFile.Width = 220;
             this.col_PlaylistFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            //
+            // col_PlaylistLoopCount
+            //
+            this.col_PlaylistLoopCount.HeaderText = "ループ回数";
+            this.col_PlaylistLoopCount.Name = "col_PlaylistLoopCount";
+            this.col_PlaylistLoopCount.Width = 70;
             //
             // button_PlaylistRun
             //
@@ -312,21 +337,41 @@ namespace EventRecorder
             this.button_PlaylistRun.UseVisualStyleBackColor = true;
             this.button_PlaylistRun.Click += new System.EventHandler(this.button_PlaylistRun_Click);
             //
+            // label_PlaylistLoop
+            //
+            // プレイリスト全体を何周させるか(既存の各行のループ回数=列側、とは別の「全体ループ」)
+            this.label_PlaylistLoop.AutoSize = true;
+            this.label_PlaylistLoop.Location = new System.Drawing.Point(92, 409);
+            this.label_PlaylistLoop.Name = "label_PlaylistLoop";
+            this.label_PlaylistLoop.Size = new System.Drawing.Size(65, 12);
+            this.label_PlaylistLoop.TabIndex = 2;
+            this.label_PlaylistLoop.Text = "全体ループ";
+            //
+            // textBox_PlaylistLoop
+            //
+            this.textBox_PlaylistLoop.Location = new System.Drawing.Point(162, 405);
+            this.textBox_PlaylistLoop.Name = "textBox_PlaylistLoop";
+            this.textBox_PlaylistLoop.Size = new System.Drawing.Size(40, 19);
+            this.textBox_PlaylistLoop.TabIndex = 3;
+            this.textBox_PlaylistLoop.Text = "1";
+            //
             // label_PlaylistStatus
             //
             this.label_PlaylistStatus.AutoSize = true;
-            this.label_PlaylistStatus.Location = new System.Drawing.Point(92, 409);
+            this.label_PlaylistStatus.Location = new System.Drawing.Point(6, 436);
             this.label_PlaylistStatus.Name = "label_PlaylistStatus";
             this.label_PlaylistStatus.Size = new System.Drawing.Size(0, 12);
-            this.label_PlaylistStatus.TabIndex = 2;
+            this.label_PlaylistStatus.TabIndex = 4;
             //
             // contextMenuStrip_Playlist
             //
             this.contextMenuStrip_Playlist.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_PlaylistAddRow,
-            this.menuItem_PlaylistDeleteRow});
+            this.menuItem_PlaylistDeleteRow,
+            this.menuItem_PlaylistCheckAll,
+            this.menuItem_PlaylistUncheckAll});
             this.contextMenuStrip_Playlist.Name = "contextMenuStrip_Playlist";
-            this.contextMenuStrip_Playlist.Size = new System.Drawing.Size(122, 48);
+            this.contextMenuStrip_Playlist.Size = new System.Drawing.Size(122, 92);
             this.contextMenuStrip_Playlist.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Playlist_Opening);
             //
             // menuItem_PlaylistAddRow
@@ -343,11 +388,25 @@ namespace EventRecorder
             this.menuItem_PlaylistDeleteRow.Text = "行の削除";
             this.menuItem_PlaylistDeleteRow.Click += new System.EventHandler(this.menuItem_PlaylistDeleteRow_Click);
             //
+            // menuItem_PlaylistCheckAll
+            //
+            this.menuItem_PlaylistCheckAll.Name = "menuItem_PlaylistCheckAll";
+            this.menuItem_PlaylistCheckAll.Size = new System.Drawing.Size(121, 22);
+            this.menuItem_PlaylistCheckAll.Text = "全チェックON";
+            this.menuItem_PlaylistCheckAll.Click += new System.EventHandler(this.menuItem_PlaylistCheckAll_Click);
+            //
+            // menuItem_PlaylistUncheckAll
+            //
+            this.menuItem_PlaylistUncheckAll.Name = "menuItem_PlaylistUncheckAll";
+            this.menuItem_PlaylistUncheckAll.Size = new System.Drawing.Size(121, 22);
+            this.menuItem_PlaylistUncheckAll.Text = "全チェックOFF";
+            this.menuItem_PlaylistUncheckAll.Click += new System.EventHandler(this.menuItem_PlaylistUncheckAll_Click);
+            //
             // Form1
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(430, 468);
+            this.ClientSize = new System.Drawing.Size(430, 486);
             this.Controls.Add(this.tabControl_Main);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -390,11 +449,17 @@ namespace EventRecorder
         private System.Windows.Forms.TabPage tabPage_Record;
         private System.Windows.Forms.TabPage tabPage_Playlist;
         internal System.Windows.Forms.DataGridView dataGridView_Playlist;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn col_PlaylistEnabled;
         private System.Windows.Forms.DataGridViewComboBoxColumn col_PlaylistFile;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_PlaylistLoopCount;
         private System.Windows.Forms.Button button_PlaylistRun;
+        private System.Windows.Forms.Label label_PlaylistLoop;
+        internal System.Windows.Forms.TextBox textBox_PlaylistLoop;
         internal System.Windows.Forms.Label label_PlaylistStatus;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Playlist;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistAddRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistDeleteRow;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistCheckAll;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistUncheckAll;
     }
 }

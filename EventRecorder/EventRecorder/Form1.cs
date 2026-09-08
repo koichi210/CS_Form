@@ -793,6 +793,11 @@ namespace EventRecorder
         {
             int insertAt = (contextMenuPlaylistRowIndex >= 0) ? contextMenuPlaylistRowIndex + 1 : dataGridView_Playlist.Rows.Count;
             dataGridView_Playlist.Rows.Insert(insertAt, 1);
+
+            // 新しい行は「実行対象=ON、ループ回数=1」をデフォルトにしておく
+            DataGridViewRow newRow = dataGridView_Playlist.Rows[insertAt];
+            newRow.Cells[col_PlaylistEnabled.Index].Value = true;
+            newRow.Cells[col_PlaylistLoopCount.Index].Value = "1";
         }
 
         private void menuItem_PlaylistDeleteRow_Click(object sender, EventArgs e)
@@ -803,10 +808,18 @@ namespace EventRecorder
             }
         }
 
-        // プレイリストの各行で選ばれているファイル名を、上から順番に取り出す(空行は無視する)
-        private List<String> GetPlaylistFiles()
+        private void menuItem_PlaylistCheckAll_Click(object sender, EventArgs e)
         {
-            List<String> files = new List<String>();
+            SetAllPlaylistChecks(true);
+        }
+
+        private void menuItem_PlaylistUncheckAll_Click(object sender, EventArgs e)
+        {
+            SetAllPlaylistChecks(false);
+        }
+
+        private void SetAllPlaylistChecks(Boolean isChecked)
+        {
             foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
             {
                 if (row.IsNewRow)
@@ -814,14 +827,61 @@ namespace EventRecorder
                     continue;
                 }
 
-                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
-                if (!String.IsNullOrEmpty(fileName))
+                row.Cells[col_PlaylistEnabled.Index].Value = isChecked;
+            }
+        }
+
+        // チェックボックス列は、クリックしただけだと確定(コミット)されず見た目が変わらないことがあるので、
+        // 値が変化した直後に明示的にコミットして即座に反映させる
+        private void dataGridView_Playlist_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dataGridView_Playlist.CurrentCell is DataGridViewCheckBoxCell && dataGridView_Playlist.IsCurrentCellDirty)
+            {
+                dataGridView_Playlist.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        // プレイリストの1行分(ファイル名+そのファイル専用のループ回数)
+        private class PlaylistEntry
+        {
+            public String FileName;
+            public int LoopCount;
+        }
+
+        // プレイリストの各行のうち、チェックが入っていてファイルが選ばれている行だけを、
+        // 上から順番に取り出す(チェックが外れている行・ファイル未選択の行は実行対象から除外)
+        private List<PlaylistEntry> GetPlaylistEntries()
+        {
+            List<PlaylistEntry> entries = new List<PlaylistEntry>();
+            foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+            {
+                if (row.IsNewRow)
                 {
-                    files.Add(fileName);
+                    continue;
                 }
+
+                Boolean isEnabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
+                if (!isEnabled)
+                {
+                    continue;
+                }
+
+                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
+                if (String.IsNullOrEmpty(fileName))
+                {
+                    continue;
+                }
+
+                int loopCount = util.GetInteger(Convert.ToString(row.Cells[col_PlaylistLoopCount.Index].Value));
+                if (loopCount <= 0)
+                {
+                    loopCount = 1;
+                }
+
+                entries.Add(new PlaylistEntry() { FileName = fileName, LoopCount = loopCount });
             }
 
-            return files;
+            return entries;
         }
 
         // 記録・再生タブと同じ理由(isRecording/isPlayingの使い回し)で、
@@ -839,10 +899,16 @@ namespace EventRecorder
                 return;
             }
 
-            List<String> files = GetPlaylistFiles();
-            if (files.Count == 0)
+            List<PlaylistEntry> entries = GetPlaylistEntries();
+            if (entries.Count == 0)
             {
                 return;
+            }
+
+            int overallLoopCount = util.GetInteger(textBox_PlaylistLoop.Text);
+            if (overallLoopCount <= 0)
+            {
+                overallLoopCount = 1;
             }
 
             cursorPositionBeforePlay = Cursor.Position;
@@ -850,37 +916,37 @@ namespace EventRecorder
             stopPlayRequested = false;
             button_PlaylistRun.Text = "停止";
 
-            Task.Run(() => PlaylistPlayLoop(files));
+            Task.Run(() => PlaylistPlayLoop(entries, overallLoopCount));
         }
 
-        // ファイルを1つずつ読み込んでは、そのファイルに保存されているループ回数の分だけ再生する、を
-        // リストの先頭から順番に繰り返す
-        private void PlaylistPlayLoop(List<String> files)
+        // プレイリスト全体をoverallLoopCount回繰り返す。各周回の中で、
+        // リストの各行を上から順に読み込み→その行のループ回数分だけ再生、を繰り返す
+        private void PlaylistPlayLoop(List<PlaylistEntry> entries, int overallLoopCount)
         {
-            for (int i = 0; i < files.Count && !stopPlayRequested; i++)
+            for (int loopNo = 0; loopNo < overallLoopCount && !stopPlayRequested; loopNo++)
             {
-                String fileName = files[i];
-                int fileNo = i + 1;
-                List<String[]> rows = null;
-                int loopCount = 1;
+                int loopDisplayNo = loopNo + 1;
 
-                this.Invoke((MethodInvoker)(() =>
+                for (int i = 0; i < entries.Count && !stopPlayRequested; i++)
                 {
-                    label_PlaylistStatus.Text = "実行中: " + fileName + " (" + fileNo + "/" + files.Count + ")";
+                    PlaylistEntry entry = entries[i];
+                    int fileNo = i + 1;
+                    List<String[]> rows = null;
 
-                    String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), fileName);
-                    sr.LoadProc(fullPath, this);
-                    rows = SnapshotRows();
-                    loopCount = util.GetInteger(textBox_Loop.Text);
-                    if (loopCount <= 0)
+                    this.Invoke((MethodInvoker)(() =>
                     {
-                        loopCount = 1;
-                    }
-                }));
+                        label_PlaylistStatus.Text = "実行中(全体" + loopDisplayNo + "/" + overallLoopCount + "): "
+                            + entry.FileName + " (" + fileNo + "/" + entries.Count + ")";
 
-                if (rows != null && rows.Count > 0)
-                {
-                    PlayRows(rows, loopCount);
+                        String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), entry.FileName);
+                        sr.LoadProc(fullPath, this);
+                        rows = SnapshotRows();
+                    }));
+
+                    if (rows != null && rows.Count > 0)
+                    {
+                        PlayRows(rows, entry.LoopCount);
+                    }
                 }
             }
 
