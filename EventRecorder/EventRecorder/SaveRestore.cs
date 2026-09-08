@@ -13,6 +13,11 @@ namespace EventRecorder
 
             RegistCtrl("Record", "textBox_Loop", Parent.textBox_Loop, "1");
             RegistCtrl("Record", "Cell", "RowCount", Parent.dataGridView_Events);
+
+            // タブ2のプレイリスト(実行順・チェック状態・行ごとのループ回数・全体ループ回数)も
+            // 同じ設定ファイルに保存する。1つのファイルにマクロとプレイリストの両方を持たせる形
+            RegistCtrl("Playlist", "textBox_PlaylistLoop", Parent.textBox_PlaylistLoop, "1");
+            RegistCtrl("Playlist", "Cell", "RowCount", Parent.dataGridView_Playlist);
         }
 
         public Boolean LoadProc(String LoadFileName, Form1 Parent)
@@ -23,6 +28,7 @@ namespace EventRecorder
             }
 
             Parent.dataGridView_Events.Rows.Clear();
+            Parent.dataGridView_Playlist.Rows.Clear();
             return LoadXmlFile(LoadFileName);
         }
     }
