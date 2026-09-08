@@ -15,8 +15,12 @@ namespace EventRecorder
     public partial class Form1 : Form
     {
         private StcUtils util = new StcUtils();
-        private StcFileInputOutput fio = new StcFileInputOutput();
         private SaveRestore sr = new SaveRestore();
+
+        // プレイリスト再生時、各行の設定ファイルを読み込む専用のインスタンス。
+        // srを使い回すと各ファイルに埋め込まれたプレイリストのスナップショットで
+        // 今操作中のプレイリストが上書きされてしまうため、記録データだけを登録した別インスタンスで分離する
+        private SaveRestore playbackLoader = new SaveRestore();
 
         // 記録中/再生中フラグ
         private Boolean isRecording = false;
@@ -40,12 +44,16 @@ namespace EventRecorder
         // 記録セッションとは独立して管理する(pressedKeysをClearしても消えないように)
         private HashSet<Keys> pressedHotkeys = new HashSet<Keys>();
 
+        // タイトルバーの基本文字列。記録中/再生中はここに状態を追記する
+        private const String BaseTitle = "EventRecorder";
+
         // 記録開始/停止のホットキー。ボタンクリックだとクリック自体のマウスイベントが
         // 記録に混ざってしまうため、キー操作で完結できるようにしている
         private const Keys HotkeyToggleRecord = Keys.F1;
 
-        // 再生開始/停止のホットキー
+        // 再生開始/停止のホットキー。IME変換キー単独、またはShift+F2のどちらでも発動する
         private const Keys HotkeyTogglePlay = Keys.IMEConvert;
+        private const Keys HotkeyTogglePlayAlt = Keys.F2;
 
         // 記録したがまだDataGridViewに反映していない行(フックのコールバックを
         // 描画待ちで塞がないよう、一旦ここに貯めてタイマーでまとめて反映する)
@@ -57,6 +65,20 @@ namespace EventRecorder
 
         // 起動時に自動読込するデフォルトの設定ファイル名(Cheetosに倣う)
         private readonly String SettingFileName = @"EventRecorder.xml";
+
+        // 最小化する瞬間、OSから一時的にクライアント領域が極小サイズのリサイズ通知が来ることがあり、
+        // Anchor/Fillでの再レイアウトがその極小サイズを基準に確定してしまい、元に戻した時に
+        // コントロールが重なる/見切れる不具合の原因になる。最小化中はレイアウト計算自体をスキップし、
+        // 元のサイズに戻った時のOnSizeChangedで正しく再計算させる
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                return;
+            }
+
+            base.OnSizeChanged(e);
+        }
 
         public Form1()
         {
@@ -96,10 +118,19 @@ namespace EventRecorder
             this.FormClosing += Form1_FormClosing;
 
             sr.RegistItem(this);
+            playbackLoader.RegistItemForPlayback(this);
 
             // 起動時にデフォルト設定を読み込み、コンボボックスに設定ファイル一覧を表示する(Cheetosと同じ手順)
             sr.LoadProc(SettingFileName, this);
             util.UpdateProfileList(ref comboBox_Profile);
+
+            // プレイリストが空のままだと使うたびに毎回「行の追加」を押す羽目になるため、
+            // 起動時点で編集開始しやすいよう空行を5行用意しておく。
+            // ファイル未選択のまま実行されると困るので、デフォルトでは実行チェックは外しておく
+            for (int i = 0; i < 5; i++)
+            {
+                AddPlaylistRow(i, isEnabled: false);
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -118,6 +149,23 @@ namespace EventRecorder
             ToggleRecording();
         }
 
+        // 現在の記録中/再生中の状態をタイトルバーに反映する
+        private void UpdateTitle()
+        {
+            if (isRecording)
+            {
+                this.Text = BaseTitle + " - 記録中";
+            }
+            else if (isPlaying)
+            {
+                this.Text = BaseTitle + " - プレイバック中";
+            }
+            else
+            {
+                this.Text = BaseTitle;
+            }
+        }
+
         // 記録開始/停止を切り替える。ボタンクリックからもF1ホットキーからも呼ばれる
         private void ToggleRecording()
         {
@@ -128,6 +176,7 @@ namespace EventRecorder
                 FlushPendingRows();
                 isRecording = false;
                 button_Record.Text = "記録";
+                UpdateTitle();
                 return;
             }
 
@@ -147,6 +196,7 @@ namespace EventRecorder
             gridFlushTimer.Start();
             isRecording = true;
             button_Record.Text = "記録中…";
+            UpdateTitle();
         }
 
         private void OnMouseEvent(ref GlobalHook.MouseHook.StateMouse s)
@@ -170,10 +220,17 @@ namespace EventRecorder
             Boolean isDown = s.Stroke == GlobalHook.KeyboardHook.Stroke.KEY_DOWN || s.Stroke == GlobalHook.KeyboardHook.Stroke.SYSKEY_DOWN;
             Boolean isUp = s.Stroke == GlobalHook.KeyboardHook.Stroke.KEY_UP || s.Stroke == GlobalHook.KeyboardHook.Stroke.SYSKEY_UP;
 
-            // ホットキーはアプリ操作用の予約キーなので、マクロの記録データには含めない
-            if (s.Key == HotkeyToggleRecord || s.Key == HotkeyTogglePlay)
+            // ホットキーはアプリ操作用の予約キーなので、マクロの記録データには含めない。
+            // Shift併用が必要なもの(Shift+F2)は、押した瞬間にShiftが押されていた
+            // 場合だけホットキー扱いにする。素のF2は本来の用途やマクロ記録にそのまま使える
+            if (isDown)
             {
-                if (isDown)
+                Boolean isShiftDown = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+                Boolean isRecordHotkey = s.Key == HotkeyToggleRecord;
+                Boolean isPlayHotkey = s.Key == HotkeyTogglePlay
+                    || (s.Key == HotkeyTogglePlayAlt && isShiftDown);
+
+                if (isRecordHotkey || isPlayHotkey)
                 {
                     // リピート抑制。対応するKeyUpが来るまでは連続トグルさせない
                     if (!pressedHotkeys.Add(s.Key))
@@ -181,7 +238,7 @@ namespace EventRecorder
                         return;
                     }
 
-                    if (s.Key == HotkeyToggleRecord)
+                    if (isRecordHotkey)
                     {
                         ToggleRecording();
                     }
@@ -189,13 +246,18 @@ namespace EventRecorder
                     {
                         TogglePlay();
                     }
-                }
-                else if (isUp)
-                {
-                    pressedHotkeys.Remove(s.Key);
-                }
 
-                return;
+                    return;
+                }
+            }
+            else if (isUp)
+            {
+                // Down時にホットキーとして処理したキーのUpは、マクロ記録に含めず消費する。
+                // (Up時点で先にShiftを離していても、Down時の判定結果に合わせて対称に扱う)
+                if (pressedHotkeys.Remove(s.Key))
+                {
+                    return;
+                }
             }
 
             if (!isRecording)
@@ -317,6 +379,7 @@ namespace EventRecorder
             isPlaying = true;
             stopPlayRequested = false;
             button_Play.Text = "停止";
+            UpdateTitle();
 
             Task.Run(() => PlayLoop(rows, loopCount));
         }
@@ -344,18 +407,27 @@ namespace EventRecorder
 
         private void PlayLoop(List<String[]> rows, int loopCount)
         {
-            PlayRows(rows, loopCount);
-
-            // マウスカーソルを再生開始前の位置に戻す
-            Cursor.Position = cursorPositionBeforePlay;
-
-            isPlaying = false;
-            stopPlayRequested = false;
-            this.Invoke((MethodInvoker)(() =>
+            try
             {
-                button_Play.Text = "再生";
-                HighlightPlayingRow(-1);
-            }));
+                PlayRows(rows, loopCount);
+
+                // マウスカーソルを再生開始前の位置に戻す
+                Cursor.Position = cursorPositionBeforePlay;
+            }
+            finally
+            {
+                // 途中で例外が起きても、必ず「再生中」状態を解除する。
+                // ここを素通りしてしまうとisPlayingがtrueのまま固まり、記録も再生も
+                // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)
+                isPlaying = false;
+                stopPlayRequested = false;
+                this.Invoke((MethodInvoker)(() =>
+                {
+                    button_Play.Text = "再生";
+                    UpdateTitle();
+                    HighlightPlayingRow(-1);
+                }));
+            }
         }
 
         // rowsをloopCount回再生する処理そのもの(前後の状態管理は呼び出し元の責務)。
@@ -479,7 +551,17 @@ namespace EventRecorder
             }
 
             contextMenuRowIndex = e.RowIndex;
-            if (e.RowIndex >= 0)
+
+            // 左クリックで複数行選択済みの状態から右クリックでメニューを開きたいケースがあるため、
+            // 右クリックした行がすでに選択済みならその選択状態を維持する。
+            // 未選択の行を右クリックした場合だけ、その行の単一選択に切り替える。
+            // 既定のRowHeaderSelectモードでは、行ヘッダーではなくセルのドラッグで複数選択すると
+            // Rows[].Selectedはfalseのままになるため、右クリックしたセル自体の選択状態もあわせて見る
+            Boolean isAlreadySelected = e.RowIndex >= 0 &&
+                ((e.ColumnIndex >= 0 && dataGridView_Events.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected)
+                || dataGridView_Events.Rows[e.RowIndex].Selected);
+
+            if (e.RowIndex >= 0 && !isAlreadySelected)
             {
                 dataGridView_Events.ClearSelection();
                 dataGridView_Events.Rows[e.RowIndex].Selected = true;
@@ -505,31 +587,65 @@ namespace EventRecorder
             dataGridView_Events.Rows.Insert(insertAt, 1);
         }
 
-        // 右クリックした行を削除する。KeyDown/SysKeyDownの行なら、非表示になっている
-        // 対応するKeyUp/SysKeyUp行も一緒に探して削除する(片方だけ残って孤立するのを防ぐため)
+        // 選択されている行(複数選択時は全行、未選択なら右クリックした行)を削除する。
+        // KeyDown/SysKeyDownの行なら、非表示になっている対応するKeyUp/SysKeyUp行も
+        // 一緒に探して削除する(片方だけ残って孤立するのを防ぐため)
         private void menuItem_DeleteRow_Click(object sender, EventArgs e)
         {
-            if (contextMenuRowIndex < 0 || contextMenuRowIndex >= dataGridView_Events.Rows.Count)
+            List<int> targetIndexes = GetSelectedOrContextMenuRowIndexes(dataGridView_Events, contextMenuRowIndex);
+            if (targetIndexes.Count == 0)
             {
                 return;
             }
 
-            int pairedUpRowIndex = FindPairedKeyUpRowIndex(contextMenuRowIndex);
-
-            dataGridView_Events.Rows.RemoveAt(contextMenuRowIndex);
-
-            if (pairedUpRowIndex < 0)
+            // ペアのKeyUp行も含めて、重複なく集める
+            HashSet<int> indexesToRemove = new HashSet<int>(targetIndexes);
+            foreach (int idx in targetIndexes)
             {
-                return;
+                int pairedUpRowIndex = FindPairedKeyUpRowIndex(idx);
+                if (pairedUpRowIndex >= 0)
+                {
+                    indexesToRemove.Add(pairedUpRowIndex);
+                }
             }
 
-            // 先に消した行より後ろにあった場合、その分インデックスが1つ前にずれる
-            if (pairedUpRowIndex > contextMenuRowIndex)
+            // 後ろのインデックスから消していけば、前方のインデックスがずれる心配がない
+            foreach (int idx in indexesToRemove.OrderByDescending(x => x))
             {
-                pairedUpRowIndex--;
+                dataGridView_Events.Rows.RemoveAt(idx);
+            }
+        }
+
+        // 複数行選択済みならその全行、未選択なら右クリックした1行(fallbackRowIndex)を対象にする。
+        // 記録グリッド・プレイリストグリッドの両方の「行の削除」から共通で使う
+        private List<int> GetSelectedOrContextMenuRowIndexes(DataGridView grid, int fallbackRowIndex)
+        {
+            HashSet<int> indexes = new HashSet<int>();
+
+            foreach (DataGridViewRow row in grid.SelectedRows)
+            {
+                if (!row.IsNewRow)
+                {
+                    indexes.Add(row.Index);
+                }
             }
 
-            dataGridView_Events.Rows.RemoveAt(pairedUpRowIndex);
+            // 既定のRowHeaderSelectモードでは、行ヘッダーではなくセルをドラッグして複数選択することが
+            // 多く、その場合SelectedRowsには何も入らないため、SelectedCellsからも対象行を拾う
+            foreach (DataGridViewCell cell in grid.SelectedCells)
+            {
+                if (cell.RowIndex >= 0 && !grid.Rows[cell.RowIndex].IsNewRow)
+                {
+                    indexes.Add(cell.RowIndex);
+                }
+            }
+
+            if (indexes.Count == 0 && fallbackRowIndex >= 0 && fallbackRowIndex < grid.Rows.Count)
+            {
+                indexes.Add(fallbackRowIndex);
+            }
+
+            return indexes.OrderBy(x => x).ToList();
         }
 
         // downRowIndexがKeyDown/SysKeyDownの行なら、それより後ろで最初に見つかる
@@ -709,15 +825,6 @@ namespace EventRecorder
             sr.LoadProc(LoadFileName, this);
         }
 
-        private void button_ProfileLoad_Click(object sender, EventArgs e)
-        {
-            String LoadFileName = fio.SelectLoadFileName(comboBox_Profile.Text, System.IO.Directory.GetCurrentDirectory());
-            if (sr.LoadProc(LoadFileName, this))
-            {
-                comboBox_Profile.Text = System.IO.Path.GetFileName(LoadFileName);
-            }
-        }
-
         // 読込ボタンと同じ感覚で使えるよう、「現在のファイルに上書きしますか?」の確認は挟まず、
         // 常にダイアログを直接開く(SelectSaveFileNameのCheetos流の確認ステップはあえて使わない)
         private void button_ProfileSave_Click(object sender, EventArgs e)
@@ -791,7 +898,13 @@ namespace EventRecorder
             }
 
             contextMenuPlaylistRowIndex = e.RowIndex;
-            if (e.RowIndex >= 0)
+
+            // 記録グリッドと同様、右クリックしたセル/行がすでに選択済みなら選択状態を維持する
+            Boolean isAlreadySelected = e.RowIndex >= 0 &&
+                ((e.ColumnIndex >= 0 && dataGridView_Playlist.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected)
+                || dataGridView_Playlist.Rows[e.RowIndex].Selected);
+
+            if (e.RowIndex >= 0 && !isAlreadySelected)
             {
                 dataGridView_Playlist.ClearSelection();
                 dataGridView_Playlist.Rows[e.RowIndex].Selected = true;
@@ -812,19 +925,28 @@ namespace EventRecorder
         private void menuItem_PlaylistAddRow_Click(object sender, EventArgs e)
         {
             int insertAt = (contextMenuPlaylistRowIndex >= 0) ? contextMenuPlaylistRowIndex + 1 : dataGridView_Playlist.Rows.Count;
+            // 右クリックで能動的に追加した行は、すぐ使うつもりのはずなので実行チェックはONにしておく
+            AddPlaylistRow(insertAt, isEnabled: true);
+        }
+
+        // プレイリストに1行追加する(ループ回数=1がデフォルト。実行チェックの初期値はisEnabledで指定)。
+        // 右クリックメニューの「行の追加」と、起動時の初期空行の両方から使う
+        private void AddPlaylistRow(int insertAt, Boolean isEnabled)
+        {
             dataGridView_Playlist.Rows.Insert(insertAt, 1);
 
-            // 新しい行は「実行対象=ON、ループ回数=1」をデフォルトにしておく
             DataGridViewRow newRow = dataGridView_Playlist.Rows[insertAt];
-            newRow.Cells[col_PlaylistEnabled.Index].Value = true;
+            newRow.Cells[col_PlaylistEnabled.Index].Value = isEnabled;
             newRow.Cells[col_PlaylistLoopCount.Index].Value = "1";
         }
 
         private void menuItem_PlaylistDeleteRow_Click(object sender, EventArgs e)
         {
-            if (contextMenuPlaylistRowIndex >= 0 && contextMenuPlaylistRowIndex < dataGridView_Playlist.Rows.Count)
+            List<int> targetIndexes = GetSelectedOrContextMenuRowIndexes(dataGridView_Playlist, contextMenuPlaylistRowIndex);
+
+            foreach (int idx in targetIndexes.OrderByDescending(x => x))
             {
-                dataGridView_Playlist.Rows.RemoveAt(contextMenuPlaylistRowIndex);
+                dataGridView_Playlist.Rows.RemoveAt(idx);
             }
         }
 
@@ -855,9 +977,61 @@ namespace EventRecorder
         // 値が変化した直後に明示的にコミットして即座に反映させる
         private void dataGridView_Playlist_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
-            if (dataGridView_Playlist.CurrentCell is DataGridViewCheckBoxCell && dataGridView_Playlist.IsCurrentCellDirty)
+            // チェックボックスと設定ファイルのプルダウンは、選んだ瞬間に値を確定させたい
+            // (プルダウンの方は、選択直後にCellValueChangedでループ回数の初期値セットに使うため)
+            Boolean isImmediateCommitTarget = dataGridView_Playlist.CurrentCell is DataGridViewCheckBoxCell
+                || dataGridView_Playlist.CurrentCell is DataGridViewComboBoxCell;
+
+            if (isImmediateCommitTarget && dataGridView_Playlist.IsCurrentCellDirty)
             {
                 dataGridView_Playlist.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        // プレイリストの行で設定ファイルを選ぶと、そのファイル自身に保存されている
+        // ループ回数を、行のループ回数セルへ初期値として自動セットする
+        // (すでに手で入力済みの値を上書きしたくはないので、あくまで選択した瞬間の初期値扱い)
+        private void dataGridView_Playlist_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != col_PlaylistFile.Index)
+            {
+                return;
+            }
+
+            String fileName = Convert.ToString(dataGridView_Playlist.Rows[e.RowIndex].Cells[col_PlaylistFile.Index].Value);
+            if (String.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
+            String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), fileName);
+            String savedLoopCount = ReadSavedLoopCount(fullPath);
+            if (savedLoopCount != null)
+            {
+                dataGridView_Playlist.Rows[e.RowIndex].Cells[col_PlaylistLoopCount.Index].Value = savedLoopCount;
+            }
+        }
+
+        // マクロファイル自身が保存しているループ回数(textBox_Loopの値)だけを、
+        // dataGridView_Events等には一切触れずに読み取る
+        // (sr.LoadProcを使うとタブ1の記録データがまるごとクリア/差し替えられてしまうため使わない)
+        private String ReadSavedLoopCount(String filePath)
+        {
+            if (!System.IO.File.Exists(filePath))
+            {
+                return null;
+            }
+
+            try
+            {
+                System.Xml.Linq.XDocument doc = System.Xml.Linq.XDocument.Load(filePath);
+                System.Xml.Linq.XElement el = doc.Root?.Elements("Setting")
+                    .FirstOrDefault(x => (String)x.Attribute("Record") == "textBox_Loop");
+                return el != null ? el.Value.Trim() : null;
+            }
+            catch (System.Xml.XmlException)
+            {
+                return null;
             }
         }
 
@@ -935,6 +1109,7 @@ namespace EventRecorder
             isPlaying = true;
             stopPlayRequested = false;
             button_PlaylistRun.Text = "停止";
+            UpdateTitle();
 
             Task.Run(() => PlaylistPlayLoop(entries, overallLoopCount));
         }
@@ -943,43 +1118,55 @@ namespace EventRecorder
         // リストの各行を上から順に読み込み→その行のループ回数分だけ再生、を繰り返す
         private void PlaylistPlayLoop(List<PlaylistEntry> entries, int overallLoopCount)
         {
-            for (int loopNo = 0; loopNo < overallLoopCount && !stopPlayRequested; loopNo++)
+            try
             {
-                int loopDisplayNo = loopNo + 1;
-
-                for (int i = 0; i < entries.Count && !stopPlayRequested; i++)
+                for (int loopNo = 0; loopNo < overallLoopCount && !stopPlayRequested; loopNo++)
                 {
-                    PlaylistEntry entry = entries[i];
-                    int fileNo = i + 1;
-                    List<String[]> rows = null;
+                    int loopDisplayNo = loopNo + 1;
 
-                    this.Invoke((MethodInvoker)(() =>
+                    for (int i = 0; i < entries.Count && !stopPlayRequested; i++)
                     {
-                        label_PlaylistStatus.Text = "実行中(全体" + loopDisplayNo + "/" + overallLoopCount + "): "
-                            + entry.FileName + " (" + fileNo + "/" + entries.Count + ")";
+                        PlaylistEntry entry = entries[i];
+                        int fileNo = i + 1;
+                        List<String[]> rows = null;
 
-                        String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), entry.FileName);
-                        sr.LoadProc(fullPath, this);
-                        rows = SnapshotRows();
-                    }));
+                        this.Invoke((MethodInvoker)(() =>
+                        {
+                            label_PlaylistStatus.Text = "実行中(全体" + loopDisplayNo + "/" + overallLoopCount + "): "
+                                + entry.FileName + " (" + fileNo + "/" + entries.Count + ")";
 
-                    if (rows != null && rows.Count > 0)
-                    {
-                        PlayRows(rows, entry.LoopCount);
+                            String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), entry.FileName);
+                            // 再生対象の記録データ(タブ1)だけ差し替える。playbackLoaderはPlaylist側を
+                            // 一切登録していないため、ファイルにプレイリストのスナップショットが
+                            // 含まれていてもプレイリスト自体(タブ2)には影響しない
+                            playbackLoader.LoadProc(fullPath, this, false);
+                            rows = SnapshotRows();
+                        }));
+
+                        if (rows != null && rows.Count > 0)
+                        {
+                            PlayRows(rows, entry.LoopCount);
+                        }
                     }
                 }
+
+                Cursor.Position = cursorPositionBeforePlay;
             }
-
-            Cursor.Position = cursorPositionBeforePlay;
-
-            isPlaying = false;
-            stopPlayRequested = false;
-            this.Invoke((MethodInvoker)(() =>
+            finally
             {
-                button_PlaylistRun.Text = "実行";
-                label_PlaylistStatus.Text = "";
-                HighlightPlayingRow(-1);
-            }));
+                // 途中で例外が起きても、必ず「再生中」状態を解除する。
+                // ここを素通りしてしまうとisPlayingがtrueのまま固まり、記録も再生も
+                // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)
+                isPlaying = false;
+                stopPlayRequested = false;
+                this.Invoke((MethodInvoker)(() =>
+                {
+                    button_PlaylistRun.Text = "実行";
+                    label_PlaylistStatus.Text = "";
+                    UpdateTitle();
+                    HighlightPlayingRow(-1);
+                }));
+            }
         }
     }
 }
