@@ -26,5 +26,22 @@ namespace EventRecorder.Properties
                 return defaultInstance;
             }
         }
+
+        // ダイアログのサイズを前回終了時の状態で復元するための設定値。
+        // マクロの記録データ(XML)とは別に、.NET標準のユーザー設定(%LOCALAPPDATA%配下のuser.config)に
+        // 保存する。VSのSettingsデザイナーが使えない環境のため、このファイルは手動で追記している
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("430, 600")]
+        public global::System.Drawing.Size WindowSize
+        {
+            get
+            {
+                return ((global::System.Drawing.Size)(this["WindowSize"]));
+            }
+            set
+            {
+                this["WindowSize"] = value;
+            }
+        }
     }
 }

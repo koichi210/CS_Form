@@ -11,12 +11,13 @@ namespace EventRecorder
         {
             SetElement("Setting");
 
+            // 「ループ回数」は単発再生の回数とプレイリストの全体ループを兼ねる共通項目に
+            // なったため、textBox_Loop1つだけ登録すればよい(旧: textBox_PlaylistLoopは廃止)
             RegistCtrl("Record", "textBox_Loop", Parent.textBox_Loop, "1");
             RegistCtrl("Record", "Cell", "RowCount", Parent.dataGridView_Events);
 
-            // タブ2のプレイリスト(実行順・チェック状態・行ごとのループ回数・全体ループ回数)も
+            // タブ2のプレイリスト(実行順・チェック状態・行ごとのループ回数)も
             // 同じ設定ファイルに保存する。1つのファイルにマクロとプレイリストの両方を持たせる形
-            RegistCtrl("Playlist", "textBox_PlaylistLoop", Parent.textBox_PlaylistLoop, "1");
             RegistCtrl("Playlist", "Cell", "RowCount", Parent.dataGridView_Playlist);
         }
 
@@ -55,7 +56,18 @@ namespace EventRecorder
             {
                 Parent.dataGridView_Playlist.Rows.Clear();
             }
-            return LoadXmlFile(LoadFileName);
+
+            Boolean result = LoadXmlFile(LoadFileName);
+
+            // ファイル読込は「ユーザーの編集操作」ではないので、読込前の状態にCtrl+Zで
+            // 戻せてしまわないよう、読み込んだ側のUndo/Redo履歴はここでリセットする
+            Parent.dataGridView_Events.ClearUndoHistory();
+            if (clearPlaylist)
+            {
+                Parent.dataGridView_Playlist.ClearUndoHistory();
+            }
+
+            return result;
         }
     }
 }

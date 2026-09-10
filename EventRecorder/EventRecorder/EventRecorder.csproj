@@ -66,6 +66,9 @@
     <Compile Include="..\..\_Common\InputSimulator.cs">
       <Link>InputSimulator.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\DataGridViewEx.cs">
+      <Link>DataGridViewEx.cs</Link>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
