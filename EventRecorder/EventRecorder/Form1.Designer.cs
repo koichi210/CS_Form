@@ -186,7 +186,7 @@ namespace EventRecorder
             this.label_Loop.Location = new System.Drawing.Point(12, 554);
             this.label_Loop.Name = "label_Loop";
             this.label_Loop.Size = new System.Drawing.Size(58, 12);
-            this.label_Loop.TabIndex = 1;
+            this.label_Loop.TabIndex = 4;
             this.label_Loop.Text = "ループ回数";
             //
             // textBox_Loop
@@ -195,7 +195,7 @@ namespace EventRecorder
             this.textBox_Loop.Location = new System.Drawing.Point(74, 550);
             this.textBox_Loop.Name = "textBox_Loop";
             this.textBox_Loop.Size = new System.Drawing.Size(48, 19);
-            this.textBox_Loop.TabIndex = 2;
+            this.textBox_Loop.TabIndex = 5;
             this.textBox_Loop.Text = "1";
             //
             // button_Play
@@ -207,7 +207,7 @@ namespace EventRecorder
             this.button_Play.Location = new System.Drawing.Point(130, 547);
             this.button_Play.Name = "button_Play";
             this.button_Play.Size = new System.Drawing.Size(80, 27);
-            this.button_Play.TabIndex = 3;
+            this.button_Play.TabIndex = 6;
             this.button_Play.Text = "再生";
             this.button_Play.UseVisualStyleBackColor = true;
             this.button_Play.Click += new System.EventHandler(this.button_Play_Click);
@@ -224,7 +224,7 @@ namespace EventRecorder
             this.comboBox_Profile.Location = new System.Drawing.Point(12, 584);
             this.comboBox_Profile.Name = "comboBox_Profile";
             this.comboBox_Profile.Size = new System.Drawing.Size(310, 20);
-            this.comboBox_Profile.TabIndex = 4;
+            this.comboBox_Profile.TabIndex = 7;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             //
             // button_ProfileSave
@@ -234,7 +234,7 @@ namespace EventRecorder
             this.button_ProfileSave.Location = new System.Drawing.Point(335, 583);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(80, 23);
-            this.button_ProfileSave.TabIndex = 5;
+            this.button_ProfileSave.TabIndex = 8;
             this.button_ProfileSave.Text = "設定値保存";
             this.button_ProfileSave.UseVisualStyleBackColor = true;
             this.button_ProfileSave.Click += new System.EventHandler(this.button_ProfileSave_Click);
@@ -248,7 +248,7 @@ namespace EventRecorder
             this.label_MousePos.Location = new System.Drawing.Point(322, 7);
             this.label_MousePos.Name = "label_MousePos";
             this.label_MousePos.Size = new System.Drawing.Size(76, 12);
-            this.label_MousePos.TabIndex = 3;
+            this.label_MousePos.TabIndex = 2;
             this.label_MousePos.Text = "Mouse: -, -";
             //
             // radioButton_Playback
@@ -310,7 +310,7 @@ namespace EventRecorder
             this.splitContainer_Main.Panel2MinSize = 120;
             this.splitContainer_Main.Size = new System.Drawing.Size(412, 516);
             this.splitContainer_Main.SplitterDistance = 254;
-            this.splitContainer_Main.TabIndex = 4;
+            this.splitContainer_Main.TabIndex = 3;
             //
             // groupBox_Playback
             //
