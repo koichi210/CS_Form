@@ -139,34 +139,30 @@ namespace EventRecorder
 
             // プレイリストが空のままだと使うたびに毎回「行の追加」を押す羽目になるため、
             // 起動時点で編集開始しやすいよう空行を2行用意しておく。
-            // ファイル未選択のまま実行されると困るので、デフォルトでは実行チェックは外しておく
-            for (int i = 0; i < 2; i++)
+            // ただし、直前のsr.LoadProc(SettingFileName, this)でデフォルト設定ファイルから
+            // 既にプレイリストの中身が読み込まれていた場合は、その内容を優先する
+            // (プルダウンが空=何も読み込まれなかった時だけ、無条件の空2行を追加する)
+            if (dataGridView_Playlist.Rows.Count == 0)
             {
-                AddPlaylistRow(i, isEnabled: false);
+                for (int i = 0; i < 2; i++)
+                {
+                    AddPlaylistRow(i, isEnabled: false);
+                }
             }
 
-            // 起動時のデフォルトモードは「レコード」。グループボックスの有効/無効も合わせて初期化する
+            // 起動時のデフォルトモードは「レコード」
             radioButton_Record.Checked = true;
-            UpdateModeEnabled();
         }
 
-        // ラジオボタンで選んだモード(プレイバック/レコード)に応じて、
-        // 使わない方のグループボックスを丸ごと無効化する(誤操作防止と、今どちらのモードか
-        // 一目で分かるようにするため)
-        private void UpdateModeEnabled()
-        {
-            groupBox_Record.Enabled = radioButton_Record.Checked;
-            groupBox_Playback.Enabled = radioButton_Playback.Checked;
-        }
+        // 今選択中のモードのグループボックスだけ背景色をハイライトする。
+        // ボタンをDisableにする方式は分かりにくいという理由でやめ、色分けだけにした
+        // 実行中の行のハイライト(LightYellow)と被らないよう、別の色にしてある
+        private static readonly Color ModeHighlightColor = Color.FromArgb(205, 255, 230);
 
-        private void radioButton_Record_CheckedChanged(object sender, EventArgs e)
+        private void radioButton_Mode_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateModeEnabled();
-        }
-
-        private void radioButton_Playback_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateModeEnabled();
+            groupBox_Playback.BackColor = radioButton_Playback.Checked ? ModeHighlightColor : SystemColors.Control;
+            groupBox_Record.BackColor = radioButton_Record.Checked ? ModeHighlightColor : SystemColors.Control;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -230,13 +226,6 @@ namespace EventRecorder
             }
 
             if (isPlaying)
-            {
-                return;
-            }
-
-            // レコードグループが無効(=プレイバックモード選択中)の時は、
-            // ホットキー経由でも記録を開始させない(グループボックスの無効化と一貫させる)
-            if (!radioButton_Record.Checked)
             {
                 return;
             }
@@ -977,6 +966,29 @@ namespace EventRecorder
         // 常にダイアログを直接開く(SelectSaveFileNameのCheetos流の確認ステップはあえて使わない)
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
+            // プルダウンで既存ファイルが選ばれている時は、毎回ダイアログを開かず
+            // 「上書きしますか?」の確認だけで済ませられるようにする。
+            // プルダウンが空の時は、従来通りファイル選択ダイアログを出す
+            if (!String.IsNullOrEmpty(comboBox_Profile.Text))
+            {
+                DialogResult overwriteResult = MessageBox.Show(
+                    comboBox_Profile.Text + " を上書きしますか?",
+                    "上書き確認",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (overwriteResult == DialogResult.Yes)
+                {
+                    String overwriteFileName = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), comboBox_Profile.Text);
+                    if (sr.SaveSetting(overwriteFileName))
+                    {
+                        util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(overwriteFileName));
+                        SyncPlaylistFileItems();
+                    }
+                    return;
+                }
+            }
+
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.FileName = comboBox_Profile.Text;
             dlg.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
@@ -1015,6 +1027,26 @@ namespace EventRecorder
             }
         }
 
+        // プルダウン(col_PlaylistFile)に表示される全ファイルを、プレイリストに1行ずつまとめて
+        // 追加する。既存の行は全部作り直す(手動で1件ずつ追加する手間を省くための一括操作)
+        private void button_PlaylistListAll_Click(object sender, EventArgs e)
+        {
+            if (isRecording || isPlaying)
+            {
+                return;
+            }
+
+            dataGridView_Playlist.Rows.Clear();
+
+            int insertAt = 0;
+            foreach (Object item in col_PlaylistFile.Items)
+            {
+                AddPlaylistRow(insertAt, isEnabled: true);
+                dataGridView_Playlist.Rows[insertAt].Cells[col_PlaylistFile.Index].Value = Convert.ToString(item);
+                insertAt++;
+            }
+        }
+
         private void dataGridView_Playlist_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right)
@@ -1034,6 +1066,103 @@ namespace EventRecorder
                 dataGridView_Playlist.ClearSelection();
                 dataGridView_Playlist.Rows[e.RowIndex].Selected = true;
             }
+        }
+
+        // *******************************************************************************
+        // プレイリストの行のドラッグ&ドロップによる並び替え
+
+        // 掴んだ(左ボタンを押した)行のインデックス。ドラッグ開始の起点にもする
+        private int dragStartPlaylistRowIndex = -1;
+        private Point dragStartPlaylistPoint;
+
+        private void dataGridView_Playlist_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || isRecording || isPlaying)
+            {
+                return;
+            }
+
+            DataGridView.HitTestInfo hit = dataGridView_Playlist.HitTest(e.X, e.Y);
+            dragStartPlaylistRowIndex = hit.RowIndex;
+            dragStartPlaylistPoint = new Point(e.X, e.Y);
+        }
+
+        // マウスを一定距離動かして初めてドラッグとみなす(チェックボックスのクリック等が
+        // 誤ってドラッグ扱いにならないようにするため)
+        private void dataGridView_Playlist_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || dragStartPlaylistRowIndex < 0)
+            {
+                return;
+            }
+
+            if (Math.Abs(e.X - dragStartPlaylistPoint.X) < SystemInformation.DragSize.Width
+                && Math.Abs(e.Y - dragStartPlaylistPoint.Y) < SystemInformation.DragSize.Height)
+            {
+                return;
+            }
+
+            dataGridView_Playlist.DoDragDrop(dragStartPlaylistRowIndex, DragDropEffects.Move);
+            dragStartPlaylistRowIndex = -1;
+        }
+
+        private void dataGridView_Playlist_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = e.Data.GetDataPresent(typeof(int)) ? DragDropEffects.Move : DragDropEffects.None;
+        }
+
+        private void dataGridView_Playlist_DragDrop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(typeof(int)))
+            {
+                return;
+            }
+
+            int sourceIndex = (int)e.Data.GetData(typeof(int));
+
+            Point clientPoint = dataGridView_Playlist.PointToClient(new Point(e.X, e.Y));
+            DataGridView.HitTestInfo hit = dataGridView_Playlist.HitTest(clientPoint.X, clientPoint.Y);
+            int targetIndex = hit.RowIndex;
+
+            MovePlaylistRow(sourceIndex, targetIndex);
+        }
+
+        // dataGridView_PlaylistのsourceIndex行をtargetIndexの位置へ移動する。
+        // DataGridViewは行そのものを並べ替える機能を持たないため、セルの値を丸ごとコピーして
+        // 元の行を消し、新しい位置に作り直す形で実現する
+        private void MovePlaylistRow(int sourceIndex, int targetIndex)
+        {
+            if (sourceIndex < 0 || sourceIndex >= dataGridView_Playlist.Rows.Count
+                || targetIndex < 0 || targetIndex >= dataGridView_Playlist.Rows.Count
+                || sourceIndex == targetIndex)
+            {
+                return;
+            }
+
+            DataGridViewRow sourceRow = dataGridView_Playlist.Rows[sourceIndex];
+            Object[] values = new Object[dataGridView_Playlist.Columns.Count];
+            for (int c = 0; c < values.Length; c++)
+            {
+                values[c] = sourceRow.Cells[c].Value;
+            }
+
+            dataGridView_Playlist.Rows.RemoveAt(sourceIndex);
+
+            // Insert(index)は「削除後の並びのindex番目の手前に挿入する」動きなので、
+            // targetIndexをそのまま使えばドロップ先の行の位置に割り込む形になる
+            // (下方向への移動時は元の配列基準の値をそのまま使うのが正しく、
+            // 1引く補正を入れると1行分行き過ぎてしまっていた)
+            int insertAt = targetIndex;
+
+            dataGridView_Playlist.Rows.Insert(insertAt, 1);
+            DataGridViewRow newRow = dataGridView_Playlist.Rows[insertAt];
+            for (int c = 0; c < values.Length; c++)
+            {
+                newRow.Cells[c].Value = values[c];
+            }
+
+            dataGridView_Playlist.ClearSelection();
+            newRow.Selected = true;
         }
 
         private void contextMenuStrip_Playlist_Opening(object sender, System.ComponentModel.CancelEventArgs e)
