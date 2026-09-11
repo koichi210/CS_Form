@@ -91,3 +91,7 @@ TrimHtmlData/TrimHtmlData/bin/Release/TrimHtmlData_C_Title.xml
 # ただしライブラリ付属のドキュメントとサンプルデータは追跡を続ける
 !WebCamera/WebCamera/bin/Release/*.xml
 !XmlReadWrite/XmlReadWrite/bin/Release/Sample.xml
+
+# UserDataLocation([[_Common/UserDataLocation.cs]])が生成する案内板ファイル。
+# 実データは%LOCALAPPDATA%配下にあり、これは各PC固有のポインタなのでコミットしない
+**/DataFolder.txt

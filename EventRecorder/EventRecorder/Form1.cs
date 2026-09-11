@@ -69,6 +69,13 @@ namespace EventRecorder
         // 起動時に自動読込するデフォルトの設定ファイル名(Cheetosに倣う)
         private readonly String SettingFileName = @"EventRecorder.xml";
 
+        // マクロ・プレイリストのユーザーデータ置き場。exe直下(bin/Debug、bin/Release)は
+        // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
+        // 実データは%LOCALAPPDATA%\EventRecorder\配下(既定)にあり、exe直下には
+        // その場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
+        // ([[_Common\UserDataLocation.cs]])
+        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder("EventRecorder");
+
         // 最小化する瞬間、OSから一時的にクライアント領域が極小サイズのリサイズ通知が来ることがあり、
         // Anchor/Fillでの再レイアウトがその極小サイズを基準に確定してしまい、元に戻した時に
         // コントロールが重なる/見切れる不具合の原因になる。最小化中はレイアウト計算自体をスキップし、
@@ -128,9 +135,11 @@ namespace EventRecorder
             sr.RegistItem(this);
             playbackLoader.RegistItemForPlayback(this);
 
-            // 起動時にデフォルト設定を読み込み、コンボボックスに設定ファイル一覧を表示する(Cheetosと同じ手順)
-            sr.LoadProc(SettingFileName, this);
-            util.UpdateProfileList(ref comboBox_Profile);
+            // 起動時にデフォルト設定を読み込み、コンボボックスに設定ファイル一覧を表示する(Cheetosと同じ手順)。
+            // どちらもuserDataFolder(exe直下ではない)を対象にする
+            String defaultSettingPath = System.IO.Path.Combine(userDataFolder, SettingFileName);
+            sr.LoadProc(defaultSettingPath, this);
+            util.UpdateProfileList(ref comboBox_Profile, "", userDataFolder);
 
             // プレイリストの設定ファイル列(col_PlaylistFile)は、comboBox_Profileと全く同じ
             // *.xml一覧を表示する。ファイルシステムへの問い合わせをcomboBox_Profile側の
@@ -464,6 +473,11 @@ namespace EventRecorder
         // レコードグループの記録データ(dataGridView_Events)を単発再生する
         private void StartSinglePlayback()
         {
+            if (!ValidateEventsForPlayback())
+            {
+                return;
+            }
+
             int loopCount = util.GetInteger(textBox_Loop.Text);
             if (loopCount <= 0)
             {
@@ -951,7 +965,65 @@ namespace EventRecorder
             return false;
         }
 
-        // マウスイベントの行なのにKey列にも値が入っている場合、Detail列の背景を薄い赤にして知らせる。
+        // 再生時にint.Parse/Enum.Parse相当が失敗して、値が読めないまま無言で再生が止まって
+        // しまう行を検出する(実際に例外の原因になりうる値だけをチェックする)。
+        // 認識できないEvent種別の行(例: 打ち間違い)は、再生時に静かにスキップされるだけで
+        // 例外は起きないため、ここではチェック対象にしない
+        private Boolean IsRowInvalidForPlayback(DataGridViewRow row, out String message)
+        {
+            String type = Convert.ToString(row.Cells[col_Type.Index].Value);
+
+            if (type == WaitEventType)
+            {
+                String wait = Convert.ToString(row.Cells[col_Wait.Index].Value);
+                int waitValue;
+                if (!int.TryParse(wait, out waitValue) || waitValue < 0)
+                {
+                    message = "WAIT行の待機時間(" + wait + ")が数値として読み取れないよ";
+                    return true;
+                }
+
+                message = "";
+                return false;
+            }
+
+            InputSimulation.InputSimulator.MouseStroke mouseStroke;
+            if (Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(type, out mouseStroke))
+            {
+                String x = Convert.ToString(row.Cells[col_X.Index].Value);
+                String y = Convert.ToString(row.Cells[col_Y.Index].Value);
+                int xValue, yValue;
+                if (!int.TryParse(x, out xValue) || !int.TryParse(y, out yValue))
+                {
+                    message = "マウスイベント(" + type + ")のX/Y(" + x + ", " + y + ")が数値として読み取れないよ";
+                    return true;
+                }
+
+                message = "";
+                return false;
+            }
+
+            InputSimulation.InputSimulator.KeyboardStroke keyStroke;
+            if (Enum.TryParse<InputSimulation.InputSimulator.KeyboardStroke>(type, out keyStroke))
+            {
+                String key = Convert.ToString(row.Cells[col_Key.Index].Value);
+                Keys keyCode;
+                if (!Enum.TryParse<Keys>(key, out keyCode))
+                {
+                    message = "キーボードイベント(" + type + ")のKey(" + key + ")が認識できないよ";
+                    return true;
+                }
+
+                message = "";
+                return false;
+            }
+
+            message = "";
+            return false;
+        }
+
+        // マウスイベントの行なのにKey列にも値が入っている場合や、再生時に読み取れない値が
+        // 入っている場合に、Detail列の背景を薄いピンクにして知らせる。
         // 加えてErrorTextにも同じ内容を入れて、セルのエラーアイコン+ホバー時の吹き出しでも分かるようにする
         // (Key列自体は非表示になったため、警告表示はDetail列(実際に見えている列)に出す)
         private void dataGridView_Events_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -962,13 +1034,58 @@ namespace EventRecorder
             }
 
             DataGridViewRow row = dataGridView_Events.Rows[e.RowIndex];
-            String message;
-            if (IsKeyIgnoredOnMouseRow(row, out message))
+
+            String errorMessage;
+            Boolean isInvalid = IsRowInvalidForPlayback(row, out errorMessage);
+
+            String warningMessage;
+            Boolean hasWarning = IsKeyIgnoredOnMouseRow(row, out warningMessage);
+
+            if (isInvalid || hasWarning)
             {
                 e.CellStyle.BackColor = Color.MistyRose;
             }
 
-            row.Cells[col_Detail.Index].ErrorText = message;
+            row.Cells[col_Detail.Index].ErrorText = isInvalid ? errorMessage : warningMessage;
+        }
+
+        // 再生開始前に全行のパラメータをチェックする。不正な値が見つかった行があれば、
+        // そのセルをピンクでハイライトした上でエラーメッセージをまとめてポップアップ表示し、
+        // 再生を開始させない(false を返す)
+        private Boolean ValidateEventsForPlayback()
+        {
+            List<String> errors = new List<String>();
+
+            foreach (DataGridViewRow row in dataGridView_Events.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                String message;
+                if (IsRowInvalidForPlayback(row, out message))
+                {
+                    errors.Add("行" + row.Index + ": " + message);
+                }
+            }
+
+            // CellFormattingによるピンクのハイライトをすぐ反映させる
+            dataGridView_Events.Refresh();
+
+            if (errors.Count == 0)
+            {
+                return true;
+            }
+
+            MessageBox.Show(
+                "再生できない行が見つかったよ(該当セルはピンク色で表示してるよ)" + Environment.NewLine + Environment.NewLine
+                    + String.Join(Environment.NewLine, errors),
+                "EventRecorder - 再生前チェック",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+
+            return false;
         }
 
         // Detail列とX/Y/Key列(非表示)を相互に同期させている最中、再帰的な同期を防ぐためのフラグ
@@ -1202,7 +1319,7 @@ namespace EventRecorder
         // コンボボックスで設定ファイルを選び直したら、そのままそれを読み込む(Cheetosと同じ挙動)
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = System.IO.Directory.GetCurrentDirectory() + @"\" + comboBox_Profile.Text;
+            String LoadFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
             sr.LoadProc(LoadFileName, this);
         }
 
@@ -1223,10 +1340,10 @@ namespace EventRecorder
 
                 if (overwriteResult == DialogResult.Yes)
                 {
-                    String overwriteFileName = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), comboBox_Profile.Text);
+                    String overwriteFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
                     if (sr.SaveSetting(overwriteFileName))
                     {
-                        util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(overwriteFileName));
+                        util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(overwriteFileName), userDataFolder);
                         SyncPlaylistFileItems();
                     }
                     return;
@@ -1235,7 +1352,7 @@ namespace EventRecorder
 
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.FileName = comboBox_Profile.Text;
-            dlg.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
+            dlg.InitialDirectory = userDataFolder;
             dlg.Filter = "XMLファイル(*.xml)|*.xml|すべてのファイル(*.*)|*.*";
             dlg.Title = "保存する設定ファイルを選択してください";
 
@@ -1247,7 +1364,7 @@ namespace EventRecorder
             String SaveFileName = dlg.FileName;
             if (sr.SaveSetting(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(SaveFileName));
+                util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(SaveFileName), userDataFolder);
                 SyncPlaylistFileItems();
             }
         }
@@ -1257,6 +1374,9 @@ namespace EventRecorder
 
         // 右クリックしたセルの行(プレイリスト側)。右クリック無しの状態(-1)なら末尾扱い
         private int contextMenuPlaylistRowIndex = -1;
+
+        // trueなら、実行チェック(col_PlaylistEnabled)がONの行だけをプレイリストに表示する
+        private Boolean showOnlyCheckedPlaylistRows = false;
 
         // プレイリストの設定ファイル列(col_PlaylistFile)を、comboBox_Profileと同じ内容に揃える。
         // ファイルシステムへの問い合わせはcomboBox_Profile側(util.UpdateProfileList)だけで行い、
@@ -1418,6 +1538,37 @@ namespace EventRecorder
             }
 
             menuItem_PlaylistDeleteRow.Enabled = contextMenuPlaylistRowIndex >= 0 && contextMenuPlaylistRowIndex < dataGridView_Playlist.Rows.Count;
+
+            // 今どちらの表示モードか一目で分かるように、選択中の方にチェックを付ける
+            menuItem_PlaylistShowCheckedOnly.Checked = showOnlyCheckedPlaylistRows;
+            menuItem_PlaylistShowAll.Checked = !showOnlyCheckedPlaylistRows;
+        }
+
+        private void menuItem_PlaylistShowCheckedOnly_Click(object sender, EventArgs e)
+        {
+            showOnlyCheckedPlaylistRows = true;
+            ApplyPlaylistRowFilter();
+        }
+
+        private void menuItem_PlaylistShowAll_Click(object sender, EventArgs e)
+        {
+            showOnlyCheckedPlaylistRows = false;
+            ApplyPlaylistRowFilter();
+        }
+
+        // 実行列(col_PlaylistEnabled)のチェック状態を見て、プレイリストの行の表示/非表示を切り替える
+        private void ApplyPlaylistRowFilter()
+        {
+            foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                Boolean isEnabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
+                row.Visible = !showOnlyCheckedPlaylistRows || isEnabled;
+            }
         }
 
         private void menuItem_PlaylistAddRow_Click(object sender, EventArgs e)
@@ -1436,6 +1587,7 @@ namespace EventRecorder
             DataGridViewRow newRow = dataGridView_Playlist.Rows[insertAt];
             newRow.Cells[col_PlaylistEnabled.Index].Value = isEnabled;
             newRow.Cells[col_PlaylistLoopCount.Index].Value = "1";
+            newRow.Visible = !showOnlyCheckedPlaylistRows || isEnabled;
         }
 
         private void menuItem_PlaylistDeleteRow_Click(object sender, EventArgs e)
@@ -1469,6 +1621,8 @@ namespace EventRecorder
 
                 row.Cells[col_PlaylistEnabled.Index].Value = isChecked;
             }
+
+            ApplyPlaylistRowFilter();
         }
 
         // チェックボックス列は、クリックしただけだと確定(コミット)されず見た目が変わらないことがあるので、
@@ -1491,7 +1645,21 @@ namespace EventRecorder
         // (すでに手で入力済みの値を上書きしたくはないので、あくまで選択した瞬間の初期値扱い)
         private void dataGridView_Playlist_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != col_PlaylistFile.Index)
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
+
+            if (e.ColumnIndex == col_PlaylistEnabled.Index)
+            {
+                // チェックON/OFFが変わったら、表示フィルタが有効な時はその場で表示/非表示を切り替える
+                DataGridViewRow row = dataGridView_Playlist.Rows[e.RowIndex];
+                Boolean isEnabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
+                row.Visible = !showOnlyCheckedPlaylistRows || isEnabled;
+                return;
+            }
+
+            if (e.ColumnIndex != col_PlaylistFile.Index)
             {
                 return;
             }
@@ -1502,7 +1670,7 @@ namespace EventRecorder
                 return;
             }
 
-            String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), fileName);
+            String fullPath = System.IO.Path.Combine(userDataFolder, fileName);
             String savedLoopCount = ReadSavedLoopCount(fullPath);
             if (savedLoopCount != null)
             {
@@ -1631,11 +1799,20 @@ namespace EventRecorder
                             // 今どのファイル(行)を再生しているか、プレイリスト側もハイライトする
                             HighlightPlaylistRow(entry.RowIndex);
 
-                            String fullPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), entry.FileName);
+                            String fullPath = System.IO.Path.Combine(userDataFolder, entry.FileName);
                             // 再生対象の記録データ(タブ1)だけ差し替える。playbackLoaderはPlaylist側を
                             // 一切登録していないため、ファイルにプレイリストのスナップショットが
                             // 含まれていてもプレイリスト自体(タブ2)には影響しない
                             playbackLoader.LoadProc(fullPath, this, false);
+
+                            // 読み込んだファイルに再生できない行が無いか確認する。あればプレイリスト
+                            // 全体を停止する(rowsはnullのまま=このエントリは再生しない)
+                            if (!ValidateEventsForPlayback())
+                            {
+                                stopPlayRequested = true;
+                                return;
+                            }
+
                             rows = SnapshotRows();
                         }));
 
