@@ -66,8 +66,10 @@ namespace EventRecorder
         // マウスカーソル座標の常時表示用タイマー
         private System.Windows.Forms.Timer mousePosTimer;
 
-        // 起動時に自動読込するデフォルトの設定ファイル名(Cheetosに倣う)
-        private readonly String SettingFileName = @"EventRecorder.xml";
+        // 起動時に自動読込するデフォルトの設定ファイル名(Cheetosに倣う)。
+        // 今後はJSON保存が主流になっていく想定なので、JSON版が存在すればそちらを優先する
+        private readonly String SettingFileNameXml = @"EventRecorder.xml";
+        private readonly String SettingFileNameJson = @"EventRecorder.json";
 
         // マクロ・プレイリストのユーザーデータ置き場。exe直下(bin/Debug、bin/Release)は
         // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
@@ -137,9 +139,11 @@ namespace EventRecorder
 
             // 起動時にデフォルト設定を読み込み、コンボボックスに設定ファイル一覧を表示する(Cheetosと同じ手順)。
             // どちらもuserDataFolder(exe直下ではない)を対象にする
-            String defaultSettingPath = System.IO.Path.Combine(userDataFolder, SettingFileName);
-            sr.LoadProc(defaultSettingPath, this);
-            util.UpdateProfileList(ref comboBox_Profile, "", userDataFolder);
+            String defaultJsonPath = System.IO.Path.Combine(userDataFolder, SettingFileNameJson);
+            String defaultXmlPath = System.IO.Path.Combine(userDataFolder, SettingFileNameXml);
+            String defaultSettingPath = System.IO.File.Exists(defaultJsonPath) ? defaultJsonPath : defaultXmlPath;
+            LoadProfile(defaultSettingPath);
+            UpdateProfileListAll("");
 
             // プレイリストの設定ファイル列(col_PlaylistFile)は、comboBox_Profileと全く同じ
             // *.xml一覧を表示する。ファイルシステムへの問い合わせをcomboBox_Profile側の
@@ -1320,7 +1324,177 @@ namespace EventRecorder
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
-            sr.LoadProc(LoadFileName, this);
+            LoadProfile(LoadFileName);
+        }
+
+        // *******************************************************************************
+        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。設定値はこれまでXML(StcSaveRestore)
+        // 一本だったが、今後はJSONへ段階的に移行していく方針のため、拡張子で振り分ける。
+        // 「既存のXMLをJSONで保存し直す」機能は、専用の変換ボタンを別途作るのではなく、
+        // XMLを読み込んだ状態のままファイル保存ダイアログで.json拡張子を選ぶだけで実現できる
+        // (BuildProfileFromGridsは読込元の形式を問わず、今グリッドにある内容をそのまま使うため)
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(System.IO.Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 設定ファイル(記録データ+プレイリスト)をまるごと読み込む。拡張子がjsonならJSON、
+        // それ以外は従来通りXMLとして読み込む(既定でプレイリストもクリアする、sr.LoadProc相当)
+        private void LoadProfile(String filePath)
+        {
+            if (IsJsonFile(filePath))
+            {
+                LoadProfileFromJson(filePath, true);
+            }
+            else
+            {
+                sr.LoadProc(filePath, this);
+            }
+        }
+
+        // プレイリスト再生時、各行の設定ファイルを1つずつ読み込む専用(記録データのみ差し替え、
+        // プレイリスト自体は触らない。playbackLoader.LoadProc(..., false)のJSON対応版)
+        private void LoadProfileForPlayback(String filePath)
+        {
+            if (IsJsonFile(filePath))
+            {
+                LoadProfileFromJson(filePath, false);
+            }
+            else
+            {
+                playbackLoader.LoadProc(filePath, this, false);
+            }
+        }
+
+        // JSONファイルを読み込み、記録データ(+clearPlaylistがtrueならプレイリストも)グリッドへ反映する
+        private void LoadProfileFromJson(String filePath, Boolean clearPlaylist)
+        {
+            EventRecorderProfile profile = JsonFileStorage.Load<EventRecorderProfile>(filePath);
+            if (profile == null)
+            {
+                return;
+            }
+
+            dataGridView_Events.Rows.Clear();
+            if (clearPlaylist)
+            {
+                dataGridView_Playlist.Rows.Clear();
+            }
+
+            textBox_Loop.Text = String.IsNullOrEmpty(profile.LoopCount) ? "1" : profile.LoopCount;
+
+            foreach (MacroEventData ev in profile.Events ?? new List<MacroEventData>())
+            {
+                int idx = dataGridView_Events.Rows.Add();
+                DataGridViewRow row = dataGridView_Events.Rows[idx];
+                row.Cells[col_Type.Index].Value = ev.Type;
+                row.Cells[col_X.Index].Value = ev.X;
+                row.Cells[col_Y.Index].Value = ev.Y;
+                row.Cells[col_Key.Index].Value = ev.Key;
+                row.Cells[col_Wait.Index].Value = ev.Wait;
+            }
+
+            if (clearPlaylist)
+            {
+                foreach (PlaylistEntryData pl in profile.Playlist ?? new List<PlaylistEntryData>())
+                {
+                    int idx = dataGridView_Playlist.Rows.Add();
+                    DataGridViewRow row = dataGridView_Playlist.Rows[idx];
+                    row.Cells[col_PlaylistEnabled.Index].Value = pl.Enabled;
+                    row.Cells[col_PlaylistFile.Index].Value = pl.FileName;
+                    row.Cells[col_PlaylistLoopCount.Index].Value = pl.LoopCount;
+                }
+            }
+
+            // 万一、旧XMLをそのままJSON化しただけ(各行が自分のWaitを持つ旧形式相当)のデータを
+            // 読み込んでも安全なように、XML読込時と同じ変換を通しておく
+            MigrateWaitColumnToRows();
+
+            // ファイル読込は「ユーザーの編集操作」ではないので、Ctrl+Zで戻せないようにする
+            dataGridView_Events.ClearUndoHistory();
+            if (clearPlaylist)
+            {
+                dataGridView_Playlist.ClearUndoHistory();
+            }
+        }
+
+        // 今のグリッドの中身(記録データ+プレイリスト)をJSON保存用のPOCOに詰め替える
+        private EventRecorderProfile BuildProfileFromGrids()
+        {
+            EventRecorderProfile profile = new EventRecorderProfile();
+            profile.LoopCount = textBox_Loop.Text;
+
+            foreach (DataGridViewRow row in dataGridView_Events.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                profile.Events.Add(new MacroEventData
+                {
+                    Type = Convert.ToString(row.Cells[col_Type.Index].Value),
+                    X = Convert.ToString(row.Cells[col_X.Index].Value),
+                    Y = Convert.ToString(row.Cells[col_Y.Index].Value),
+                    Key = Convert.ToString(row.Cells[col_Key.Index].Value),
+                    Wait = Convert.ToString(row.Cells[col_Wait.Index].Value),
+                });
+            }
+
+            foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                profile.Playlist.Add(new PlaylistEntryData
+                {
+                    Enabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false),
+                    FileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value),
+                    LoopCount = Convert.ToString(row.Cells[col_PlaylistLoopCount.Index].Value),
+                });
+            }
+
+            return profile;
+        }
+
+        // filePathの拡張子で振り分けて保存する(JSONならJsonFileStorage、XMLなら従来のsr.SaveSetting)
+        private Boolean SaveProfile(String filePath)
+        {
+            if (IsJsonFile(filePath))
+            {
+                try
+                {
+                    JsonFileStorage.Save(filePath, BuildProfileFromGrids());
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "保存に失敗したよ: " + ex.Message,
+                        "EventRecorder - 保存エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
+            return sr.SaveSetting(filePath);
+        }
+
+        // comboBox_Profile(プレイリストのcol_PlaylistFileも含む)へ、userDataFolder配下の
+        // *.xmlと*.jsonの両方をまとめてリストアップする。util.UpdateProfileListは拡張子を
+        // 1パターンしか指定できないため、ここでは2回検索した結果をマージして直接セットする
+        private void UpdateProfileListAll(String defaultProfileName)
+        {
+            String[] xmlFiles = System.IO.Directory.GetFiles(userDataFolder, "*.xml", System.IO.SearchOption.AllDirectories);
+            String[] jsonFiles = System.IO.Directory.GetFiles(userDataFolder, "*.json", System.IO.SearchOption.AllDirectories);
+            String[] files = xmlFiles.Concat(jsonFiles).ToArray();
+
+            util.SetComboBoxFromArray(comboBox_Profile, files, userDataFolder);
+            util.SetComboBoxText(comboBox_Profile, defaultProfileName);
         }
 
         // 読込ボタンと同じ感覚で使えるよう、「現在のファイルに上書きしますか?」の確認は挟まず、
@@ -1341,9 +1515,9 @@ namespace EventRecorder
                 if (overwriteResult == DialogResult.Yes)
                 {
                     String overwriteFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
-                    if (sr.SaveSetting(overwriteFileName))
+                    if (SaveProfile(overwriteFileName))
                     {
-                        util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(overwriteFileName), userDataFolder);
+                        UpdateProfileListAll(System.IO.Path.GetFileName(overwriteFileName));
                         SyncPlaylistFileItems();
                     }
                     return;
@@ -1353,7 +1527,9 @@ namespace EventRecorder
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.FileName = comboBox_Profile.Text;
             dlg.InitialDirectory = userDataFolder;
-            dlg.Filter = "XMLファイル(*.xml)|*.xml|すべてのファイル(*.*)|*.*";
+            // 今後はJSON保存を主流にしていく方針なので、フィルタの先頭(既定)をJSONにしてある。
+            // 既存のXMLプロファイルを開いた状態でここに来て.jsonを選べば、そのままXML→JSON変換になる
+            dlg.Filter = "JSONファイル(*.json)|*.json|XMLファイル(*.xml)|*.xml|すべてのファイル(*.*)|*.*";
             dlg.Title = "保存する設定ファイルを選択してください";
 
             if (dlg.ShowDialog() != DialogResult.OK)
@@ -1362,9 +1538,9 @@ namespace EventRecorder
             }
 
             String SaveFileName = dlg.FileName;
-            if (sr.SaveSetting(SaveFileName))
+            if (SaveProfile(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_Profile, System.IO.Path.GetFileName(SaveFileName), userDataFolder);
+                UpdateProfileListAll(System.IO.Path.GetFileName(SaveFileName));
                 SyncPlaylistFileItems();
             }
         }
@@ -1680,12 +1856,25 @@ namespace EventRecorder
 
         // マクロファイル自身が保存しているループ回数(textBox_Loopの値)だけを、
         // dataGridView_Events等には一切触れずに読み取る
-        // (sr.LoadProcを使うとタブ1の記録データがまるごとクリア/差し替えられてしまうため使わない)
+        // (LoadProfileを使うとタブ1の記録データがまるごとクリア/差し替えられてしまうため使わない)
         private String ReadSavedLoopCount(String filePath)
         {
             if (!System.IO.File.Exists(filePath))
             {
                 return null;
+            }
+
+            if (IsJsonFile(filePath))
+            {
+                try
+                {
+                    EventRecorderProfile profile = JsonFileStorage.Load<EventRecorderProfile>(filePath);
+                    return profile?.LoopCount;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
 
             try
@@ -1800,10 +1989,9 @@ namespace EventRecorder
                             HighlightPlaylistRow(entry.RowIndex);
 
                             String fullPath = System.IO.Path.Combine(userDataFolder, entry.FileName);
-                            // 再生対象の記録データ(タブ1)だけ差し替える。playbackLoaderはPlaylist側を
-                            // 一切登録していないため、ファイルにプレイリストのスナップショットが
-                            // 含まれていてもプレイリスト自体(タブ2)には影響しない
-                            playbackLoader.LoadProc(fullPath, this, false);
+                            // 再生対象の記録データ(タブ1)だけ差し替える。プレイリスト自体(タブ2)には
+                            // 影響しない(XML/JSONどちらの形式でも、記録データのみを反映する)
+                            LoadProfileForPlayback(fullPath);
 
                             // 読み込んだファイルに再生できない行が無いか確認する。あればプレイリスト
                             // 全体を停止する(rowsはnullのまま=このエントリは再生しない)
