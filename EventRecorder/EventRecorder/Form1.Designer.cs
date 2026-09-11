@@ -35,6 +35,7 @@ namespace EventRecorder
             this.col_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Wait = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Detail = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Grid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_DeleteRow = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,6 +44,7 @@ namespace EventRecorder
             this.label_Loop = new System.Windows.Forms.Label();
             this.textBox_Loop = new System.Windows.Forms.TextBox();
             this.button_Play = new System.Windows.Forms.Button();
+            this.checkBox_MinimizeOnPlay = new System.Windows.Forms.CheckBox();
             this.comboBox_Profile = new System.Windows.Forms.ComboBox();
             this.button_ProfileSave = new System.Windows.Forms.Button();
             this.label_MousePos = new System.Windows.Forms.Label();
@@ -82,12 +84,18 @@ namespace EventRecorder
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView_Events.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            // 列の並び(インデックス)は、旧バージョンで保存されたマクロXML(Cell_行-列 という形で
+            // 列インデックスに紐づけて値を保存している)との互換性のため、Type/X/Y/Key/Waitの
+            // 並び順を変更せずにそのまま維持し、Detail列は末尾に追加する。
+            // 画面上はDisplayIndexでType/Detail/Waitの順に並べ、X/Y/Keyは非表示にする
+            // (実データはX/Y/Key列に保持したまま、Detail列は表示・編集用のミラー)
             this.dataGridView_Events.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.col_Type,
             this.col_X,
             this.col_Y,
             this.col_Key,
-            this.col_Wait});
+            this.col_Wait,
+            this.col_Detail});
             this.dataGridView_Events.ContextMenuStrip = this.contextMenuStrip_Grid;
             this.dataGridView_Events.Location = new System.Drawing.Point(6, 20);
             this.dataGridView_Events.Name = "dataGridView_Events";
@@ -103,35 +111,52 @@ namespace EventRecorder
             //
             // col_Type
             //
-            // Fillモードでの各列の配分比率(FillWeight)。Eventを広めにしつつ、
-            // 広げすぎた分(160→130、約8割)はX/Y/Keyに均等に割り戻す
+            this.col_Type.DisplayIndex = 0;
             this.col_Type.FillWeight = 130F;
             this.col_Type.HeaderText = "Event";
             this.col_Type.Name = "col_Type";
             //
             // col_X
             //
-            this.col_X.FillWeight = 70F;
+            // X/Y/Keyは実データの保持だけに使い、画面には出さない(Detail列に統合表示する)
+            this.col_X.DisplayIndex = 3;
             this.col_X.HeaderText = "X";
             this.col_X.Name = "col_X";
+            this.col_X.Visible = false;
             //
             // col_Y
             //
-            this.col_Y.FillWeight = 70F;
+            this.col_Y.DisplayIndex = 4;
             this.col_Y.HeaderText = "Y";
             this.col_Y.Name = "col_Y";
+            this.col_Y.Visible = false;
             //
             // col_Key
             //
-            this.col_Key.FillWeight = 70F;
+            this.col_Key.DisplayIndex = 5;
             this.col_Key.HeaderText = "Key";
             this.col_Key.Name = "col_Key";
+            this.col_Key.Visible = false;
             //
             // col_Wait
             //
-            this.col_Wait.FillWeight = 100F;
+            // 待機時間は独立したWAIT行(Event="WAIT", Detail="○○ms")として表現するようにしたため、
+            // Delay(ms)列自体は非表示にする。データはWAIT行のこの列に保持したままにする
+            // (旧バージョンで保存された、各行が自分の待機時間を持つ形式との互換性のため)
+            this.col_Wait.DisplayIndex = 2;
             this.col_Wait.HeaderText = "Delay(ms)";
             this.col_Wait.Name = "col_Wait";
+            this.col_Wait.Visible = false;
+            //
+            // col_Detail
+            //
+            // X/Y/Key(非表示列)を統合して表示する列。"X:123 Y:456"または"Key:A"の形式で表示・編集し、
+            // 実データ(X/Y/Key)とはCellValueChangedで相互に同期する(Form1.cs参照)。
+            // WAIT行の場合は"○○ms"の形式で、実データ(Wait列)と同期する
+            this.col_Detail.DisplayIndex = 1;
+            this.col_Detail.FillWeight = 200F;
+            this.col_Detail.HeaderText = "Detail";
+            this.col_Detail.Name = "col_Detail";
             //
             // contextMenuStrip_Grid
             //
@@ -213,6 +238,18 @@ namespace EventRecorder
             this.button_Play.UseVisualStyleBackColor = true;
             this.button_Play.Click += new System.EventHandler(this.button_Play_Click);
             //
+            // checkBox_MinimizeOnPlay
+            //
+            // チェックしておくと、再生開始時にウィンドウを最小化し、再生が終わったら元に戻す
+            this.checkBox_MinimizeOnPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox_MinimizeOnPlay.AutoSize = true;
+            this.checkBox_MinimizeOnPlay.Location = new System.Drawing.Point(220, 554);
+            this.checkBox_MinimizeOnPlay.Name = "checkBox_MinimizeOnPlay";
+            this.checkBox_MinimizeOnPlay.Size = new System.Drawing.Size(168, 16);
+            this.checkBox_MinimizeOnPlay.TabIndex = 7;
+            this.checkBox_MinimizeOnPlay.Text = "実行時にウィンドウを最小化する";
+            this.checkBox_MinimizeOnPlay.UseVisualStyleBackColor = true;
+            //
             // comboBox_Profile
             //
             // プルダウンを選ぶだけでSelectedIndexChangedにより自動読込されるため、
@@ -225,7 +262,7 @@ namespace EventRecorder
             this.comboBox_Profile.Location = new System.Drawing.Point(12, 584);
             this.comboBox_Profile.Name = "comboBox_Profile";
             this.comboBox_Profile.Size = new System.Drawing.Size(310, 20);
-            this.comboBox_Profile.TabIndex = 7;
+            this.comboBox_Profile.TabIndex = 8;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             //
             // button_ProfileSave
@@ -235,7 +272,7 @@ namespace EventRecorder
             this.button_ProfileSave.Location = new System.Drawing.Point(335, 583);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(80, 23);
-            this.button_ProfileSave.TabIndex = 8;
+            this.button_ProfileSave.TabIndex = 9;
             this.button_ProfileSave.Text = "設定値保存";
             this.button_ProfileSave.UseVisualStyleBackColor = true;
             this.button_ProfileSave.Click += new System.EventHandler(this.button_ProfileSave_Click);
@@ -463,6 +500,7 @@ namespace EventRecorder
             this.Controls.Add(this.button_ProfileSave);
             this.Controls.Add(this.comboBox_Profile);
             this.Controls.Add(this.button_Play);
+            this.Controls.Add(this.checkBox_MinimizeOnPlay);
             this.Controls.Add(this.textBox_Loop);
             this.Controls.Add(this.label_Loop);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
@@ -494,11 +532,13 @@ namespace EventRecorder
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Key;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Wait;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Detail;
         private System.Windows.Forms.Button button_Record;
         private System.Windows.Forms.Button button_Clear;
         private System.Windows.Forms.Label label_Loop;
         internal System.Windows.Forms.TextBox textBox_Loop;
         private System.Windows.Forms.Button button_Play;
+        internal System.Windows.Forms.CheckBox checkBox_MinimizeOnPlay;
         internal System.Windows.Forms.ComboBox comboBox_Profile;
         private System.Windows.Forms.Button button_ProfileSave;
         internal System.Windows.Forms.Label label_MousePos;

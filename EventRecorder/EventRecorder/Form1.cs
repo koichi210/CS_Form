@@ -338,9 +338,16 @@ namespace EventRecorder
 
         // 記録した1件をバッファに貯めるだけ(フックのコールバックを描画待ちで塞がないため)。
         // 実際のDataGridViewへの反映はgridFlushTimerがまとめて行う
+        // waitが正の場合、待機だけを表す独立したWAIT行を先に積んでから、実際のイベント行を積む
+        // (待機時間はイベント自体の属性ではなく、シーケンス上の別行として表現する方式にしたため)
         private void QueueRow(String type, String x, String y, String key, int wait)
         {
-            pendingRows.Add(new String[] { type, x, y, key, wait.ToString() });
+            if (wait > 0)
+            {
+                pendingRows.Add(new String[] { WaitEventType, "", "", "", wait.ToString() });
+            }
+
+            pendingRows.Add(new String[] { type, x, y, key, "0" });
         }
 
         // 貯まった行をまとめてDataGridViewに反映する。1件ずつ反映するより
@@ -375,6 +382,47 @@ namespace EventRecorder
             if (lastIdx >= 0)
             {
                 HighlightPlayingRow(lastIdx);
+            }
+        }
+
+        // 旧バージョンの保存形式(各行が自分自身の待機時間をWait列に持つ)を、
+        // 新形式(待機を独立したWAIT行として挿入する形式)に変換する。
+        // すでに新形式(各行のWaitが0)の場合は何もしない、何度呼んでも安全な処理。
+        // ファイル読込のたびにSaveRestore.csから呼ばれる
+        internal void MigrateWaitColumnToRows()
+        {
+            dataGridView_Events.SuspendLayout();
+            try
+            {
+                // 後ろから処理すれば、Insertしても未処理の行のインデックスに影響しない
+                for (int i = dataGridView_Events.Rows.Count - 1; i >= 0; i--)
+                {
+                    DataGridViewRow row = dataGridView_Events.Rows[i];
+                    String type = Convert.ToString(row.Cells[col_Type.Index].Value);
+
+                    if (type == WaitEventType)
+                    {
+                        continue;
+                    }
+
+                    int wait = util.GetInteger(Convert.ToString(row.Cells[col_Wait.Index].Value));
+                    if (wait <= 0)
+                    {
+                        continue;
+                    }
+
+                    dataGridView_Events.Rows.Insert(i, 1);
+                    DataGridViewRow waitRow = dataGridView_Events.Rows[i];
+                    waitRow.Cells[col_Type.Index].Value = WaitEventType;
+                    waitRow.Cells[col_Wait.Index].Value = wait.ToString();
+
+                    // 元の行のWaitは移し替えたので0にしておく(でないと再生時に二重に待ってしまう)
+                    row.Cells[col_Wait.Index].Value = "0";
+                }
+            }
+            finally
+            {
+                dataGridView_Events.ResumeLayout();
             }
         }
 
@@ -435,8 +483,28 @@ namespace EventRecorder
             stopPlayRequested = false;
             UpdatePlayButtons();
             UpdateTitle();
+            MinimizeIfRequested();
 
             Task.Run(() => PlayLoop(rows, loopCount));
+        }
+
+        // checkBox_MinimizeOnPlayがチェックされていたら、再生開始と同時にウィンドウを最小化する。
+        // 再生対象のアプリの操作を邪魔しないようにするための機能
+        private void MinimizeIfRequested()
+        {
+            if (checkBox_MinimizeOnPlay.Checked)
+            {
+                this.WindowState = FormWindowState.Minimized;
+            }
+        }
+
+        // MinimizeIfRequestedで最小化した場合、再生終了時に元の表示状態へ戻す
+        private void RestoreIfMinimizedByPlay()
+        {
+            if (checkBox_MinimizeOnPlay.Checked && this.WindowState == FormWindowState.Minimized)
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
         }
 
         private List<String[]> SnapshotRows()
@@ -481,6 +549,7 @@ namespace EventRecorder
                     UpdatePlayButtons();
                     UpdateTitle();
                     HighlightPlayingRow(-1);
+                    RestoreIfMinimizedByPlay();
                 }));
             }
         }
@@ -637,9 +706,16 @@ namespace EventRecorder
                 return;
             }
 
+            // X/Y/Key列は非表示なので、実際に見えている列(DisplayIndex順)だけを貼り付け対象にする
+            List<DataGridViewColumn> visibleColumns = GetVisibleColumnsInDisplayOrder(dataGridView_Events);
+
             DataGridViewCell startCell = dataGridView_Events.CurrentCell;
             int startRow = (startCell != null) ? startCell.RowIndex : 0;
-            int startCol = (startCell != null) ? startCell.ColumnIndex : 0;
+            int startVisibleCol = (startCell != null) ? visibleColumns.FindIndex(c => c.Index == startCell.ColumnIndex) : 0;
+            if (startVisibleCol < 0)
+            {
+                startVisibleCol = 0;
+            }
 
             // 複数セルへの貼り付けをまとめて1回のCtrl+Zで戻せるよう、Undoバッチでまとめる
             dataGridView_Events.BeginUndoBatch();
@@ -658,15 +734,15 @@ namespace EventRecorder
                     String[] values = lines[i].Split('\t');
                     for (int j = 0; j < values.Length; j++)
                     {
-                        int colIndex = startCol + j;
+                        int visibleColIndex = startVisibleCol + j;
 
-                        // 列がグリッドの列数をはみ出る分は切り捨てる
-                        if (colIndex >= dataGridView_Events.Columns.Count)
+                        // 見えている列数をはみ出る分は切り捨てる
+                        if (visibleColIndex >= visibleColumns.Count)
                         {
                             break;
                         }
 
-                        dataGridView_Events.Rows[rowIndex].Cells[colIndex].Value = values[j];
+                        dataGridView_Events.Rows[rowIndex].Cells[visibleColumns[visibleColIndex].Index].Value = values[j];
                     }
                 }
             }
@@ -674,6 +750,22 @@ namespace EventRecorder
             {
                 dataGridView_Events.EndUndoBatch();
             }
+        }
+
+        // gridの表示列(Visible=true)だけを、DisplayIndex順に並べて返す
+        private static List<DataGridViewColumn> GetVisibleColumnsInDisplayOrder(DataGridView grid)
+        {
+            List<DataGridViewColumn> columns = new List<DataGridViewColumn>();
+            foreach (DataGridViewColumn col in grid.Columns)
+            {
+                if (col.Visible)
+                {
+                    columns.Add(col);
+                }
+            }
+
+            columns.Sort((a, b) => a.DisplayIndex.CompareTo(b.DisplayIndex));
+            return columns;
         }
 
         // 右クリックしたセルの行(手動で行の追加/削除をする対象)。右クリック無しの状態(-1)なら末尾扱い
@@ -859,11 +951,12 @@ namespace EventRecorder
             return false;
         }
 
-        // マウスイベントの行なのにKey列にも値が入っている場合、Key列の背景を薄い赤にして知らせる。
+        // マウスイベントの行なのにKey列にも値が入っている場合、Detail列の背景を薄い赤にして知らせる。
         // 加えてErrorTextにも同じ内容を入れて、セルのエラーアイコン+ホバー時の吹き出しでも分かるようにする
+        // (Key列自体は非表示になったため、警告表示はDetail列(実際に見えている列)に出す)
         private void dataGridView_Events_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.ColumnIndex != col_Key.Index || e.RowIndex < 0)
+            if (e.ColumnIndex != col_Detail.Index || e.RowIndex < 0)
             {
                 return;
             }
@@ -875,22 +968,173 @@ namespace EventRecorder
                 e.CellStyle.BackColor = Color.MistyRose;
             }
 
-            row.Cells[col_Key.Index].ErrorText = message;
+            row.Cells[col_Detail.Index].ErrorText = message;
         }
 
-        // Event列を書き換えた直後もKey列の警告表示(CellFormatting)がすぐ反映されるように、
-        // 明示的にKey列セルを再描画する(別列の値変更ではCellFormattingが自動では呼ばれないため)。
+        // Detail列とX/Y/Key列(非表示)を相互に同期させている最中、再帰的な同期を防ぐためのフラグ
+        private Boolean isSyncingDetailColumn = false;
+
+        // Event列を書き換えた直後もDetail列の警告表示(CellFormatting)がすぐ反映されるように、
+        // 明示的にDetail列セルを再描画する(別列の値変更ではCellFormattingが自動では呼ばれないため)。
         // 記録・貼り付け・XML読込・手動編集、どの経路でEvent列がセットされてもここを通るので、
-        // KeyUp行を非表示にする処理もまとめてここでやる
+        // KeyUp行を非表示にする処理もまとめてここでやる。
+        // さらに、実データ(X/Y/Key、非表示)とDetail列(表示・編集用)を相互に同期させる
         private void dataGridView_Events_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != col_Type.Index)
+            if (e.RowIndex < 0 || isSyncingDetailColumn)
             {
                 return;
             }
 
-            dataGridView_Events.InvalidateCell(col_Key.Index, e.RowIndex);
-            UpdateRowVisibility(e.RowIndex);
+            if (e.ColumnIndex == col_Type.Index)
+            {
+                dataGridView_Events.InvalidateCell(col_Detail.Index, e.RowIndex);
+                UpdateRowVisibility(e.RowIndex);
+                // WAIT行への/からの切り替え等、Event列の変更でDetail列の意味も変わるので再計算する
+                SyncDetailFromHiddenColumns(e.RowIndex);
+                return;
+            }
+
+            if (e.ColumnIndex == col_X.Index || e.ColumnIndex == col_Y.Index || e.ColumnIndex == col_Key.Index
+                || e.ColumnIndex == col_Wait.Index)
+            {
+                // 記録・XML読込・貼り付け等で実データ(X/Y/Key、WAIT行ならWait)が更新されたら、
+                // Detail列の表示も追従させる
+                SyncDetailFromHiddenColumns(e.RowIndex);
+                return;
+            }
+
+            if (e.ColumnIndex == col_Detail.Index)
+            {
+                // ユーザーがDetail列を直接編集した時は、逆に実データへ書き戻す
+                SyncHiddenColumnsFromDetail(e.RowIndex);
+                return;
+            }
+        }
+
+        // Event列が"WAIT"の行は、待機のためだけの行(実際の操作を伴わない)を表す
+        private const String WaitEventType = "WAIT";
+
+        private void SyncDetailFromHiddenColumns(int rowIndex)
+        {
+            DataGridViewRow row = dataGridView_Events.Rows[rowIndex];
+            String type = Convert.ToString(row.Cells[col_Type.Index].Value);
+
+            isSyncingDetailColumn = true;
+            try
+            {
+                if (type == WaitEventType)
+                {
+                    String wait = Convert.ToString(row.Cells[col_Wait.Index].Value);
+                    row.Cells[col_Detail.Index].Value = FormatWaitDetail(wait);
+                }
+                else
+                {
+                    String x = Convert.ToString(row.Cells[col_X.Index].Value);
+                    String y = Convert.ToString(row.Cells[col_Y.Index].Value);
+                    String key = Convert.ToString(row.Cells[col_Key.Index].Value);
+                    row.Cells[col_Detail.Index].Value = FormatDetail(x, y, key);
+                }
+            }
+            finally
+            {
+                isSyncingDetailColumn = false;
+            }
+        }
+
+        private void SyncHiddenColumnsFromDetail(int rowIndex)
+        {
+            DataGridViewRow row = dataGridView_Events.Rows[rowIndex];
+            String type = Convert.ToString(row.Cells[col_Type.Index].Value);
+            String detail = Convert.ToString(row.Cells[col_Detail.Index].Value);
+
+            isSyncingDetailColumn = true;
+            try
+            {
+                if (type == WaitEventType)
+                {
+                    String wait;
+                    TryParseWaitDetail(detail, out wait);
+                    row.Cells[col_Wait.Index].Value = wait;
+                }
+                else
+                {
+                    String x, y, key;
+                    ParseDetail(detail, out x, out y, out key);
+                    row.Cells[col_X.Index].Value = x;
+                    row.Cells[col_Y.Index].Value = y;
+                    row.Cells[col_Key.Index].Value = key;
+                }
+            }
+            finally
+            {
+                isSyncingDetailColumn = false;
+            }
+        }
+
+        // マウス行は"X:123 Y:456"、キーボード行は"Key:A"の形式でDetail列に表示する
+        private static String FormatDetail(String x, String y, String key)
+        {
+            if (!String.IsNullOrEmpty(key))
+            {
+                return "Key:" + key;
+            }
+
+            if (!String.IsNullOrEmpty(x) || !String.IsNullOrEmpty(y))
+            {
+                return "X:" + x + " Y:" + y;
+            }
+
+            return String.Empty;
+        }
+
+        // FormatDetailの逆変換。"X:123 Y:456"や"Key:A"の形式から値を取り出す
+        private static void ParseDetail(String detail, out String x, out String y, out String key)
+        {
+            x = String.Empty;
+            y = String.Empty;
+            key = String.Empty;
+
+            if (String.IsNullOrEmpty(detail))
+            {
+                return;
+            }
+
+            foreach (String token in detail.Split(' '))
+            {
+                if (token.StartsWith("X:"))
+                {
+                    x = token.Substring(2);
+                }
+                else if (token.StartsWith("Y:"))
+                {
+                    y = token.Substring(2);
+                }
+                else if (token.StartsWith("Key:"))
+                {
+                    key = token.Substring(4);
+                }
+            }
+        }
+
+        // WAIT行のDetail表示("500ms"のような形式)
+        private static String FormatWaitDetail(String waitMs)
+        {
+            return waitMs + "ms";
+        }
+
+        // FormatWaitDetailの逆変換。末尾の"ms"を取り除いてミリ秒の数値文字列を取り出す
+        private static Boolean TryParseWaitDetail(String detail, out String waitMs)
+        {
+            waitMs = String.Empty;
+
+            if (String.IsNullOrEmpty(detail) || !detail.EndsWith("ms"))
+            {
+                return false;
+            }
+
+            waitMs = detail.Substring(0, detail.Length - 2);
+            return true;
         }
 
         // KeyUp/SysKeyUpの行は、リピート抑制のための内部データとしては保持したまま、
@@ -1358,6 +1602,7 @@ namespace EventRecorder
             stopPlayRequested = false;
             UpdatePlayButtons();
             UpdateTitle();
+            MinimizeIfRequested();
 
             Task.Run(() => PlaylistPlayLoop(entries, overallLoopCount));
         }
@@ -1417,6 +1662,7 @@ namespace EventRecorder
                     UpdateTitle();
                     HighlightPlayingRow(-1);
                     HighlightPlaylistRow(-1);
+                    RestoreIfMinimizedByPlay();
                 }));
             }
         }
