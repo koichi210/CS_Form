@@ -241,7 +241,7 @@ namespace EventRecorder
             // フォルダ選択用に転用する(ValidateNames/CheckFileExistsを外し、選ばれた「ファイル名」の
             // 親フォルダだけを実際には使う)。外部dllを使わずに実現できる方法としてこれを採用した
             String selectedFolder = ChooseFolderWithModernDialog(
-                "マクロ・プレイリストの保存先フォルダを選んでください", userDataFolder);
+                "プロファイルの保存先ふぉるだを選んでください", userDataFolder);
 
             if (selectedFolder == null)
             {
@@ -256,13 +256,78 @@ namespace EventRecorder
                 return;
             }
 
+            // 保存先を変えるだけだと今までのプロファイルが古いフォルダに取り残されてしまうため、
+            // 移動するかどうかをここで確認する(プロファイルの引っ越し)
+            DialogResult moveResult = MessageBox.Show(
+                "既存のプロファイルを新しい保存先に移動しますか？" + Environment.NewLine + Environment.NewLine
+                    + "移動元: " + userDataFolder + Environment.NewLine
+                    + "移動先: " + selectedFolder,
+                "EventRecorder - プロファイルの引っ越し",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (moveResult == DialogResult.Yes)
+            {
+                MoveExistingProfiles(userDataFolder, selectedFolder);
+            }
+
             StandardTemplate.UserDataLocation.SetUserDataFolder("EventRecorder", selectedFolder);
 
             MessageBox.Show(
                 "保存先を変更したよ" + Environment.NewLine + selectedFolder + Environment.NewLine + Environment.NewLine
                     + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
-                    + "を使うよ。新しい保存先は次回起動時から反映されるよ(既存のファイルは自動で移動しないので、\n必要ならエクスプローラで手動コピーしてね)",
+                    + "を使うよ。新しい保存先は次回起動時から反映されるよ",
                 "EventRecorder - データ保存先の変更",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        // oldFolder直下(サブフォルダは対象外)にある*.xml/*.jsonプロファイルをnewFolderへ移動する。
+        // WindowLayout.json(アプリの設定ファイル、プロファイルではない)は対象外。
+        // 移動先に同名ファイルが既にある場合は、上書きせずスキップする(データ消失を避けるため)
+        private void MoveExistingProfiles(String oldFolder, String newFolder)
+        {
+            List<String> profileFiles = System.IO.Directory.GetFiles(oldFolder, "*.xml")
+                .Concat(System.IO.Directory.GetFiles(oldFolder, "*.json")
+                    .Where(f => !String.Equals(System.IO.Path.GetFileName(f), WindowLayoutFileName, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            List<String> movedFiles = new List<String>();
+            List<String> skippedFiles = new List<String>();
+
+            foreach (String sourcePath in profileFiles)
+            {
+                String fileName = System.IO.Path.GetFileName(sourcePath);
+                String destPath = System.IO.Path.Combine(newFolder, fileName);
+
+                if (System.IO.File.Exists(destPath))
+                {
+                    skippedFiles.Add(fileName);
+                    continue;
+                }
+
+                try
+                {
+                    System.IO.File.Move(sourcePath, destPath);
+                    movedFiles.Add(fileName);
+                }
+                catch (Exception)
+                {
+                    skippedFiles.Add(fileName);
+                }
+            }
+
+            String message = movedFiles.Count + "件のプロファイルを移動したよ";
+            if (skippedFiles.Count > 0)
+            {
+                message += Environment.NewLine + Environment.NewLine
+                    + skippedFiles.Count + "件は移動先に同名ファイルが既にあった(または移動に失敗した)ためスキップしたよ:"
+                    + Environment.NewLine + String.Join(Environment.NewLine, skippedFiles);
+            }
+
+            MessageBox.Show(
+                message,
+                "EventRecorder - プロファイルの引っ越し",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
