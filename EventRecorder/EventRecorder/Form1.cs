@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -175,6 +176,95 @@ namespace EventRecorder
 
             // 起動時のデフォルトモードは「レコード」
             radioButton_Record.Checked = true;
+        }
+
+        // *******************************************************************************
+        // データ保存先フォルダの変更(システムメニューから呼び出す)
+        //
+        // 保存先パスはそうそう変えるものではない設定なので、常時見えるボタンは置かず、
+        // ウィンドウ左上のアイコンをクリックした時のシステムメニュー(最小化・最大化・閉じる等が
+        // 並ぶメニュー)に項目を追加する形にした
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, Boolean bRevert);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern Boolean AppendMenu(IntPtr hMenu, uint uFlags, uint uIDNewItem, String lpNewItem);
+
+        private const uint MF_SEPARATOR = 0x800;
+        private const uint MF_STRING = 0x0;
+        private const int WM_SYSCOMMAND = 0x112;
+
+        // システムコマンドのIDは下位4bitをWindowsが予約しているため、16の倍数かつ
+        // 0xF000未満にする必要がある(MSDN既定のルール)
+        private const int SysMenuId_ChangeDataFolder = 0x1000;
+
+        // ウィンドウハンドルが確定したタイミングでシステムメニューに項目を追加する
+        // (コンストラクタの時点ではまだthis.Handleが未確定のため、ここで行う)
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            IntPtr systemMenu = GetSystemMenu(this.Handle, false);
+            AppendMenu(systemMenu, MF_SEPARATOR, 0, String.Empty);
+            AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeDataFolder, "データ保存先を変更(&D)...");
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt32() & 0xFFF0) == SysMenuId_ChangeDataFolder)
+            {
+                ChangeDataFolder();
+                return;
+            }
+
+            base.WndProc(ref m);
+        }
+
+        // 保存先フォルダを選び直し、exe直下のポインタファイル(DataFolder.txt)を書き換える。
+        // 実行中のuserDataFolder(readonly)はその場では切り替えない
+        // (記録中のプレイリスト等、今のセッションの状態と食い違うと事故のもとになるため)。
+        // 変更は次回起動時から反映される、シンプルで安全な方式にしている
+        private void ChangeDataFolder()
+        {
+            if (isRecording || isPlaying)
+            {
+                MessageBox.Show(
+                    "記録中/再生中は変更できないよ。停止してから試してね",
+                    "EventRecorder - データ保存先の変更",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (FolderBrowserDialog dlg = new FolderBrowserDialog())
+            {
+                dlg.Description = "マクロ・プレイリストの保存先フォルダを選んでください";
+                dlg.SelectedPath = userDataFolder;
+
+                if (dlg.ShowDialog() != DialogResult.OK || String.IsNullOrEmpty(dlg.SelectedPath))
+                {
+                    return;
+                }
+
+                if (String.Equals(
+                    System.IO.Path.GetFullPath(dlg.SelectedPath).TrimEnd('\\'),
+                    System.IO.Path.GetFullPath(userDataFolder).TrimEnd('\\'),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                StandardTemplate.UserDataLocation.SetUserDataFolder("EventRecorder", dlg.SelectedPath);
+
+                MessageBox.Show(
+                    "保存先を変更したよ" + Environment.NewLine + dlg.SelectedPath + Environment.NewLine + Environment.NewLine
+                        + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
+                        + "を使うよ。新しい保存先は次回起動時から反映されるよ(既存のファイルは自動で移動しないので、\n必要ならエクスプローラで手動コピーしてね)",
+                    "EventRecorder - データ保存先の変更",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         }
 
         // 今選択中のモードのグループボックスだけ背景色をハイライトする。
@@ -1412,6 +1502,7 @@ namespace EventRecorder
                 row.Cells[col_Y.Index].Value = ev.Y;
                 row.Cells[col_Key.Index].Value = ev.Key;
                 row.Cells[col_Wait.Index].Value = ev.Wait;
+                row.Cells[col_Remarks.Index].Value = ev.Remarks;
             }
 
             if (clearPlaylist)
@@ -1458,6 +1549,7 @@ namespace EventRecorder
                     Y = Convert.ToString(row.Cells[col_Y.Index].Value),
                     Key = Convert.ToString(row.Cells[col_Key.Index].Value),
                     Wait = Convert.ToString(row.Cells[col_Wait.Index].Value),
+                    Remarks = Convert.ToString(row.Cells[col_Remarks.Index].Value),
                 });
             }
 

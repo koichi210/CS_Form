@@ -17,7 +17,7 @@ namespace EventRecorder
         public List<PlaylistEntryData> Playlist { get; set; } = new List<PlaylistEntryData>();
     }
 
-    // dataGridView_Eventsの1行分(Type/X/Y/Key/Wait)
+    // dataGridView_Eventsの1行分(Type/X/Y/Key/Wait/備考)
     public class MacroEventData
     {
         public String Type { get; set; }
@@ -25,6 +25,9 @@ namespace EventRecorder
         public String Y { get; set; }
         public String Key { get; set; }
         public String Wait { get; set; }
+
+        // ユーザーが自由に書けるコメント欄。記録・再生には一切使わない
+        public String Remarks { get; set; }
     }
 
     // dataGridView_Playlistの1行分(実行チェック/設定ファイル名/その行のループ回数)

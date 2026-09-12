@@ -36,6 +36,7 @@ namespace EventRecorder
             this.col_Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Wait = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Detail = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Remarks = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Grid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_DeleteRow = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,7 +95,8 @@ namespace EventRecorder
             this.col_Wait,
             this.col_X,
             this.col_Y,
-            this.col_Key});
+            this.col_Key,
+            this.col_Remarks});
             this.dataGridView_Events.ContextMenuStrip = this.contextMenuStrip_Grid;
             this.dataGridView_Events.EnableUndoRedo = true;
             this.dataGridView_Events.Location = new System.Drawing.Point(6, 20);
@@ -144,7 +146,13 @@ namespace EventRecorder
             this.col_Detail.FillWeight = 200F;
             this.col_Detail.HeaderText = "Detail";
             this.col_Detail.Name = "col_Detail";
-            // 
+            //
+            // col_Remarks
+            //
+            this.col_Remarks.FillWeight = 150F;
+            this.col_Remarks.HeaderText = "備考";
+            this.col_Remarks.Name = "col_Remarks";
+            //
             // contextMenuStrip_Grid
             // 
             this.contextMenuStrip_Grid.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -517,6 +525,7 @@ namespace EventRecorder
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Key;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Wait;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Detail;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Remarks;
         private System.Windows.Forms.Button button_Record;
         private System.Windows.Forms.Button button_Clear;
         private System.Windows.Forms.Label label_Loop;
