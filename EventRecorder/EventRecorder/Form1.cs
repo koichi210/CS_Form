@@ -107,10 +107,8 @@ namespace EventRecorder
         {
             InitializeComponent();
 
-            // ダイアログのサイズを前回終了時の状態で復元する(マクロのXMLとは別の、
-            // .NET標準のユーザー設定ファイルに保存してある値)。MinimumSizeより小さい値が
-            // 保存されていてもWinForms側で自動的に補正される
-            this.Size = Properties.Settings.Default.WindowSize;
+            // ダイアログのサイズ+splitContainer_Mainの境界線位置を前回終了時の状態で復元する
+            LoadWindowLayout();
 
             this.Icon = Properties.Resources.EventRecorder;
             util.SetCurrentDirectory();
@@ -311,16 +309,79 @@ namespace EventRecorder
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // 最大化中はthis.Sizeが画面いっぱいのサイズになってしまうので、
-            // 最大化前の通常サイズ(RestoreBounds)を保存する
-            Properties.Settings.Default.WindowSize =
-                (this.WindowState == FormWindowState.Normal) ? this.Size : this.RestoreBounds.Size;
-            Properties.Settings.Default.Save();
+            SaveWindowLayout();
 
             gridFlushTimer.Stop();
             mousePosTimer.Stop();
             GlobalHook.MouseHook.Stop();
             GlobalHook.KeyboardHook.Stop();
+        }
+
+        // ウィンドウサイズ+splitContainer_Mainの境界線位置を保存するファイル名。
+        // プロファイル(マクロ)一覧には出したくないので、UpdateProfileListAllで除外している
+        private const String WindowLayoutFileName = "WindowLayout.json";
+
+        // 起動時、前回終了時のウィンドウサイズ+境界線位置を復元する。保存ファイルが無い/
+        // 壊れている場合は何もしない(Designer既定のサイズ・境界線位置のまま)
+        private void LoadWindowLayout()
+        {
+            String path = System.IO.Path.Combine(userDataFolder, WindowLayoutFileName);
+
+            WindowLayout layout;
+            try
+            {
+                layout = JsonFileStorage.Load<WindowLayout>(path);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            if (layout == null || layout.Width <= 0 || layout.Height <= 0)
+            {
+                return;
+            }
+
+            // MinimumSizeより小さい値が保存されていてもWinForms側で自動的に補正される
+            this.Size = new Size(layout.Width, layout.Height);
+
+            if (layout.SplitterDistance > 0)
+            {
+                try
+                {
+                    splitContainer_Main.SplitterDistance = layout.SplitterDistance;
+                }
+                catch (ArgumentException)
+                {
+                    // 保存時と画面サイズが大きく変わった等で範囲外になった場合は、
+                    // 境界線位置だけDesigner既定のまま諦める(ウィンドウサイズの復元は活かす)
+                }
+            }
+        }
+
+        // 終了時、ウィンドウサイズ+境界線位置を保存する
+        private void SaveWindowLayout()
+        {
+            // 最大化中はthis.Sizeが画面いっぱいのサイズになってしまうので、
+            // 最大化前の通常サイズ(RestoreBounds)を保存する
+            Size sizeToSave = (this.WindowState == FormWindowState.Normal) ? this.Size : this.RestoreBounds.Size;
+
+            WindowLayout layout = new WindowLayout
+            {
+                Width = sizeToSave.Width,
+                Height = sizeToSave.Height,
+                SplitterDistance = splitContainer_Main.SplitterDistance,
+            };
+
+            String path = System.IO.Path.Combine(userDataFolder, WindowLayoutFileName);
+            try
+            {
+                JsonFileStorage.Save(path, layout);
+            }
+            catch (Exception)
+            {
+                // 終了処理中の保存失敗でアプリを落としたくないので握りつぶす
+            }
         }
 
         // *******************************************************************************
@@ -1632,7 +1693,10 @@ namespace EventRecorder
         private void UpdateProfileListAll(String defaultProfileName)
         {
             String[] xmlFiles = System.IO.Directory.GetFiles(userDataFolder, "*.xml", System.IO.SearchOption.AllDirectories);
-            String[] jsonFiles = System.IO.Directory.GetFiles(userDataFolder, "*.json", System.IO.SearchOption.AllDirectories);
+            // WindowLayout.json(ウィンドウサイズ等の設定ファイル)はプロファイルではないので除外する
+            String[] jsonFiles = System.IO.Directory.GetFiles(userDataFolder, "*.json", System.IO.SearchOption.AllDirectories)
+                .Where(f => !String.Equals(System.IO.Path.GetFileName(f), WindowLayoutFileName, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
             String[] files = xmlFiles.Concat(jsonFiles).ToArray();
 
             util.SetComboBoxFromArray(comboBox_Profile, files, userDataFolder);

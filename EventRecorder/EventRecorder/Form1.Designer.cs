@@ -253,7 +253,9 @@ namespace EventRecorder
             // 
             // button_ProfileSave
             // 
-            this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            // 右アンカーのままだとウィンドウを横に広げた時にcomboBox_Profileから離れてしまうため、
+            // 左アンカーにしてコンボボックスのすぐ右に固定する
+            this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_ProfileSave.Location = new System.Drawing.Point(307, 583);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(108, 23);
@@ -304,23 +306,25 @@ namespace EventRecorder
             this.splitContainer_Main.BackColor = System.Drawing.Color.SteelBlue;
             this.splitContainer_Main.Location = new System.Drawing.Point(5, 28);
             this.splitContainer_Main.Name = "splitContainer_Main";
-            this.splitContainer_Main.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer_Main.Panel1
-            // 
+            // 縦(左右)並びに変更。左=レコード、右=プレイバック。
+            // ドラッグで幅を調整できる境界線が、そのままウィンドウの横幅調整バーになる
+            this.splitContainer_Main.Orientation = System.Windows.Forms.Orientation.Vertical;
+            //
+            // splitContainer_Main.Panel1(左側)
+            //
             this.splitContainer_Main.Panel1.BackColor = System.Drawing.SystemColors.Control;
-            this.splitContainer_Main.Panel1.Controls.Add(this.groupBox_Playback);
+            this.splitContainer_Main.Panel1.Controls.Add(this.groupBox_Record);
             this.splitContainer_Main.Panel1MinSize = 120;
-            // 
-            // splitContainer_Main.Panel2
-            // 
+            //
+            // splitContainer_Main.Panel2(右側)
+            //
             this.splitContainer_Main.Panel2.BackColor = System.Drawing.SystemColors.Control;
-            this.splitContainer_Main.Panel2.Controls.Add(this.groupBox_Record);
+            this.splitContainer_Main.Panel2.Controls.Add(this.groupBox_Playback);
             this.splitContainer_Main.Panel2MinSize = 120;
-            this.splitContainer_Main.Size = new System.Drawing.Size(412, 516);
-            this.splitContainer_Main.SplitterDistance = 255;
+            this.splitContainer_Main.Size = new System.Drawing.Size(850, 516);
+            this.splitContainer_Main.SplitterDistance = 420;
             this.splitContainer_Main.TabIndex = 3;
-            // 
+            //
             // groupBox_Playback
             // 
             this.groupBox_Playback.Controls.Add(this.label_PlaylistStatus);
@@ -486,7 +490,7 @@ namespace EventRecorder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(422, 620);
+            this.ClientSize = new System.Drawing.Size(860, 620);
             this.Controls.Add(this.splitContainer_Main);
             this.Controls.Add(this.radioButton_Record);
             this.Controls.Add(this.radioButton_Playback);
@@ -497,7 +501,7 @@ namespace EventRecorder
             this.Controls.Add(this.checkBox_MinimizeOnPlay);
             this.Controls.Add(this.textBox_Loop);
             this.Controls.Add(this.label_Loop);
-            this.MinimumSize = new System.Drawing.Size(380, 480);
+            this.MinimumSize = new System.Drawing.Size(760, 480);
             this.Name = "Form1";
             this.Text = "EventRecorder";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Events)).EndInit();
