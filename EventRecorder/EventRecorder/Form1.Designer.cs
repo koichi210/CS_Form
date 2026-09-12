@@ -61,6 +61,7 @@ namespace EventRecorder
             this.col_PlaylistFile = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.col_PlaylistLoopCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Playlist = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuItem_PlaylistRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistAddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistDeleteRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistDeleteRowSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -423,6 +424,7 @@ namespace EventRecorder
             // 
             this.contextMenuStrip_Playlist.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip_Playlist.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItem_PlaylistRefresh,
             this.menuItem_PlaylistAddRow,
             this.menuItem_PlaylistDeleteRow,
             this.menuItem_PlaylistDeleteRowSeparator,
@@ -434,7 +436,14 @@ namespace EventRecorder
             this.contextMenuStrip_Playlist.Name = "contextMenuStrip_Playlist";
             this.contextMenuStrip_Playlist.Size = new System.Drawing.Size(204, 148);
             this.contextMenuStrip_Playlist.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Playlist_Opening);
-            // 
+            //
+            // menuItem_PlaylistRefresh
+            //
+            this.menuItem_PlaylistRefresh.Name = "menuItem_PlaylistRefresh";
+            this.menuItem_PlaylistRefresh.Size = new System.Drawing.Size(203, 22);
+            this.menuItem_PlaylistRefresh.Text = "プレイリストを更新";
+            this.menuItem_PlaylistRefresh.Click += new System.EventHandler(this.button_PlaylistListAll_Click);
+            //
             // menuItem_PlaylistAddRow
             // 
             this.menuItem_PlaylistAddRow.Name = "menuItem_PlaylistAddRow";
@@ -555,6 +564,7 @@ namespace EventRecorder
         internal System.Windows.Forms.Label label_PlaylistStatus;
         private System.Windows.Forms.Button button_PlaylistListAll;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Playlist;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistRefresh;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistAddRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistDeleteRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistCheckAll;
