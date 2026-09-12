@@ -31,11 +31,11 @@ namespace EventRecorder
             this.components = new System.ComponentModel.Container();
             this.dataGridView_Events = new StandardTemplate.DataGridViewEx();
             this.col_Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Detail = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Wait = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_X = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.col_Wait = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.col_Detail = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Remarks = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Grid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,6 +52,7 @@ namespace EventRecorder
             this.radioButton_Playback = new System.Windows.Forms.RadioButton();
             this.radioButton_Record = new System.Windows.Forms.RadioButton();
             this.splitContainer_Main = new System.Windows.Forms.SplitContainer();
+            this.groupBox_Record = new System.Windows.Forms.GroupBox();
             this.groupBox_Playback = new System.Windows.Forms.GroupBox();
             this.label_PlaylistStatus = new System.Windows.Forms.Label();
             this.button_PlaylistListAll = new System.Windows.Forms.Button();
@@ -68,17 +69,16 @@ namespace EventRecorder
             this.menuItem_PlaylistFilterSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.menuItem_PlaylistShowCheckedOnly = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistShowAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox_Record = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Events)).BeginInit();
             this.contextMenuStrip_Grid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Main)).BeginInit();
             this.splitContainer_Main.Panel1.SuspendLayout();
             this.splitContainer_Main.Panel2.SuspendLayout();
             this.splitContainer_Main.SuspendLayout();
+            this.groupBox_Record.SuspendLayout();
             this.groupBox_Playback.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Playlist)).BeginInit();
             this.contextMenuStrip_Playlist.SuspendLayout();
-            this.groupBox_Record.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView_Events
@@ -102,7 +102,7 @@ namespace EventRecorder
             this.dataGridView_Events.Location = new System.Drawing.Point(6, 20);
             this.dataGridView_Events.Name = "dataGridView_Events";
             this.dataGridView_Events.RowHeadersWidth = 30;
-            this.dataGridView_Events.Size = new System.Drawing.Size(394, 179);
+            this.dataGridView_Events.Size = new System.Drawing.Size(318, 230);
             this.dataGridView_Events.TabIndex = 0;
             this.dataGridView_Events.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView_Events_CellFormatting);
             this.dataGridView_Events.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_Events_CellMouseDown);
@@ -113,14 +113,25 @@ namespace EventRecorder
             // 
             // col_Type
             // 
-            // 幅はプレイバックの「ループ数」列(col_PlaylistLoopCount、56px)の1.2倍で固定。
-            // AutoSizeMode=Noneで幅を固定し、Resizable=Falseでユーザーのドラッグでも
-            // 幅が変わらないようにする(可変にするのはcol_Remarksだけ)
             this.col_Type.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Type.HeaderText = "Event";
             this.col_Type.Name = "col_Type";
             this.col_Type.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.col_Type.Width = 67;
+            // 
+            // col_Detail
+            // 
+            this.col_Detail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.col_Detail.HeaderText = "Detail";
+            this.col_Detail.Name = "col_Detail";
+            this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.col_Detail.Width = 67;
+            // 
+            // col_Wait
+            // 
+            this.col_Wait.HeaderText = "Delay(ms)";
+            this.col_Wait.Name = "col_Wait";
+            this.col_Wait.Visible = false;
             // 
             // col_X
             // 
@@ -140,30 +151,15 @@ namespace EventRecorder
             this.col_Key.Name = "col_Key";
             this.col_Key.Visible = false;
             // 
-            // col_Wait
-            // 
-            this.col_Wait.HeaderText = "Delay(ms)";
-            this.col_Wait.Name = "col_Wait";
-            this.col_Wait.Visible = false;
-            // 
-            // col_Detail
-            // 
-            // col_Typeと同様、col_PlaylistLoopCount(56px)の1.2倍で固定
-            this.col_Detail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.col_Detail.HeaderText = "Detail";
-            this.col_Detail.Name = "col_Detail";
-            this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.col_Detail.Width = 67;
-            //
             // col_Remarks
-            //
-            // Event/Detailが固定幅なので、残り幅を全部この列に割り当てる
+            // 
             this.col_Remarks.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.col_Remarks.HeaderText = "備考";
             this.col_Remarks.Name = "col_Remarks";
-            //
+            // 
             // contextMenuStrip_Grid
             // 
+            this.contextMenuStrip_Grid.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip_Grid.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_AddRow,
             this.menuItem_DeleteRow});
@@ -188,7 +184,7 @@ namespace EventRecorder
             // button_Record
             // 
             this.button_Record.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_Record.Location = new System.Drawing.Point(6, 205);
+            this.button_Record.Location = new System.Drawing.Point(6, 261);
             this.button_Record.Name = "button_Record";
             this.button_Record.Size = new System.Drawing.Size(80, 27);
             this.button_Record.TabIndex = 1;
@@ -199,7 +195,7 @@ namespace EventRecorder
             // button_Clear
             // 
             this.button_Clear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_Clear.Location = new System.Drawing.Point(92, 205);
+            this.button_Clear.Location = new System.Drawing.Point(92, 261);
             this.button_Clear.Name = "button_Clear";
             this.button_Clear.Size = new System.Drawing.Size(80, 27);
             this.button_Clear.TabIndex = 2;
@@ -211,16 +207,16 @@ namespace EventRecorder
             // 
             this.label_Loop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_Loop.AutoSize = true;
-            this.label_Loop.Location = new System.Drawing.Point(12, 554);
+            this.label_Loop.Location = new System.Drawing.Point(12, 337);
             this.label_Loop.Name = "label_Loop";
-            this.label_Loop.Size = new System.Drawing.Size(58, 12);
+            this.label_Loop.Size = new System.Drawing.Size(46, 12);
             this.label_Loop.TabIndex = 4;
             this.label_Loop.Text = "ループ数";
             // 
             // textBox_Loop
             // 
             this.textBox_Loop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox_Loop.Location = new System.Drawing.Point(74, 550);
+            this.textBox_Loop.Location = new System.Drawing.Point(74, 333);
             this.textBox_Loop.Name = "textBox_Loop";
             this.textBox_Loop.Size = new System.Drawing.Size(48, 19);
             this.textBox_Loop.TabIndex = 5;
@@ -229,7 +225,7 @@ namespace EventRecorder
             // button_Play
             // 
             this.button_Play.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_Play.Location = new System.Drawing.Point(130, 547);
+            this.button_Play.Location = new System.Drawing.Point(130, 330);
             this.button_Play.Name = "button_Play";
             this.button_Play.Size = new System.Drawing.Size(80, 27);
             this.button_Play.TabIndex = 6;
@@ -241,7 +237,7 @@ namespace EventRecorder
             // 
             this.checkBox_MinimizeOnPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_MinimizeOnPlay.AutoSize = true;
-            this.checkBox_MinimizeOnPlay.Location = new System.Drawing.Point(220, 554);
+            this.checkBox_MinimizeOnPlay.Location = new System.Drawing.Point(220, 337);
             this.checkBox_MinimizeOnPlay.Name = "checkBox_MinimizeOnPlay";
             this.checkBox_MinimizeOnPlay.Size = new System.Drawing.Size(176, 16);
             this.checkBox_MinimizeOnPlay.TabIndex = 7;
@@ -254,16 +250,16 @@ namespace EventRecorder
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_Profile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Profile.FormattingEnabled = true;
-            this.comboBox_Profile.Location = new System.Drawing.Point(12, 584);
+            this.comboBox_Profile.Location = new System.Drawing.Point(12, 361);
             this.comboBox_Profile.Name = "comboBox_Profile";
-            this.comboBox_Profile.Size = new System.Drawing.Size(290, 20);
+            this.comboBox_Profile.Size = new System.Drawing.Size(456, 20);
             this.comboBox_Profile.TabIndex = 8;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             // 
             // button_ProfileSave
             // 
             this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ProfileSave.Location = new System.Drawing.Point(307, 583);
+            this.button_ProfileSave.Location = new System.Drawing.Point(474, 361);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(108, 23);
             this.button_ProfileSave.TabIndex = 9;
@@ -275,7 +271,7 @@ namespace EventRecorder
             // 
             this.label_MousePos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_MousePos.AutoSize = true;
-            this.label_MousePos.Location = new System.Drawing.Point(322, 7);
+            this.label_MousePos.Location = new System.Drawing.Point(513, 9);
             this.label_MousePos.Name = "label_MousePos";
             this.label_MousePos.Size = new System.Drawing.Size(62, 12);
             this.label_MousePos.TabIndex = 2;
@@ -284,9 +280,7 @@ namespace EventRecorder
             // radioButton_Playback
             // 
             this.radioButton_Playback.AutoSize = true;
-            // 下のsplitContainer_Mainが左=レコード/右=プレイバックの並びなので、
-            // ラジオボタンもそれに合わせて右側(レコードより後)に置く
-            this.radioButton_Playback.Location = new System.Drawing.Point(101, 9);
+            this.radioButton_Playback.Location = new System.Drawing.Point(111, 5);
             this.radioButton_Playback.Name = "radioButton_Playback";
             this.radioButton_Playback.Size = new System.Drawing.Size(75, 16);
             this.radioButton_Playback.TabIndex = 1;
@@ -298,7 +292,7 @@ namespace EventRecorder
             // radioButton_Record
             // 
             this.radioButton_Record.AutoSize = true;
-            this.radioButton_Record.Location = new System.Drawing.Point(6, 9);
+            this.radioButton_Record.Location = new System.Drawing.Point(16, 5);
             this.radioButton_Record.Name = "radioButton_Record";
             this.radioButton_Record.Size = new System.Drawing.Size(59, 16);
             this.radioButton_Record.TabIndex = 0;
@@ -315,25 +309,35 @@ namespace EventRecorder
             this.splitContainer_Main.BackColor = System.Drawing.Color.SteelBlue;
             this.splitContainer_Main.Location = new System.Drawing.Point(5, 28);
             this.splitContainer_Main.Name = "splitContainer_Main";
-            // 縦(左右)並びに変更。左=レコード、右=プレイバック。
-            // ドラッグで幅を調整できる境界線が、そのままウィンドウの横幅調整バーになる
-            this.splitContainer_Main.Orientation = System.Windows.Forms.Orientation.Vertical;
-            //
-            // splitContainer_Main.Panel1(左側)
-            //
+            // 
+            // splitContainer_Main.Panel1
+            // 
             this.splitContainer_Main.Panel1.BackColor = System.Drawing.SystemColors.Control;
             this.splitContainer_Main.Panel1.Controls.Add(this.groupBox_Record);
             this.splitContainer_Main.Panel1MinSize = 120;
-            //
-            // splitContainer_Main.Panel2(右側)
-            //
+            // 
+            // splitContainer_Main.Panel2
+            // 
             this.splitContainer_Main.Panel2.BackColor = System.Drawing.SystemColors.Control;
             this.splitContainer_Main.Panel2.Controls.Add(this.groupBox_Playback);
             this.splitContainer_Main.Panel2MinSize = 120;
-            this.splitContainer_Main.Size = new System.Drawing.Size(850, 516);
-            this.splitContainer_Main.SplitterDistance = 420;
+            this.splitContainer_Main.Size = new System.Drawing.Size(577, 295);
+            this.splitContainer_Main.SplitterDistance = 330;
             this.splitContainer_Main.TabIndex = 3;
-            //
+            // 
+            // groupBox_Record
+            // 
+            this.groupBox_Record.Controls.Add(this.dataGridView_Events);
+            this.groupBox_Record.Controls.Add(this.button_Record);
+            this.groupBox_Record.Controls.Add(this.button_Clear);
+            this.groupBox_Record.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox_Record.Location = new System.Drawing.Point(0, 0);
+            this.groupBox_Record.Name = "groupBox_Record";
+            this.groupBox_Record.Size = new System.Drawing.Size(330, 295);
+            this.groupBox_Record.TabIndex = 0;
+            this.groupBox_Record.TabStop = false;
+            this.groupBox_Record.Text = "レコード";
+            // 
             // groupBox_Playback
             // 
             this.groupBox_Playback.Controls.Add(this.label_PlaylistStatus);
@@ -342,7 +346,7 @@ namespace EventRecorder
             this.groupBox_Playback.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox_Playback.Location = new System.Drawing.Point(0, 0);
             this.groupBox_Playback.Name = "groupBox_Playback";
-            this.groupBox_Playback.Size = new System.Drawing.Size(412, 255);
+            this.groupBox_Playback.Size = new System.Drawing.Size(243, 295);
             this.groupBox_Playback.TabIndex = 0;
             this.groupBox_Playback.TabStop = false;
             this.groupBox_Playback.Text = "プレイバック";
@@ -351,7 +355,7 @@ namespace EventRecorder
             // 
             this.label_PlaylistStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_PlaylistStatus.AutoSize = true;
-            this.label_PlaylistStatus.Location = new System.Drawing.Point(214, 213);
+            this.label_PlaylistStatus.Location = new System.Drawing.Point(214, 253);
             this.label_PlaylistStatus.Name = "label_PlaylistStatus";
             this.label_PlaylistStatus.Size = new System.Drawing.Size(0, 12);
             this.label_PlaylistStatus.TabIndex = 2;
@@ -359,7 +363,7 @@ namespace EventRecorder
             // button_PlaylistListAll
             // 
             this.button_PlaylistListAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_PlaylistListAll.Location = new System.Drawing.Point(6, 207);
+            this.button_PlaylistListAll.Location = new System.Drawing.Point(6, 261);
             this.button_PlaylistListAll.Name = "button_PlaylistListAll";
             this.button_PlaylistListAll.Size = new System.Drawing.Size(200, 27);
             this.button_PlaylistListAll.TabIndex = 1;
@@ -384,7 +388,7 @@ namespace EventRecorder
             this.dataGridView_Playlist.Location = new System.Drawing.Point(6, 20);
             this.dataGridView_Playlist.Name = "dataGridView_Playlist";
             this.dataGridView_Playlist.RowHeadersWidth = 30;
-            this.dataGridView_Playlist.Size = new System.Drawing.Size(404, 181);
+            this.dataGridView_Playlist.Size = new System.Drawing.Size(231, 230);
             this.dataGridView_Playlist.TabIndex = 0;
             this.dataGridView_Playlist.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_Playlist_CellMouseDown);
             this.dataGridView_Playlist.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_Playlist_CellValueChanged);
@@ -413,11 +417,11 @@ namespace EventRecorder
             // 
             this.col_PlaylistLoopCount.HeaderText = "ループ数";
             this.col_PlaylistLoopCount.Name = "col_PlaylistLoopCount";
-            // 「ループ回数」(5文字)→「ループ数」(4文字)に文字数が減った分、幅も70→56に縮小
             this.col_PlaylistLoopCount.Width = 56;
             // 
             // contextMenuStrip_Playlist
             // 
+            this.contextMenuStrip_Playlist.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip_Playlist.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_PlaylistAddRow,
             this.menuItem_PlaylistDeleteRow,
@@ -483,24 +487,11 @@ namespace EventRecorder
             this.menuItem_PlaylistShowAll.Text = "チェックON・OFFともに表示";
             this.menuItem_PlaylistShowAll.Click += new System.EventHandler(this.menuItem_PlaylistShowAll_Click);
             // 
-            // groupBox_Record
-            // 
-            this.groupBox_Record.Controls.Add(this.dataGridView_Events);
-            this.groupBox_Record.Controls.Add(this.button_Record);
-            this.groupBox_Record.Controls.Add(this.button_Clear);
-            this.groupBox_Record.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox_Record.Location = new System.Drawing.Point(0, 0);
-            this.groupBox_Record.Name = "groupBox_Record";
-            this.groupBox_Record.Size = new System.Drawing.Size(412, 257);
-            this.groupBox_Record.TabIndex = 0;
-            this.groupBox_Record.TabStop = false;
-            this.groupBox_Record.Text = "レコード";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(860, 620);
+            this.ClientSize = new System.Drawing.Size(587, 389);
             this.Controls.Add(this.splitContainer_Main);
             this.Controls.Add(this.radioButton_Record);
             this.Controls.Add(this.radioButton_Playback);
@@ -511,7 +502,7 @@ namespace EventRecorder
             this.Controls.Add(this.checkBox_MinimizeOnPlay);
             this.Controls.Add(this.textBox_Loop);
             this.Controls.Add(this.label_Loop);
-            this.MinimumSize = new System.Drawing.Size(760, 480);
+            this.MinimumSize = new System.Drawing.Size(427, 257);
             this.Name = "Form1";
             this.Text = "EventRecorder";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Events)).EndInit();
@@ -520,11 +511,11 @@ namespace EventRecorder
             this.splitContainer_Main.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_Main)).EndInit();
             this.splitContainer_Main.ResumeLayout(false);
+            this.groupBox_Record.ResumeLayout(false);
             this.groupBox_Playback.ResumeLayout(false);
             this.groupBox_Playback.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Playlist)).EndInit();
             this.contextMenuStrip_Playlist.ResumeLayout(false);
-            this.groupBox_Record.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
