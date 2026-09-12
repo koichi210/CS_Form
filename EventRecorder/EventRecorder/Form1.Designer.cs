@@ -538,8 +538,8 @@ namespace EventRecorder
         internal System.Windows.Forms.ComboBox comboBox_Profile;
         private System.Windows.Forms.Button button_ProfileSave;
         internal System.Windows.Forms.Label label_MousePos;
-        private System.Windows.Forms.RadioButton radioButton_Playback;
-        private System.Windows.Forms.RadioButton radioButton_Record;
+        internal System.Windows.Forms.RadioButton radioButton_Playback;
+        internal System.Windows.Forms.RadioButton radioButton_Record;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Grid;
         private System.Windows.Forms.ToolStripMenuItem menuItem_AddRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_DeleteRow;

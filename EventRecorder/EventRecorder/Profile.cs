@@ -15,6 +15,12 @@ namespace EventRecorder
         public String LoopCount { get; set; } = "1";
         public List<MacroEventData> Events { get; set; } = new List<MacroEventData>();
         public List<PlaylistEntryData> Playlist { get; set; } = new List<PlaylistEntryData>();
+
+        // モード切替ラジオボタン(true=レコード、false=プレイバック)・最小化チェックボックスの
+        // 状態。プレイリスト再生時の各行のファイル読込(LoadProfileForPlayback)では、
+        // 途中でモードが切り替わってしまわないようこの2つは適用しない
+        public Boolean IsRecordMode { get; set; } = true;
+        public Boolean MinimizeOnPlay { get; set; }
     }
 
     // dataGridView_Eventsの1行分(Type/X/Y/Key/Wait/備考)

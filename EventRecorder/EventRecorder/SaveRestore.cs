@@ -19,6 +19,14 @@ namespace EventRecorder
             // タブ2のプレイリスト(実行順・チェック状態・行ごとのループ回数)も
             // 同じ設定ファイルに保存する。1つのファイルにマクロとプレイリストの両方を持たせる形
             RegistCtrl("Playlist", "Cell", "RowCount", Parent.dataGridView_Playlist);
+
+            // モード切替ラジオボタン・最小化チェックボックスも、記録データ+プレイリストとは
+            // 別枠(Option)として同じ設定ファイルに保存する。プレイリスト再生時の各行の
+            // ファイル読込(RegistItemForPlayback)では、途中でモードが切り替わって
+            // しまわないようこちらは登録しない
+            RegistCtrl("Option", "radioButton_Record", Parent.radioButton_Record, "True");
+            RegistCtrl("Option", "radioButton_Playback", Parent.radioButton_Playback, "False");
+            RegistCtrl("Option", "checkBox_MinimizeOnPlay", Parent.checkBox_MinimizeOnPlay, "False");
         }
 
         // プレイリスト再生時、各行の設定ファイルを1つずつ読み込む専用。

@@ -1725,6 +1725,13 @@ namespace EventRecorder
                     row.Cells[col_PlaylistFile.Index].Value = pl.FileName;
                     row.Cells[col_PlaylistLoopCount.Index].Value = pl.LoopCount;
                 }
+
+                // モード切替ラジオボタン・最小化チェックボックスは、プレイリスト再生時の
+                // 各行のファイル読込(clearPlaylist=false)では適用しない(途中でモードが
+                // 切り替わってしまうのを防ぐため)
+                radioButton_Record.Checked = profile.IsRecordMode;
+                radioButton_Playback.Checked = !profile.IsRecordMode;
+                checkBox_MinimizeOnPlay.Checked = profile.MinimizeOnPlay;
             }
 
             // 万一、旧XMLをそのままJSON化しただけ(各行が自分のWaitを持つ旧形式相当)のデータを
@@ -1744,6 +1751,8 @@ namespace EventRecorder
         {
             EventRecorderProfile profile = new EventRecorderProfile();
             profile.LoopCount = textBox_Loop.Text;
+            profile.IsRecordMode = radioButton_Record.Checked;
+            profile.MinimizeOnPlay = checkBox_MinimizeOnPlay.Checked;
 
             foreach (DataGridViewRow row in dataGridView_Events.Rows)
             {
