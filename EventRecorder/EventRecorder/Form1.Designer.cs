@@ -113,9 +113,14 @@ namespace EventRecorder
             // 
             // col_Type
             // 
-            this.col_Type.FillWeight = 130F;
+            // 幅はプレイバックの「ループ数」列(col_PlaylistLoopCount、70px)の1.2倍で固定。
+            // AutoSizeMode=Noneで幅を固定し、Resizable=Falseでユーザーのドラッグでも
+            // 幅が変わらないようにする(可変にするのはcol_Remarksだけ)
+            this.col_Type.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Type.HeaderText = "Event";
             this.col_Type.Name = "col_Type";
+            this.col_Type.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.col_Type.Width = 84;
             // 
             // col_X
             // 
@@ -143,13 +148,17 @@ namespace EventRecorder
             // 
             // col_Detail
             // 
-            this.col_Detail.FillWeight = 200F;
+            // col_Typeと同様、col_PlaylistLoopCount(70px)の1.2倍で固定
+            this.col_Detail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Detail.HeaderText = "Detail";
             this.col_Detail.Name = "col_Detail";
+            this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.col_Detail.Width = 84;
             //
             // col_Remarks
             //
-            this.col_Remarks.FillWeight = 150F;
+            // Event/Detailが固定幅なので、残り幅を全部この列に割り当てる
+            this.col_Remarks.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.col_Remarks.HeaderText = "備考";
             this.col_Remarks.Name = "col_Remarks";
             //
@@ -206,7 +215,7 @@ namespace EventRecorder
             this.label_Loop.Name = "label_Loop";
             this.label_Loop.Size = new System.Drawing.Size(58, 12);
             this.label_Loop.TabIndex = 4;
-            this.label_Loop.Text = "ループ回数";
+            this.label_Loop.Text = "ループ数";
             // 
             // textBox_Loop
             // 
@@ -253,9 +262,7 @@ namespace EventRecorder
             // 
             // button_ProfileSave
             // 
-            // 右アンカーのままだとウィンドウを横に広げた時にcomboBox_Profileから離れてしまうため、
-            // 左アンカーにしてコンボボックスのすぐ右に固定する
-            this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_ProfileSave.Location = new System.Drawing.Point(307, 583);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(108, 23);
@@ -354,7 +361,7 @@ namespace EventRecorder
             this.button_PlaylistListAll.Name = "button_PlaylistListAll";
             this.button_PlaylistListAll.Size = new System.Drawing.Size(200, 27);
             this.button_PlaylistListAll.TabIndex = 1;
-            this.button_PlaylistListAll.Text = "プレイリストをすべてリストアップ";
+            this.button_PlaylistListAll.Text = "プレイリストを更新";
             this.button_PlaylistListAll.UseVisualStyleBackColor = true;
             this.button_PlaylistListAll.Click += new System.EventHandler(this.button_PlaylistListAll_Click);
             // 
@@ -402,7 +409,7 @@ namespace EventRecorder
             // 
             // col_PlaylistLoopCount
             // 
-            this.col_PlaylistLoopCount.HeaderText = "ループ回数";
+            this.col_PlaylistLoopCount.HeaderText = "ループ数";
             this.col_PlaylistLoopCount.Name = "col_PlaylistLoopCount";
             this.col_PlaylistLoopCount.Width = 70;
             // 
