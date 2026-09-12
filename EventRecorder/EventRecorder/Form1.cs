@@ -237,33 +237,64 @@ namespace EventRecorder
                 return;
             }
 
-            using (FolderBrowserDialog dlg = new FolderBrowserDialog())
+            // 標準のFolderBrowserDialog(SHBrowseForFolder)は見た目が古いツリー表示のダイアログに
+            // なってしまうため、SaveFileDialog等と同じ新しいコモンダイアログ(パンくず・検索窓付き)の
+            // 見た目にするための定番の裏技として、OpenFileDialogをファイル選択ではなく
+            // フォルダ選択用に転用する(ValidateNames/CheckFileExistsを外し、選ばれた「ファイル名」の
+            // 親フォルダだけを実際には使う)。外部dllを使わずに実現できる方法としてこれを採用した
+            String selectedFolder = ChooseFolderWithModernDialog(
+                "マクロ・プレイリストの保存先フォルダを選んでください", userDataFolder);
+
+            if (selectedFolder == null)
             {
-                dlg.Description = "マクロ・プレイリストの保存先フォルダを選んでください";
-                dlg.SelectedPath = userDataFolder;
+                return;
+            }
 
-                if (dlg.ShowDialog() != DialogResult.OK || String.IsNullOrEmpty(dlg.SelectedPath))
+            if (String.Equals(
+                System.IO.Path.GetFullPath(selectedFolder).TrimEnd('\\'),
+                System.IO.Path.GetFullPath(userDataFolder).TrimEnd('\\'),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            StandardTemplate.UserDataLocation.SetUserDataFolder("EventRecorder", selectedFolder);
+
+            MessageBox.Show(
+                "保存先を変更したよ" + Environment.NewLine + selectedFolder + Environment.NewLine + Environment.NewLine
+                    + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
+                    + "を使うよ。新しい保存先は次回起動時から反映されるよ(既存のファイルは自動で移動しないので、\n必要ならエクスプローラで手動コピーしてね)",
+                "EventRecorder - データ保存先の変更",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        // OpenFileDialogをフォルダ選択用に転用し、選ばれたフォルダのフルパスを返す
+        // (キャンセル時はnull)。SaveFileDialog等と同じ見た目の新しいコモンダイアログで
+        // フォルダを選ばせたい場合の汎用ヘルパー
+        private static String ChooseFolderWithModernDialog(String title, String initialDirectory)
+        {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Title = title;
+                dlg.InitialDirectory = initialDirectory;
+
+                // 「ファイル」を選ばせているわけではないので、ファイル名の実在チェックは無効にする。
+                // FileNameには案内用のダミー名を入れておき、Filterで拡張子の絞り込みも実質無効化する
+                // (フォルダの一覧表示自体はFilterの影響を受けないため、絞り込みが機能しなくても問題ない)
+                dlg.ValidateNames = false;
+                dlg.CheckFileExists = false;
+                dlg.CheckPathExists = true;
+                dlg.FileName = "このフォルダーを選択";
+                dlg.Filter = "フォルダーを選択|*.このフォルダーを選択";
+
+                if (dlg.ShowDialog() != DialogResult.OK)
                 {
-                    return;
+                    return null;
                 }
 
-                if (String.Equals(
-                    System.IO.Path.GetFullPath(dlg.SelectedPath).TrimEnd('\\'),
-                    System.IO.Path.GetFullPath(userDataFolder).TrimEnd('\\'),
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    return;
-                }
-
-                StandardTemplate.UserDataLocation.SetUserDataFolder("EventRecorder", dlg.SelectedPath);
-
-                MessageBox.Show(
-                    "保存先を変更したよ" + Environment.NewLine + dlg.SelectedPath + Environment.NewLine + Environment.NewLine
-                        + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
-                        + "を使うよ。新しい保存先は次回起動時から反映されるよ(既存のファイルは自動で移動しないので、\n必要ならエクスプローラで手動コピーしてね)",
-                    "EventRecorder - データ保存先の変更",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                String folder = System.IO.Path.GetDirectoryName(dlg.FileName);
+                return String.IsNullOrEmpty(folder) ? null : folder;
             }
         }
 
