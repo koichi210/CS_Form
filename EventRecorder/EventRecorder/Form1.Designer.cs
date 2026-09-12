@@ -400,6 +400,7 @@ namespace EventRecorder
             // col_PlaylistFile
             // 
             this.col_PlaylistFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.col_PlaylistFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.col_PlaylistFile.HeaderText = "プレイリスト";
             this.col_PlaylistFile.Name = "col_PlaylistFile";
             // 

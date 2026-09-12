@@ -160,6 +160,11 @@ namespace EventRecorder
             // 更新タイミングに一本化し、その結果(=キャッシュ)をそのままコピーするだけにする
             SyncPlaylistFileItems();
 
+            // SyncPlaylistFileItemsがcol_PlaylistFile.Itemsを作り直す際、DataGridViewComboBoxCellの
+            // 内部処理でセルの見た目がリセットされることがあるため、直後に再計算する
+            // (LoadProfile内で一度計算済みだが、その後のSyncPlaylistFileItemsで上書きされてしまう)
+            UpdatePlaylistMissingFileHighlights();
+
             // プレイリストが空のままだと使うたびに毎回「行の追加」を押す羽目になるため、
             // 起動時点で編集開始しやすいよう空行を2行用意しておく。
             // ただし、直前のsr.LoadProc(SettingFileName, this)でデフォルト設定ファイルから
@@ -1670,6 +1675,8 @@ namespace EventRecorder
             {
                 sr.LoadProc(filePath, this);
             }
+
+            UpdatePlaylistMissingFileHighlights();
         }
 
         // プレイリスト再生時、各行の設定ファイルを1つずつ読み込む専用(記録データのみ差し替え、
@@ -1898,15 +1905,34 @@ namespace EventRecorder
             {
                 col_PlaylistFile.Items.Add(item);
             }
+
+            // 既にプレイリストの行が参照しているファイル名は、たとえ実体が削除されて
+            // comboBox_Profile.Itemsから消えていても、col_PlaylistFile.Itemsには残しておく。
+            // DataGridViewComboBoxCellはValueがItemsに無いと表示・書式設定でエラーになり、
+            // dataGridView_Playlist_CellFormattingで意図したピンク表示ができなくなるため
+            if (dataGridView_Playlist != null)
+            {
+                foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+                {
+                    if (row.IsNewRow)
+                    {
+                        continue;
+                    }
+
+                    String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
+                    if (!String.IsNullOrEmpty(fileName) && !col_PlaylistFile.Items.Contains(fileName))
+                    {
+                        col_PlaylistFile.Items.Add(fileName);
+                    }
+                }
+            }
         }
 
-        // プルダウン(col_PlaylistFile)に表示される全ファイルを、プレイリストに1行ずつまとめて
-        // 追加する。既存の行は全部作り直す(手動で1件ずつ追加する手間を省くための一括操作)。
-        // 右クリックメニュー「プレイリストを更新」から呼ばれる(専用ボタンは廃止した)
-        // 既存の行の並び・設定(実行チェック・ループ数)はそのまま残し、差分だけ反映する。
-        // 増えたファイル(プルダウンには出ているがプレイリストにまだ無いファイル)は末尾に追加、
-        // 消えたファイル(プレイリストにあるがプルダウンにはもう無いファイル)は行ごと削除する。
-        // ファイル未選択の空行はそのまま残す(消えたファイル扱いにはしない)
+        // 右クリックメニュー「プレイリストを更新」から呼ばれる(専用ボタンは廃止した)。
+        // 既存の行の並び・設定(実行チェック・ループ数)はそのまま残し、増えたファイルだけ
+        // 末尾に追加する。消えたファイル(プレイリストにあるがプルダウンにはもう無いファイル)は
+        // 削除せず残す(行ごとの設定を失わないため)。見た目の対応はdataGridView_Playlist_
+        // CellFormattingが担当し、該当セルをピンクでハイライトする
         private void menuItem_PlaylistRefresh_Click(object sender, EventArgs e)
         {
             if (isRecording || isPlaying)
@@ -1929,28 +1955,6 @@ namespace EventRecorder
                 }
             }
 
-            HashSet<String> availableFiles = new HashSet<String>();
-            foreach (Object item in col_PlaylistFile.Items)
-            {
-                availableFiles.Add(Convert.ToString(item));
-            }
-
-            // 後ろから削除すれば、削除に伴うインデックスのずれを気にしなくてよい
-            for (int i = dataGridView_Playlist.Rows.Count - 1; i >= 0; i--)
-            {
-                DataGridViewRow row = dataGridView_Playlist.Rows[i];
-                if (row.IsNewRow)
-                {
-                    continue;
-                }
-
-                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
-                if (!String.IsNullOrEmpty(fileName) && !availableFiles.Contains(fileName))
-                {
-                    dataGridView_Playlist.Rows.RemoveAt(i);
-                }
-            }
-
             foreach (Object item in col_PlaylistFile.Items)
             {
                 String fileName = Convert.ToString(item);
@@ -1963,6 +1967,51 @@ namespace EventRecorder
                 AddPlaylistRow(insertAt, isEnabled: true);
                 dataGridView_Playlist.Rows[insertAt].Cells[col_PlaylistFile.Index].Value = fileName;
             }
+
+            UpdatePlaylistMissingFileHighlights();
+        }
+
+        // col_PlaylistFileが指しているファイルが(削除等で)もう存在しない行を、
+        // レコード側の不正値ハイライトと同じ色(MistyRose)で知らせる。行自体は消さない
+        // (実行チェック・ループ数等の設定を保持したまま、ファイルだけ後で選び直せるように)。
+        // CellFormattingイベント任せだと、DataGridViewComboBoxCellの内部フォーマット処理と
+        // 絡んでBackColorが反映されないことがあったため、HighlightRowと同様に
+        // 各セルのStyle.BackColorを直接設定する方式にしている
+        private void UpdatePlaylistMissingFileHighlights()
+        {
+            foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                DataGridViewCell cell = row.Cells[col_PlaylistFile.Index];
+                String fileName = Convert.ToString(cell.Value);
+
+                // cell.Style.BackColor = ... のように既存のStyleオブジェクトのプロパティだけを
+                // 書き換える形だと、DataGridViewComboBoxCellでは見た目に反映されないことがあったため、
+                // 新しいDataGridViewCellStyleを作ってStyleごと差し替える
+                DataGridViewCellStyle style = new DataGridViewCellStyle(cell.Style);
+
+                if (!String.IsNullOrEmpty(fileName)
+                    && !System.IO.File.Exists(System.IO.Path.Combine(userDataFolder, fileName)))
+                {
+                    style.BackColor = Color.MistyRose;
+                    cell.ErrorText = "このファイル(" + fileName + ")は見つからないよ(削除された可能性があるよ)";
+                }
+                else
+                {
+                    style.BackColor = Color.Empty;
+                    cell.ErrorText = "";
+                }
+
+                cell.Style = style;
+            }
+
+            // cell.Style.XXXへの代入(既存のStyleオブジェクトのプロパティを書き換えるだけ)は
+            // 自動で再描画がかかるとは限らないため、明示的に再描画する
+            dataGridView_Playlist.Refresh();
         }
 
         private void dataGridView_Playlist_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -2081,6 +2130,10 @@ namespace EventRecorder
 
             dataGridView_Playlist.ClearSelection();
             newRow.Selected = true;
+
+            // 行を作り直しているため、移動前のセルに付いていたStyle(ファイル不在の
+            // ピンク表示等)は引き継がれない。作り直した行に対して計算し直す
+            UpdatePlaylistMissingFileHighlights();
         }
 
         private void contextMenuStrip_Playlist_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -2217,6 +2270,9 @@ namespace EventRecorder
             {
                 return;
             }
+
+            // 選び直した/クリアしたファイルが存在するかどうかで、ピンク表示を更新する
+            UpdatePlaylistMissingFileHighlights();
 
             String fileName = Convert.ToString(dataGridView_Playlist.Rows[e.RowIndex].Cells[col_PlaylistFile.Index].Value);
             if (String.IsNullOrEmpty(fileName))
