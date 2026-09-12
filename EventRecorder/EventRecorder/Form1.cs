@@ -1903,6 +1903,10 @@ namespace EventRecorder
         // プルダウン(col_PlaylistFile)に表示される全ファイルを、プレイリストに1行ずつまとめて
         // 追加する。既存の行は全部作り直す(手動で1件ずつ追加する手間を省くための一括操作)。
         // 右クリックメニュー「プレイリストを更新」から呼ばれる(専用ボタンは廃止した)
+        // 既存の行の並び・設定(実行チェック・ループ数)はそのまま残し、差分だけ反映する。
+        // 増えたファイル(プルダウンには出ているがプレイリストにまだ無いファイル)は末尾に追加、
+        // 消えたファイル(プレイリストにあるがプルダウンにはもう無いファイル)は行ごと削除する。
+        // ファイル未選択の空行はそのまま残す(消えたファイル扱いにはしない)
         private void menuItem_PlaylistRefresh_Click(object sender, EventArgs e)
         {
             if (isRecording || isPlaying)
@@ -1910,14 +1914,54 @@ namespace EventRecorder
                 return;
             }
 
-            dataGridView_Playlist.Rows.Clear();
+            HashSet<String> existingFiles = new HashSet<String>();
+            foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+            {
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
 
-            int insertAt = 0;
+                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
+                if (!String.IsNullOrEmpty(fileName))
+                {
+                    existingFiles.Add(fileName);
+                }
+            }
+
+            HashSet<String> availableFiles = new HashSet<String>();
             foreach (Object item in col_PlaylistFile.Items)
             {
+                availableFiles.Add(Convert.ToString(item));
+            }
+
+            // 後ろから削除すれば、削除に伴うインデックスのずれを気にしなくてよい
+            for (int i = dataGridView_Playlist.Rows.Count - 1; i >= 0; i--)
+            {
+                DataGridViewRow row = dataGridView_Playlist.Rows[i];
+                if (row.IsNewRow)
+                {
+                    continue;
+                }
+
+                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
+                if (!String.IsNullOrEmpty(fileName) && !availableFiles.Contains(fileName))
+                {
+                    dataGridView_Playlist.Rows.RemoveAt(i);
+                }
+            }
+
+            foreach (Object item in col_PlaylistFile.Items)
+            {
+                String fileName = Convert.ToString(item);
+                if (existingFiles.Contains(fileName))
+                {
+                    continue;
+                }
+
+                int insertAt = dataGridView_Playlist.Rows.Count;
                 AddPlaylistRow(insertAt, isEnabled: true);
-                dataGridView_Playlist.Rows[insertAt].Cells[col_PlaylistFile.Index].Value = Convert.ToString(item);
-                insertAt++;
+                dataGridView_Playlist.Rows[insertAt].Cells[col_PlaylistFile.Index].Value = fileName;
             }
         }
 
