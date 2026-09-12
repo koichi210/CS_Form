@@ -34,3 +34,9 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+// テストプロジェクトからEventRowMapper等のinternalクラスへ直接アクセスできるようにする。
+// Form1自体はGlobalHook(実機のキーボードを乗っ取る低レベルフック)をコンストラクタで
+// 起動してしまいテスト環境で使いたくないため、列インデックスの変換ロジックだけを
+// internalなヘルパークラスに切り出してテスト対象にしている
+[assembly: InternalsVisibleTo("EventRecorder.Tests")]

@@ -379,11 +379,7 @@ namespace EventRecorder
             {
                 lastIdx = dataGridView_Events.Rows.Add();
                 DataGridViewRow row = dataGridView_Events.Rows[lastIdx];
-                row.Cells[0].Value = r[0];
-                row.Cells[1].Value = r[1];
-                row.Cells[2].Value = r[2];
-                row.Cells[3].Value = r[3];
-                row.Cells[4].Value = r[4];
+                EventRowMapper.ApplyToRow(row, col_Type, col_X, col_Y, col_Key, col_Wait, r);
             }
 
             pendingRows.Clear();
@@ -535,13 +531,8 @@ namespace EventRecorder
                     continue;
                 }
 
-                list.Add(new String[] {
-                    Convert.ToString(row.Cells[0].Value),
-                    Convert.ToString(row.Cells[1].Value),
-                    Convert.ToString(row.Cells[2].Value),
-                    Convert.ToString(row.Cells[3].Value),
-                    Convert.ToString(row.Cells[4].Value)
-                });
+                // PlayRows/PlayOneEventは[Type, X, Y, Key, Wait]の順を前提にしている
+                list.Add(EventRowMapper.ReadFromRow(row, col_Type, col_X, col_Y, col_Key, col_Wait));
             }
             return list;
         }

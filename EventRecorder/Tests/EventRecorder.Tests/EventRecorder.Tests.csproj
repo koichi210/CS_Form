@@ -61,6 +61,7 @@
     <Compile Include="KeyboardHookTests.cs" />
     <Compile Include="MouseHookTests.cs" />
     <Compile Include="InputSimulatorTests.cs" />
+    <Compile Include="EventRowMapperTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
