@@ -113,14 +113,14 @@ namespace EventRecorder
             // 
             // col_Type
             // 
-            // 幅はプレイバックの「ループ数」列(col_PlaylistLoopCount、70px)の1.2倍で固定。
+            // 幅はプレイバックの「ループ数」列(col_PlaylistLoopCount、56px)の1.2倍で固定。
             // AutoSizeMode=Noneで幅を固定し、Resizable=Falseでユーザーのドラッグでも
             // 幅が変わらないようにする(可変にするのはcol_Remarksだけ)
             this.col_Type.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Type.HeaderText = "Event";
             this.col_Type.Name = "col_Type";
             this.col_Type.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.col_Type.Width = 84;
+            this.col_Type.Width = 67;
             // 
             // col_X
             // 
@@ -148,12 +148,12 @@ namespace EventRecorder
             // 
             // col_Detail
             // 
-            // col_Typeと同様、col_PlaylistLoopCount(70px)の1.2倍で固定
+            // col_Typeと同様、col_PlaylistLoopCount(56px)の1.2倍で固定
             this.col_Detail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Detail.HeaderText = "Detail";
             this.col_Detail.Name = "col_Detail";
             this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.col_Detail.Width = 84;
+            this.col_Detail.Width = 67;
             //
             // col_Remarks
             //
@@ -284,10 +284,12 @@ namespace EventRecorder
             // radioButton_Playback
             // 
             this.radioButton_Playback.AutoSize = true;
-            this.radioButton_Playback.Location = new System.Drawing.Point(6, 9);
+            // 下のsplitContainer_Mainが左=レコード/右=プレイバックの並びなので、
+            // ラジオボタンもそれに合わせて右側(レコードより後)に置く
+            this.radioButton_Playback.Location = new System.Drawing.Point(101, 9);
             this.radioButton_Playback.Name = "radioButton_Playback";
             this.radioButton_Playback.Size = new System.Drawing.Size(75, 16);
-            this.radioButton_Playback.TabIndex = 0;
+            this.radioButton_Playback.TabIndex = 1;
             this.radioButton_Playback.TabStop = true;
             this.radioButton_Playback.Text = "プレイバック";
             this.radioButton_Playback.UseVisualStyleBackColor = true;
@@ -296,10 +298,10 @@ namespace EventRecorder
             // radioButton_Record
             // 
             this.radioButton_Record.AutoSize = true;
-            this.radioButton_Record.Location = new System.Drawing.Point(101, 9);
+            this.radioButton_Record.Location = new System.Drawing.Point(6, 9);
             this.radioButton_Record.Name = "radioButton_Record";
             this.radioButton_Record.Size = new System.Drawing.Size(59, 16);
-            this.radioButton_Record.TabIndex = 1;
+            this.radioButton_Record.TabIndex = 0;
             this.radioButton_Record.TabStop = true;
             this.radioButton_Record.Text = "レコード";
             this.radioButton_Record.UseVisualStyleBackColor = true;
@@ -411,7 +413,8 @@ namespace EventRecorder
             // 
             this.col_PlaylistLoopCount.HeaderText = "ループ数";
             this.col_PlaylistLoopCount.Name = "col_PlaylistLoopCount";
-            this.col_PlaylistLoopCount.Width = 70;
+            // 「ループ回数」(5文字)→「ループ数」(4文字)に文字数が減った分、幅も70→56に縮小
+            this.col_PlaylistLoopCount.Width = 56;
             // 
             // contextMenuStrip_Playlist
             // 
