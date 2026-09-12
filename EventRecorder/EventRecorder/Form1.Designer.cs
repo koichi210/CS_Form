@@ -254,6 +254,7 @@ namespace EventRecorder
             this.comboBox_Profile.Location = new System.Drawing.Point(12, 361);
             this.comboBox_Profile.Name = "comboBox_Profile";
             this.comboBox_Profile.Size = new System.Drawing.Size(456, 20);
+            this.comboBox_Profile.Sorted = true;
             this.comboBox_Profile.TabIndex = 8;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             // 
