@@ -55,7 +55,6 @@ namespace EventRecorder
             this.groupBox_Record = new System.Windows.Forms.GroupBox();
             this.groupBox_Playback = new System.Windows.Forms.GroupBox();
             this.label_PlaylistStatus = new System.Windows.Forms.Label();
-            this.button_PlaylistListAll = new System.Windows.Forms.Button();
             this.dataGridView_Playlist = new StandardTemplate.DataGridViewEx();
             this.col_PlaylistEnabled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.col_PlaylistFile = new System.Windows.Forms.DataGridViewComboBoxColumn();
@@ -118,7 +117,7 @@ namespace EventRecorder
             this.col_Type.HeaderText = "Event";
             this.col_Type.Name = "col_Type";
             this.col_Type.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.col_Type.Width = 67;
+            this.col_Type.Width = 87;
             // 
             // col_Detail
             // 
@@ -126,7 +125,7 @@ namespace EventRecorder
             this.col_Detail.HeaderText = "Detail";
             this.col_Detail.Name = "col_Detail";
             this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.col_Detail.Width = 67;
+            this.col_Detail.Width = 72;
             // 
             // col_Wait
             // 
@@ -222,6 +221,7 @@ namespace EventRecorder
             this.textBox_Loop.Size = new System.Drawing.Size(48, 19);
             this.textBox_Loop.TabIndex = 5;
             this.textBox_Loop.Text = "1";
+            this.textBox_Loop.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_Loop_KeyDown);
             // 
             // button_Play
             // 
@@ -342,7 +342,6 @@ namespace EventRecorder
             // groupBox_Playback
             // 
             this.groupBox_Playback.Controls.Add(this.label_PlaylistStatus);
-            this.groupBox_Playback.Controls.Add(this.button_PlaylistListAll);
             this.groupBox_Playback.Controls.Add(this.dataGridView_Playlist);
             this.groupBox_Playback.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox_Playback.Location = new System.Drawing.Point(0, 0);
@@ -356,22 +355,11 @@ namespace EventRecorder
             // 
             this.label_PlaylistStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_PlaylistStatus.AutoSize = true;
-            this.label_PlaylistStatus.Location = new System.Drawing.Point(214, 253);
+            this.label_PlaylistStatus.Location = new System.Drawing.Point(214, 277);
             this.label_PlaylistStatus.Name = "label_PlaylistStatus";
             this.label_PlaylistStatus.Size = new System.Drawing.Size(0, 12);
-            this.label_PlaylistStatus.TabIndex = 2;
-            // 
-            // button_PlaylistListAll
-            // 
-            this.button_PlaylistListAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_PlaylistListAll.Location = new System.Drawing.Point(6, 261);
-            this.button_PlaylistListAll.Name = "button_PlaylistListAll";
-            this.button_PlaylistListAll.Size = new System.Drawing.Size(200, 27);
-            this.button_PlaylistListAll.TabIndex = 1;
-            this.button_PlaylistListAll.Text = "プレイリストを更新";
-            this.button_PlaylistListAll.UseVisualStyleBackColor = true;
-            this.button_PlaylistListAll.Click += new System.EventHandler(this.button_PlaylistListAll_Click);
-            // 
+            this.label_PlaylistStatus.TabIndex = 1;
+            //
             // dataGridView_Playlist
             // 
             this.dataGridView_Playlist.AllowDrop = true;
@@ -389,7 +377,7 @@ namespace EventRecorder
             this.dataGridView_Playlist.Location = new System.Drawing.Point(6, 20);
             this.dataGridView_Playlist.Name = "dataGridView_Playlist";
             this.dataGridView_Playlist.RowHeadersWidth = 30;
-            this.dataGridView_Playlist.Size = new System.Drawing.Size(231, 230);
+            this.dataGridView_Playlist.Size = new System.Drawing.Size(231, 253);
             this.dataGridView_Playlist.TabIndex = 0;
             this.dataGridView_Playlist.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_Playlist_CellMouseDown);
             this.dataGridView_Playlist.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_Playlist_CellValueChanged);
@@ -442,7 +430,7 @@ namespace EventRecorder
             this.menuItem_PlaylistRefresh.Name = "menuItem_PlaylistRefresh";
             this.menuItem_PlaylistRefresh.Size = new System.Drawing.Size(203, 22);
             this.menuItem_PlaylistRefresh.Text = "プレイリストを更新";
-            this.menuItem_PlaylistRefresh.Click += new System.EventHandler(this.button_PlaylistListAll_Click);
+            this.menuItem_PlaylistRefresh.Click += new System.EventHandler(this.menuItem_PlaylistRefresh_Click);
             //
             // menuItem_PlaylistAddRow
             // 
@@ -562,7 +550,6 @@ namespace EventRecorder
         private System.Windows.Forms.DataGridViewComboBoxColumn col_PlaylistFile;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_PlaylistLoopCount;
         internal System.Windows.Forms.Label label_PlaylistStatus;
-        private System.Windows.Forms.Button button_PlaylistListAll;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Playlist;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistRefresh;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistAddRow;

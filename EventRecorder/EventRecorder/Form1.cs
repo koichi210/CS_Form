@@ -921,7 +921,68 @@ namespace EventRecorder
             {
                 ClearSelectedCells(dataGridView_Playlist);
                 e.Handled = true;
+                return;
             }
+
+            // ループ数列(col_PlaylistLoopCount)にいる時は、↑/↓キーで行移動する代わりに
+            // 値を1つ増減する(textBox_Loop側の↑/↓と同じ操作感にするため)
+            if ((e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+                && dataGridView_Playlist.CurrentCell != null
+                && dataGridView_Playlist.CurrentCell.ColumnIndex == col_PlaylistLoopCount.Index)
+            {
+                int delta = (e.KeyCode == Keys.Up) ? 1 : -1;
+                StepPlaylistLoopCountCell(delta);
+                e.Handled = true;
+            }
+        }
+
+        // dataGridView_PlaylistのCurrentCell(col_PlaylistLoopCount想定)の値をdeltaだけ増減する。
+        // 1未満にはしない(ループ数0以下は再生時に1として扱われるため)。編集中/未編集どちらでも動く
+        private void StepPlaylistLoopCountCell(int delta)
+        {
+            if (dataGridView_Playlist.IsCurrentCellInEditMode)
+            {
+                TextBox editBox = dataGridView_Playlist.EditingControl as TextBox;
+                if (editBox == null)
+                {
+                    return;
+                }
+
+                int current;
+                int.TryParse(editBox.Text, out current);
+                int next = Math.Max(1, (current <= 0 ? 1 : current) + delta);
+                editBox.Text = next.ToString();
+                editBox.SelectionStart = editBox.Text.Length;
+                return;
+            }
+
+            DataGridViewCell cell = dataGridView_Playlist.CurrentCell;
+            int currentValue;
+            int.TryParse(Convert.ToString(cell.Value), out currentValue);
+            int nextValue = Math.Max(1, (currentValue <= 0 ? 1 : currentValue) + delta);
+            cell.Value = nextValue.ToString();
+        }
+
+        // textBox_Loop(単発再生・プレイリスト全体ループ共通のループ数入力欄)で
+        // ↑/↓キーを押したら値を1つ増減する
+        private void textBox_Loop_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
+            {
+                return;
+            }
+
+            int delta = (e.KeyCode == Keys.Up) ? 1 : -1;
+
+            int current;
+            int.TryParse(textBox_Loop.Text, out current);
+            int next = Math.Max(1, (current <= 0 ? 1 : current) + delta);
+
+            textBox_Loop.Text = next.ToString();
+            textBox_Loop.SelectionStart = textBox_Loop.Text.Length;
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
         }
 
         // 選択中のセルの中身を空にする(行そのものは削除しない。行削除は右クリックメニューの担当)。
@@ -1831,8 +1892,9 @@ namespace EventRecorder
         }
 
         // プルダウン(col_PlaylistFile)に表示される全ファイルを、プレイリストに1行ずつまとめて
-        // 追加する。既存の行は全部作り直す(手動で1件ずつ追加する手間を省くための一括操作)
-        private void button_PlaylistListAll_Click(object sender, EventArgs e)
+        // 追加する。既存の行は全部作り直す(手動で1件ずつ追加する手間を省くための一括操作)。
+        // 右クリックメニュー「プレイリストを更新」から呼ばれる(専用ボタンは廃止した)
+        private void menuItem_PlaylistRefresh_Click(object sender, EventArgs e)
         {
             if (isRecording || isPlaying)
             {
