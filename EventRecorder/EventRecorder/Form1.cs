@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using StandardTemplate;
 
 namespace EventRecorder
@@ -241,11 +240,9 @@ namespace EventRecorder
                 return;
             }
 
-            // 標準のFolderBrowserDialog(SHBrowseForFolder)は見た目が古いツリー表示のダイアログに
-            // なってしまうため、WindowsAPICodePack-Shell(NuGet)のCommonOpenFileDialogを使う。
-            // SaveFileDialog等と同じ新しいコモンダイアログ(パンくず・検索窓付き)の見た目で、
-            // かつIsFolderPicker=trueで素直にフォルダだけを選ばせられる
-            String selectedFolder = ChooseFolderWithModernDialog(
+            // フォルダ選択ダイアログの実装は[[_Common/DataFolderChooser.cs]]に集約してある
+            // (「データ保存先を変更」機能を持つプロジェクト全部で見た目・挙動を統一するため)
+            String selectedFolder = StandardTemplate.DataFolderChooser.ChooseFolder(
                 "プロファイルの保存先ふぉるだを選んでください", userDataFolder);
 
             if (selectedFolder == null)
@@ -335,27 +332,6 @@ namespace EventRecorder
                 "EventRecorder - プロファイルの引っ越し",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
-        }
-
-        // CommonOpenFileDialog(WindowsAPICodePack-Shell)でフォルダを選ばせ、選ばれたフォルダの
-        // フルパスを返す(キャンセル時はnull)。SaveFileDialog等と同じ見た目の新しいコモンダイアログで
-        // フォルダを選ばせたい場合の汎用ヘルパー
-        private static String ChooseFolderWithModernDialog(String title, String initialDirectory)
-        {
-            using (CommonOpenFileDialog dlg = new CommonOpenFileDialog())
-            {
-                dlg.Title = title;
-                dlg.InitialDirectory = initialDirectory;
-                dlg.IsFolderPicker = true;
-                dlg.RestoreDirectory = true;
-
-                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-                {
-                    return null;
-                }
-
-                return String.IsNullOrEmpty(dlg.FileName) ? null : dlg.FileName;
-            }
         }
 
         // 今選択中のモードのグループボックスだけ背景色をハイライトする。

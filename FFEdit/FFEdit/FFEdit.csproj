@@ -13,6 +13,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <!-- WindowsAPICodePack-ShellをNuGetから取得するため -->
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -67,6 +69,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <!-- データ保存先フォルダ選択ダイアログ([[_Common/DataFolderChooser.cs]])用。FolderBrowserDialogより
+         見た目が新しく、OpenFileDialog流用の裏技より素直にフォルダ選択ができる -->
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="ErrorMsg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +95,12 @@
     <Compile Include="SaveRestore.cs" />
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\UserDataLocation.cs">
+      <Link>UserDataLocation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\DataFolderChooser.cs">
+      <Link>DataFolderChooser.cs</Link>
     </Compile>
     <Compile Include="TimeStump.cs" />
     <EmbeddedResource Include="ErrorMsg.resx">

@@ -98,6 +98,9 @@
     <Compile Include="..\..\_Common\JsonFileStorage.cs">
       <Link>JsonFileStorage.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\DataFolderChooser.cs">
+      <Link>DataFolderChooser.cs</Link>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

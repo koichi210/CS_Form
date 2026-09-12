@@ -69,5 +69,34 @@ namespace Cheetos
 
             return LoadXmlFile(LoadFileName);
         }
+
+        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegistItemで登録済みのコントロールを
+        // そのまま汎用プロファイル(StcSaveRestore.BuildGenericProfile/ApplyGenericProfile)に
+        // 詰め替えるだけで、Cheetos専用のPOCOは作らない(コントロール数が多く、フィールドごとに
+        // 手書きするとズレの元になるため)
+        public Boolean SaveJsonFile(String filePath)
+        {
+            try
+            {
+                JsonFileStorage.Save(filePath, BuildGenericProfile());
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public Boolean LoadJsonFile(String filePath)
+        {
+            GenericProfile profile = JsonFileStorage.Load<GenericProfile>(filePath);
+            if (profile == null)
+            {
+                return false;
+            }
+
+            ApplyGenericProfile(profile);
+            return true;
+        }
     }
 }

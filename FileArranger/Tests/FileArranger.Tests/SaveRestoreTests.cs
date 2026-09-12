@@ -270,5 +270,50 @@ namespace FileArranger.Tests
                 Assert.IsFalse(NewSaveRestore(form).LoadXmlFile(PathFor("nothing")));
             }
         }
+
+        [TestMethod]
+        public void JSON保存で共通タブの入力値と参照候補フォルダが保存して読み直すと戻る()
+        {
+            // データ保存先変更機能([[EventRecorder/Form1.cs]]と同じ考え方)で追加したJSON経路。
+            // RefrenceCandidateFoldersはRegistCtrlを介さない専用の配列なので、
+            // SaveJsonFile/LoadJsonFileが専用に面倒を見ていることを確認する
+            using (global::FileArranger.FileArranger writer = NewForm())
+            {
+                writer.cmn_textBox_Reference.Text = @"D:\ref";
+                writer.cmn_textBox_AddList.Text = "add";
+                writer.cmn_textBox_AddListSuffix.Text = "_suffix";
+                writer.RefrenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
+
+                SaveRestore sr = new SaveRestore();
+                sr.RegistLoadItem(writer);
+
+                string path = Path.Combine(tempDirectory, "common.json");
+                Assert.IsTrue(sr.SaveJsonFile(path, writer), "JSON保存に成功するはず");
+
+                using (global::FileArranger.FileArranger reader = NewForm())
+                {
+                    SaveRestore readerSr = new SaveRestore();
+                    readerSr.RegistLoadItem(reader);
+
+                    Assert.IsTrue(readerSr.LoadJsonFile(path, reader), "JSON読み込みに成功するはず");
+
+                    Assert.AreEqual(@"D:\ref", reader.cmn_textBox_Reference.Text);
+                    Assert.AreEqual("add", reader.cmn_textBox_AddList.Text);
+                    Assert.AreEqual("_suffix", reader.cmn_textBox_AddListSuffix.Text);
+                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.RefrenceCandidateFolders);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void JSONファイルが無ければ読み込みは失敗を返す()
+        {
+            using (global::FileArranger.FileArranger form = NewForm())
+            {
+                SaveRestore sr = new SaveRestore();
+                sr.RegistLoadItem(form);
+                Assert.IsFalse(sr.LoadJsonFile(Path.Combine(tempDirectory, "nothing.json"), form));
+            }
+        }
     }
 }

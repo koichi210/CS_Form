@@ -77,11 +77,62 @@ namespace FileArranger
             util.ModifyCombBoxList(Parent.md_comboBox_TargetDir);
             util.ModifyCombBoxList(Parent.rd_comboBox_RenameDir);
             util.ModifyCombBoxList(Parent.rd_comboBox_AddTitlePostWord);
-            
+
             XmlDocument document = OpenSaveXmlFile();
             SaveXmlFile(document);
             SaveXmlParamAll("RefrenceCandidate", "Value_", Parent.RefrenceCandidateFolders);
             return CloseSaveXmlFile(SaveFileName);
+        }
+
+        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegistLoadItemで登録済みのコントロールは
+        // 汎用プロファイル(StcSaveRestore.BuildGenericProfile/ApplyGenericProfile)に詰め替えるだけで
+        // 済むが、RefrenceCandidateFoldersだけはRegistCtrlを介さない専用の配列なので、
+        // "RefrenceCandidate|Value_"というキーで同じprofileに相乗りさせる
+        public Boolean SaveJsonFile(String filePath, FileArranger Parent)
+        {
+            try
+            {
+                StcUtils util = new StcUtils();
+                util.ModifyCombBoxList(Parent.md_comboBox_TargetDir);
+                util.ModifyCombBoxList(Parent.rd_comboBox_RenameDir);
+                util.ModifyCombBoxList(Parent.rd_comboBox_AddTitlePostWord);
+
+                GenericProfile profile = BuildGenericProfile();
+                profile.Lists["RefrenceCandidate|Value_"] = (Parent.RefrenceCandidateFolders ?? new String[0]).ToList();
+
+                JsonFileStorage.Save(filePath, profile);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public Boolean LoadJsonFile(String filePath, FileArranger Parent)
+        {
+            GenericProfile profile = JsonFileStorage.Load<GenericProfile>(filePath);
+            if (profile == null)
+            {
+                return false;
+            }
+
+            ApplyGenericProfile(profile);
+
+            List<String> refFolders;
+            Parent.RefrenceCandidateFolders = profile.Lists.TryGetValue("RefrenceCandidate|Value_", out refFolders)
+                ? refFolders.ToArray()
+                : new String[0];
+
+            // コンボボックス更新・リストリセット(LoadProcと同じ後処理)
+            Parent.UpdateRenameComboBox();
+            Parent.UpdateMoveDestDirComboBox();
+
+            Parent.sf_listBox_Target.Items.Clear();
+            Parent.rd_listView_Target.Items.Clear();
+            Parent.pf_listView_Target.Items.Clear();
+
+            return true;
         }
     }
 }

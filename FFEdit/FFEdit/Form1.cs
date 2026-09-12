@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.InteropServices;
 using StandardTemplate;
 
 namespace FFEdit
@@ -20,13 +21,22 @@ namespace FFEdit
         private Rename rename = new Rename();
         private Function fs = new Function();
 
+        private StcFileInputOutput fio = new StcFileInputOutput();
+
+        // 設定ファイル(FFEdit.xml)の置き場。exe直下(bin/Debug、bin/Release)は
+        // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
+        // 実データは%LOCALAPPDATA%\FFEdit\配下(既定)にあり、exe直下にはその場所を示す
+        // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
+        // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
+        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder("FFEdit");
+
         public Form1()
         {
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.FFEdit);
 
             sr.RegistItem(this);
-            sr.LoadProc(SettingFileName, this);
+            sr.LoadProc(Path.Combine(userDataFolder, SettingFileName), this);
 
             // 桁の選択肢を生成
             comboBox_ChangeNumber_Digit.Items.Clear();
@@ -157,10 +167,114 @@ namespace FFEdit
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
-            if (sr.SaveSetting(SettingFileName, this))
+            String saveFilePath = Path.Combine(userDataFolder, SettingFileName);
+            if (sr.SaveSetting(saveFilePath, this))
             {
-                MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SettingFileName);
+                MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + saveFilePath);
             }
+        }
+
+        // *******************************************************************************
+        // データ保存先フォルダの変更(システムメニューから呼び出す)
+        // ([[EventRecorder/Form1.cs]]の同名機能と同じ考え方。FFEditは設定ファイルが
+        // FFEdit.xml1つだけなので、複数プロファイルの引っ越し処理までは不要)
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, Boolean bRevert);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern Boolean AppendMenu(IntPtr hMenu, uint uFlags, uint uIDNewItem, String lpNewItem);
+
+        private const uint MF_SEPARATOR = 0x800;
+        private const uint MF_STRING = 0x0;
+        private const int WM_SYSCOMMAND = 0x112;
+
+        // システムコマンドのIDは下位4bitをWindowsが予約しているため、16の倍数かつ
+        // 0xF000未満にする必要がある(MSDN既定のルール)
+        private const int SysMenuId_ChangeDataFolder = 0x1000;
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            IntPtr systemMenu = GetSystemMenu(this.Handle, false);
+            AppendMenu(systemMenu, MF_SEPARATOR, 0, String.Empty);
+            AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeDataFolder, "データ保存先を変更(&D)...");
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt32() & 0xFFF0) == SysMenuId_ChangeDataFolder)
+            {
+                ChangeDataFolder();
+                return;
+            }
+
+            base.WndProc(ref m);
+        }
+
+        // 保存先フォルダを選び直し、exe直下のポインタファイル(DataFolder.txt)を書き換える。
+        // 実行中のuserDataFolder(readonly)はその場では切り替えない。
+        // 変更は次回起動時から反映される、シンプルで安全な方式にしている
+        private void ChangeDataFolder()
+        {
+            // フォルダ選択ダイアログの実装は[[_Common/DataFolderChooser.cs]]に集約してある
+            // (「データ保存先を変更」機能を持つプロジェクト全部で見た目・挙動を統一するため)
+            String selectedFolder = StandardTemplate.DataFolderChooser.ChooseFolder(
+                "設定ファイルの保存先フォルダを選んでください", userDataFolder);
+
+            if (String.IsNullOrEmpty(selectedFolder))
+            {
+                return;
+            }
+
+            if (String.Equals(
+                Path.GetFullPath(selectedFolder).TrimEnd('\\'),
+                Path.GetFullPath(userDataFolder).TrimEnd('\\'),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            String oldSettingPath = Path.Combine(userDataFolder, SettingFileName);
+            String newSettingPath = Path.Combine(selectedFolder, SettingFileName);
+
+            if (File.Exists(oldSettingPath) && !File.Exists(newSettingPath))
+            {
+                DialogResult moveResult = MessageBox.Show(
+                    "既存の設定ファイルを新しい保存先に移動しますか？" + Environment.NewLine + Environment.NewLine
+                        + "移動元: " + oldSettingPath + Environment.NewLine
+                        + "移動先: " + newSettingPath,
+                    "FFEdit - 設定ファイルの引っ越し",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (moveResult == DialogResult.Yes)
+                {
+                    try
+                    {
+                        File.Move(oldSettingPath, newSettingPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            "移動に失敗したよ: " + ex.Message,
+                            "FFEdit - 設定ファイルの引っ越し",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+                }
+            }
+
+            StandardTemplate.UserDataLocation.SetUserDataFolder("FFEdit", selectedFolder);
+
+            MessageBox.Show(
+                "保存先を変更したよ" + Environment.NewLine + selectedFolder + Environment.NewLine + Environment.NewLine
+                    + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
+                    + "を使うよ。新しい保存先は次回起動時から反映されるよ",
+                "FFEdit - データ保存先の変更",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
 
         private void textBox_Target_Extension_KeyUp(object sender, KeyEventArgs e)

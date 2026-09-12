@@ -238,6 +238,71 @@ namespace Cheetos.Tests
         }
 
         [TestMethod]
+        public void JSON保存でCaptureWindowタブの値が保存して読み直すと戻る()
+        {
+            // データ保存先変更機能([[EventRecorder/Form1.cs]]と同じ考え方)で追加したJSON経路
+            // (StcSaveRestore.BuildGenericProfile/ApplyGenericProfile)のテスト。
+            // Cheetos専用のPOCOを作らず登録済みコントロールをそのまま汎用データへ詰め替える
+            // 実装なので、XMLと同じ項目が同じように往復することを確認する
+            using (Cheetos writer = NewForm())
+            {
+                writer.cw_TextBox_SavePath.Text = @"C:\capture\out";
+                writer.cw_TextBox_SaveFilePrifix.Text = "shot_";
+                writer.cw_checkBox_AddTimeStump.Checked = true;
+                writer.cw_Radio_CurrentWindow.Checked = true;
+                writer.cw_TextBox_Sleep.Text = "1234";
+                writer.cw_TextBox_Loop.Text = "9";
+
+                SaveRestore sr = NewSaveRestore(writer);
+                string path = Path.Combine(tempDirectory, "capture.json");
+                Assert.IsTrue(sr.SaveJsonFile(path), "JSON保存に成功するはず");
+
+                using (Cheetos reader = NewForm())
+                {
+                    Assert.IsTrue(NewSaveRestore(reader).LoadJsonFile(path), "JSON読み込みに成功するはず");
+
+                    Assert.AreEqual(@"C:\capture\out", reader.cw_TextBox_SavePath.Text);
+                    Assert.AreEqual("shot_", reader.cw_TextBox_SaveFilePrifix.Text);
+                    Assert.IsTrue(reader.cw_checkBox_AddTimeStump.Checked);
+                    Assert.IsTrue(reader.cw_Radio_CurrentWindow.Checked);
+                    Assert.AreEqual("1234", reader.cw_TextBox_Sleep.Text);
+                    Assert.AreEqual("9", reader.cw_TextBox_Loop.Text);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void JSON保存でCaptureWindowのDataGridの内容が保存して読み直すと戻る()
+        {
+            using (Cheetos writer = NewForm())
+            {
+                SaveRestore sr = NewSaveRestore(writer);
+                writer.cw_dataGridView.RowCount = 3;
+                writer.cw_dataGridView.Rows[1].Cells[0].Value = "500";
+
+                string path = Path.Combine(tempDirectory, "datagrid.json");
+                Assert.IsTrue(sr.SaveJsonFile(path));
+
+                using (Cheetos reader = NewForm())
+                {
+                    Assert.IsTrue(NewSaveRestore(reader).LoadJsonFile(path));
+
+                    Assert.AreEqual(3, reader.cw_dataGridView.RowCount);
+                    Assert.AreEqual("500", Convert.ToString(reader.cw_dataGridView.Rows[1].Cells[0].Value));
+                }
+            }
+        }
+
+        [TestMethod]
+        public void JSONファイルが無ければ読み込みは失敗を返す()
+        {
+            using (Cheetos form = NewForm())
+            {
+                Assert.IsFalse(NewSaveRestore(form).LoadJsonFile(Path.Combine(tempDirectory, "nothing.json")));
+            }
+        }
+
+        [TestMethod]
         public void 存在しないファイルを読んでも例外にならず失敗を返す()
         {
             using (Cheetos form = NewForm())

@@ -9,13 +9,22 @@ using System.Windows.Forms;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using StandardTemplate;
 
 namespace FileArranger
 {
     partial class FileArranger : StcBaseForm<SaveRestore>
     {
-        readonly String SettingFileName = @"FileArranger.xml";
+        readonly String SettingFileNameXml = @"FileArranger.xml";
+        readonly String SettingFileNameJson = @"FileArranger.json";
+
+        // プロファイル(FileArranger.xml/.json)の置き場。exe直下(bin/Debug、bin/Release)は
+        // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
+        // 実データは%LOCALAPPDATA%\FileArranger\配下(既定)にあり、exe直下にはその場所を示す
+        // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
+        // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
+        readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder("FileArranger");
 
         private readonly String[] RenameDirColumn = { "変更前", "変更後" };
         private readonly String[] PartitionFileColumn = { "対象", "移動前名称", "移動後名称" };
@@ -50,8 +59,57 @@ namespace FileArranger
             pf_listView_Target_Update();
 
             sr.RegistLoadItem(this);
-            sr.LoadProc(SettingFileName, this);
-            util.UpdateProfileList(ref comboBox_LoadSetting);
+
+            // 起動時はJSON版があればそちらを優先して読み込む(今後はJSON保存が主流になっていく方針のため)
+            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileNameJson);
+            String defaultXmlPath = Path.Combine(userDataFolder, SettingFileNameXml);
+            LoadProfile(File.Exists(defaultJsonPath) ? defaultJsonPath : defaultXmlPath);
+
+            UpdateProfileListAll("");
+        }
+
+        // *******************************************************************************
+        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。設定値はこれまでXML(StcSaveRestore)
+        // 一本だったが、今後はJSONへ段階的に移行していく方針のため、拡張子で振り分ける
+        // (EventRecorderと同じ考え方)
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 設定ファイルを拡張子で振り分けて読み込む。拡張子がjsonならJSON、それ以外は従来通りXML
+        private Boolean LoadProfile(String filePath)
+        {
+            if (IsJsonFile(filePath))
+            {
+                return sr.LoadJsonFile(filePath, this);
+            }
+
+            return sr.LoadProc(filePath, this);
+        }
+
+        // 設定ファイルを拡張子で振り分けて保存する
+        private Boolean SaveProfile(String filePath)
+        {
+            if (IsJsonFile(filePath))
+            {
+                return sr.SaveJsonFile(filePath, this);
+            }
+
+            return sr.SaveSetting(filePath, this);
+        }
+
+        // comboBox_LoadSettingへ、userDataFolder配下の*.xmlと*.jsonの両方をまとめてリストアップする。
+        // util.UpdateProfileListは拡張子を1パターンしか指定できないため、2回検索した結果をマージする
+        private void UpdateProfileListAll(String defaultProfileName)
+        {
+            String[] xmlFiles = Directory.GetFiles(userDataFolder, "*.xml", SearchOption.AllDirectories);
+            String[] jsonFiles = Directory.GetFiles(userDataFolder, "*.json", SearchOption.AllDirectories);
+            String[] files = xmlFiles.Concat(jsonFiles).ToArray();
+
+            util.SetComboBoxFromArray(comboBox_LoadSetting, files, userDataFolder);
+            util.SetComboBoxText(comboBox_LoadSetting, defaultProfileName);
         }
 
         private void mf_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
@@ -718,8 +776,13 @@ namespace FileArranger
 
         private void LoadSetting_Click(object sender, EventArgs e)
         {
-            String LoadFileName = fio.SelectLoadFileName(SettingFileName);
-            if (sr.LoadProc(LoadFileName, this))
+            String LoadFileName = fio.SelectLoadFileName(SettingFileNameXml, userDataFolder);
+            if (String.IsNullOrEmpty(LoadFileName))
+            {
+                return;
+            }
+
+            if (LoadProfile(LoadFileName))
             {
                 comboBox_LoadSetting.Text = Path.GetFileName(LoadFileName);
             }
@@ -727,18 +790,156 @@ namespace FileArranger
 
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text);
-            if (sr.SaveSetting(SaveFileName, this))
+            String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text, userDataFolder);
+            if (String.IsNullOrEmpty(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_LoadSetting, Path.GetFileName(SaveFileName));
+                return;
+            }
+
+            if (SaveProfile(SaveFileName))
+            {
+                UpdateProfileListAll(Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }
 
+        // *******************************************************************************
+        // データ保存先フォルダの変更(システムメニューから呼び出す)
+        // ([[EventRecorder/Form1.cs]]の同名機能と同じ考え方)
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, Boolean bRevert);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern Boolean AppendMenu(IntPtr hMenu, uint uFlags, uint uIDNewItem, String lpNewItem);
+
+        private const uint MF_SEPARATOR = 0x800;
+        private const uint MF_STRING = 0x0;
+        private const int WM_SYSCOMMAND = 0x112;
+
+        // システムコマンドのIDは下位4bitをWindowsが予約しているため、16の倍数かつ
+        // 0xF000未満にする必要がある(MSDN既定のルール)
+        private const int SysMenuId_ChangeDataFolder = 0x1000;
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            IntPtr systemMenu = GetSystemMenu(this.Handle, false);
+            AppendMenu(systemMenu, MF_SEPARATOR, 0, String.Empty);
+            AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeDataFolder, "データ保存先を変更(&D)...");
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt32() & 0xFFF0) == SysMenuId_ChangeDataFolder)
+            {
+                ChangeDataFolder();
+                return;
+            }
+
+            base.WndProc(ref m);
+        }
+
+        // 保存先フォルダを選び直し、exe直下のポインタファイル(DataFolder.txt)を書き換える。
+        // 実行中のuserDataFolder(readonly)はその場では切り替えない。
+        // 変更は次回起動時から反映される、シンプルで安全な方式にしている
+        private void ChangeDataFolder()
+        {
+            // フォルダ選択ダイアログの実装は[[_Common/DataFolderChooser.cs]]に集約してある
+            // (「データ保存先を変更」機能を持つプロジェクト全部で見た目・挙動を統一するため)
+            String selectedFolder = StandardTemplate.DataFolderChooser.ChooseFolder(
+                "プロファイルの保存先フォルダを選んでください", userDataFolder);
+
+            if (String.IsNullOrEmpty(selectedFolder))
+            {
+                return;
+            }
+
+            if (String.Equals(
+                Path.GetFullPath(selectedFolder).TrimEnd('\\'),
+                Path.GetFullPath(userDataFolder).TrimEnd('\\'),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            DialogResult moveResult = MessageBox.Show(
+                "既存のプロファイルを新しい保存先に移動しますか？" + Environment.NewLine + Environment.NewLine
+                    + "移動元: " + userDataFolder + Environment.NewLine
+                    + "移動先: " + selectedFolder,
+                "FileArranger - プロファイルの引っ越し",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (moveResult == DialogResult.Yes)
+            {
+                MoveExistingProfiles(userDataFolder, selectedFolder);
+            }
+
+            StandardTemplate.UserDataLocation.SetUserDataFolder("FileArranger", selectedFolder);
+
+            MessageBox.Show(
+                "保存先を変更したよ" + Environment.NewLine + selectedFolder + Environment.NewLine + Environment.NewLine
+                    + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
+                    + "を使うよ。新しい保存先は次回起動時から反映されるよ",
+                "FileArranger - データ保存先の変更",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        // oldFolder直下(サブフォルダは対象外)にある*.xml/*.jsonプロファイルをnewFolderへ移動する。
+        // 移動先に同名ファイルが既にある場合は、上書きせずスキップする(データ消失を避けるため)
+        private void MoveExistingProfiles(String oldFolder, String newFolder)
+        {
+            List<String> profileFiles = Directory.GetFiles(oldFolder, "*.xml")
+                .Concat(Directory.GetFiles(oldFolder, "*.json"))
+                .ToList();
+
+            List<String> movedFiles = new List<String>();
+            List<String> skippedFiles = new List<String>();
+
+            foreach (String sourcePath in profileFiles)
+            {
+                String fileName = Path.GetFileName(sourcePath);
+                String destPath = Path.Combine(newFolder, fileName);
+
+                if (File.Exists(destPath))
+                {
+                    skippedFiles.Add(fileName);
+                    continue;
+                }
+
+                try
+                {
+                    File.Move(sourcePath, destPath);
+                    movedFiles.Add(fileName);
+                }
+                catch (Exception)
+                {
+                    skippedFiles.Add(fileName);
+                }
+            }
+
+            String message = movedFiles.Count + "件のプロファイルを移動したよ";
+            if (skippedFiles.Count > 0)
+            {
+                message += Environment.NewLine + Environment.NewLine
+                    + skippedFiles.Count + "件は移動先に同名ファイルが既にあった(または移動に失敗した)ためスキップしたよ:"
+                    + Environment.NewLine + String.Join(Environment.NewLine, skippedFiles);
+            }
+
+            MessageBox.Show(
+                message,
+                "FileArranger - プロファイルの引っ越し",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_LoadSetting.Text;
-            sr.LoadProc(LoadFileName, this);
+            String LoadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            LoadProfile(LoadFileName);
         }
 
         private void pf_listView_Target_KeyDown(object sender, KeyEventArgs e)
