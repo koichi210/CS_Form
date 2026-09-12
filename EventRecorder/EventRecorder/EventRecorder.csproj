@@ -12,6 +12,8 @@
     <AssemblyName>EventRecorder</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <!-- Newtonsoft.Json / WindowsAPICodePack-ShellをNuGetから取得するため -->
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <!--
     VS2019のdevenv.exeは32bitプロセスのため、x64専用ビルドだとDataGridViewEx等の
@@ -55,7 +57,14 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- JsonFileStorage([[_Common/JsonFileStorage.cs]])用。JavaScriptSerializerより
+         成熟していて整形出力(Indented)もできるため、System.Web.Extensions参照から切り替えた -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <!-- データ保存先フォルダ選択ダイアログ(CommonOpenFileDialog)用。FolderBrowserDialogより
+         見た目が新しく、OpenFileDialog流用の裏技より素直にフォルダ選択ができる -->
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">

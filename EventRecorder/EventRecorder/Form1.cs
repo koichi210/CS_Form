@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using StandardTemplate;
 
 namespace EventRecorder
@@ -236,10 +237,9 @@ namespace EventRecorder
             }
 
             // 標準のFolderBrowserDialog(SHBrowseForFolder)は見た目が古いツリー表示のダイアログに
-            // なってしまうため、SaveFileDialog等と同じ新しいコモンダイアログ(パンくず・検索窓付き)の
-            // 見た目にするための定番の裏技として、OpenFileDialogをファイル選択ではなく
-            // フォルダ選択用に転用する(ValidateNames/CheckFileExistsを外し、選ばれた「ファイル名」の
-            // 親フォルダだけを実際には使う)。外部dllを使わずに実現できる方法としてこれを採用した
+            // なってしまうため、WindowsAPICodePack-Shell(NuGet)のCommonOpenFileDialogを使う。
+            // SaveFileDialog等と同じ新しいコモンダイアログ(パンくず・検索窓付き)の見た目で、
+            // かつIsFolderPicker=trueで素直にフォルダだけを選ばせられる
             String selectedFolder = ChooseFolderWithModernDialog(
                 "プロファイルの保存先ふぉるだを選んでください", userDataFolder);
 
@@ -332,32 +332,24 @@ namespace EventRecorder
                 MessageBoxIcon.Information);
         }
 
-        // OpenFileDialogをフォルダ選択用に転用し、選ばれたフォルダのフルパスを返す
-        // (キャンセル時はnull)。SaveFileDialog等と同じ見た目の新しいコモンダイアログで
+        // CommonOpenFileDialog(WindowsAPICodePack-Shell)でフォルダを選ばせ、選ばれたフォルダの
+        // フルパスを返す(キャンセル時はnull)。SaveFileDialog等と同じ見た目の新しいコモンダイアログで
         // フォルダを選ばせたい場合の汎用ヘルパー
         private static String ChooseFolderWithModernDialog(String title, String initialDirectory)
         {
-            using (OpenFileDialog dlg = new OpenFileDialog())
+            using (CommonOpenFileDialog dlg = new CommonOpenFileDialog())
             {
                 dlg.Title = title;
                 dlg.InitialDirectory = initialDirectory;
+                dlg.IsFolderPicker = true;
+                dlg.RestoreDirectory = true;
 
-                // 「ファイル」を選ばせているわけではないので、ファイル名の実在チェックは無効にする。
-                // FileNameには案内用のダミー名を入れておき、Filterで拡張子の絞り込みも実質無効化する
-                // (フォルダの一覧表示自体はFilterの影響を受けないため、絞り込みが機能しなくても問題ない)
-                dlg.ValidateNames = false;
-                dlg.CheckFileExists = false;
-                dlg.CheckPathExists = true;
-                dlg.FileName = "このフォルダーを選択";
-                dlg.Filter = "フォルダーを選択|*.このフォルダーを選択";
-
-                if (dlg.ShowDialog() != DialogResult.OK)
+                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
                 {
                     return null;
                 }
 
-                String folder = System.IO.Path.GetDirectoryName(dlg.FileName);
-                return String.IsNullOrEmpty(folder) ? null : folder;
+                return String.IsNullOrEmpty(dlg.FileName) ? null : dlg.FileName;
             }
         }
 
