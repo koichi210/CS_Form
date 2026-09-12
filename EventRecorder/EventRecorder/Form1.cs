@@ -27,6 +27,16 @@ namespace EventRecorder
         private Boolean isPlaying = false;
         private Boolean stopPlayRequested = false;
 
+        // タイトルバーに表示する再生中のループ進捗。「全体ループ」はプレイリストの
+        // 全体周回(単発再生では常に1/1)、「ループ」はPlayRows呼び出し1回あたりの
+        // 繰り返し(単発再生ならtextBox_Loopの回数、プレイリストなら各行のループ回数)。
+        // 再生用の別スレッドから書き込み、UI側はUpdateTitleで読むだけなので
+        // (単純なint代入・多少の表示タイミングのズレは許容)、特にロックはしていない
+        private int playbackOverallLoopNo = 0;
+        private int playbackOverallLoopMax = 0;
+        private int playbackInnerLoopNo = 0;
+        private int playbackInnerLoopMax = 0;
+
         // 直前のイベント時刻(記録の待機ms算出用)
         private int lastEventTick = 0;
 
@@ -209,7 +219,12 @@ namespace EventRecorder
             }
             else if (isPlaying)
             {
-                this.Text = BaseTitle + " - プレイバック中";
+                // (表示例)プレイバック中：2 / 5：34/100
+                // 「2 / 5」=全体ループ(プレイリストの全体周回。単発再生では常に1/1)の今の実行数/最大数、
+                // 「34/100」=ループ(PlayRows呼び出し1回あたりの繰り返し)の今の実行回数/最大数
+                this.Text = BaseTitle + " - プレイバック中："
+                    + playbackOverallLoopNo + " / " + playbackOverallLoopMax + "："
+                    + playbackInnerLoopNo + "/" + playbackInnerLoopMax;
             }
             else
             {
@@ -493,6 +508,12 @@ namespace EventRecorder
             // 再生終了後にカーソルを戻せるよう、今の位置を覚えておく
             cursorPositionBeforePlay = Cursor.Position;
 
+            // 単発再生には「全体ループ」の概念が無いので常に1/1固定にする
+            playbackOverallLoopNo = 1;
+            playbackOverallLoopMax = 1;
+            playbackInnerLoopNo = 0;
+            playbackInnerLoopMax = loopCount;
+
             isPlaying = true;
             stopPlayRequested = false;
             UpdatePlayButtons();
@@ -569,11 +590,18 @@ namespace EventRecorder
         {
             for (int i = 0; i < loopCount && !stopPlayRequested; i++)
             {
+                playbackInnerLoopNo = i + 1;
+                playbackInnerLoopMax = loopCount;
+
                 for (int idx = 0; idx < rows.Count && !stopPlayRequested; idx++)
                 {
                     String[] r = rows[idx];
 
-                    this.Invoke((MethodInvoker)(() => HighlightPlayingRow(idx)));
+                    this.Invoke((MethodInvoker)(() =>
+                    {
+                        HighlightPlayingRow(idx);
+                        UpdateTitle();
+                    }));
 
                     int wait = util.GetInteger(r[4]);
                     if (wait > 0)
@@ -1521,7 +1549,7 @@ namespace EventRecorder
             // 今後はJSON保存を主流にしていく方針なので、フィルタの先頭(既定)をJSONにしてある。
             // 既存のXMLプロファイルを開いた状態でここに来て.jsonを選べば、そのままXML→JSON変換になる
             dlg.Filter = "JSONファイル(*.json)|*.json|XMLファイル(*.xml)|*.xml|すべてのファイル(*.*)|*.*";
-            dlg.Title = "保存する設定ファイルを選択してください";
+            dlg.Title = "保存するプロファイルを選択してください";
 
             if (dlg.ShowDialog() != DialogResult.OK)
             {
@@ -1946,6 +1974,12 @@ namespace EventRecorder
             }
 
             cursorPositionBeforePlay = Cursor.Position;
+
+            playbackOverallLoopNo = 0;
+            playbackOverallLoopMax = overallLoopCount;
+            playbackInnerLoopNo = 0;
+            playbackInnerLoopMax = 0;
+
             isPlaying = true;
             stopPlayRequested = false;
             UpdatePlayButtons();
@@ -1964,6 +1998,7 @@ namespace EventRecorder
                 for (int loopNo = 0; loopNo < overallLoopCount && !stopPlayRequested; loopNo++)
                 {
                     int loopDisplayNo = loopNo + 1;
+                    playbackOverallLoopNo = loopDisplayNo;
 
                     for (int i = 0; i < entries.Count && !stopPlayRequested; i++)
                     {

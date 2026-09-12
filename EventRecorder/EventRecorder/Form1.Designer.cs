@@ -239,18 +239,18 @@ namespace EventRecorder
             this.comboBox_Profile.FormattingEnabled = true;
             this.comboBox_Profile.Location = new System.Drawing.Point(12, 584);
             this.comboBox_Profile.Name = "comboBox_Profile";
-            this.comboBox_Profile.Size = new System.Drawing.Size(310, 20);
+            this.comboBox_Profile.Size = new System.Drawing.Size(290, 20);
             this.comboBox_Profile.TabIndex = 8;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             // 
             // button_ProfileSave
             // 
             this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ProfileSave.Location = new System.Drawing.Point(335, 583);
+            this.button_ProfileSave.Location = new System.Drawing.Point(307, 583);
             this.button_ProfileSave.Name = "button_ProfileSave";
-            this.button_ProfileSave.Size = new System.Drawing.Size(80, 23);
+            this.button_ProfileSave.Size = new System.Drawing.Size(108, 23);
             this.button_ProfileSave.TabIndex = 9;
-            this.button_ProfileSave.Text = "設定値保存";
+            this.button_ProfileSave.Text = "プロファイル保存";
             this.button_ProfileSave.UseVisualStyleBackColor = true;
             this.button_ProfileSave.Click += new System.EventHandler(this.button_ProfileSave_Click);
             // 
