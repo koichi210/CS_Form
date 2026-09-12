@@ -271,11 +271,11 @@ namespace EventRecorder
             // 
             this.label_MousePos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_MousePos.AutoSize = true;
-            this.label_MousePos.Location = new System.Drawing.Point(513, 9);
+            this.label_MousePos.Location = new System.Drawing.Point(470, 9);
             this.label_MousePos.Name = "label_MousePos";
-            this.label_MousePos.Size = new System.Drawing.Size(62, 12);
+            this.label_MousePos.Size = new System.Drawing.Size(110, 12);
             this.label_MousePos.TabIndex = 2;
-            this.label_MousePos.Text = "Mouse: -, -";
+            this.label_MousePos.Text = "Mouse: -1234, -1234";
             // 
             // radioButton_Playback
             // 
@@ -429,8 +429,8 @@ namespace EventRecorder
             this.menuItem_PlaylistCheckAll,
             this.menuItem_PlaylistUncheckAll,
             this.menuItem_PlaylistFilterSeparator,
-            this.menuItem_PlaylistShowCheckedOnly,
-            this.menuItem_PlaylistShowAll});
+            this.menuItem_PlaylistShowAll,
+            this.menuItem_PlaylistShowCheckedOnly});
             this.contextMenuStrip_Playlist.Name = "contextMenuStrip_Playlist";
             this.contextMenuStrip_Playlist.Size = new System.Drawing.Size(204, 148);
             this.contextMenuStrip_Playlist.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Playlist_Opening);
