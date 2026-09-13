@@ -45,7 +45,7 @@
             this.label18 = new System.Windows.Forms.Label();
             this.cw_TextBox_Sleep = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.cw_TextBox_SavePath = new System.Windows.Forms.TextBox();
+            this.cw_TextBox_SavePath = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.cw_Button_Capture = new System.Windows.Forms.Button();
             this.PictTrim = new System.Windows.Forms.TabPage();
@@ -83,13 +83,13 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.do_GetSampleParam = new System.Windows.Forms.Button();
             this.label27 = new System.Windows.Forms.Label();
-            this.do_SampleFilePath = new System.Windows.Forms.TextBox();
+            this.do_SampleFilePath = new StandardTemplate.TextBoxEx();
             this.label26 = new System.Windows.Forms.Label();
             this.do_WhiteCoef = new System.Windows.Forms.TextBox();
             this.label25 = new System.Windows.Forms.Label();
             this.do_WhiteLength = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.do_TargetFileName = new System.Windows.Forms.TextBox();
+            this.do_TargetFileName = new StandardTemplate.TextBoxEx();
             this.do_Label_DestLandFolderPath = new System.Windows.Forms.Label();
             this.do_Label_DestPortFolderPath = new System.Windows.Forms.Label();
             this.do_DestLandFolderPath = new System.Windows.Forms.TextBox();
@@ -112,16 +112,15 @@
             this.pm_Button_Listup = new System.Windows.Forms.Button();
             this.FileCollect = new System.Windows.Forms.TabPage();
             this.label22 = new System.Windows.Forms.Label();
-            this.fc_TargetFileName = new System.Windows.Forms.TextBox();
+            this.fc_TargetFileName = new StandardTemplate.TextBoxEx();
             this.label21 = new System.Windows.Forms.Label();
-            this.fc_DestFolderPath = new System.Windows.Forms.TextBox();
+            this.fc_DestFolderPath = new StandardTemplate.TextBoxEx();
             this.fc_Label_SourceFolderPath = new System.Windows.Forms.Label();
             this.fc_SourceFolderPath = new System.Windows.Forms.TextBox();
             this.fc_MoveFile = new System.Windows.Forms.Button();
             this.TextBox_Status = new System.Windows.Forms.TextBox();
             this.ProgressBar_Status = new System.Windows.Forms.ProgressBar();
             this.Button_ProfileSave = new System.Windows.Forms.Button();
-            this.Button_ProfileLoad = new System.Windows.Forms.Button();
             this.Profile = new System.Windows.Forms.ComboBox();
             this.bkgWorkerTrim = new System.ComponentModel.BackgroundWorker();
             this.bkgWorkerMerge = new System.ComponentModel.BackgroundWorker();
@@ -783,6 +782,7 @@
             this.do_SampleFilePath.Name = "do_SampleFilePath";
             this.do_SampleFilePath.Size = new System.Drawing.Size(344, 19);
             this.do_SampleFilePath.TabIndex = 1;
+            this.do_SampleFilePath.FolderPathOnly = false;
             // 
             // label26
             // 
@@ -837,6 +837,7 @@
             this.do_TargetFileName.Name = "do_TargetFileName";
             this.do_TargetFileName.Size = new System.Drawing.Size(343, 19);
             this.do_TargetFileName.TabIndex = 7;
+            this.do_TargetFileName.FolderPathOnly = false;
             // 
             // do_Label_DestLandFolderPath
             // 
@@ -1096,6 +1097,7 @@
             this.fc_TargetFileName.Name = "fc_TargetFileName";
             this.fc_TargetFileName.Size = new System.Drawing.Size(361, 19);
             this.fc_TargetFileName.TabIndex = 5;
+            this.fc_TargetFileName.FolderPathOnly = false;
             // 
             // label21
             // 
@@ -1173,31 +1175,20 @@
             this.Button_ProfileSave.Location = new System.Drawing.Point(389, 380);
             this.Button_ProfileSave.Name = "Button_ProfileSave";
             this.Button_ProfileSave.Size = new System.Drawing.Size(75, 23);
-            this.Button_ProfileSave.TabIndex = 5;
+            this.Button_ProfileSave.TabIndex = 4;
             this.Button_ProfileSave.Text = "設定値保存";
             this.Button_ProfileSave.UseVisualStyleBackColor = true;
             this.Button_ProfileSave.Click += new System.EventHandler(this.ProfileSave_Click);
-            // 
-            // Button_ProfileLoad
-            // 
-            this.Button_ProfileLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.Button_ProfileLoad.Location = new System.Drawing.Point(313, 380);
-            this.Button_ProfileLoad.Name = "Button_ProfileLoad";
-            this.Button_ProfileLoad.Size = new System.Drawing.Size(75, 23);
-            this.Button_ProfileLoad.TabIndex = 4;
-            this.Button_ProfileLoad.Text = "設定値読込";
-            this.Button_ProfileLoad.UseVisualStyleBackColor = true;
-            this.Button_ProfileLoad.Click += new System.EventHandler(this.ProfileLoad_Click);
-            // 
+            //
             // Profile
-            // 
-            this.Profile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.Profile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Profile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Profile.FormattingEnabled = true;
             this.Profile.Location = new System.Drawing.Point(3, 382);
             this.Profile.Name = "Profile";
-            this.Profile.Size = new System.Drawing.Size(308, 20);
+            this.Profile.Size = new System.Drawing.Size(377, 20);
             this.Profile.TabIndex = 3;
             this.Profile.SelectedIndexChanged += new System.EventHandler(this.Profile_SelectedIndexChanged);
             // 
@@ -1303,7 +1294,6 @@
             this.ClientSize = new System.Drawing.Size(467, 407);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.Profile);
-            this.Controls.Add(this.Button_ProfileLoad);
             this.Controls.Add(this.Button_ProfileSave);
             this.Controls.Add(this.TabPage);
             this.Controls.Add(this.label_DebugMode);
@@ -1345,7 +1335,7 @@
         public System.Windows.Forms.RadioButton cw_Radio_CurrentWindow;
         public System.Windows.Forms.RadioButton cw_Radio_CurrentScreen;
         public System.Windows.Forms.RadioButton cw_Radio_FullScreen;
-        public System.Windows.Forms.TextBox cw_TextBox_SavePath;
+        public StandardTemplate.TextBoxEx cw_TextBox_SavePath;
         public System.Windows.Forms.Label label1;
         public System.Windows.Forms.Button cw_Button_Capture;
         public System.Windows.Forms.RadioButton pt_Radio_SelectSizeOfEnd;
@@ -1365,17 +1355,16 @@
         public System.Windows.Forms.Button pt_Button_Trim;
         public System.Windows.Forms.TextBox cw_TextBox_Loop;
         public System.Windows.Forms.Label label18;
-        public System.Windows.Forms.Button Button_ProfileLoad;
         public System.Windows.Forms.ProgressBar ProgressBar_Status;
         private System.Windows.Forms.ComboBox Profile;
         private System.Windows.Forms.TabPage FileCollect;
         public System.Windows.Forms.Label label21;
-        public System.Windows.Forms.TextBox fc_DestFolderPath;
+        public StandardTemplate.TextBoxEx fc_DestFolderPath;
         public System.Windows.Forms.Label fc_Label_SourceFolderPath;
         public System.Windows.Forms.TextBox fc_SourceFolderPath;
         public System.Windows.Forms.Button fc_MoveFile;
         public System.Windows.Forms.Label label22;
-        public System.Windows.Forms.TextBox fc_TargetFileName;
+        public StandardTemplate.TextBoxEx fc_TargetFileName;
         public System.Windows.Forms.TextBox cw_TextBox_SaveFilePrifix;
         public System.Windows.Forms.Label label23;
         public System.ComponentModel.BackgroundWorker bkgWorkerTrim;
@@ -1396,7 +1385,7 @@
         private System.Windows.Forms.GroupBox cw_GroupBox_CaptureTarget;
         private System.Windows.Forms.TabPage DistOrient;
         public System.Windows.Forms.Label label5;
-        public System.Windows.Forms.TextBox do_TargetFileName;
+        public StandardTemplate.TextBoxEx do_TargetFileName;
         public System.Windows.Forms.Label do_Label_DestPortFolderPath;
         public System.Windows.Forms.TextBox do_DestPortFolderPath;
         public System.Windows.Forms.Label do_Label_SourceFolderPath;
@@ -1411,7 +1400,7 @@
         private System.Windows.Forms.Label label_DebugMode;
         private System.Windows.Forms.GroupBox groupBox1;
         public System.Windows.Forms.Label label27;
-        public System.Windows.Forms.TextBox do_SampleFilePath;
+        public StandardTemplate.TextBoxEx do_SampleFilePath;
         public System.Windows.Forms.Button do_GetSampleParam;
         private System.Windows.Forms.TextBox cw_TextBox_Status;
         public System.Windows.Forms.TextBox pt_TextBox_Status;

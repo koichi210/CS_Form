@@ -193,18 +193,6 @@ namespace Cheetos
             LoadProfile(LoadFileName);
         }
 
-        private void ProfileLoad_Click(object sender, EventArgs e)
-        {
-            String LoadFileName = fio.SelectLoadFileName(SettingFileNameXml, userDataFolder);
-            if (String.IsNullOrEmpty(LoadFileName))
-            {
-                return;
-            }
-
-            LoadProfile(LoadFileName);
-            Profile.Text = Path.GetFileName(LoadFileName);
-        }
-
         // プルダウンで既存ファイルが選ばれている時は、毎回ダイアログを開かず
         // 「上書きしますか?」の確認だけで済ませられるようにする(EventRecorderと同じ挙動)
         private void ProfileSave_Click(object sender, EventArgs e)
@@ -220,6 +208,18 @@ namespace Cheetos
                 UpdateProfileListAll(Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
+        }
+
+        // Ctrl+Sで「設定値保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)
+        protected override Boolean ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                ProfileSave_Click(this, EventArgs.Empty);
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         // *******************************************************************************
