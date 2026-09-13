@@ -43,7 +43,7 @@ namespace EventRecorder
             this.button_Record = new System.Windows.Forms.Button();
             this.button_Clear = new System.Windows.Forms.Button();
             this.label_Loop = new System.Windows.Forms.Label();
-            this.textBox_Loop = new System.Windows.Forms.TextBox();
+            this.textBox_Loop = new StandardTemplate.TextBoxEx();
             this.button_Play = new System.Windows.Forms.Button();
             this.checkBox_MinimizeOnPlay = new System.Windows.Forms.CheckBox();
             this.comboBox_Profile = new System.Windows.Forms.ComboBox();
@@ -221,7 +221,7 @@ namespace EventRecorder
             this.textBox_Loop.Size = new System.Drawing.Size(48, 19);
             this.textBox_Loop.TabIndex = 5;
             this.textBox_Loop.Text = "1";
-            this.textBox_Loop.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_Loop_KeyDown);
+            this.textBox_Loop.EnableUpDownIncrement = true;
             // 
             // button_Play
             // 
@@ -533,7 +533,7 @@ namespace EventRecorder
         private System.Windows.Forms.Button button_Record;
         private System.Windows.Forms.Button button_Clear;
         private System.Windows.Forms.Label label_Loop;
-        internal System.Windows.Forms.TextBox textBox_Loop;
+        internal StandardTemplate.TextBoxEx textBox_Loop;
         private System.Windows.Forms.Button button_Play;
         internal System.Windows.Forms.CheckBox checkBox_MinimizeOnPlay;
         internal System.Windows.Forms.ComboBox comboBox_Profile;

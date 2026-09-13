@@ -957,28 +957,6 @@ namespace EventRecorder
             cell.Value = nextValue.ToString();
         }
 
-        // textBox_Loop(単発再生・プレイリスト全体ループ共通のループ数入力欄)で
-        // ↑/↓キーを押したら値を1つ増減する
-        private void textBox_Loop_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
-            {
-                return;
-            }
-
-            int delta = (e.KeyCode == Keys.Up) ? 1 : -1;
-
-            int current;
-            int.TryParse(textBox_Loop.Text, out current);
-            int next = Math.Max(1, (current <= 0 ? 1 : current) + delta);
-
-            textBox_Loop.Text = next.ToString();
-            textBox_Loop.SelectionStart = textBox_Loop.Text.Length;
-
-            e.Handled = true;
-            e.SuppressKeyPress = true;
-        }
-
         // 選択中のセルの中身を空にする(行そのものは削除しない。行削除は右クリックメニューの担当)。
         // 記録中/再生中は誤操作防止のため無効にする。複数セルをまとめて1回のCtrl+Zで
         // 戻せるよう、DataGridViewExのUndoバッチでまとめる
