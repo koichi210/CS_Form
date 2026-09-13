@@ -41,7 +41,7 @@
             this.cw_Radio_CurrentWindow = new System.Windows.Forms.RadioButton();
             this.cw_TextBox_SaveFilePrifix = new System.Windows.Forms.TextBox();
             this.label23 = new System.Windows.Forms.Label();
-            this.cw_TextBox_Loop = new System.Windows.Forms.TextBox();
+            this.cw_TextBox_Loop = new StandardTemplate.TextBoxEx();
             this.label18 = new System.Windows.Forms.Label();
             this.cw_TextBox_Sleep = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -313,6 +313,7 @@
             this.cw_TextBox_Loop.Size = new System.Drawing.Size(50, 19);
             this.cw_TextBox_Loop.TabIndex = 9;
             this.cw_TextBox_Loop.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.cw_TextBox_Loop.EnableUpDownIncrement = true;
             // 
             // label18
             // 
@@ -1353,7 +1354,7 @@
         public System.Windows.Forms.TextBox pt_TargetX;
         public System.Windows.Forms.ListBox pt_ListBox_ListUp;
         public System.Windows.Forms.Button pt_Button_Trim;
-        public System.Windows.Forms.TextBox cw_TextBox_Loop;
+        public StandardTemplate.TextBoxEx cw_TextBox_Loop;
         public System.Windows.Forms.Label label18;
         public System.Windows.Forms.ProgressBar ProgressBar_Status;
         private System.Windows.Forms.ComboBox Profile;

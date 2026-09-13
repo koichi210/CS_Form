@@ -23,6 +23,9 @@ namespace Cheetos
             cw_TextBox_Status.Text = "X=" + Cursor.Position.X.ToString() + ", Y=" + Cursor.Position.Y.ToString();
         }
 
+        // Captureボタンを押した瞬間のマウス座標。一連のCapture処理が終わったらここへ戻す
+        private Point captureStartCursorPosition;
+
         private void Button_Capture_Click(object sender, EventArgs e)
         {
             // 実行中だったら停止する
@@ -32,6 +35,8 @@ namespace Cheetos
                 cw.Stop();
                 return;
             }
+
+            captureStartCursorPosition = Cursor.Position;
 
             fio.IsExistDirectory(cw_TextBox_SavePath.Text, true);
             String FileBaseFormat = Logic.GetFileBaseFormat(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrifix.Text, cw_checkBox_AddTimeStump.Checked);
@@ -169,6 +174,9 @@ namespace Cheetos
                         }
                         Debug.WriteData("Capture: END" + Environment.NewLine);
                         TextBox_Status.Text += " 完了";
+
+                        // Capture処理が全て終わったら、ボタンを押した時のマウス座標へ戻す
+                        Cursor.Position = captureStartCursorPosition;
                     });
                 IsTaskRun = false;
             });
