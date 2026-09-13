@@ -371,6 +371,10 @@ namespace FFEdit
                 elements = Directory.GetDirectories(comboBox_TargetDir.Text, SerchPattern, opt);
             }
 
+            // 標準のstring比較だと"HOGE_2"より"HOGE_10"が先に来てしまうため、
+            // 数字部分を数値として比較する自然順ソート(NaturalStringComparer)で並べ替える
+            Array.Sort(elements, StandardTemplate.NaturalStringComparer.Instance);
+
             listBox.Items.Clear();
             for (int i = 0; i < elements.Length; i++)
             {

@@ -111,6 +111,9 @@
     <Compile Include="..\..\_Common\PathDroppedEventArgs.cs">
       <Link>PathDroppedEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\NaturalStringComparer.cs">
+      <Link>NaturalStringComparer.cs</Link>
+    </Compile>
     <Compile Include="TimeStump.cs" />
     <EmbeddedResource Include="ErrorMsg.resx">
       <DependentUpon>ErrorMsg.cs</DependentUpon>

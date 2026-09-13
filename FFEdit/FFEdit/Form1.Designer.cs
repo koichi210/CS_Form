@@ -193,7 +193,9 @@
             this.listBox.Name = "listBox";
             this.listBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.listBox.Size = new System.Drawing.Size(222, 424);
-            this.listBox.Sorted = true;
+            // 自前で自然順ソート(StandardTemplate.NaturalStringComparer)して追加するため、
+            // ListBox標準の(数字を桁数無視の辞書順で比べてしまう)Sortedは使わない
+            this.listBox.Sorted = false;
             this.listBox.TabIndex = 7;
             this.listBox.SelectedIndexChanged += new System.EventHandler(this.listBox_SelectedIndexChanged);
             this.listBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox_KeyDown);
