@@ -174,6 +174,18 @@ namespace FFEdit
             }
         }
 
+        // Ctrl+Sで「設定保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)
+        protected override Boolean ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                button_SaveSetting_Click(this, EventArgs.Empty);
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         // *******************************************************************************
         // データ保存先フォルダの変更(システムメニューから呼び出す)
         // ([[EventRecorder/Form1.cs]]の同名機能と同じ考え方。FFEditは設定ファイルが

@@ -120,7 +120,6 @@
             this.pf_textBox_TargetFile = new StandardTemplate.TextBoxEx();
             this.label5 = new System.Windows.Forms.Label();
             this.SaveSetting = new System.Windows.Forms.Button();
-            this.LoadSetting = new System.Windows.Forms.Button();
             this.comboBox_LoadSetting = new System.Windows.Forms.ComboBox();
             this.bgWorkerMove = new System.ComponentModel.BackgroundWorker();
             this.progressBar = new System.Windows.Forms.ProgressBar();
@@ -1285,33 +1284,21 @@
             this.SaveSetting.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.SaveSetting.Name = "SaveSetting";
             this.SaveSetting.Size = new System.Drawing.Size(142, 34);
-            this.SaveSetting.TabIndex = 5;
+            this.SaveSetting.TabIndex = 4;
             this.SaveSetting.Text = "設定値保存";
             this.SaveSetting.UseVisualStyleBackColor = true;
             this.SaveSetting.Click += new System.EventHandler(this.SaveSetting_Click);
-            // 
-            // LoadSetting
-            // 
-            this.LoadSetting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.LoadSetting.Location = new System.Drawing.Point(802, 910);
-            this.LoadSetting.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.LoadSetting.Name = "LoadSetting";
-            this.LoadSetting.Size = new System.Drawing.Size(142, 34);
-            this.LoadSetting.TabIndex = 4;
-            this.LoadSetting.Text = "設定値読込";
-            this.LoadSetting.UseVisualStyleBackColor = true;
-            this.LoadSetting.Click += new System.EventHandler(this.LoadSetting_Click);
-            // 
+            //
             // comboBox_LoadSetting
-            // 
-            this.comboBox_LoadSetting.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.comboBox_LoadSetting.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_LoadSetting.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_LoadSetting.FormattingEnabled = true;
             this.comboBox_LoadSetting.Location = new System.Drawing.Point(487, 914);
             this.comboBox_LoadSetting.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.comboBox_LoadSetting.Name = "comboBox_LoadSetting";
-            this.comboBox_LoadSetting.Size = new System.Drawing.Size(304, 26);
+            this.comboBox_LoadSetting.Size = new System.Drawing.Size(449, 26);
             this.comboBox_LoadSetting.TabIndex = 3;
             this.comboBox_LoadSetting.SelectedIndexChanged += new System.EventHandler(this.comboBox_LoadSetting_SelectedIndexChanged);
             // 
@@ -1367,7 +1354,6 @@
             this.Controls.Add(this.progressText);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.comboBox_LoadSetting);
-            this.Controls.Add(this.LoadSetting);
             this.Controls.Add(this.SaveSetting);
             this.Controls.Add(this.tabControl);
             this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -1444,7 +1430,6 @@
         public System.Windows.Forms.Button pf_button_Listup_Refrence;
         public System.Windows.Forms.Label label20;
         public System.Windows.Forms.TextBox rd_textBox_SearchTitleLength;
-        public System.Windows.Forms.Button LoadSetting;
         private System.Windows.Forms.ComboBox comboBox_LoadSetting;
         public System.Windows.Forms.CheckBox rd_checkBox_FileOpen;
         public System.Windows.Forms.Button pf_button_ClearSelect;

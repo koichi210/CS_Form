@@ -774,20 +774,6 @@ namespace FileArranger
             }
         }
 
-        private void LoadSetting_Click(object sender, EventArgs e)
-        {
-            String LoadFileName = fio.SelectLoadFileName(SettingFileNameXml, userDataFolder);
-            if (String.IsNullOrEmpty(LoadFileName))
-            {
-                return;
-            }
-
-            if (LoadProfile(LoadFileName))
-            {
-                comboBox_LoadSetting.Text = Path.GetFileName(LoadFileName);
-            }
-        }
-
         private void SaveSetting_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text, userDataFolder);
@@ -801,6 +787,18 @@ namespace FileArranger
                 UpdateProfileListAll(Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
+        }
+
+        // Ctrl+Sで「設定値保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)
+        protected override Boolean ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                SaveSetting_Click(this, EventArgs.Empty);
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         // *******************************************************************************
