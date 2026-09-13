@@ -69,12 +69,12 @@
             this.dateTimePicker_Days = new System.Windows.Forms.DateTimePicker();
             this.tabPage_Function = new System.Windows.Forms.TabPage();
             this.radioButton_Copy_Target = new System.Windows.Forms.RadioButton();
-            this.textBox_Function_Any_Directory = new System.Windows.Forms.TextBox();
+            this.textBox_Function_Any_Directory = new StandardTemplate.TextBoxEx();
             this.radioButton_Move_Target = new System.Windows.Forms.RadioButton();
             this.radioButton_Delete_BlankDir = new System.Windows.Forms.RadioButton();
             this.textBox_StatusBar = new System.Windows.Forms.TextBox();
             this.button_SaveSetting = new System.Windows.Forms.Button();
-            this.comboBox_TargetDir = new System.Windows.Forms.ComboBox();
+            this.comboBox_TargetDir = new StandardTemplate.ComboBoxEx();
             this.checkBox_Operatoin_AnyDir = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -699,9 +699,9 @@
         private System.Windows.Forms.TabPage tabPage_Function;
         private System.Windows.Forms.RadioButton radioButton_Delete_BlankDir;
         private System.Windows.Forms.RadioButton radioButton_Move_Target;
-        private System.Windows.Forms.TextBox textBox_Function_Any_Directory;
+        private StandardTemplate.TextBoxEx textBox_Function_Any_Directory;
         private System.Windows.Forms.Button button_SaveSetting;
-        public System.Windows.Forms.ComboBox comboBox_TargetDir;
+        public StandardTemplate.ComboBoxEx comboBox_TargetDir;
         public System.Windows.Forms.ComboBox comboBox_String2;
         public System.Windows.Forms.ComboBox comboBox_String1;
         private System.Windows.Forms.RadioButton radioButton_ChangeAddDirName;

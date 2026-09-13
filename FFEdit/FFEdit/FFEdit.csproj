@@ -102,6 +102,12 @@
     <Compile Include="..\..\_Common\DataFolderChooser.cs">
       <Link>DataFolderChooser.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\ComboBoxEx.cs">
+      <Link>ComboBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\TextBoxEx.cs">
+      <Link>TextBoxEx.cs</Link>
+    </Compile>
     <Compile Include="TimeStump.cs" />
     <EmbeddedResource Include="ErrorMsg.resx">
       <DependentUpon>ErrorMsg.cs</DependentUpon>
