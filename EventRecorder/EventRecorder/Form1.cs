@@ -2170,7 +2170,10 @@ namespace EventRecorder
 
         private void menuItem_PlaylistAddRow_Click(object sender, EventArgs e)
         {
-            int insertAt = (contextMenuPlaylistRowIndex >= 0) ? contextMenuPlaylistRowIndex + 1 : dataGridView_Playlist.Rows.Count;
+            // 全行削除直後など、行が無い状態で右クリックするとCellMouseDownが発火せず
+            // contextMenuPlaylistRowIndexが古い(削除済みの)行番号のまま残ることがあるため、範囲チェックする
+            Boolean isContextMenuRowIndexValid = contextMenuPlaylistRowIndex >= 0 && contextMenuPlaylistRowIndex < dataGridView_Playlist.Rows.Count;
+            int insertAt = isContextMenuRowIndexValid ? contextMenuPlaylistRowIndex + 1 : dataGridView_Playlist.Rows.Count;
             // 右クリックで能動的に追加した行は、すぐ使うつもりのはずなので実行チェックはONにしておく
             AddPlaylistRow(insertAt, isEnabled: true);
         }
@@ -2179,6 +2182,8 @@ namespace EventRecorder
         // 右クリックメニューの「行の追加」と、起動時の初期空行の両方から使う
         private void AddPlaylistRow(int insertAt, Boolean isEnabled)
         {
+            // 呼び出し元の計算ミスで範囲外indexが渡ってきても落ちないよう防御的にクランプする
+            insertAt = Math.Max(0, Math.Min(insertAt, dataGridView_Playlist.Rows.Count));
             dataGridView_Playlist.Rows.Insert(insertAt, 1);
 
             DataGridViewRow newRow = dataGridView_Playlist.Rows[insertAt];
