@@ -35,11 +35,11 @@
             this.cmn_textBox_AddList = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.cmn_button_Listup = new System.Windows.Forms.Button();
-            this.cmn_textBox_Reference = new System.Windows.Forms.TextBox();
+            this.cmn_textBox_Reference = new StandardTemplate.TextBoxEx();
             this.label28 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.tab_MoveDir = new System.Windows.Forms.TabPage();
-            this.md_comboBox_TargetDir = new System.Windows.Forms.ComboBox();
+            this.md_comboBox_TargetDir = new StandardTemplate.ComboBoxEx();
             this.md_button_MoveTopDir = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
             this.md_label_SelectNum = new System.Windows.Forms.Label();
@@ -48,7 +48,7 @@
             this.md_button_MoveSubDir = new System.Windows.Forms.Button();
             this.md_listBox_Listup = new System.Windows.Forms.ListBox();
             this.md_button_Listup = new System.Windows.Forms.Button();
-            this.md_textBox_SourceDir = new System.Windows.Forms.TextBox();
+            this.md_textBox_SourceDir = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tab_RenameDir = new System.Windows.Forms.TabPage();
@@ -84,18 +84,18 @@
             this.sf_button_Listup = new System.Windows.Forms.Button();
             this.sf_button_SortRestore = new System.Windows.Forms.Button();
             this.sf_button_Sort = new System.Windows.Forms.Button();
-            this.sf_textBox_TargetFile = new System.Windows.Forms.TextBox();
+            this.sf_textBox_TargetFile = new StandardTemplate.TextBoxEx();
             this.label16 = new System.Windows.Forms.Label();
             this.tab_MoveFile = new System.Windows.Forms.TabPage();
             this.label24 = new System.Windows.Forms.Label();
             this.mf_listBox_Target = new System.Windows.Forms.ListBox();
             this.label26 = new System.Windows.Forms.Label();
-            this.mf_textBox_TargetDir = new System.Windows.Forms.TextBox();
+            this.mf_textBox_TargetDir = new StandardTemplate.TextBoxEx();
             this.mf_label_SelectNum = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.mf_label_TotalNum = new System.Windows.Forms.Label();
             this.mf_button_Listup = new System.Windows.Forms.Button();
-            this.mf_textBox_SourceDir = new System.Windows.Forms.TextBox();
+            this.mf_textBox_SourceDir = new StandardTemplate.TextBoxEx();
             this.mf_button_MoveFile = new System.Windows.Forms.Button();
             this.tab_PartitionFile = new System.Windows.Forms.TabPage();
             this.pf_checkBox_CreateNewDir = new System.Windows.Forms.CheckBox();
@@ -105,7 +105,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.pf_textBox_SearchTitleLength = new System.Windows.Forms.TextBox();
             this.pf_button_Listup_Refrence = new System.Windows.Forms.Button();
-            this.pf_comboBox_MoveDestDirName = new System.Windows.Forms.ComboBox();
+            this.pf_comboBox_MoveDestDirName = new StandardTemplate.ComboBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.pf_textBox_SearchTitleLine = new System.Windows.Forms.TextBox();
             this.pf_textBox_RefrenceFile = new System.Windows.Forms.TextBox();
@@ -117,7 +117,7 @@
             this.pf_button_Listup_Target = new System.Windows.Forms.Button();
             this.pf_listView_Target = new System.Windows.Forms.ListView();
             this.pf_button_CreateFolderAndMoveFile = new System.Windows.Forms.Button();
-            this.pf_textBox_TargetFile = new System.Windows.Forms.TextBox();
+            this.pf_textBox_TargetFile = new StandardTemplate.TextBoxEx();
             this.label5 = new System.Windows.Forms.Label();
             this.SaveSetting = new System.Windows.Forms.Button();
             this.LoadSetting = new System.Windows.Forms.Button();
@@ -126,7 +126,7 @@
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.progressText = new System.Windows.Forms.TextBox();
             this.bgPartition = new System.ComponentModel.BackgroundWorker();
-            this.rd_comboBox_RenameDir = new System.Windows.Forms.ComboBox();
+            this.rd_comboBox_RenameDir = new StandardTemplate.ComboBoxEx();
             this.tabControl.SuspendLayout();
             this.tab_Common.SuspendLayout();
             this.tab_MoveDir.SuspendLayout();
@@ -1400,7 +1400,7 @@
         public System.Windows.Forms.TabPage tab_RenameDir;
         public System.Windows.Forms.TabPage tab_PartitionFile;
         public System.Windows.Forms.ListView rd_listView_Target;
-        public System.Windows.Forms.TextBox md_textBox_SourceDir;
+        public StandardTemplate.TextBoxEx md_textBox_SourceDir;
         public System.Windows.Forms.Label label2;
         public System.Windows.Forms.Label label1;
         public System.Windows.Forms.Button md_button_Listup;
@@ -1408,7 +1408,7 @@
         public System.Windows.Forms.Button rd_button_Listup_Target;
         public System.Windows.Forms.Label label4;
         public System.Windows.Forms.Button pf_button_CreateFolderAndMoveFile;
-        public System.Windows.Forms.TextBox pf_textBox_TargetFile;
+        public StandardTemplate.TextBoxEx pf_textBox_TargetFile;
         public System.Windows.Forms.Label label5;
         public System.Windows.Forms.Button rd_button_Listup_Item;
         public System.Windows.Forms.TextBox rd_textBox_ExistItemDir;
@@ -1431,7 +1431,7 @@
         public System.Windows.Forms.Label md_label_TotalNum;
         public System.Windows.Forms.Label pf_label_TotalNum;
         public System.Windows.Forms.TabPage tab_SortFileRename;
-        public System.Windows.Forms.TextBox sf_textBox_TargetFile;
+        public StandardTemplate.TextBoxEx sf_textBox_TargetFile;
         public System.Windows.Forms.Label label16;
         public System.Windows.Forms.Button sf_button_Sort;
         public System.Windows.Forms.Label label17;
@@ -1440,7 +1440,7 @@
         public System.Windows.Forms.Label pf_label_RefrenceFile;
         public System.Windows.Forms.Button sf_button_Listup;
         private System.Windows.Forms.Label sf_label_TotalNum;
-        public System.Windows.Forms.ComboBox pf_comboBox_MoveDestDirName;
+        public StandardTemplate.ComboBoxEx pf_comboBox_MoveDestDirName;
         public System.Windows.Forms.Button pf_button_Listup_Refrence;
         public System.Windows.Forms.Label label20;
         public System.Windows.Forms.TextBox rd_textBox_SearchTitleLength;
@@ -1458,12 +1458,12 @@
         private System.Windows.Forms.Label sf_label_SelectNum;
         private System.Windows.Forms.TabPage tab_MoveFile;
         public System.Windows.Forms.Label label26;
-        public System.Windows.Forms.TextBox mf_textBox_TargetDir;
+        public StandardTemplate.TextBoxEx mf_textBox_TargetDir;
         private System.Windows.Forms.Label mf_label_SelectNum;
         public System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label mf_label_TotalNum;
         public System.Windows.Forms.Button mf_button_Listup;
-        public System.Windows.Forms.TextBox mf_textBox_SourceDir;
+        public StandardTemplate.TextBoxEx mf_textBox_SourceDir;
         public System.Windows.Forms.Button mf_button_MoveFile;
         public System.Windows.Forms.ListBox mf_listBox_Target;
         public System.Windows.Forms.ListBox sf_listBox_Target;
@@ -1483,7 +1483,7 @@
         private System.Windows.Forms.TabPage tab_Common;
         private System.Windows.Forms.Label label27;
         public System.Windows.Forms.Button cmn_button_Listup;
-        public System.Windows.Forms.TextBox cmn_textBox_Reference;
+        public StandardTemplate.TextBoxEx cmn_textBox_Reference;
         public System.Windows.Forms.Label label28;
         public System.Windows.Forms.Button md_button_MoveTopDir;
         public System.Windows.Forms.TextBox cmn_textBox_AddList;
@@ -1491,9 +1491,9 @@
         public System.Windows.Forms.TextBox cmn_textBox_AddListSuffix;
         public System.Windows.Forms.Label label7;
         public System.Windows.Forms.CheckBox pf_checkBox_CreateNewDir;
-        public System.Windows.Forms.ComboBox md_comboBox_TargetDir;
+        public StandardTemplate.ComboBoxEx md_comboBox_TargetDir;
         public System.Windows.Forms.ComboBox rd_comboBox_AddTitlePostWord;
-        public System.Windows.Forms.ComboBox rd_comboBox_RenameDir;
+        public StandardTemplate.ComboBoxEx rd_comboBox_RenameDir;
     }
 }
 

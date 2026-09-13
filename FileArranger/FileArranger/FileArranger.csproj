@@ -83,6 +83,12 @@
     <Compile Include="..\..\_Common\DataFolderChooser.cs">
       <Link>DataFolderChooser.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\ComboBoxEx.cs">
+      <Link>ComboBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\TextBoxEx.cs">
+      <Link>TextBoxEx.cs</Link>
+    </Compile>
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
