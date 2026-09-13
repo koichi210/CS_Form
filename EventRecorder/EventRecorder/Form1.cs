@@ -213,6 +213,19 @@ namespace EventRecorder
             AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeDataFolder, "データ保存先を変更(&D)...");
         }
 
+        // Ctrl+Sでプロファイル保存(button_ProfileSave_Click)を呼ぶ。
+        // テキストボックス等にフォーカスがあっても拾えるよう、個別のKeyDownではなくここで処理する
+        protected override Boolean ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                button_ProfileSave_Click(this, EventArgs.Empty);
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         protected override void WndProc(ref Message m)
         {
             if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt32() & 0xFFF0) == SysMenuId_ChangeDataFolder)
@@ -1813,6 +1826,23 @@ namespace EventRecorder
             util.SetComboBoxText(comboBox_Profile, defaultProfileName);
         }
 
+        // UpdateProfileListAllは内部でItems.Clear()するため、comboBox_Profileの選択がいったん
+        // 外れてSelectedIndexChanged(=プロファイルの再読み込み。プレイリストもクリアされる)が
+        // 誤発火してしまう。保存直後は一覧の見た目を最新化したいだけで、選び直したわけではないので、
+        // イベントを一時的に外してから呼ぶ
+        private void UpdateProfileListAllWithoutReload(String defaultProfileName)
+        {
+            comboBox_Profile.SelectedIndexChanged -= comboBox_Profile_SelectedIndexChanged;
+            try
+            {
+                UpdateProfileListAll(defaultProfileName);
+            }
+            finally
+            {
+                comboBox_Profile.SelectedIndexChanged += comboBox_Profile_SelectedIndexChanged;
+            }
+        }
+
         // 読込ボタンと同じ感覚で使えるよう、「現在のファイルに上書きしますか?」の確認は挟まず、
         // 常にダイアログを直接開く(SelectSaveFileNameのCheetos流の確認ステップはあえて使わない)
         private void button_ProfileSave_Click(object sender, EventArgs e)
@@ -1822,18 +1852,24 @@ namespace EventRecorder
             // プルダウンが空の時は、従来通りファイル選択ダイアログを出す
             if (!String.IsNullOrEmpty(comboBox_Profile.Text))
             {
+                // はい=上書き保存、いいえ=別名で保存(ダイアログへ進む)、キャンセル=何もせず終了
                 DialogResult overwriteResult = MessageBox.Show(
                     comboBox_Profile.Text + " を上書きしますか?",
                     "上書き確認",
-                    MessageBoxButtons.YesNo,
+                    MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question);
+
+                if (overwriteResult == DialogResult.Cancel)
+                {
+                    return;
+                }
 
                 if (overwriteResult == DialogResult.Yes)
                 {
                     String overwriteFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
                     if (SaveProfile(overwriteFileName))
                     {
-                        UpdateProfileListAll(System.IO.Path.GetFileName(overwriteFileName));
+                        UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(overwriteFileName));
                         SyncPlaylistFileItems();
                     }
                     return;
@@ -1856,7 +1892,7 @@ namespace EventRecorder
             String SaveFileName = dlg.FileName;
             if (SaveProfile(SaveFileName))
             {
-                UpdateProfileListAll(System.IO.Path.GetFileName(SaveFileName));
+                UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(SaveFileName));
                 SyncPlaylistFileItems();
             }
         }

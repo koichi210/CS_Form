@@ -171,14 +171,14 @@ namespace EventRecorder
             // 
             this.menuItem_AddRow.Name = "menuItem_AddRow";
             this.menuItem_AddRow.Size = new System.Drawing.Size(120, 22);
-            this.menuItem_AddRow.Text = "行の追加";
+            this.menuItem_AddRow.Text = "行の追加(&A)";
             this.menuItem_AddRow.Click += new System.EventHandler(this.menuItem_AddRow_Click);
             // 
             // menuItem_DeleteRow
             // 
             this.menuItem_DeleteRow.Name = "menuItem_DeleteRow";
             this.menuItem_DeleteRow.Size = new System.Drawing.Size(120, 22);
-            this.menuItem_DeleteRow.Text = "行の削除";
+            this.menuItem_DeleteRow.Text = "行の削除(&D)";
             this.menuItem_DeleteRow.Click += new System.EventHandler(this.menuItem_DeleteRow_Click);
             // 
             // button_Record
