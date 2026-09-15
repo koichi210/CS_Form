@@ -41,11 +41,15 @@ namespace EventRecorder
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_DeleteRow = new System.Windows.Forms.ToolStripMenuItem();
             this.button_Record = new System.Windows.Forms.Button();
-            this.button_Clear = new System.Windows.Forms.Button();
             this.label_Loop = new System.Windows.Forms.Label();
             this.textBox_Loop = new StandardTemplate.TextBoxEx();
             this.button_Play = new System.Windows.Forms.Button();
             this.checkBox_MinimizeOnPlay = new System.Windows.Forms.CheckBox();
+            this.checkBox_HideFromTaskbar = new System.Windows.Forms.CheckBox();
+            this.notifyIcon_Tray = new System.Windows.Forms.NotifyIcon(this.components);
+            this.contextMenuStrip_Tray = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuItem_TrayRestore = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_TrayExit = new System.Windows.Forms.ToolStripMenuItem();
             this.comboBox_Profile = new System.Windows.Forms.ComboBox();
             this.button_ProfileSave = new System.Windows.Forms.Button();
             this.label_MousePos = new System.Windows.Forms.Label();
@@ -79,6 +83,7 @@ namespace EventRecorder
             this.groupBox_Playback.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Playlist)).BeginInit();
             this.contextMenuStrip_Playlist.SuspendLayout();
+            this.contextMenuStrip_Tray.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView_Events
@@ -116,7 +121,7 @@ namespace EventRecorder
             this.col_Type.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Type.HeaderText = "Event";
             this.col_Type.Name = "col_Type";
-            this.col_Type.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.col_Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.col_Type.Width = 87;
             // 
             // col_Detail
@@ -124,7 +129,7 @@ namespace EventRecorder
             this.col_Detail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.col_Detail.HeaderText = "Detail";
             this.col_Detail.Name = "col_Detail";
-            this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.col_Detail.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.col_Detail.Width = 72;
             // 
             // col_Wait
@@ -191,18 +196,7 @@ namespace EventRecorder
             this.button_Record.Text = "記録";
             this.button_Record.UseVisualStyleBackColor = true;
             this.button_Record.Click += new System.EventHandler(this.button_Record_Click);
-            // 
-            // button_Clear
-            // 
-            this.button_Clear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_Clear.Location = new System.Drawing.Point(92, 261);
-            this.button_Clear.Name = "button_Clear";
-            this.button_Clear.Size = new System.Drawing.Size(80, 27);
-            this.button_Clear.TabIndex = 2;
-            this.button_Clear.Text = "クリア";
-            this.button_Clear.UseVisualStyleBackColor = true;
-            this.button_Clear.Click += new System.EventHandler(this.button_Clear_Click);
-            // 
+            //
             // label_Loop
             // 
             this.label_Loop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -244,7 +238,49 @@ namespace EventRecorder
             this.checkBox_MinimizeOnPlay.TabIndex = 7;
             this.checkBox_MinimizeOnPlay.Text = "実行時にウィンドウを最小化する";
             this.checkBox_MinimizeOnPlay.UseVisualStyleBackColor = true;
-            // 
+            //
+            // checkBox_HideFromTaskbar
+            //
+            this.checkBox_HideFromTaskbar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox_HideFromTaskbar.AutoSize = true;
+            this.checkBox_HideFromTaskbar.Location = new System.Drawing.Point(400, 337);
+            this.checkBox_HideFromTaskbar.Name = "checkBox_HideFromTaskbar";
+            this.checkBox_HideFromTaskbar.Size = new System.Drawing.Size(176, 16);
+            this.checkBox_HideFromTaskbar.TabIndex = 8;
+            this.checkBox_HideFromTaskbar.Text = "タスクバーのアイコン非表示";
+            this.checkBox_HideFromTaskbar.UseVisualStyleBackColor = true;
+            this.checkBox_HideFromTaskbar.CheckedChanged += new System.EventHandler(this.checkBox_HideFromTaskbar_CheckedChanged);
+            //
+            // notifyIcon_Tray
+            //
+            this.notifyIcon_Tray.ContextMenuStrip = this.contextMenuStrip_Tray;
+            this.notifyIcon_Tray.Text = "EventRecorder";
+            this.notifyIcon_Tray.Visible = false;
+            this.notifyIcon_Tray.DoubleClick += new System.EventHandler(this.notifyIcon_Tray_DoubleClick);
+            //
+            // contextMenuStrip_Tray
+            //
+            this.contextMenuStrip_Tray.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStrip_Tray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItem_TrayRestore,
+            this.menuItem_TrayExit});
+            this.contextMenuStrip_Tray.Name = "contextMenuStrip_Tray";
+            this.contextMenuStrip_Tray.Size = new System.Drawing.Size(120, 48);
+            //
+            // menuItem_TrayRestore
+            //
+            this.menuItem_TrayRestore.Name = "menuItem_TrayRestore";
+            this.menuItem_TrayRestore.Size = new System.Drawing.Size(119, 22);
+            this.menuItem_TrayRestore.Text = "元に戻す(&R)";
+            this.menuItem_TrayRestore.Click += new System.EventHandler(this.menuItem_TrayRestore_Click);
+            //
+            // menuItem_TrayExit
+            //
+            this.menuItem_TrayExit.Name = "menuItem_TrayExit";
+            this.menuItem_TrayExit.Size = new System.Drawing.Size(119, 22);
+            this.menuItem_TrayExit.Text = "終了(&X)";
+            this.menuItem_TrayExit.Click += new System.EventHandler(this.menuItem_TrayExit_Click);
+            //
             // comboBox_Profile
             // 
             this.comboBox_Profile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -255,7 +291,7 @@ namespace EventRecorder
             this.comboBox_Profile.Name = "comboBox_Profile";
             this.comboBox_Profile.Size = new System.Drawing.Size(456, 20);
             this.comboBox_Profile.Sorted = true;
-            this.comboBox_Profile.TabIndex = 8;
+            this.comboBox_Profile.TabIndex = 9;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             // 
             // button_ProfileSave
@@ -264,7 +300,7 @@ namespace EventRecorder
             this.button_ProfileSave.Location = new System.Drawing.Point(474, 361);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(108, 23);
-            this.button_ProfileSave.TabIndex = 9;
+            this.button_ProfileSave.TabIndex = 10;
             this.button_ProfileSave.Text = "プロファイル保存";
             this.button_ProfileSave.UseVisualStyleBackColor = true;
             this.button_ProfileSave.Click += new System.EventHandler(this.button_ProfileSave_Click);
@@ -331,7 +367,6 @@ namespace EventRecorder
             // 
             this.groupBox_Record.Controls.Add(this.dataGridView_Events);
             this.groupBox_Record.Controls.Add(this.button_Record);
-            this.groupBox_Record.Controls.Add(this.button_Clear);
             this.groupBox_Record.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox_Record.Location = new System.Drawing.Point(0, 0);
             this.groupBox_Record.Name = "groupBox_Record";
@@ -387,6 +422,7 @@ namespace EventRecorder
             this.dataGridView_Playlist.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView_Events_RowPostPaint);
             this.dataGridView_Playlist.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridView_Playlist_DragDrop);
             this.dataGridView_Playlist.DragOver += new System.Windows.Forms.DragEventHandler(this.dataGridView_Playlist_DragOver);
+            this.dataGridView_Playlist.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dataGridView_Playlist_EditingControlShowing);
             this.dataGridView_Playlist.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView_Playlist_KeyDown);
             this.dataGridView_Playlist.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dataGridView_Playlist_MouseDown);
             this.dataGridView_Playlist.MouseMove += new System.Windows.Forms.MouseEventHandler(this.dataGridView_Playlist_MouseMove);
@@ -499,6 +535,7 @@ namespace EventRecorder
             this.Controls.Add(this.comboBox_Profile);
             this.Controls.Add(this.button_Play);
             this.Controls.Add(this.checkBox_MinimizeOnPlay);
+            this.Controls.Add(this.checkBox_HideFromTaskbar);
             this.Controls.Add(this.textBox_Loop);
             this.Controls.Add(this.label_Loop);
             this.MinimumSize = new System.Drawing.Size(427, 257);
@@ -515,6 +552,7 @@ namespace EventRecorder
             this.groupBox_Playback.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Playlist)).EndInit();
             this.contextMenuStrip_Playlist.ResumeLayout(false);
+            this.contextMenuStrip_Tray.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -531,11 +569,15 @@ namespace EventRecorder
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Detail;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Remarks;
         private System.Windows.Forms.Button button_Record;
-        private System.Windows.Forms.Button button_Clear;
         private System.Windows.Forms.Label label_Loop;
         internal StandardTemplate.TextBoxEx textBox_Loop;
         private System.Windows.Forms.Button button_Play;
         internal System.Windows.Forms.CheckBox checkBox_MinimizeOnPlay;
+        internal System.Windows.Forms.CheckBox checkBox_HideFromTaskbar;
+        private System.Windows.Forms.NotifyIcon notifyIcon_Tray;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Tray;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_TrayRestore;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_TrayExit;
         internal System.Windows.Forms.ComboBox comboBox_Profile;
         private System.Windows.Forms.Button button_ProfileSave;
         internal System.Windows.Forms.Label label_MousePos;

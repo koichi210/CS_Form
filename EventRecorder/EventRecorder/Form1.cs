@@ -23,10 +23,13 @@ namespace EventRecorder
         // 今操作中のプレイリストが上書きされてしまうため、記録データだけを登録した別インスタンスで分離する
         private SaveRestore playbackLoader = new SaveRestore();
 
-        // 記録中/再生中フラグ
-        private Boolean isRecording = false;
-        private Boolean isPlaying = false;
-        private Boolean stopPlayRequested = false;
+        // 記録中/再生中フラグ。UIスレッド(ボタンクリック・グローバルホットキー)と
+        // 再生用バックグラウンドスレッド(Task.Run側)の両方から読み書きされるため、
+        // volatileでスレッド間の可視性を保証する(付けないと、最適化次第でバックグラウンド
+        // スレッド側がstopPlayRequestedの変化に気づかないまま待機し続ける可能性があった)
+        private volatile Boolean isRecording = false;
+        private volatile Boolean isPlaying = false;
+        private volatile Boolean stopPlayRequested = false;
 
         // タイトルバーに表示する再生中のループ進捗。「全体ループ」はプレイリストの
         // 全体周回(単発再生では常に1/1)、「ループ」はPlayRows呼び出し1回あたりの
@@ -61,13 +64,19 @@ namespace EventRecorder
         // タイトルバーの基本文字列。記録中/再生中はここに状態を追記する
         private const String BaseTitle = "EventRecorder";
 
-        // 記録開始/停止のホットキー。ボタンクリックだとクリック自体のマウスイベントが
-        // 記録に混ざってしまうため、キー操作で完結できるようにしている
-        private const Keys HotkeyToggleRecord = Keys.F1;
+        // 記録/再生の切り替えホットキー(ボタンクリックだとクリック自体のマウスイベントが
+        // 記録に混ざってしまうため、キー操作で完結できるようにしている)。
+        // ユーザーが設定画面([[HotkeySettingsForm]]、システムメニューから開く)で変更でき、
+        // 変更内容はEventRecorder.json(userDataFolder配下、ウィンドウサイズ等と共通の
+        // アプリ設定ファイル)に保存される。既定値はHotkeyDefaults([[HotkeyDefaults.cs]])に
+        // 集約してあり、設定画面の「初期値に戻す」も同じ値を参照する
+        private Keys hotkeyToggleRecord = HotkeyDefaults.Record;
+        private Keys hotkeyTogglePlay = HotkeyDefaults.Play;
 
-        // 再生開始/停止のホットキー。IME変換キー単独、またはShift+F2のどちらでも発動する
-        private const Keys HotkeyTogglePlay = Keys.IMEConvert;
-        private const Keys HotkeyTogglePlayAlt = Keys.F2;
+        // キーバインド設定画面([[HotkeySettingsForm]])を開いている間だけtrueにする。
+        // 開いている間はOnKeyboardEventの処理そのものを止め、テストで押したキーが
+        // 記録/再生のホットキーとして誤発動しないようにする(ChangeHotkeys参照)
+        private Boolean isHotkeySettingsOpen = false;
 
         // 記録したがまだDataGridViewに反映していない行(フックのコールバックを
         // 描画待ちで塞がないよう、一旦ここに貯めてタイマーでまとめて反映する)
@@ -76,11 +85,6 @@ namespace EventRecorder
 
         // マウスカーソル座標の常時表示用タイマー
         private System.Windows.Forms.Timer mousePosTimer;
-
-        // 起動時に自動読込するデフォルトの設定ファイル名(Cheetosに倣う)。
-        // 今後はJSON保存が主流になっていく想定なので、JSON版が存在すればそちらを優先する
-        private readonly String SettingFileNameXml = @"EventRecorder.xml";
-        private readonly String SettingFileNameJson = @"EventRecorder.json";
 
         // マクロ・プレイリストのユーザーデータ置き場。exe直下(bin/Debug、bin/Release)は
         // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
@@ -95,6 +99,10 @@ namespace EventRecorder
         // 元のサイズに戻った時のOnSizeChangedで正しく再計算させる
         protected override void OnSizeChanged(EventArgs e)
         {
+            // checkBox_HideFromTaskbarがオンなら、最小化/復元のたびにタスクバー表示と
+            // システムトレイ表示を切り替える(手動最小化・再生時の自動最小化のどちらでも働く)
+            UpdateTaskbarVisibility();
+
             if (this.WindowState == FormWindowState.Minimized)
             {
                 return;
@@ -103,14 +111,56 @@ namespace EventRecorder
             base.OnSizeChanged(e);
         }
 
+        // checkBox_HideFromTaskbarがオンかつ最小化中の時だけ、タスクバーから消してシステム
+        // トレイアイコンを表示する。それ以外(オフ、または最小化されていない)は通常通り
+        // タスクバーに表示しトレイアイコンは消す。OnSizeChanged(最小化/復元の切り替え時)と
+        // checkBox_HideFromTaskbar_CheckedChanged(最小化中にチェックを変えた時)の両方から呼ぶ
+        private void UpdateTaskbarVisibility()
+        {
+            Boolean shouldHideFromTaskbar = checkBox_HideFromTaskbar.Checked
+                && this.WindowState == FormWindowState.Minimized;
+
+            this.ShowInTaskbar = !shouldHideFromTaskbar;
+            notifyIcon_Tray.Visible = shouldHideFromTaskbar;
+        }
+
+        private void checkBox_HideFromTaskbar_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateTaskbarVisibility();
+        }
+
+        // トレイアイコンのダブルクリック/右クリックメニュー「元に戻す」共通の復元処理
+        private void RestoreFromTray()
+        {
+            this.WindowState = FormWindowState.Normal;
+            this.Activate();
+        }
+
+        private void notifyIcon_Tray_DoubleClick(object sender, EventArgs e)
+        {
+            RestoreFromTray();
+        }
+
+        private void menuItem_TrayRestore_Click(object sender, EventArgs e)
+        {
+            RestoreFromTray();
+        }
+
+        private void menuItem_TrayExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         public Form1()
         {
             InitializeComponent();
 
-            // ダイアログのサイズ+splitContainer_Mainの境界線位置を前回終了時の状態で復元する
-            LoadWindowLayout();
+            // ウィンドウサイズ+splitContainer_Mainの境界線位置+ホットキーを、前回終了時の
+            // 状態(EventRecorder.json、無ければ既定値のまま)で復元する
+            LoadAppSettings();
 
             this.Icon = Properties.Resources.EventRecorder;
+            notifyIcon_Tray.Icon = Properties.Resources.EventRecorder;
             util.SetCurrentDirectory();
 
             // DataGridViewの標準実装は行追加のたびにチラつき/再描画コストが出やすいため、
@@ -146,12 +196,10 @@ namespace EventRecorder
             sr.RegistItem(this);
             playbackLoader.RegistItemForPlayback(this);
 
-            // 起動時にデフォルト設定を読み込み、コンボボックスに設定ファイル一覧を表示する(Cheetosと同じ手順)。
-            // どちらもuserDataFolder(exe直下ではない)を対象にする
-            String defaultJsonPath = System.IO.Path.Combine(userDataFolder, SettingFileNameJson);
-            String defaultXmlPath = System.IO.Path.Combine(userDataFolder, SettingFileNameXml);
-            String defaultSettingPath = System.IO.File.Exists(defaultJsonPath) ? defaultJsonPath : defaultXmlPath;
-            LoadProfile(defaultSettingPath);
+            // userDataFolder(exe直下ではない)配下のプロファイル一覧をコンボボックスに表示する。
+            // 「デフォルトで読み込むプロファイル」という特別な予約ファイル名は用意しておらず、
+            // 一覧に一致するものが無い(=""を渡す)とutil.SetComboBoxTextが一覧の先頭を選ぶ
+            // 仕様になっているため、それがそのまま「起動時は一覧の先頭を読み込む」動作になる
             UpdateProfileListAll("");
 
             // プレイリストの設定ファイル列(col_PlaylistFile)は、comboBox_Profileと全く同じ
@@ -166,8 +214,8 @@ namespace EventRecorder
 
             // プレイリストが空のままだと使うたびに毎回「行の追加」を押す羽目になるため、
             // 起動時点で編集開始しやすいよう空行を2行用意しておく。
-            // ただし、直前のsr.LoadProc(SettingFileName, this)でデフォルト設定ファイルから
-            // 既にプレイリストの中身が読み込まれていた場合は、その内容を優先する
+            // ただし、直前のUpdateProfileListAll("")が(一覧の先頭を選ぶことで)自動的に読み込んだ
+            // プロファイルに、既にプレイリストの中身が入っていた場合は、その内容を優先する
             // (プルダウンが空=何も読み込まれなかった時だけ、無条件の空2行を追加する)
             if (dataGridView_Playlist.Rows.Count == 0)
             {
@@ -201,6 +249,7 @@ namespace EventRecorder
         // システムコマンドのIDは下位4bitをWindowsが予約しているため、16の倍数かつ
         // 0xF000未満にする必要がある(MSDN既定のルール)
         private const int SysMenuId_ChangeDataFolder = 0x1000;
+        private const int SysMenuId_ChangeHotkeys = 0x1010;
 
         // ウィンドウハンドルが確定したタイミングでシステムメニューに項目を追加する
         // (コンストラクタの時点ではまだthis.Handleが未確定のため、ここで行う)
@@ -211,6 +260,7 @@ namespace EventRecorder
             IntPtr systemMenu = GetSystemMenu(this.Handle, false);
             AppendMenu(systemMenu, MF_SEPARATOR, 0, String.Empty);
             AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeDataFolder, "データ保存先を変更(&D)...");
+            AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeHotkeys, "キーバインドを設定(&K)...");
         }
 
         // Ctrl+Sでプロファイル保存(button_ProfileSave_Click)を呼ぶ。
@@ -228,13 +278,70 @@ namespace EventRecorder
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt32() & 0xFFF0) == SysMenuId_ChangeDataFolder)
+            if (m.Msg == WM_SYSCOMMAND)
             {
-                ChangeDataFolder();
-                return;
+                int sysCommandId = m.WParam.ToInt32() & 0xFFF0;
+                if (sysCommandId == SysMenuId_ChangeDataFolder)
+                {
+                    ChangeDataFolder();
+                    return;
+                }
+                if (sysCommandId == SysMenuId_ChangeHotkeys)
+                {
+                    ChangeHotkeys();
+                    return;
+                }
             }
 
             base.WndProc(ref m);
+        }
+
+        // キーバインド設定画面([[HotkeySettingsForm]])を開き、「保存」で閉じられたら
+        // 現在有効なホットキーとEventRecorder.jsonの両方を更新する
+        private void ChangeHotkeys()
+        {
+            if (isRecording || isPlaying)
+            {
+                MessageBox.Show(
+                    "記録中/再生中は変更できないよ。停止してから試してね",
+                    "EventRecorder - キーバインド設定",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 設定画面を開いている間は、テキストボックスに試しに入力したキーが
+            // グローバルフック(OnKeyboardEvent)側にも同時に届いて、記録/再生の
+            // ホットキーとして誤発動してしまう(ダイアログはモーダルでも、低レベルの
+            // キーボードフックはウィンドウのフォーカスと無関係に効き続けるため)。
+            // isHotkeySettingsOpen中はOnKeyboardEventの先頭で処理そのものを止めてこれを防ぐ
+            isHotkeySettingsOpen = true;
+            try
+            {
+                using (HotkeySettingsForm form = new HotkeySettingsForm(hotkeyToggleRecord, hotkeyTogglePlay))
+                {
+                    if (form.ShowDialog(this) != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    hotkeyToggleRecord = form.RecordHotkey;
+                    hotkeyTogglePlay = form.PlayHotkey;
+
+                    if (!SaveAppSettings())
+                    {
+                        MessageBox.Show(
+                            "キーバインド設定の保存に失敗したよ。今回のセッションだけは新しい設定のまま動くよ",
+                            "EventRecorder - キーバインド設定",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            finally
+            {
+                isHotkeySettingsOpen = false;
+            }
         }
 
         // 保存先フォルダを選び直し、exe直下のポインタファイル(DataFolder.txt)を書き換える。
@@ -298,13 +405,13 @@ namespace EventRecorder
         }
 
         // oldFolder直下(サブフォルダは対象外)にある*.xml/*.jsonプロファイルをnewFolderへ移動する。
-        // WindowLayout.json(アプリの設定ファイル、プロファイルではない)は対象外。
+        // EventRecorder.json(アプリの設定ファイル、プロファイルではない)は対象外。
         // 移動先に同名ファイルが既にある場合は、上書きせずスキップする(データ消失を避けるため)
         private void MoveExistingProfiles(String oldFolder, String newFolder)
         {
             List<String> profileFiles = System.IO.Directory.GetFiles(oldFolder, "*.xml")
                 .Concat(System.IO.Directory.GetFiles(oldFolder, "*.json")
-                    .Where(f => !String.Equals(System.IO.Path.GetFileName(f), WindowLayoutFileName, StringComparison.OrdinalIgnoreCase)))
+                    .Where(f => !IsNonProfileSettingFile(f)))
                 .ToList();
 
             List<String> movedFiles = new List<String>();
@@ -360,7 +467,7 @@ namespace EventRecorder
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveWindowLayout();
+            SaveAppSettings();
 
             gridFlushTimer.Stop();
             mousePosTimer.Stop();
@@ -368,39 +475,59 @@ namespace EventRecorder
             GlobalHook.KeyboardHook.Stop();
         }
 
-        // ウィンドウサイズ+splitContainer_Mainの境界線位置を保存するファイル名。
+        // アプリ本体の設定(ウィンドウサイズ+splitContainer_Mainの境界線位置+ホットキー)を
+        // まとめて保存するファイル名。ツール名そのものにしてあるので、ユーザーがこの名前で
+        // プロファイルを保存することはまず無い、という前提の名前(意図的な予約名)。
         // プロファイル(マクロ)一覧には出したくないので、UpdateProfileListAllで除外している
-        private const String WindowLayoutFileName = "WindowLayout.json";
+        private const String AppSettingsFileName = "EventRecorder.json";
 
-        // 起動時、前回終了時のウィンドウサイズ+境界線位置を復元する。保存ファイルが無い/
-        // 壊れている場合は何もしない(Designer既定のサイズ・境界線位置のまま)
-        private void LoadWindowLayout()
+        // userDataFolder直下にプロファイルと混在して置かれる、アプリ自体の設定ファイル
+        // (EventRecorder.json)かどうかを判定する。プロファイル一覧(UpdateProfileListAll)や
+        // 引っ越し(MoveExistingProfiles)で誤って対象にしてしまわないよう、両方から共通で参照する
+        private static Boolean IsNonProfileSettingFile(String filePath)
         {
-            String path = System.IO.Path.Combine(userDataFolder, WindowLayoutFileName);
+            String fileName = System.IO.Path.GetFileName(filePath);
+            return String.Equals(fileName, AppSettingsFileName, StringComparison.OrdinalIgnoreCase);
+        }
 
-            WindowLayout layout;
+        // 起動時、前回終了時のウィンドウサイズ+境界線位置+ホットキーを復元する。保存ファイルが
+        // 無い/壊れている場合は何もしない(Designer既定のサイズ・境界線位置、HotkeyDefaultsの
+        // ままで動く)。
+        // なお、以前はここでuserDataFolder直下の"EventRecorder.json/xml"を「起動時デフォルトで
+        // 読み込むプロファイル」として特別扱いする仕組みがあったが、アプリ設定ファイル自体に
+        // 同じ名前(EventRecorder.json)を使うことにしたため廃止した。今後、起動時に読み込まれる
+        // プロファイルは常に「プルダウン一覧の先頭」になる(コンストラクタのUpdateProfileListAll
+        // 呼び出し側のコメント参照)
+        private void LoadAppSettings()
+        {
+            String path = System.IO.Path.Combine(userDataFolder, AppSettingsFileName);
+
+            AppSettings settings;
             try
             {
-                layout = JsonFileStorage.Load<WindowLayout>(path);
+                settings = JsonFileStorage.Load<AppSettings>(path);
             }
             catch (Exception)
             {
                 return;
             }
 
-            if (layout == null || layout.Width <= 0 || layout.Height <= 0)
+            if (settings == null)
             {
                 return;
             }
 
-            // MinimumSizeより小さい値が保存されていてもWinForms側で自動的に補正される
-            this.Size = new Size(layout.Width, layout.Height);
+            if (settings.Width > 0 && settings.Height > 0)
+            {
+                // MinimumSizeより小さい値が保存されていてもWinForms側で自動的に補正される
+                this.Size = new Size(settings.Width, settings.Height);
+            }
 
-            if (layout.SplitterDistance > 0)
+            if (settings.SplitterDistance > 0)
             {
                 try
                 {
-                    splitContainer_Main.SplitterDistance = layout.SplitterDistance;
+                    splitContainer_Main.SplitterDistance = settings.SplitterDistance;
                 }
                 catch (ArgumentException)
                 {
@@ -408,30 +535,49 @@ namespace EventRecorder
                     // 境界線位置だけDesigner既定のまま諦める(ウィンドウサイズの復元は活かす)
                 }
             }
+
+            if (settings.RecordHotkey != Keys.None)
+            {
+                hotkeyToggleRecord = settings.RecordHotkey;
+            }
+
+            if (settings.PlayHotkey != Keys.None)
+            {
+                hotkeyTogglePlay = settings.PlayHotkey;
+            }
+
+            checkBox_HideFromTaskbar.Checked = settings.HideTaskbarIconWhenMinimized;
         }
 
-        // 終了時、ウィンドウサイズ+境界線位置を保存する
-        private void SaveWindowLayout()
+        // ウィンドウサイズ+境界線位置+ホットキーをまとめて保存する。終了時と、
+        // キーバインド設定画面で「保存」した直後の両方から呼ばれる。
+        // 保存に失敗したかどうかをBooleanで返す(呼び出し側でエラー表示するかどうかを決められるように。
+        // 終了処理中は落としたくないので握りつぶすが、設定画面からの保存では失敗をユーザーに知らせたい)
+        private Boolean SaveAppSettings()
         {
             // 最大化中はthis.Sizeが画面いっぱいのサイズになってしまうので、
             // 最大化前の通常サイズ(RestoreBounds)を保存する
             Size sizeToSave = (this.WindowState == FormWindowState.Normal) ? this.Size : this.RestoreBounds.Size;
 
-            WindowLayout layout = new WindowLayout
+            AppSettings settings = new AppSettings
             {
                 Width = sizeToSave.Width,
                 Height = sizeToSave.Height,
                 SplitterDistance = splitContainer_Main.SplitterDistance,
+                RecordHotkey = hotkeyToggleRecord,
+                PlayHotkey = hotkeyTogglePlay,
+                HideTaskbarIconWhenMinimized = checkBox_HideFromTaskbar.Checked,
             };
 
-            String path = System.IO.Path.Combine(userDataFolder, WindowLayoutFileName);
+            String path = System.IO.Path.Combine(userDataFolder, AppSettingsFileName);
             try
             {
-                JsonFileStorage.Save(path, layout);
+                JsonFileStorage.Save(path, settings);
+                return true;
             }
             catch (Exception)
             {
-                // 終了処理中の保存失敗でアプリを落としたくないので握りつぶす
+                return false;
             }
         }
 
@@ -523,18 +669,26 @@ namespace EventRecorder
                 return;
             }
 
+            // キーバインド設定画面が開いている間は、テスト入力したキーがホットキーとして
+            // 誤発動しないよう、記録データへの取り込みも含めてここで丸ごと処理を止める
+            if (isHotkeySettingsOpen)
+            {
+                return;
+            }
+
             Boolean isDown = s.Stroke == GlobalHook.KeyboardHook.Stroke.KEY_DOWN || s.Stroke == GlobalHook.KeyboardHook.Stroke.SYSKEY_DOWN;
             Boolean isUp = s.Stroke == GlobalHook.KeyboardHook.Stroke.KEY_UP || s.Stroke == GlobalHook.KeyboardHook.Stroke.SYSKEY_UP;
 
             // ホットキーはアプリ操作用の予約キーなので、マクロの記録データには含めない。
-            // Shift併用が必要なもの(Shift+F2)は、押した瞬間にShiftが押されていた
-            // 場合だけホットキー扱いにする。素のF2は本来の用途やマクロ記録にそのまま使える
+            // s.Keyはフックから来る生のキー(修飾キーは含まない)なので、押した瞬間の
+            // Ctrl/Alt/Shiftの状態を合わせて現在の組み合わせを作ってから、ユーザー設定の
+            // ホットキー(hotkeyToggleRecord/hotkeyTogglePlay。これも同じ表現方法)と比較する
             if (isDown)
             {
-                Boolean isShiftDown = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
-                Boolean isRecordHotkey = s.Key == HotkeyToggleRecord;
-                Boolean isPlayHotkey = s.Key == HotkeyTogglePlay
-                    || (s.Key == HotkeyTogglePlayAlt && isShiftDown);
+                Keys heldModifiers = Control.ModifierKeys & (Keys.Control | Keys.Alt | Keys.Shift);
+                Keys combo = s.Key | heldModifiers;
+                Boolean isRecordHotkey = combo == hotkeyToggleRecord;
+                Boolean isPlayHotkey = combo == hotkeyTogglePlay;
 
                 if (isRecordHotkey || isPlayHotkey)
                 {
@@ -599,7 +753,7 @@ namespace EventRecorder
 
         // 記録した1件をバッファに貯めるだけ(フックのコールバックを描画待ちで塞がないため)。
         // 実際のDataGridViewへの反映はgridFlushTimerがまとめて行う
-        // waitが正の場合、待機だけを表す独立したWAIT行を先に積んでから、実際のイベント行を積む
+        // waitが正の場合、待機だけを表す独立したWAIT_MS行を先に積んでから、実際のイベント行を積む
         // (待機時間はイベント自体の属性ではなく、シーケンス上の別行として表現する方式にしたため)
         private void QueueRow(String type, String x, String y, String key, int wait)
         {
@@ -643,7 +797,8 @@ namespace EventRecorder
         }
 
         // 旧バージョンの保存形式(各行が自分自身の待機時間をWait列に持つ)を、
-        // 新形式(待機を独立したWAIT行として挿入する形式)に変換する。
+        // 新形式(待機を独立したWAIT_MS行として挿入する形式)に変換する。
+        // 併せて、Event列の表記が旧版の"WAIT"のままの行があれば"WAIT_MS"に揃える。
         // すでに新形式(各行のWaitが0)の場合は何もしない、何度呼んでも安全な処理。
         // ファイル読込のたびにSaveRestore.csから呼ばれる
         internal void MigrateWaitColumnToRows()
@@ -657,8 +812,13 @@ namespace EventRecorder
                     DataGridViewRow row = dataGridView_Events.Rows[i];
                     String type = Convert.ToString(row.Cells[col_Type.Index].Value);
 
-                    if (type == WaitEventType)
+                    if (IsWaitEventType(type))
                     {
+                        // 旧バージョンの表記("WAIT")が残っていたら、ここで新表記に揃えておく
+                        if (type == LegacyWaitEventType)
+                        {
+                            row.Cells[col_Type.Index].Value = WaitEventType;
+                        }
                         continue;
                     }
 
@@ -839,11 +999,33 @@ namespace EventRecorder
                     int wait = util.GetInteger(r[4]);
                     if (wait > 0)
                     {
-                        Thread.Sleep(wait);
+                        InterruptibleSleep(wait);
+                    }
+
+                    if (stopPlayRequested)
+                    {
+                        return;
                     }
 
                     PlayOneEvent(r[0], r[1], r[2], r[3]);
                 }
+            }
+        }
+
+        // 待機を短い間隔(SleepPollIntervalMs)に分割し、都度stopPlayRequestedを見て
+        // 早期に抜けられるようにする。単純にThread.Sleep(wait)のままだと、WAIT_MS行の
+        // 待機時間が長い(例: 10秒)時に停止ボタンを押してもそのSleepが終わるまで
+        // 一切反応しなくなってしまう不具合があったため、これに置き換えた
+        private const int SleepPollIntervalMs = 50;
+
+        private void InterruptibleSleep(int totalMs)
+        {
+            int remaining = totalMs;
+            while (remaining > 0 && !stopPlayRequested)
+            {
+                int step = Math.Min(SleepPollIntervalMs, remaining);
+                Thread.Sleep(step);
+                remaining -= step;
             }
         }
 
@@ -928,6 +1110,48 @@ namespace EventRecorder
                 StepPlaylistLoopCountCell(delta);
                 e.Handled = true;
             }
+        }
+
+        // ループ数列のセルが編集モードになった時だけ、実体の編集用TextBoxに直接↑/↓キーを
+        // フックする。編集中はキー入力がまずこのTextBoxに渡り、dataGridView_PlaylistのKeyDown
+        // までは届かないため(未編集時のセル移動は上のdataGridView_Playlist_KeyDownで拾えている)。
+        // 編集用コントロールはグリッド側で使い回されるので、フック済みハンドラの二重登録を防ぐ
+        private TextBox playlistLoopCountEditingControl;
+
+        private void dataGridView_Playlist_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (playlistLoopCountEditingControl != null)
+            {
+                playlistLoopCountEditingControl.KeyDown -= PlaylistLoopCountEditingControl_KeyDown;
+                playlistLoopCountEditingControl = null;
+            }
+
+            if (dataGridView_Playlist.CurrentCell == null
+                || dataGridView_Playlist.CurrentCell.ColumnIndex != col_PlaylistLoopCount.Index)
+            {
+                return;
+            }
+
+            TextBox editBox = e.Control as TextBox;
+            if (editBox == null)
+            {
+                return;
+            }
+
+            playlistLoopCountEditingControl = editBox;
+            playlistLoopCountEditingControl.KeyDown += PlaylistLoopCountEditingControl_KeyDown;
+        }
+
+        private void PlaylistLoopCountEditingControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
+            {
+                return;
+            }
+
+            StepPlaylistLoopCountCell(e.KeyCode == Keys.Up ? 1 : -1);
+            e.Handled = true;
+            e.SuppressKeyPress = true;
         }
 
         // dataGridView_PlaylistのCurrentCell(col_PlaylistLoopCount想定)の値をdeltaだけ増減する。
@@ -1268,13 +1492,13 @@ namespace EventRecorder
         {
             String type = Convert.ToString(row.Cells[col_Type.Index].Value);
 
-            if (type == WaitEventType)
+            if (IsWaitEventType(type))
             {
                 String wait = Convert.ToString(row.Cells[col_Wait.Index].Value);
                 int waitValue;
                 if (!int.TryParse(wait, out waitValue) || waitValue < 0)
                 {
-                    message = "WAIT行の待機時間(" + wait + ")が数値として読み取れないよ";
+                    message = "WAIT_MS行の待機時間(" + wait + ")が数値として読み取れないよ";
                     return true;
                 }
 
@@ -1402,7 +1626,7 @@ namespace EventRecorder
             {
                 dataGridView_Events.InvalidateCell(col_Detail.Index, e.RowIndex);
                 UpdateRowVisibility(e.RowIndex);
-                // WAIT行への/からの切り替え等、Event列の変更でDetail列の意味も変わるので再計算する
+                // WAIT_MS行への/からの切り替え等、Event列の変更でDetail列の意味も変わるので再計算する
                 SyncDetailFromHiddenColumns(e.RowIndex);
                 return;
             }
@@ -1410,7 +1634,7 @@ namespace EventRecorder
             if (e.ColumnIndex == col_X.Index || e.ColumnIndex == col_Y.Index || e.ColumnIndex == col_Key.Index
                 || e.ColumnIndex == col_Wait.Index)
             {
-                // 記録・XML読込・貼り付け等で実データ(X/Y/Key、WAIT行ならWait)が更新されたら、
+                // 記録・XML読込・貼り付け等で実データ(X/Y/Key、WAIT_MS行ならWait)が更新されたら、
                 // Detail列の表示も追従させる
                 SyncDetailFromHiddenColumns(e.RowIndex);
                 return;
@@ -1424,8 +1648,17 @@ namespace EventRecorder
             }
         }
 
-        // Event列が"WAIT"の行は、待機のためだけの行(実際の操作を伴わない)を表す
-        private const String WaitEventType = "WAIT";
+        // Event列が"WAIT_MS"の行は、待機のためだけの行(実際の操作を伴わない)を表す
+        private const String WaitEventType = "WAIT_MS";
+
+        // 旧バージョンでは"WAIT"という表記で保存していたため、読込時だけはこちらも
+        // 同じ意味として扱えるようにしておく(IsWaitEventType参照)
+        private const String LegacyWaitEventType = "WAIT";
+
+        private static Boolean IsWaitEventType(String type)
+        {
+            return type == WaitEventType || type == LegacyWaitEventType;
+        }
 
         private void SyncDetailFromHiddenColumns(int rowIndex)
         {
@@ -1435,7 +1668,7 @@ namespace EventRecorder
             isSyncingDetailColumn = true;
             try
             {
-                if (type == WaitEventType)
+                if (IsWaitEventType(type))
                 {
                     String wait = Convert.ToString(row.Cells[col_Wait.Index].Value);
                     row.Cells[col_Detail.Index].Value = FormatWaitDetail(wait);
@@ -1463,7 +1696,7 @@ namespace EventRecorder
             isSyncingDetailColumn = true;
             try
             {
-                if (type == WaitEventType)
+                if (IsWaitEventType(type))
                 {
                     String wait;
                     TryParseWaitDetail(detail, out wait);
@@ -1529,23 +1762,24 @@ namespace EventRecorder
             }
         }
 
-        // WAIT行のDetail表示("500ms"のような形式)
+        // WAIT_MS行のDetail表示(数値だけ、単位は付けない)
         private static String FormatWaitDetail(String waitMs)
         {
-            return waitMs + "ms";
+            return waitMs;
         }
 
-        // FormatWaitDetailの逆変換。末尾の"ms"を取り除いてミリ秒の数値文字列を取り出す
+        // FormatWaitDetailの逆変換。旧バージョンの"500ms"のような末尾"ms"付き表記が
+        // 残っていた場合もそのまま数値として読めるように、その場合だけ末尾を取り除く
         private static Boolean TryParseWaitDetail(String detail, out String waitMs)
         {
             waitMs = String.Empty;
 
-            if (String.IsNullOrEmpty(detail) || !detail.EndsWith("ms"))
+            if (String.IsNullOrEmpty(detail))
             {
                 return false;
             }
 
-            waitMs = detail.Substring(0, detail.Length - 2);
+            waitMs = detail.EndsWith("ms") ? detail.Substring(0, detail.Length - 2) : detail;
             return true;
         }
 
@@ -1599,17 +1833,7 @@ namespace EventRecorder
         }
 
         // *******************************************************************************
-        // クリア/保存/読込
-
-        private void button_Clear_Click(object sender, EventArgs e)
-        {
-            if (isRecording || isPlaying)
-            {
-                return;
-            }
-
-            dataGridView_Events.Rows.Clear();
-        }
+        // 保存/読込
 
         // コンボボックスで設定ファイルを選び直したら、そのままそれを読み込む(Cheetosと同じ挙動)
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
@@ -1794,9 +2018,9 @@ namespace EventRecorder
         private void UpdateProfileListAll(String defaultProfileName)
         {
             String[] xmlFiles = System.IO.Directory.GetFiles(userDataFolder, "*.xml", System.IO.SearchOption.AllDirectories);
-            // WindowLayout.json(ウィンドウサイズ等の設定ファイル)はプロファイルではないので除外する
+            // EventRecorder.json(アプリの設定ファイル)はプロファイルではないので除外する
             String[] jsonFiles = System.IO.Directory.GetFiles(userDataFolder, "*.json", System.IO.SearchOption.AllDirectories)
-                .Where(f => !String.Equals(System.IO.Path.GetFileName(f), WindowLayoutFileName, StringComparison.OrdinalIgnoreCase))
+                .Where(f => !IsNonProfileSettingFile(f))
                 .ToArray();
             String[] files = xmlFiles.Concat(jsonFiles).ToArray();
 

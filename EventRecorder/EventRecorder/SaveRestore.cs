@@ -68,7 +68,7 @@ namespace EventRecorder
             Boolean result = LoadXmlFile(LoadFileName);
 
             // 旧バージョンで保存された(各行が自分の待機時間を持つ)ファイルを読み込んだ場合は、
-            // 待機を独立したWAIT行に切り出す新形式へ変換する(新形式のファイルなら何もしない)
+            // 待機を独立したWAIT_MS行に切り出す新形式へ変換する(新形式のファイルなら何もしない)
             Parent.MigrateWaitColumnToRows();
 
             // ファイル読込は「ユーザーの編集操作」ではないので、読込前の状態にCtrl+Zで
