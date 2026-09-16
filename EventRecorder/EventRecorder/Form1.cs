@@ -273,7 +273,46 @@ namespace EventRecorder
                 return true;
             }
 
+            if (keyData == (Keys.Control | Keys.F))
+            {
+                ShowFindReplaceDialog(FindReplaceMode.Find);
+                return true;
+            }
+
+            if (keyData == (Keys.Control | Keys.H))
+            {
+                ShowFindReplaceDialog(FindReplaceMode.Replace);
+                return true;
+            }
+
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        // Ctrl+F/Ctrl+Hのダイアログ(検索・置換は1つのダイアログをラジオボタンで切り替える)は、
+        // 記録データ(dataGridView_Events)を編集/参照している最中にだけ意味があるので、
+        // 既に開いていれば作り直さずモードだけ切り替えて前面に出す(重複オープン防止)
+        private FindReplaceForm findReplaceForm;
+
+        private void ShowFindReplaceDialog(FindReplaceMode mode)
+        {
+            if (isRecording || isPlaying)
+            {
+                return;
+            }
+
+            if (findReplaceForm == null || findReplaceForm.IsDisposed)
+            {
+                String initialText = (mode == FindReplaceMode.Find && dataGridView_Events.CurrentCell != null)
+                    ? Convert.ToString(dataGridView_Events.CurrentCell.Value)
+                    : "";
+                findReplaceForm = new FindReplaceForm(dataGridView_Events, mode, initialText);
+                findReplaceForm.Show(this);
+            }
+            else
+            {
+                findReplaceForm.SetMode(mode);
+                findReplaceForm.Activate();
+            }
         }
 
         protected override void WndProc(ref Message m)

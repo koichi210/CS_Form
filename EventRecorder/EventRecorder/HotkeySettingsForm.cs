@@ -7,7 +7,7 @@ namespace EventRecorder
     // ウィンドウ左上のシステムメニュー(Form1.OnHandleCreated参照)から開く。
     // 「保存」ボタンを押すまでは呼び出し元(Form1)には一切反映されない
     // (RecordHotkey/PlayHotkeyは、DialogResult.OKで閉じた時だけ呼び出し元が読み取って使う)
-    public partial class HotkeySettingsForm : Form
+    public partial class HotkeySettingsForm : DialogFormBase
     {
         public Keys RecordHotkey { get; private set; }
         public Keys PlayHotkey { get; private set; }
