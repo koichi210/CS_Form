@@ -227,6 +227,24 @@ namespace EventRecorder
 
             // 起動時のデフォルトモードは「レコード」
             radioButton_Record.Checked = true;
+
+            // 各グループボックス内のコントロールを触ったら、同じ名前(Record/Playback)の
+            // ラジオボタンへ自動でモードを切り替える
+            SetupGroupBoxRadioSync();
+        }
+
+        // グループボックス内のコントロールをクリックしたら、そのグループボックスと
+        // 同じ名前のラジオボタンをCheckedにする(Record⇔Playbackのモード切り替え)
+        private void SetupGroupBoxRadioSync()
+        {
+            foreach (Control c in groupBox_Record.Controls)
+            {
+                c.Click += (s, e) => radioButton_Record.Checked = true;
+            }
+            foreach (Control c in groupBox_Playback.Controls)
+            {
+                c.Click += (s, e) => radioButton_Playback.Checked = true;
+            }
         }
 
         // *******************************************************************************
