@@ -644,6 +644,16 @@ namespace EventRecorder
             ToggleRecording();
         }
 
+        private void button_Clear_Click(object sender, EventArgs e)
+        {
+            if (isRecording || isPlaying)
+            {
+                return;
+            }
+
+            dataGridView_Events.Rows.Clear();
+        }
+
         // 現在の記録中/再生中の状態をタイトルバーに反映する
         private void UpdateTitle()
         {
