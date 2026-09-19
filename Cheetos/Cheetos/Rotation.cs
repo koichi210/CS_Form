@@ -151,7 +151,7 @@ namespace Cheetos
             }
 
             String BackUpDirPath = pr_SourceFolderPath.Text + @"\" + @"Bk_Rotate";
-            if (!fio.IsExistDirectory(BackUpDirPath))
+            if (!fio.EnsureDirectory(BackUpDirPath))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + BackUpDirPath);
                 return;

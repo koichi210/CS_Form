@@ -164,7 +164,7 @@ namespace Cheetos
             }
 
             String BackUpDirPath = pm_SourceFolderPath.Text + @"\" + @"Bk_Merge";
-            if (!fio.IsExistDirectory(BackUpDirPath))
+            if (!fio.EnsureDirectory(BackUpDirPath))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + BackUpDirPath);
                 return;

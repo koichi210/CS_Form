@@ -38,7 +38,7 @@ namespace Cheetos
 
             captureStartCursorPosition = Cursor.Position;
 
-            fio.IsExistDirectory(cw_TextBox_SavePath.Text, true);
+            fio.EnsureDirectory(cw_TextBox_SavePath.Text, true);
             String FileBaseFormat = Logic.GetFileBaseFormat(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrifix.Text, cw_checkBox_AddTimeStump.Checked);
 
             int Loop = 1;

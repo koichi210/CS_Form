@@ -317,7 +317,7 @@ namespace VisualStudioBuilder
             Boolean IsExportLog = false;
             if (textBox_LogDirectory.Text != String.Empty)
             {
-                fio.IsExistDirectory(textBox_LogDirectory.Text, true);
+                fio.EnsureDirectory(textBox_LogDirectory.Text, true);
                 IsExportLog = true;
             }
 

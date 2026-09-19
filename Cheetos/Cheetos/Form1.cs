@@ -364,7 +364,7 @@ namespace Cheetos
                 return;
             }
 
-            if (!fio.IsExistDirectory(fc_DestFolderPath.Text))
+            if (!fio.EnsureDirectory(fc_DestFolderPath.Text))
             {
                 return;
             }

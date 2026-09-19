@@ -99,7 +99,7 @@ namespace StaticAnalysisViewer
         private void TextBox_TopRankingNum_KeyPress(object sender, KeyPressEventArgs e)
         {
             //押されたキーが 数値でない場合は、イベントをキャンセルする
-            e.Handled = util.IsKeyPressNumber(e);
+            e.Handled = util.IsNotNumberKey(e);
         }
 
         private void Combo_RankingWeekly_SelectedIndexChanged(object sender, EventArgs e)

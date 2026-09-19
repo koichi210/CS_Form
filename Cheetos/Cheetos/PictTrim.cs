@@ -75,7 +75,7 @@ namespace Cheetos
             }
 
             String BackUpDirPath = pt_SourceFolderPath.Text + @"\" + @"Bk_Trim";
-            if (!fio.IsExistDirectory(BackUpDirPath))
+            if (!fio.EnsureDirectory(BackUpDirPath))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + BackUpDirPath);
                 return;

@@ -190,7 +190,7 @@ namespace FileArranger
 
         private void Move_Directory(Boolean IsMoveTopDir)
         {
-            if (!fio.IsExistDirectory(md_comboBox_TargetDir.Text))
+            if (!fio.EnsureDirectory(md_comboBox_TargetDir.Text))
             {
                 return;
             }
@@ -238,7 +238,7 @@ namespace FileArranger
 
         private void mf_button_Delete_Click(object sender, EventArgs e)
         {
-            if (!fio.IsExistDirectory(md_comboBox_TargetDir.Text))
+            if (!fio.EnsureDirectory(md_comboBox_TargetDir.Text))
             {
                 return;
             }
@@ -1050,7 +1050,7 @@ namespace FileArranger
 
         private void mf_button_MoveFile_Click(object sender, EventArgs e)
         {
-            if (!fio.IsExistDirectory(mf_textBox_TargetDir.Text))
+            if (!fio.EnsureDirectory(mf_textBox_TargetDir.Text))
             {
                 return;
             }
