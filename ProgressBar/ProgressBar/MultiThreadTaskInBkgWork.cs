@@ -42,6 +42,11 @@ namespace ProgressBar
             {
                 for (int i = progressBar_MultiThreadTaskInBkgWork.Minimum; i < progressBar_MultiThreadTaskInBkgWork.Maximum; i++)
                 {
+                    if (worker.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        break;
+                    }
                     Invoke(new Action(() =>
                     {
                         worker.ReportProgress(i + 1);      // ⇒ProgressChanged()
@@ -50,6 +55,9 @@ namespace ProgressBar
                 }
             });
             task.Start();
+
+            // DoWorkを先に抜けるとBackgroundWorkerが完了扱いになり、以降のReportProgressが例外になるため、Taskの終了を待つ
+            task.Wait();
         }
 
         private void backgroundWorker_TaskInBkgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)

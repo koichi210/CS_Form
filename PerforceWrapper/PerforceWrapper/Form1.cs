@@ -21,6 +21,7 @@ namespace PerforceWrapper
         public Form1()
         {
             InitializeComponent();
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
             InitializeCommonSettings(Properties.Resources.PerforceWrapper);
 
@@ -63,6 +64,13 @@ namespace PerforceWrapper
 
         private void Execute(String Script)
         {
+            // 実行中に押されると RunWorkerAsync が例外になり、パスワード入りのバッチだけが残ってしまうため先に弾く
+            if (backgroundWorker.IsBusy)
+            {
+                MessageBox.Show("実行中です。終わってからもう一度押してください");
+                return;
+            }
+
             String BatchFile = fio.CreateTempFile("bat");
             fio.CreateFile(BatchFile, Script);
 
@@ -88,6 +96,14 @@ namespace PerforceWrapper
 
             // このメソッドからの戻り値
             e.Result = "SUCCESS";
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MessageBox.Show("コマンドの実行に失敗しました" + Environment.NewLine + e.Error.Message);
+            }
         }
 
 

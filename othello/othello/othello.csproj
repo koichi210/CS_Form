@@ -57,6 +57,9 @@
     <Compile Include="GameMaster.cs" />
     <Compile Include="Kihu.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="..\..\_Common\StcExceptionGuard.cs">
+      <Link>StcExceptionGuard.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

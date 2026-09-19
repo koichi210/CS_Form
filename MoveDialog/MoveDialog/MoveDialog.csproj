@@ -59,6 +59,9 @@
       <DependentUpon>FormChild.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="..\..\_Common\StcExceptionGuard.cs">
+      <Link>StcExceptionGuard.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Logic.cs" />
     <EmbeddedResource Include="Form1.resx">

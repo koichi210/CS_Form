@@ -1015,6 +1015,10 @@ namespace EventRecorder
                 // マウスカーソルを再生開始前の位置に戻す
                 Cursor.Position = cursorPositionBeforePlay;
             }
+            catch (Exception ex)
+            {
+                ReportPlaybackError(ex);
+            }
             finally
             {
                 // 途中で例外が起きても、必ず「再生中」状態を解除する。
@@ -1030,6 +1034,12 @@ namespace EventRecorder
                     RestoreIfMinimizedByPlay();
                 }));
             }
+        }
+
+        // 再生スレッド(Task.Run)内の例外はどこにも通知されずに消えるため、UIスレッドへ投げ直して共通のエラー通知に乗せる
+        private void ReportPlaybackError(Exception ex)
+        {
+            BeginInvoke((MethodInvoker)(() => { throw new InvalidOperationException("再生中にエラーが発生したよ", ex); }));
         }
 
         // rowsをloopCount回再生する処理そのもの(前後の状態管理は呼び出し元の責務)。
@@ -2767,6 +2777,10 @@ namespace EventRecorder
                 }
 
                 Cursor.Position = cursorPositionBeforePlay;
+            }
+            catch (Exception ex)
+            {
+                ReportPlaybackError(ex);
             }
             finally
             {

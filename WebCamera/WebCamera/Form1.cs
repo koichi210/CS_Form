@@ -22,6 +22,7 @@ namespace WebCamera
         public Form1()
         {
             InitializeComponent();
+            backgroundWorker1.RunWorkerCompleted += backgroundWorker1_RunWorkerCompleted;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -32,12 +33,16 @@ namespace WebCamera
                 return;
             }
 
+            // 前回の開始で作ったものが残っていれば解放してから作り直す
+            ReleaseCamera();
+
             //カメラ画像取得用のVideoCapture作成
             capture = new VideoCapture(0);
             if (!capture.IsOpened())
             {
                 MessageBox.Show("camera was not found!");
-                this.Close();
+                ReleaseCamera();
+                return;
             }
             capture.FrameWidth = pictureBox1.Width;
             capture.FrameHeight = pictureBox1.Height;
@@ -70,10 +75,35 @@ namespace WebCamera
                 // の組み合わせで C++ の "cap >> frame;" を模していたが、この内部APIは
                 // OpenCvSharp のバージョンアップで名前が変わり参照できなくなった。
                 // 同じ「取得してframeへ書き込む」動作をする公開APIの Read に置き換える。
-                capture.Read(frame);
+                if (!capture.Read(frame))
+                {
+                    // カメラが抜かれた等で取得できなくなったら、空回りせずに終了する
+                    e.Result = "カメラから画像を取得できなくなりました";
+                    return;
+                }
 
                 bw.ReportProgress(0);
             }
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MessageBox.Show("カメラの処理中にエラーが発生しました" + Environment.NewLine + e.Error.Message);
+            }
+            else if (!e.Cancelled && e.Result != null)
+            {
+                MessageBox.Show(e.Result.ToString());
+            }
+        }
+
+        private void ReleaseCamera()
+        {
+            if (graphic != null) { graphic.Dispose(); graphic = null; }
+            if (bmp != null) { bmp.Dispose(); bmp = null; }
+            if (frame != null) { frame.Dispose(); frame = null; }
+            if (capture != null) { capture.Dispose(); capture = null; }
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -99,6 +129,8 @@ namespace WebCamera
             backgroundWorker1.CancelAsync();
             while (backgroundWorker1.IsBusy)
                 Application.DoEvents();
+
+            ReleaseCamera();
         }
     }
 }

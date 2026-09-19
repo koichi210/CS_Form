@@ -13,6 +13,7 @@ namespace ImageViewer
         [STAThread]
         static void Main()
         {
+            StcExceptionGuard.Install();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ImageViewer());

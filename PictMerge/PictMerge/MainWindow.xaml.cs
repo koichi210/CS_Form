@@ -43,57 +43,46 @@ namespace PictMerge
 
         private void Merget(String TargetFile, String SourceFile, String MergeFile, int TrimHeight)
         {
-            Bitmap BmpSource1 = new Bitmap(SourceFile);
-            Bitmap BmpSource2 = new Bitmap(MergeFile);
-            Bitmap BmpTarget1 = new Bitmap(int.Parse(PictWidth.Text), int.Parse(PictHeight.Text));
-
-            // 切り取る元のTemp画像
-            Bitmap TargetUpper = new Bitmap(BmpSource1);
-            Bitmap TargetLower = new Bitmap(BmpSource2);
+            // 入力値の変換は画像を開く前に行う(途中で失敗しても画像ファイルがロックされたまま残らないように)
+            int Width = int.Parse(PictWidth.Text);
+            int Height = int.Parse(PictHeight.Text);
 
             // 切り取る部分（上）
-            int HeightLower = int.Parse(PictHeight.Text) - TrimHeight;
-            System.Drawing.Rectangle srcRectUpper = new System.Drawing.Rectangle(0, 0, int.Parse(PictWidth.Text), TrimHeight);
-            System.Drawing.Rectangle srcRectLower = new System.Drawing.Rectangle(0, TrimHeight, int.Parse(PictWidth.Text), HeightLower);
+            int HeightLower = Height - TrimHeight;
+            System.Drawing.Rectangle srcRectUpper = new System.Drawing.Rectangle(0, 0, Width, TrimHeight);
+            System.Drawing.Rectangle srcRectLower = new System.Drawing.Rectangle(0, TrimHeight, Width, HeightLower);
 
             // 描画する部分
-            System.Drawing.Rectangle desRectUpper = new System.Drawing.Rectangle(0, 0, int.Parse(PictWidth.Text), TrimHeight);
-            System.Drawing.Rectangle desRectLower = new System.Drawing.Rectangle(0, 0, int.Parse(PictWidth.Text), HeightLower);
+            System.Drawing.Rectangle desRectUpper = new System.Drawing.Rectangle(0, 0, Width, TrimHeight);
+            System.Drawing.Rectangle desRectLower = new System.Drawing.Rectangle(0, 0, Width, HeightLower);
 
-            // 描画（上）
-            using (Graphics g = Graphics.FromImage(TargetUpper))
+            using (Bitmap BmpTarget1 = new Bitmap(Width, Height))
             {
-                //画像の一部を描画する
-                g.DrawImage(BmpSource1, desRectUpper, srcRectUpper, GraphicsUnit.Pixel);
+                using (Bitmap BmpSource1 = new Bitmap(SourceFile))
+                using (Bitmap BmpSource2 = new Bitmap(MergeFile))
+                using (Bitmap TargetUpper = new Bitmap(BmpSource1))
+                using (Bitmap TargetLower = new Bitmap(BmpSource2))
+                {
+                    // 描画（上）
+                    using (Graphics g = Graphics.FromImage(TargetUpper))
+                    {
+                        g.DrawImage(BmpSource1, desRectUpper, srcRectUpper, GraphicsUnit.Pixel);
+                    }
 
-                //Graphicsオブジェクトのリソースを解放する
-                g.Dispose();
+                    // 描画（下）
+                    using (Graphics g = Graphics.FromImage(TargetLower))
+                    {
+                        g.DrawImage(BmpSource2, desRectLower, srcRectLower, GraphicsUnit.Pixel);
+                    }
+
+                    using (Graphics g = Graphics.FromImage(BmpTarget1))
+                    {
+                        g.DrawImage(TargetUpper, 0, 0);
+                        g.DrawImage(TargetLower, 0, TrimHeight);
+                    }
+                }
+                BmpTarget1.Save(TargetFile);
             }
-            BmpSource1.Dispose();
-
-            // 描画（下）
-            using (Graphics g = Graphics.FromImage(TargetLower))
-            {
-                //画像の一部を描画する
-                g.DrawImage(BmpSource2, desRectLower, srcRectLower, GraphicsUnit.Pixel);
-
-                //Graphicsオブジェクトのリソースを解放する
-                g.Dispose();
-            }
-            BmpSource2.Dispose();
-
-            using (Graphics g = Graphics.FromImage(BmpTarget1))
-            {
-                g.DrawImage(TargetUpper, 0, 0);
-                g.DrawImage(TargetLower, 0, TrimHeight);
-
-                //Graphicsオブジェクトのリソースを解放する
-                g.Dispose();
-            }
-            BmpTarget1.Save(TargetFile);
-            BmpTarget1.Dispose();
-            TargetUpper.Dispose();
-            TargetLower.Dispose();
         }
 
         private void ListUp_Click(object sender, RoutedEventArgs e)
@@ -224,8 +213,16 @@ namespace PictMerge
             }
 
             // ファイルから読み込む
+            // 設定ファイルが壊れていても起動できるよう、読めなければ初期値のまま進める
             XmlDocument document = new XmlDocument();
-            document.Load(SaveXmlFile);
+            try
+            {
+                document.Load(SaveXmlFile);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is XmlException)
+            {
+                return;
+            }
 
             foreach (XmlElement element in document.DocumentElement)
             {

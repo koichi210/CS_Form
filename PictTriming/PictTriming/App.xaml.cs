@@ -12,5 +12,9 @@ namespace PictTriming
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            StcWpfExceptionGuard.Install(this);
+        }
     }
 }

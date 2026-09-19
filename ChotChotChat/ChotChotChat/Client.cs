@@ -16,6 +16,8 @@ namespace ChotChotChat
         private bool IsConnect = false;
         private TcpClient tcp;
 
+        public bool IsConnected { get { return IsConnect; } }
+
         public String Connect(String HostName)
         {
             if (IsConnect)

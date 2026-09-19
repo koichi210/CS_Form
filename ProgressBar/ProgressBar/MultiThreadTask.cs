@@ -24,17 +24,25 @@ namespace ProgressBar
 
             Task task = new Task(() =>
             {
-                for (int i = progressBar_MultiThreadTask.Minimum; i < progressBar_MultiThreadTask.Maximum; i++)
+                try
                 {
-                    if (m_ExeFlg2 == false)
+                    for (int i = progressBar_MultiThreadTask.Minimum; i < progressBar_MultiThreadTask.Maximum; i++)
                     {
-                        break;
+                        if (m_ExeFlg2 == false)
+                        {
+                            break;
+                        }
+                        Invoke(new Action(() =>
+                        {
+                            progressBar_MultiThreadTask.Value++;
+                        }));
+                        System.Threading.Thread.Sleep(50);
                     }
-                    Invoke(new Action(() =>
-                    {
-                        progressBar_MultiThreadTask.Value++;
-                    }));
-                    System.Threading.Thread.Sleep(50);
+                }
+                finally
+                {
+                    // 最後まで進んだ場合や途中で失敗した場合も、次のStartを受け付けられるように戻す
+                    m_ExeFlg2 = false;
                 }
             });
             task.Start();

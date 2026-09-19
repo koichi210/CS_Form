@@ -145,11 +145,18 @@ namespace VisualStudioBuilder
 
         private void button_Build_Click(object sender, EventArgs e)
         {
+            // ビルド中に押されると、実行中のビルドのログフォルダを消してしまうため先に弾く
+            if (BuildWorker.IsBusy)
+            {
+                MessageBox.Show("ビルド実行中です。終わってからもう一度押してください");
+                return;
+            }
+
             if (!CheckSolutionPath())
             {
                 return;
             }
-            
+
             // ビルドログを削除
             StcFileInputOutput fio = new StcFileInputOutput();
             fio.DeleteDirectoryAndFile(textBox_LogDirectory.Text);
@@ -269,7 +276,7 @@ namespace VisualStudioBuilder
             else if (e.Error != null)
             {
                 // この場合にはe.Resultにはアクセスできない
-                MessageBox.Show("処理が中断されました");
+                MessageBox.Show("処理が中断されました" + Environment.NewLine + e.Error.Message);
             }
             else
             {

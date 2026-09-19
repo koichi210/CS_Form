@@ -51,11 +51,17 @@ namespace ChotChotChat
 
         public String Diconnect()
         {
-            if (IsConnect)
+            // 接続待ちの途中で失敗した場合もポートを開放するため、IsConnectに関係なく閉じる
+            IsConnect = false;
+            if (client != null)
             {
-                IsConnect = false;
                 client.Close();
+                client = null;
+            }
+            if (listener != null)
+            {
                 listener.Stop();
+                listener = null;
             }
             return "クライアントとの接続を閉じました。";
         }

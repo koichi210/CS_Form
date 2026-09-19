@@ -12,5 +12,9 @@ namespace PlantUML
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            StcWpfExceptionGuard.Install(this);
+        }
     }
 }

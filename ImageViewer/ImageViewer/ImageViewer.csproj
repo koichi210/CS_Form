@@ -57,6 +57,9 @@
     </Compile>
     <Compile Include="PreView.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="..\..\_Common\StcExceptionGuard.cs">
+      <Link>StcExceptionGuard.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveRestore.cs" />
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">

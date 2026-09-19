@@ -71,6 +71,9 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="..\..\_Common\StcExceptionGuard.cs">
+      <Link>StcExceptionGuard.cs</Link>
+    </Compile>
     <Compile Include="Logic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">

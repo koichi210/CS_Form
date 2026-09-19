@@ -158,22 +158,26 @@ namespace Cheetos
                 File.Copy(FilePath, BackUpFilePath, true);
 
                 // トリミング
-                // キャンバス作成
+                // キャンバス作成(途中で失敗しても画像ファイルがロックされたまま残らないようfinallyで必ず解放する)
                 PicEdit trm = new PicEdit(Target_Width, Target_Height);
+                try
+                {
+                    // 切り取り
+                    Rectangle CutParam = new Rectangle(BaseX, BaseY, Target_Width, Target_Height);
 
-                // 切り取り
-                Rectangle CutParam = new Rectangle(BaseX, BaseY, Target_Width, Target_Height);
+                    Point PutParam = new Point(0, 0);
+                    trm.TrimExec(BackUpFilePath, CutParam, PutParam);
 
-                Point PutParam = new Point(0, 0);
-                trm.TrimExec(BackUpFilePath, CutParam, PutParam);
-
-                // キャンバス保存
-                trm.SaveCanvas(FilePath);
+                    // キャンバス保存
+                    trm.SaveCanvas(FilePath);
+                }
+                finally
+                {
+                    trm.Dispose();
+                }
 
                 // 進捗率
                 worker.ReportProgress(ItemIdx);      // ⇒ProgressChanged()
-
-                trm.Dispose();
 
                 // キャンセルされてないかチェック
                 if (worker.CancellationPending)

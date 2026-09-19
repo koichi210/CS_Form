@@ -85,8 +85,16 @@ namespace PictTriming
             }
 
             // ファイルから読み込む
+            // 設定ファイルが壊れていても起動できるよう、読めなければ「設定なし」として扱う
             XmlDocument document = new XmlDocument();
-            document.Load(Path);
+            try
+            {
+                document.Load(Path);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is XmlException)
+            {
+                return null;
+            }
 
             Settings settings = new Settings();
             foreach (XmlElement element in document.DocumentElement)

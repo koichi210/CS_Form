@@ -45,44 +45,54 @@ namespace Cheetos
 
         public void RotateExecute()
         {
-            Bitmap img = new Bitmap(FilePath);
-            int length = (int)Math.Sqrt(img.Width * img.Width + img.Height * img.Height);
-
-            Bitmap canvas;
-            using (PictureBox pic_box = new PictureBox())
+            // 途中で失敗しても画像ファイルがロックされたまま残らないよう、usingとfinallyで必ず解放する
+            Bitmap canvas = null;
+            try
             {
-                pic_box.Size = new Size(length, length);
-                canvas = new Bitmap(pic_box.Width, pic_box.Height);
+                // 読み込み元と同じファイルへ上書き保存するため、imgは保存より前に解放しておく必要がある
+                using (Bitmap img = new Bitmap(FilePath))
+                {
+                    int length = (int)Math.Sqrt(img.Width * img.Width + img.Height * img.Height);
+
+                    using (PictureBox pic_box = new PictureBox())
+                    {
+                        pic_box.Size = new Size(length, length);
+                        canvas = new Bitmap(pic_box.Width, pic_box.Height);
+                    }
+
+                    //ラジアン単位に変換
+                    double d = Angle / (180 / Math.PI);
+
+                    //新しい座標位置を計算する
+                    float x1 = BaseX + img.Width * (float)Math.Cos(d);
+                    float y1 = BaseY + img.Width * (float)Math.Sin(d);
+                    float x2 = BaseX - img.Height * (float)Math.Sin(d);
+                    float y2 = BaseY + img.Height * (float)Math.Cos(d);
+
+                    //PointF配列を作成
+                    PointF[] destinationPoints =
+                    {
+                        new PointF(BaseX, BaseY),
+                        new PointF(x1, y1),
+                        new PointF(x2, y2)
+                    };
+
+                    using (Graphics g = Graphics.FromImage(canvas))
+                    {
+                        //画像を表示
+                        g.DrawImage(img, destinationPoints);
+                    }
+                }
+
+                canvas.Save(FilePath);
             }
-
-            //ラジアン単位に変換
-            double d = Angle / (180 / Math.PI);
-
-            //新しい座標位置を計算する
-            float x1 = BaseX + img.Width * (float)Math.Cos(d);
-            float y1 = BaseY + img.Width * (float)Math.Sin(d);
-            float x2 = BaseX - img.Height * (float)Math.Sin(d);
-            float y2 = BaseY + img.Height * (float)Math.Cos(d);
-
-            //PointF配列を作成
-            PointF[] destinationPoints =
+            finally
             {
-                new PointF(BaseX, BaseY),
-                new PointF(x1, y1),
-                new PointF(x2, y2)
-            };
-
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                //画像を表示
-                g.DrawImage(img, destinationPoints);
-
-                g.Dispose();
-                img.Dispose();
+                if (canvas != null)
+                {
+                    canvas.Dispose();
+                }
             }
-
-            canvas.Save(FilePath);
-            canvas.Dispose();
         }
     }
 

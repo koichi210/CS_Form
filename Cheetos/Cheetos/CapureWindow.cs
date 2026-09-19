@@ -180,6 +180,14 @@ namespace Cheetos
                     });
                 IsTaskRun = false;
             });
+
+            // Task内の例外はどこにも通知されず消えてしまい、IsTaskRunもtrueのまま残るため、失敗時はUIスレッドで後始末と通知を行う
+            task.ContinueWith(t =>
+            {
+                IsTaskRun = false;
+                Cursor.Position = captureStartCursorPosition;
+                MessageBox.Show("キャプチャ中にエラーが発生したよ" + Environment.NewLine + t.Exception.GetBaseException().Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }, System.Threading.CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.FromCurrentSynchronizationContext());
             task.Start();
         }
 

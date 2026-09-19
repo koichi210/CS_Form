@@ -18,10 +18,10 @@ namespace Rotation
             InitializeComponent();
         }
 
-        private void Draw(Boolean IsSave = false)
+        private Boolean Draw(Boolean IsSave = false)
         {
             //DrawPicturebox(IsSave);
-            DrawPicturebox2(IsSave);
+            return DrawPicturebox2(IsSave);
             //DrawPanel(IsSave);
             //DrawPanel2(IsSave);
         }
@@ -39,7 +39,10 @@ namespace Rotation
 
         private void button_ClickSave(object sender, EventArgs e)
         {
-            Draw(true);
+            if (!Draw(true))
+            {
+                MessageBox.Show("画像ファイルのパス・角度・原点の値を確認してください");
+            }
         }
 
         private void textBox_angle_KeyDown(object sender, KeyEventArgs e)
@@ -103,36 +106,45 @@ namespace Rotation
             }
         }
 
-        private void DrawPicturebox2(Boolean IsSave = false)
+        // キー入力のたびに呼ばれるため、入力途中の値や画像未指定では例外にせず、描画せずにfalseを返す
+        private Boolean DrawPicturebox2(Boolean IsSave = false)
         {
-            Bitmap img = new Bitmap(textBox_loadfiepath.Text);
-            pictureBox_Dest.Size = Logic.ComputeCanvasSize(img.Width, img.Height);
-            Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
-
-            //ラジアン単位に変換
-            int angle = Int32.Parse(textBox_angle.Text.ToString());
-
-            //新しい座標位置を計算する
+            int angle;
             float x;
             float y;
-            if (!float.TryParse(textBox_OriginX.Text.ToString(), out x) ||
-                !float.TryParse(textBox_OriginY.Text.ToString(), out y) )
+            if (!File.Exists(textBox_loadfiepath.Text) ||
+                !Int32.TryParse(textBox_angle.Text, out angle) ||
+                !float.TryParse(textBox_OriginX.Text, out x) ||
+                !float.TryParse(textBox_OriginY.Text, out y))
             {
-                img.Dispose();
-                canvas.Dispose();
-                return;
+                return false;
             }
 
-            //PointF配列を作成
-            PointF[] destinationPoints = Logic.ComputeDestinationPoints(img.Width, img.Height, angle, x, y);
-
-            using (Graphics g = Graphics.FromImage(canvas))
+            Bitmap img;
+            try
             {
-                //画像を表示
-                g.DrawImage(img, destinationPoints);
+                img = new Bitmap(textBox_loadfiepath.Text);
+            }
+            catch (ArgumentException)
+            {
+                // 画像として読めないファイル
+                return false;
+            }
 
-                g.Dispose();
-                img.Dispose();
+            Bitmap canvas;
+            using (img)
+            {
+                pictureBox_Dest.Size = Logic.ComputeCanvasSize(img.Width, img.Height);
+                canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
+
+                //PointF配列を作成
+                PointF[] destinationPoints = Logic.ComputeDestinationPoints(img.Width, img.Height, angle, x, y);
+
+                using (Graphics g = Graphics.FromImage(canvas))
+                {
+                    //画像を表示
+                    g.DrawImage(img, destinationPoints);
+                }
             }
 
             //pictureBoxに表示
@@ -147,6 +159,7 @@ namespace Rotation
             {
                 canvas.Save(textBox_savefiepath.Text);
             }
+            return true;
         }
 
         private void DrawPanel(Boolean IsSave = false)

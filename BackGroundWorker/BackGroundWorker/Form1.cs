@@ -85,7 +85,12 @@ namespace BackGroundWorker
 
         private void bgWorker_RunWorkerCompleted_1(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            if (e.Cancelled)
+            if (e.Error != null)
+            {
+                // この場合もe.Resultにはアクセスできない(アクセスすると例外になる)
+                MessageBox.Show("エラーが発生しました" + Environment.NewLine + e.Error.Message);
+            }
+            else if (e.Cancelled)
             {
                 MessageBox.Show("キャンセルされました");
                 // この場合にはe.Resultにはアクセスできない

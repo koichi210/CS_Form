@@ -1155,6 +1155,10 @@ namespace FileArranger
                 // この場合はe.Resultにはアクセスできない
                 MessageBox.Show("キャンセルされました");
             }
+            else if (e.Error != null)
+            {
+                MessageBox.Show("ファイルの移動中にエラーが発生しました" + Environment.NewLine + e.Error.Message);
+            }
 
             // リストを更新
             MoveFileListup();
@@ -1266,6 +1270,10 @@ namespace FileArranger
             {
                 // この場合はe.Resultにはアクセスできない
                 MessageBox.Show("キャンセルされました");
+            }
+            else if (e.Error != null)
+            {
+                MessageBox.Show("フォルダ分けの途中でエラーが発生しました" + Environment.NewLine + e.Error.Message);
             }
 
             // 選択解除
