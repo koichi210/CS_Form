@@ -2414,10 +2414,50 @@ namespace EventRecorder
             }
 
             menuItem_PlaylistDeleteRow.Enabled = contextMenuPlaylistRowIndex >= 0 && contextMenuPlaylistRowIndex < dataGridView_Playlist.Rows.Count;
+            // 右クリックした行にファイルが指定されていて、実在する時だけ開けるようにする
+            menuItem_PlaylistOpenFile.Enabled = System.IO.File.Exists(GetContextMenuPlaylistFilePath() ?? "");
 
             // 今どちらの表示モードか一目で分かるように、選択中の方にチェックを付ける
             menuItem_PlaylistShowCheckedOnly.Checked = showOnlyCheckedPlaylistRows;
             menuItem_PlaylistShowAll.Checked = !showOnlyCheckedPlaylistRows;
+        }
+
+        // 右クリックした行の設定ファイルのフルパスを返す(行が範囲外、またはファイル未指定ならnull)
+        private String GetContextMenuPlaylistFilePath()
+        {
+            if (contextMenuPlaylistRowIndex < 0 || contextMenuPlaylistRowIndex >= dataGridView_Playlist.Rows.Count)
+            {
+                return null;
+            }
+
+            String fileName = Convert.ToString(dataGridView_Playlist.Rows[contextMenuPlaylistRowIndex].Cells[col_PlaylistFile.Index].Value);
+            if (String.IsNullOrEmpty(fileName))
+            {
+                return null;
+            }
+
+            return System.IO.Path.Combine(userDataFolder, fileName);
+        }
+
+        // 右クリックした行の設定ファイルを、Windowsの関連付けアプリ(メモ帳など)で開く。
+        // EventRecorder側のグリッドや設定ファイルの選択状態には一切影響しない
+        private void menuItem_PlaylistOpenFile_Click(object sender, EventArgs e)
+        {
+            String filePath = GetContextMenuPlaylistFilePath();
+            if (!System.IO.File.Exists(filePath ?? ""))
+            {
+                return;
+            }
+
+            try
+            {
+                System.Diagnostics.Process.Start(filePath);
+            }
+            catch (Exception ex)
+            {
+                // 拡張子に関連付けアプリが無い場合など
+                MessageBox.Show(ex.Message, "ファイルを開けませんでした", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void menuItem_PlaylistShowCheckedOnly_Click(object sender, EventArgs e)

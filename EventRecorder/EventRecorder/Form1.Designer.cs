@@ -63,6 +63,8 @@ namespace EventRecorder
             this.col_PlaylistFile = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.col_PlaylistLoopCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Playlist = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuItem_PlaylistOpenFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_PlaylistOpenFileSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.menuItem_PlaylistRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistAddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_PlaylistDeleteRow = new System.Windows.Forms.ToolStripMenuItem();
@@ -438,6 +440,8 @@ namespace EventRecorder
             // 
             this.contextMenuStrip_Playlist.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip_Playlist.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItem_PlaylistOpenFile,
+            this.menuItem_PlaylistOpenFileSeparator,
             this.menuItem_PlaylistRefresh,
             this.menuItem_PlaylistAddRow,
             this.menuItem_PlaylistDeleteRow,
@@ -448,8 +452,20 @@ namespace EventRecorder
             this.menuItem_PlaylistShowAll,
             this.menuItem_PlaylistShowCheckedOnly});
             this.contextMenuStrip_Playlist.Name = "contextMenuStrip_Playlist";
-            this.contextMenuStrip_Playlist.Size = new System.Drawing.Size(204, 148);
+            this.contextMenuStrip_Playlist.Size = new System.Drawing.Size(204, 176);
             this.contextMenuStrip_Playlist.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Playlist_Opening);
+            // 
+            // menuItem_PlaylistOpenFile
+            // 
+            this.menuItem_PlaylistOpenFile.Name = "menuItem_PlaylistOpenFile";
+            this.menuItem_PlaylistOpenFile.Size = new System.Drawing.Size(203, 22);
+            this.menuItem_PlaylistOpenFile.Text = "ファイルを開く";
+            this.menuItem_PlaylistOpenFile.Click += new System.EventHandler(this.menuItem_PlaylistOpenFile_Click);
+            // 
+            // menuItem_PlaylistOpenFileSeparator
+            // 
+            this.menuItem_PlaylistOpenFileSeparator.Name = "menuItem_PlaylistOpenFileSeparator";
+            this.menuItem_PlaylistOpenFileSeparator.Size = new System.Drawing.Size(200, 6);
             //
             // menuItem_PlaylistRefresh
             //
@@ -581,6 +597,8 @@ namespace EventRecorder
         private System.Windows.Forms.DataGridViewTextBoxColumn col_PlaylistLoopCount;
         internal System.Windows.Forms.Label label_PlaylistStatus;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Playlist;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistOpenFile;
+        private System.Windows.Forms.ToolStripSeparator menuItem_PlaylistOpenFileSeparator;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistRefresh;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistAddRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_PlaylistDeleteRow;
