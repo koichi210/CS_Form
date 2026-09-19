@@ -37,8 +37,8 @@ namespace DeleteDuplicateElement
 
         private void textBox_Source_DragDrop(object sender, DragEventArgs e)
         {
-            String[] FileList = (String[])e.Data.GetData(typeof(String));
-            textBox_Source.Text = util.ChangeStrArray2Linear(FileList, Environment.NewLine);
+            // typeof(String)ではドロップされたファイル名を取得できず常にnullになっていた
+            textBox_Source.Text = util.GetDropListLinear(e);
         }
         
         private void button_Execute_Click(object sender, EventArgs e)

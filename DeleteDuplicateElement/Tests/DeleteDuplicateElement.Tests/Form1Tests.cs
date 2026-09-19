@@ -61,7 +61,8 @@ namespace DeleteDuplicateElement.Tests
             {
                 string[] files = { @"C:\a.txt", @"C:\b.txt" };
                 var data = new DataObject();
-                data.SetData(typeof(String), files);
+                // 実際にWindowsがドロップ時に渡してくる形式(FileDrop)で検証する
+                data.SetData(DataFormats.FileDrop, files);
                 var dragEventArgs = new DragEventArgs(data, 0, 0, 0, DragDropEffects.Copy, DragDropEffects.Copy);
 
                 FormReflection.InvokeHandler(form, "textBox_Source_DragDrop", null, dragEventArgs);

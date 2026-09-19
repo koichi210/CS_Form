@@ -39,8 +39,9 @@ namespace DialogChild
                 break;
             default:
                 // buttonMoveDirectionCentor
-                child.Left = (trackBarWindowWidth.Maximum + child.Width) / 2;
-                child.Top = (trackBarWindowHeight.Maximum + child.Height) / 2;
+                // 中央寄せは(領域 - 子のサイズ)/2。+では中央からずれていた
+                child.Left = (trackBarWindowWidth.Maximum - child.Width) / 2;
+                child.Top = (trackBarWindowHeight.Maximum - child.Height) / 2;
                 break;
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace ToyingFile
 {
@@ -10,10 +11,10 @@ namespace ToyingFile
     /// コードはそのまま移しただけで書き換えていない。ファイルの読み書き(fio.LoadFile/
     /// SaveFile)は Form1 側に残し、ここには文字列だけを渡す・返す形にした。
     ///
-    /// ⚠️ 元の実装の仕様として、exactMatch(大文字小文字区別)は「削除対象の行かどうかを
-    /// 判定する IndexOf」にしか効いていない。実際に削除・置換する String.Replace は
-    /// 常に大文字小文字を区別する（.NET Framework の String.Replace(string,string) に
-    /// 大文字小文字を無視するオーバーロードが無いため）。この非対称な挙動もそのまま残した。
+    /// exactMatch(大文字小文字を区別するか)は、以前は「削除対象の行かどうかを判定する IndexOf」
+    /// にしか効いておらず、実際に削除する String.Replace は常に大文字小文字を区別していた
+    /// (.NET Framework の String.Replace に大文字小文字を無視するオーバーロードが無いため)。
+    /// 区別しない場合は Regex.Replace を使うことで、判定と削除の挙動を揃えている。
     /// </summary>
     internal static class Logic
     {
@@ -45,13 +46,16 @@ namespace ToyingFile
                         if (deleteWholeLine)
                         {
                             // 一行削除&空行追加
-                            list.RemoveAt(j);
-                            list.Insert(j, "");
+                            list[j] = "";
                         }
-                        else
+                        else if (exactMatch)
                         {
                             // 文字だけ削除ならReplace
                             list[j] = list[j].Replace(DeleteArray[k], "");
+                        }
+                        else
+                        {
+                            list[j] = Regex.Replace(list[j], Regex.Escape(DeleteArray[k]), "", RegexOptions.IgnoreCase);
                         }
                     }
                 }

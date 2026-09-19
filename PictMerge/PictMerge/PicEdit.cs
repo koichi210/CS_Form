@@ -73,7 +73,11 @@ namespace PicEdit
 
         public void ReleaseSourceImg()
         {
-            m_SourceImg.Dispose();
+            // CreateSourceImg未実行ならm_SourceImgはnullのまま(ファイナライザ側と同じ理由)
+            if (m_SourceImg != null)
+            {
+                m_SourceImg.Dispose();
+            }
         }
 
         public void MergeExec(Rectangle CutParam)

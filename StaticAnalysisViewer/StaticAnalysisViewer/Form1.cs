@@ -321,61 +321,64 @@ namespace StaticAnalysisViewer
     {
         public readonly int UNKNOWN_IDX = -1;
 
-        // TODO:最大数を可変にしたい
-        private const uint MaxDbNum = 10000;
-
-        private DataBase_T[] DataArray = new DataBase_T[MaxDbNum];
+        // 以前は10000件固定の配列で、超えると配列外で落ちていたのでListにした
+        private List<DataBase_T> DataArray = new List<DataBase_T>();
         private string[] Category;
         private int CategoryIdx = 0;
-        private int ArrayNum = 0;       // 配列の登録数
         private int RowMaxNum = 0;      // 行の最大数（制約：一意とする）
 
-        // 並べ替えメソッド
+        // 並べ替えメソッド(値の大きい順。比較できない行は後ろへ)
         private int CompareArray(string[] x, string[] y)
         {
-            // そもそも比較するための情報がそろっていない場合
-            if (CategoryIdx > x.Length || x[CategoryIdx] == "" || !Char.IsDigit(x[CategoryIdx], 0))
-            {
-                return 1;
-            }
-            else if (CategoryIdx > y.Length || y[CategoryIdx] == "" || !Char.IsDigit(y[CategoryIdx], 0))
-            {
-                return -1;
-            }
+            int XValue;
+            int YValue;
+            Boolean IsXComparable = TryGetCategoryValue(x, out XValue);
+            Boolean IsYComparable = TryGetCategoryValue(y, out YValue);
 
-            if (int.Parse(x[CategoryIdx]) < int.Parse(y[CategoryIdx]))
-            {
-                return 1;
-            }
-            else if (int.Parse(x[CategoryIdx]) > int.Parse(y[CategoryIdx]))
-            {
-                return -1;
-            }
-            else
+            // 両方とも比較不能なときに1と-1を返し分けていたため、x>yとy>xが同時に成立して
+            // Array.Sortが「矛盾した結果を返します」で落ちることがあった
+            if (!IsXComparable && !IsYComparable)
             {
                 return 0;
             }
+            if (!IsXComparable)
+            {
+                return 1;
+            }
+            if (!IsYComparable)
+            {
+                return -1;
+            }
+
+            return YValue.CompareTo(XValue);
+        }
+
+        // 比較対象の列が範囲内にあり、数値として読める場合だけtrue
+        private Boolean TryGetCategoryValue(string[] Values, out int Value)
+        {
+            Value = 0;
+            return CategoryIdx < Values.Length && int.TryParse(Values[CategoryIdx], out Value);
         }
 
         // 初期化
         public void Initialize()
         {
-            //DataArray = null;
+            DataArray.Clear();
             Category = null;
             CategoryIdx = 0;
-            ArrayNum = 0;
             RowMaxNum = 0;
         }
 
         // データ配列生成
         public void CreateArray(string Data, string Label)
         {
-            DataArray[ArrayNum].Label = Label;
+            DataBase_T Entry = new DataBase_T();
+            Entry.Label = Label;
 
             // 行ごとに抽出
             var Rows = Data.Split('\n');
             int Length = Rows.Length - 1;
-            DataArray[ArrayNum].Data = new string[Length][];
+            Entry.Data = new string[Length][];
 
             if (Category == null)
             {
@@ -385,25 +388,20 @@ namespace StaticAnalysisViewer
             //セルごとに抽出
             for (int i = 0, idx = 1; i < Length; i++, idx++)
             {
-                //if (Rows[idx] == String.Empty)
-                //{
-                //    continue;
-                //}
-                DataArray[ArrayNum].Data[i] = Rows[idx].Split(',');
+                Entry.Data[i] = Rows[idx].Split(',');
             }
 
             // 列数を設定
-            DataArray[ArrayNum].ColumnNum = Length;
+            Entry.ColumnNum = Length;
 
             // 制約：すべて同一のフォーマットを読むこと。読み込むファイルごとにRowが変わらないこと
             // 行数の最大値を更新
             if (RowMaxNum == 0)
             {
-                RowMaxNum = DataArray[ArrayNum].Data[0].Length;
+                RowMaxNum = Entry.Data[0].Length;
             }
 
-            // 配列全体数を更新
-            ArrayNum++;
+            DataArray.Add(Entry);
         }
 
         // データを並び替える
@@ -414,14 +412,6 @@ namespace StaticAnalysisViewer
 
             // 並び替え
             System.Array.Sort(DataArray[ArrayIdx].Data, CompareArray);
-        }
-
-        // 未使用
-        private void Swap(ref string[] a, ref string[] b)
-        {
-            string[] c = a;
-            a = b;
-            b = c;
         }
 
         // データ配列取得
@@ -456,7 +446,7 @@ namespace StaticAnalysisViewer
         // 配列数取得
         public int GetArrayNum()
         {
-            return ArrayNum;
+            return DataArray.Count;
         }
 
         // 行数取得

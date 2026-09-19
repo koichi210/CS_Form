@@ -293,7 +293,7 @@
             this.md_comboBox_TargetDir.Name = "md_comboBox_TargetDir";
             this.md_comboBox_TargetDir.Size = new System.Drawing.Size(847, 26);
             this.md_comboBox_TargetDir.TabIndex = 5;
-            this.md_comboBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mf_textBox_TargetDir_KeyDown);
+            this.md_comboBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.md_comboBox_TargetDir_KeyDown);
             // 
             // md_button_MoveTopDir
             // 
@@ -404,7 +404,7 @@
             this.md_textBox_SourceDir.Name = "md_textBox_SourceDir";
             this.md_textBox_SourceDir.Size = new System.Drawing.Size(734, 25);
             this.md_textBox_SourceDir.TabIndex = 2;
-            this.md_textBox_SourceDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mf_textBox_SourceDir_KeyDown);
+            this.md_textBox_SourceDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.md_textBox_SourceDir_KeyDown);
             // 
             // label2
             // 

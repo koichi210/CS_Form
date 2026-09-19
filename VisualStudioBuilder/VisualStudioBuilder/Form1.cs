@@ -404,6 +404,12 @@ namespace VisualStudioBuilder
 
         private void dataGridView_KeyDown(object sender, KeyEventArgs e)
         {
+            // キーの種類を見ておらず、どのキーを押してもクリップボードを上書きしていた
+            if (!e.Control || e.KeyCode != Keys.C)
+            {
+                return;
+            }
+
             // 自前でコピー
             Clipboard.SetDataObject(dataGridView.GetClipboardContent());
 

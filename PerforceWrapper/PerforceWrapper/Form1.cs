@@ -223,10 +223,10 @@ namespace PerforceWrapper
                 textBox_dl_dest_tree.Text == String.Empty)
             {
                 MessageBox.Show("設定されていない項目があります。" + Environment.NewLine + 
-                    "比較元 ラベル名：" + textBox_dl_src_label_name + Environment.NewLine + 
-                    "比較元 ツリー：" + textBox_dl_src_tree + Environment.NewLine + 
-                    "比較先 ラベル名：" + textBox_dl_dest_label_name + Environment.NewLine + 
-                    "比較先 ツリー：" + textBox_dl_dest_tree + Environment.NewLine );
+                    "比較元 ラベル名：" + textBox_dl_src_label_name.Text + Environment.NewLine +
+                    "比較元 ツリー：" + textBox_dl_src_tree.Text + Environment.NewLine +
+                    "比較先 ラベル名：" + textBox_dl_dest_label_name.Text + Environment.NewLine +
+                    "比較先 ツリー：" + textBox_dl_dest_tree.Text + Environment.NewLine );
                 return;
             }
 

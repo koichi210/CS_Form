@@ -53,15 +53,15 @@ namespace ToyingFile.Tests
         }
 
         [TestMethod]
-        public void 置換のReplace自体は大文字小文字を区別する既知の仕様()
+        public void 大文字小文字を区別しない指定なら大文字の文字列も削除される()
         {
-            // exactMatch=false で検索は一致しても、実際の置換(String.Replace)は
-            // 常に大文字小文字を区別するため、大文字側の文字列は消えずに残る。
+            // 以前は検索(IndexOf)だけ大文字小文字を無視し、削除(String.Replace)は区別していたため
+            // 大文字側が消えずに残っていた。Regex.Replaceに変えて判定と削除の挙動を揃えた。
             string content = "TARGET line";
 
             string result = Logic.DeleteStringFromContent(content, new[] { "target" }, exactMatch: false, deleteWholeLine: false);
 
-            Assert.AreEqual("TARGET line", result, "検索はヒットするが、Replaceが一致せず削除されない");
+            Assert.AreEqual(" line", result, "検索がヒットした文字列は削除される");
         }
 
         [TestMethod]

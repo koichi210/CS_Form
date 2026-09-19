@@ -112,9 +112,14 @@ namespace FileArranger
             util.SetComboBoxText(comboBox_LoadSetting, defaultProfileName);
         }
 
-        private void mf_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
+        private void md_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
         {
             util.ExecutePath(md_textBox_SourceDir.Text, e);
+        }
+
+        private void md_comboBox_TargetDir_KeyDown(object sender, KeyEventArgs e)
+        {
+            util.ExecutePath(md_comboBox_TargetDir.Text, e);
         }
 
         private void md_button_Listup_Click(object sender, EventArgs e)
@@ -1078,14 +1083,9 @@ namespace FileArranger
             bgWorkerMove.RunWorkerAsync(arguments);   // ⇒bgWorker_DoWork()
         }
 
-        private void mf_textBox_SourceDir_KeyDown_1(object sender, KeyEventArgs e)
+        private void mf_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
         {
             util.ExecutePath(mf_textBox_SourceDir.Text, e);
-        }
-
-        private void mf_textBox_TargetDir_KeyDown_1(object sender, KeyEventArgs e)
-        {
-            util.ExecutePath(mf_textBox_TargetDir.Text, e);
         }
 
         private void rd_listView_Target_KeyDown(object sender, KeyEventArgs e)
@@ -1183,6 +1183,9 @@ namespace FileArranger
             // 意味ごとに変数を分けて、それぞれの役割を明確にした(値・挙動は変えていない)。
             const int BaseOffset = 3;   // 4個目(genericlist[3])から対象データが始まる
             const int Stride = 3;       // 1件あたり(対象名/移動前名称/移動後名称)3個おき
+
+            // このスレッドから直接MessageBoxを出さず、完了時にUIスレッドへまとめて渡す
+            List<String> Messages = new List<String>();
             for (int i = 0; i < ItemCount; i++)
             {
                 String TargetName = (String)genericlist[BaseOffset + i * Stride + 0]; // 4個目以降が対象[3個おき]
@@ -1227,23 +1230,16 @@ namespace FileArranger
                     // ファイル名の重複回避
                     if (!util.CreateFileNameOverLapShirk(ref DestFileName, i))
                     {
-                        MessageBox.Show("ファイル名が重複しました。処理をスキップします。" + Environment.NewLine +
-                                        FileName,
-                                        "Warning",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Warning);
+                        Messages.Add("ファイル名が重複したので処理をスキップしました：" + FileName);
                         continue;
                     }
                     File.Move(SrcFileName, DestFileName);
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("エラーが発生しました。処理を中断します。" + Environment.NewLine +
-                                    "移動元：" + SrcFileName + Environment.NewLine +
-                                    "移動先：" + DestFileName + Environment.NewLine,
-                                    "Error",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Error);
+                    Messages.Add("エラーが発生したので処理を中断しました。" + Environment.NewLine +
+                                 "移動元：" + SrcFileName + Environment.NewLine +
+                                 "移動先：" + DestFileName);
                     break;
                 }
 
@@ -1252,7 +1248,7 @@ namespace FileArranger
             worker.ReportProgress(ItemCount);
 
             // このメソッドからの戻り値
-            e.Result = "すべて完了";
+            e.Result = Messages;
 
             // ⇒RunWorkerCompleted()
         }
@@ -1274,6 +1270,18 @@ namespace FileArranger
             else if (e.Error != null)
             {
                 MessageBox.Show("フォルダ分けの途中でエラーが発生しました" + Environment.NewLine + e.Error.Message);
+            }
+            else
+            {
+                // 別スレッド側で溜めたメッセージを、UIスレッドであるここでまとめて出す
+                List<String> Messages = e.Result as List<String>;
+                if (Messages != null && Messages.Count > 0)
+                {
+                    MessageBox.Show(String.Join(Environment.NewLine, Messages.ToArray()),
+                                    "Warning",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                }
             }
 
             // 選択解除

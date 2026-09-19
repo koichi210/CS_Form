@@ -42,8 +42,8 @@ namespace DialogChild.Tests
                 var sender = new Button { Name = "buttonMoveDirectionCentor" };
                 FormReflection.InvokeHandler(form, "updatePosition", sender);
 
-                int expectedLeft = (trackBarWindowWidth.Maximum + child.Width) / 2;
-                int expectedTop = (trackBarWindowHeight.Maximum + child.Height) / 2;
+                int expectedLeft = (trackBarWindowWidth.Maximum - child.Width) / 2;
+                int expectedTop = (trackBarWindowHeight.Maximum - child.Height) / 2;
                 Assert.AreEqual(expectedLeft, child.Left);
                 Assert.AreEqual(expectedTop, child.Top);
 
