@@ -22,10 +22,5 @@ namespace EventRecorder
         // 記録/再生の切り替えホットキー([[HotkeyDefaults.cs]]参照)
         public Keys RecordHotkey { get; set; }
         public Keys PlayHotkey { get; set; }
-
-        // 最小化中だけタスクバーから消してシステムトレイへ退避するかどうか(checkBox_HideFromTaskbar)。
-        // 特定のマクロに紐づく設定ではないので、MinimizeOnPlay(プロファイル側で保存)とは違い
-        // こちらのアプリ設定側に持たせている
-        public Boolean HideTaskbarIconWhenMinimized { get; set; }
     }
 }

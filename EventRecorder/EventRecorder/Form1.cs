@@ -99,7 +99,7 @@ namespace EventRecorder
         // 元のサイズに戻った時のOnSizeChangedで正しく再計算させる
         protected override void OnSizeChanged(EventArgs e)
         {
-            // checkBox_HideFromTaskbarがオンなら、最小化/復元のたびにタスクバー表示と
+            // checkBox_MinimizeOnPlayがオンなら、最小化/復元のたびにタスクバー表示と
             // システムトレイ表示を切り替える(手動最小化・再生時の自動最小化のどちらでも働く)
             UpdateTaskbarVisibility();
 
@@ -111,20 +111,21 @@ namespace EventRecorder
             base.OnSizeChanged(e);
         }
 
-        // checkBox_HideFromTaskbarがオンかつ最小化中の時だけ、タスクバーから消してシステム
-        // トレイアイコンを表示する。それ以外(オフ、または最小化されていない)は通常通り
-        // タスクバーに表示しトレイアイコンは消す。OnSizeChanged(最小化/復元の切り替え時)と
-        // checkBox_HideFromTaskbar_CheckedChanged(最小化中にチェックを変えた時)の両方から呼ぶ
+        // checkBox_MinimizeOnPlay(実行時にウィンドウを最小化する)がオンかつ最小化中の時だけ、
+        // タスクバーから消してシステムトレイアイコンを表示する。それ以外(オフ、または最小化
+        // されていない)は通常通りタスクバーに表示しトレイアイコンは消す。OnSizeChanged(最小化/
+        // 復元の切り替え時)とcheckBox_MinimizeOnPlay_CheckedChanged(最小化中にチェックを変えた時)の
+        // 両方から呼ぶ
         private void UpdateTaskbarVisibility()
         {
-            Boolean shouldHideFromTaskbar = checkBox_HideFromTaskbar.Checked
+            Boolean shouldHideFromTaskbar = checkBox_MinimizeOnPlay.Checked
                 && this.WindowState == FormWindowState.Minimized;
 
             this.ShowInTaskbar = !shouldHideFromTaskbar;
             notifyIcon_Tray.Visible = shouldHideFromTaskbar;
         }
 
-        private void checkBox_HideFromTaskbar_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_MinimizeOnPlay_CheckedChanged(object sender, EventArgs e)
         {
             UpdateTaskbarVisibility();
         }
@@ -602,8 +603,6 @@ namespace EventRecorder
             {
                 hotkeyTogglePlay = settings.PlayHotkey;
             }
-
-            checkBox_HideFromTaskbar.Checked = settings.HideTaskbarIconWhenMinimized;
         }
 
         // ウィンドウサイズ+境界線位置+ホットキーをまとめて保存する。終了時と、
@@ -623,7 +622,6 @@ namespace EventRecorder
                 SplitterDistance = splitContainer_Main.SplitterDistance,
                 RecordHotkey = hotkeyToggleRecord,
                 PlayHotkey = hotkeyTogglePlay,
-                HideTaskbarIconWhenMinimized = checkBox_HideFromTaskbar.Checked,
             };
 
             String path = System.IO.Path.Combine(userDataFolder, AppSettingsFileName);

@@ -45,7 +45,6 @@ namespace EventRecorder
             this.textBox_Loop = new StandardTemplate.TextBoxEx();
             this.button_Play = new System.Windows.Forms.Button();
             this.checkBox_MinimizeOnPlay = new System.Windows.Forms.CheckBox();
-            this.checkBox_HideFromTaskbar = new System.Windows.Forms.CheckBox();
             this.notifyIcon_Tray = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip_Tray = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_TrayRestore = new System.Windows.Forms.ToolStripMenuItem();
@@ -238,18 +237,7 @@ namespace EventRecorder
             this.checkBox_MinimizeOnPlay.TabIndex = 7;
             this.checkBox_MinimizeOnPlay.Text = "実行時にウィンドウを最小化する";
             this.checkBox_MinimizeOnPlay.UseVisualStyleBackColor = true;
-            //
-            // checkBox_HideFromTaskbar
-            //
-            this.checkBox_HideFromTaskbar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.checkBox_HideFromTaskbar.AutoSize = true;
-            this.checkBox_HideFromTaskbar.Location = new System.Drawing.Point(400, 337);
-            this.checkBox_HideFromTaskbar.Name = "checkBox_HideFromTaskbar";
-            this.checkBox_HideFromTaskbar.Size = new System.Drawing.Size(176, 16);
-            this.checkBox_HideFromTaskbar.TabIndex = 8;
-            this.checkBox_HideFromTaskbar.Text = "タスクバーのアイコン非表示";
-            this.checkBox_HideFromTaskbar.UseVisualStyleBackColor = true;
-            this.checkBox_HideFromTaskbar.CheckedChanged += new System.EventHandler(this.checkBox_HideFromTaskbar_CheckedChanged);
+            this.checkBox_MinimizeOnPlay.CheckedChanged += new System.EventHandler(this.checkBox_MinimizeOnPlay_CheckedChanged);
             //
             // notifyIcon_Tray
             //
@@ -291,7 +279,7 @@ namespace EventRecorder
             this.comboBox_Profile.Name = "comboBox_Profile";
             this.comboBox_Profile.Size = new System.Drawing.Size(456, 20);
             this.comboBox_Profile.Sorted = true;
-            this.comboBox_Profile.TabIndex = 9;
+            this.comboBox_Profile.TabIndex = 8;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             // 
             // button_ProfileSave
@@ -300,7 +288,7 @@ namespace EventRecorder
             this.button_ProfileSave.Location = new System.Drawing.Point(474, 361);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(108, 23);
-            this.button_ProfileSave.TabIndex = 10;
+            this.button_ProfileSave.TabIndex = 9;
             this.button_ProfileSave.Text = "プロファイル保存";
             this.button_ProfileSave.UseVisualStyleBackColor = true;
             this.button_ProfileSave.Click += new System.EventHandler(this.button_ProfileSave_Click);
@@ -535,7 +523,6 @@ namespace EventRecorder
             this.Controls.Add(this.comboBox_Profile);
             this.Controls.Add(this.button_Play);
             this.Controls.Add(this.checkBox_MinimizeOnPlay);
-            this.Controls.Add(this.checkBox_HideFromTaskbar);
             this.Controls.Add(this.textBox_Loop);
             this.Controls.Add(this.label_Loop);
             this.MinimumSize = new System.Drawing.Size(427, 257);
@@ -573,7 +560,6 @@ namespace EventRecorder
         internal StandardTemplate.TextBoxEx textBox_Loop;
         private System.Windows.Forms.Button button_Play;
         internal System.Windows.Forms.CheckBox checkBox_MinimizeOnPlay;
-        internal System.Windows.Forms.CheckBox checkBox_HideFromTaskbar;
         private System.Windows.Forms.NotifyIcon notifyIcon_Tray;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Tray;
         private System.Windows.Forms.ToolStripMenuItem menuItem_TrayRestore;
