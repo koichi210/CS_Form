@@ -87,7 +87,9 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Function.cs" />
-    <Compile Include="ProcessMemory.cs" />
+    <Compile Include="..\..\_Common\ProcessMemory.cs">
+      <Link>ProcessMemory.cs</Link>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>
@@ -96,6 +98,9 @@
     <Compile Include="FileMng.cs" />
     <Compile Include="Rename.cs" />
     <Compile Include="SaveRestore.cs" />
+    <Compile Include="..\..\_Common\DataFolderMenu.cs">
+      <Link>DataFolderMenu.cs</Link>
+    </Compile>
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>
     </Compile>

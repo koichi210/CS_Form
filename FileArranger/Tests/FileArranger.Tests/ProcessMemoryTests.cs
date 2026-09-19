@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StandardTemplate;
 
 namespace FileArranger.Tests
 {
@@ -13,7 +14,7 @@ namespace FileArranger.Tests
         [TestMethod]
         public void 何も登録していなければ取り消しリストは無い()
         {
-            var pm = new ProcessMemory();
+            var pm = new StcProcessMemory();
 
             Assert.IsFalse(pm.IsExistRestoreList());
         }
@@ -21,7 +22,7 @@ namespace FileArranger.Tests
         [TestMethod]
         public void 一度も実行していない状態でDecrementすると失敗する()
         {
-            var pm = new ProcessMemory();
+            var pm = new StcProcessMemory();
 
             Assert.IsFalse(pm.DecrementRegistNumber());
         }
@@ -29,7 +30,7 @@ namespace FileArranger.Tests
         [TestMethod]
         public void GetRestoreListは後から登録した順に取り出される()
         {
-            var pm = new ProcessMemory();
+            var pm = new StcProcessMemory();
             pm.SetRestoreList("1_src", "1_dst");
             pm.SetRestoreList("2_src", "2_dst");
 
@@ -44,7 +45,7 @@ namespace FileArranger.Tests
         [TestMethod]
         public void 実行回ごとにIncrementしてから登録すると別の回として区別される()
         {
-            var pm = new ProcessMemory();
+            var pm = new StcProcessMemory();
 
             pm.SetRestoreList("1a_src", "1a_dst");
             pm.IncrementRegistNumber();

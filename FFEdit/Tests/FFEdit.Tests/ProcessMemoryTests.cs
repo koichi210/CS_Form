@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StandardTemplate;
 
 namespace FFEdit.Tests
 {
@@ -14,7 +15,7 @@ namespace FFEdit.Tests
     [TestClass]
     public class ProcessMemoryTests
     {
-        private class TestMemory : ProcessMemory
+        private class TestMemory : StcProcessMemory
         {
         }
 

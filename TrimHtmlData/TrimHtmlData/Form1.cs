@@ -82,7 +82,7 @@ namespace TrimHtmlData
                 textBox_DestList.Text += Result;
             }
 
-            Clipboard.SetText(textBox_DestList.Text);
+            util.SetClipboardText(textBox_DestList.Text);
         }
 
         /// <summary>

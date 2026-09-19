@@ -8,7 +8,7 @@ using StandardTemplate;
 
 namespace FFEdit
 {
-    class FileMng : ProcessMemory
+    class FileMng : StcProcessMemory
     {
         private StcUtils util = new StcUtils();
         private StcFileInputOutput FileIO = new StcFileInputOutput();

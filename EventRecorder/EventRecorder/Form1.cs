@@ -91,7 +91,8 @@ namespace EventRecorder
         // 実データは%LOCALAPPDATA%\EventRecorder\配下(既定)にあり、exe直下には
         // その場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common\UserDataLocation.cs]])
-        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder("EventRecorder");
+        private const String AppName = "EventRecorder";
+        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
 
         // 最小化する瞬間、OSから一時的にクライアント領域が極小サイズのリサイズ通知が来ることがあり、
         // Anchor/Fillでの再レイアウトがその極小サイズを基準に確定してしまい、元に戻した時に
@@ -255,19 +256,8 @@ namespace EventRecorder
         // ウィンドウ左上のアイコンをクリックした時のシステムメニュー(最小化・最大化・閉じる等が
         // 並ぶメニュー)に項目を追加する形にした
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetSystemMenu(IntPtr hWnd, Boolean bRevert);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern Boolean AppendMenu(IntPtr hMenu, uint uFlags, uint uIDNewItem, String lpNewItem);
-
-        private const uint MF_SEPARATOR = 0x800;
-        private const uint MF_STRING = 0x0;
-        private const int WM_SYSCOMMAND = 0x112;
-
-        // システムコマンドのIDは下位4bitをWindowsが予約しているため、16の倍数かつ
-        // 0xF000未満にする必要がある(MSDN既定のルール)
-        private const int SysMenuId_ChangeDataFolder = 0x1000;
+        // システムメニューへの追加と「データ保存先を変更」は[[_Common/DataFolderMenu.cs]]に集約済み。
+        // ここではEventRecorder独自の項目のIDだけ持つ(16の倍数かつ0xF000未満、0x1000は共通側が使用)
         private const int SysMenuId_ChangeHotkeys = 0x1010;
 
         // ウィンドウハンドルが確定したタイミングでシステムメニューに項目を追加する
@@ -276,10 +266,8 @@ namespace EventRecorder
         {
             base.OnHandleCreated(e);
 
-            IntPtr systemMenu = GetSystemMenu(this.Handle, false);
-            AppendMenu(systemMenu, MF_SEPARATOR, 0, String.Empty);
-            AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeDataFolder, "データ保存先を変更(&D)...");
-            AppendMenu(systemMenu, MF_STRING, SysMenuId_ChangeHotkeys, "キーバインドを設定(&K)...");
+            DataFolderMenu.AppendToSystemMenu(this);
+            DataFolderMenu.AppendMenuItem(this, SysMenuId_ChangeHotkeys, "キーバインドを設定(&K)...");
         }
 
         // Ctrl+Sでプロファイル保存(button_ProfileSave_Click)を呼ぶ。
@@ -336,19 +324,15 @@ namespace EventRecorder
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == WM_SYSCOMMAND)
+            if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                int sysCommandId = m.WParam.ToInt32() & 0xFFF0;
-                if (sysCommandId == SysMenuId_ChangeDataFolder)
-                {
-                    ChangeDataFolder();
-                    return;
-                }
-                if (sysCommandId == SysMenuId_ChangeHotkeys)
-                {
-                    ChangeHotkeys();
-                    return;
-                }
+                ChangeDataFolder();
+                return;
+            }
+            if (DataFolderMenu.IsSysCommand(m, SysMenuId_ChangeHotkeys))
+            {
+                ChangeHotkeys();
+                return;
             }
 
             base.WndProc(ref m);
@@ -412,104 +396,15 @@ namespace EventRecorder
             {
                 MessageBox.Show(
                     "記録中/再生中は変更できないよ。停止してから試してね",
-                    "EventRecorder - データ保存先の変更",
+                    AppName + " - データ保存先の変更",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
                 return;
             }
 
-            // フォルダ選択ダイアログの実装は[[_Common/DataFolderChooser.cs]]に集約してある
-            // (「データ保存先を変更」機能を持つプロジェクト全部で見た目・挙動を統一するため)
-            String selectedFolder = StandardTemplate.DataFolderChooser.ChooseFolder(
-                "プロファイルの保存先ふぉるだを選んでください", userDataFolder);
-
-            if (selectedFolder == null)
-            {
-                return;
-            }
-
-            if (String.Equals(
-                System.IO.Path.GetFullPath(selectedFolder).TrimEnd('\\'),
-                System.IO.Path.GetFullPath(userDataFolder).TrimEnd('\\'),
-                StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            // 保存先を変えるだけだと今までのプロファイルが古いフォルダに取り残されてしまうため、
-            // 移動するかどうかをここで確認する(プロファイルの引っ越し)
-            DialogResult moveResult = MessageBox.Show(
-                "既存のプロファイルを新しい保存先に移動しますか？" + Environment.NewLine + Environment.NewLine
-                    + "移動元: " + userDataFolder + Environment.NewLine
-                    + "移動先: " + selectedFolder,
-                "EventRecorder - プロファイルの引っ越し",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (moveResult == DialogResult.Yes)
-            {
-                MoveExistingProfiles(userDataFolder, selectedFolder);
-            }
-
-            StandardTemplate.UserDataLocation.SetUserDataFolder("EventRecorder", selectedFolder);
-
-            MessageBox.Show(
-                "保存先を変更したよ" + Environment.NewLine + selectedFolder + Environment.NewLine + Environment.NewLine
-                    + "今のセッションはこれまで通り" + Environment.NewLine + userDataFolder + Environment.NewLine
-                    + "を使うよ。新しい保存先は次回起動時から反映されるよ",
-                "EventRecorder - データ保存先の変更",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-        }
-
-        // oldFolder直下(サブフォルダは対象外)にある*.xml/*.jsonプロファイルをnewFolderへ移動する。
-        // EventRecorder.json(アプリの設定ファイル、プロファイルではない)は対象外。
-        // 移動先に同名ファイルが既にある場合は、上書きせずスキップする(データ消失を避けるため)
-        private void MoveExistingProfiles(String oldFolder, String newFolder)
-        {
-            List<String> profileFiles = System.IO.Directory.GetFiles(oldFolder, "*.xml")
-                .Concat(System.IO.Directory.GetFiles(oldFolder, "*.json")
-                    .Where(f => !IsNonProfileSettingFile(f)))
-                .ToList();
-
-            List<String> movedFiles = new List<String>();
-            List<String> skippedFiles = new List<String>();
-
-            foreach (String sourcePath in profileFiles)
-            {
-                String fileName = System.IO.Path.GetFileName(sourcePath);
-                String destPath = System.IO.Path.Combine(newFolder, fileName);
-
-                if (System.IO.File.Exists(destPath))
-                {
-                    skippedFiles.Add(fileName);
-                    continue;
-                }
-
-                try
-                {
-                    System.IO.File.Move(sourcePath, destPath);
-                    movedFiles.Add(fileName);
-                }
-                catch (Exception)
-                {
-                    skippedFiles.Add(fileName);
-                }
-            }
-
-            String message = movedFiles.Count + "件のプロファイルを移動したよ";
-            if (skippedFiles.Count > 0)
-            {
-                message += Environment.NewLine + Environment.NewLine
-                    + skippedFiles.Count + "件は移動先に同名ファイルが既にあった(または移動に失敗した)ためスキップしたよ:"
-                    + Environment.NewLine + String.Join(Environment.NewLine, skippedFiles);
-            }
-
-            MessageBox.Show(
-                message,
-                "EventRecorder - プロファイルの引っ越し",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            // EventRecorder.json(アプリの設定ファイル、プロファイルではない)は引っ越し対象から外す
+            DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
+                (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName, IsNonProfileSettingFile));
         }
 
         // 今選択中のモードのグループボックスだけ背景色をハイライトする。

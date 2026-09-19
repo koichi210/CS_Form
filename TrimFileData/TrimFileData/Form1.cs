@@ -61,7 +61,7 @@ namespace TrimFileData
 
             // 検索結果をコントロールにセット
             textBox_SerchResultList.Text = Logic.GetSearchData(SourceArray, ReferList, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SerchCommonWord.Text);
-            Clipboard.SetText(textBox_SerchResultList.Text);
+            util.SetClipboardText(textBox_SerchResultList.Text);
         }
 
         private void textBox_ReferencePath_KeyDown(object sender, KeyEventArgs e)

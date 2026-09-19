@@ -411,7 +411,7 @@ namespace VisualStudioBuilder
             }
 
             // 自前でコピー
-            Clipboard.SetDataObject(dataGridView.GetClipboardContent());
+            util.SetClipboardData(dataGridView.GetClipboardContent());
 
             // Memo：DataGridViewの機能でコピー
             //dataGridView.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;

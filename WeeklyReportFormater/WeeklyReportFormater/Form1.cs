@@ -70,7 +70,7 @@ namespace WeeklyReportFormater
             }
 
             textBox_ThisWeekAfter.Text = Logic.FormatThisWeek(textBox_ThisWeekBefore.Text, textBox_UserName.Text);
-            Clipboard.SetText(textBox_ThisWeekAfter.Text);
+            util.SetClipboardText(textBox_ThisWeekAfter.Text);
         }
 
         private void button_NextWeekChange_Click(object sender, EventArgs e)
@@ -83,7 +83,7 @@ namespace WeeklyReportFormater
             }
 
             textBox_NextWeekAfter.Text = Logic.FormatNextWeek(textBox_NextWeekBefore.Text, textBox_UserName.Text);
-            Clipboard.SetText(textBox_NextWeekAfter.Text);
+            util.SetClipboardText(textBox_NextWeekAfter.Text);
         }
 
         private void button_PerforceChange_Click(object sender, EventArgs e)
@@ -96,7 +96,7 @@ namespace WeeklyReportFormater
             }
 
             textBox_PerforceAfter.Text = Logic.FormatPerforce(textBox_PerforceBefore.Text);
-            Clipboard.SetText(textBox_PerforceAfter.Text);
+            util.SetClipboardText(textBox_PerforceAfter.Text);
         }
     }
 }

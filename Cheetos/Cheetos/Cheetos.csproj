@@ -87,6 +87,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="SaveRestore.cs" />
+    <Compile Include="..\..\_Common\DataFolderMenu.cs">
+      <Link>DataFolderMenu.cs</Link>
+    </Compile>
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>
     </Compile>

@@ -56,7 +56,7 @@ namespace ToyingData
 
             if (DestLinear != String.Empty)
             {
-                Clipboard.SetText(textBox_Dest.Text);
+                util.SetClipboardText(textBox_Dest.Text);
             }
         }
 

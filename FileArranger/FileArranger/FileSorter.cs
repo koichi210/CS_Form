@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using StandardTemplate;
 
 namespace FileArranger
 {
@@ -15,7 +16,7 @@ namespace FileArranger
     /// </summary>
     internal class FileSorter
     {
-        private readonly ProcessMemory pm = new ProcessMemory();
+        private readonly StcProcessMemory pm = new StcProcessMemory();
 
         /// <summary>指定フォルダの中のファイルを連番にリネームする。</summary>
         public void SortFolder(String FilePath)
