@@ -58,7 +58,7 @@
     <Compile Include="ProcessMemoryTests.cs" />
     <Compile Include="RenameTests.cs" />
     <Compile Include="FunctionTests.cs" />
-    <Compile Include="TimeStumpTests.cs" />
+    <Compile Include="TimeStampTests.cs" />
     <Compile Include="SaveRestoreTests.cs" />
     <Compile Include="FileMngTests.cs" />
   </ItemGroup>

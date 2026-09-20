@@ -15,10 +15,13 @@ namespace Cheetos
         public void RegistItem(Cheetos Parent)
         {
             SetElement("Setting");
+            // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
+            // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
+            // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
 
             RegistCtrl("CaptureWindow", "cw_TextBox_SavePath", Parent.cw_TextBox_SavePath);
-            RegistCtrl("CaptureWindow", "cw_TextBox_SaveFilePrifix", Parent.cw_TextBox_SaveFilePrifix);
-            RegistCtrl("CaptureWindow", "cw_checkBox_AddTimeStump", Parent.cw_checkBox_AddTimeStump);
+            RegistCtrl("CaptureWindow", "cw_TextBox_SaveFilePrifix", Parent.cw_TextBox_SaveFilePrefix);
+            RegistCtrl("CaptureWindow", "cw_checkBox_AddTimeStump", Parent.cw_checkBox_AddTimeStamp);
             RegistCtrl("CaptureWindow", "cw_Radio_FullScreen", Parent.cw_Radio_FullScreen,"True");
             RegistCtrl("CaptureWindow", "cw_Radio_CurrentScreen", Parent.cw_Radio_CurrentScreen);
             RegistCtrl("CaptureWindow", "cw_Radio_CurrentWindow", Parent.cw_Radio_CurrentWindow);

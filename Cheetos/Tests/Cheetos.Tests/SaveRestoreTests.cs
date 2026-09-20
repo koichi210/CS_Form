@@ -71,8 +71,8 @@ namespace Cheetos.Tests
             using (Cheetos writer = NewForm())
             {
                 writer.cw_TextBox_SavePath.Text = @"C:\capture\out";
-                writer.cw_TextBox_SaveFilePrifix.Text = "shot_";
-                writer.cw_checkBox_AddTimeStump.Checked = true;
+                writer.cw_TextBox_SaveFilePrefix.Text = "shot_";
+                writer.cw_checkBox_AddTimeStamp.Checked = true;
                 writer.cw_Radio_CurrentWindow.Checked = true;
                 writer.cw_TextBox_Sleep.Text = "1234";
                 writer.cw_TextBox_Loop.Text = "9";
@@ -85,8 +85,8 @@ namespace Cheetos.Tests
                     Assert.IsTrue(NewSaveRestore(reader).LoadXmlFile(path), "読み込みに成功するはず");
 
                     Assert.AreEqual(@"C:\capture\out", reader.cw_TextBox_SavePath.Text);
-                    Assert.AreEqual("shot_", reader.cw_TextBox_SaveFilePrifix.Text);
-                    Assert.IsTrue(reader.cw_checkBox_AddTimeStump.Checked);
+                    Assert.AreEqual("shot_", reader.cw_TextBox_SaveFilePrefix.Text);
+                    Assert.IsTrue(reader.cw_checkBox_AddTimeStamp.Checked);
                     Assert.IsTrue(reader.cw_Radio_CurrentWindow.Checked);
                     Assert.AreEqual("1234", reader.cw_TextBox_Sleep.Text);
                     Assert.AreEqual("9", reader.cw_TextBox_Loop.Text);
@@ -247,8 +247,8 @@ namespace Cheetos.Tests
             using (Cheetos writer = NewForm())
             {
                 writer.cw_TextBox_SavePath.Text = @"C:\capture\out";
-                writer.cw_TextBox_SaveFilePrifix.Text = "shot_";
-                writer.cw_checkBox_AddTimeStump.Checked = true;
+                writer.cw_TextBox_SaveFilePrefix.Text = "shot_";
+                writer.cw_checkBox_AddTimeStamp.Checked = true;
                 writer.cw_Radio_CurrentWindow.Checked = true;
                 writer.cw_TextBox_Sleep.Text = "1234";
                 writer.cw_TextBox_Loop.Text = "9";
@@ -262,8 +262,8 @@ namespace Cheetos.Tests
                     Assert.IsTrue(NewSaveRestore(reader).LoadJsonFile(path), "JSON読み込みに成功するはず");
 
                     Assert.AreEqual(@"C:\capture\out", reader.cw_TextBox_SavePath.Text);
-                    Assert.AreEqual("shot_", reader.cw_TextBox_SaveFilePrifix.Text);
-                    Assert.IsTrue(reader.cw_checkBox_AddTimeStump.Checked);
+                    Assert.AreEqual("shot_", reader.cw_TextBox_SaveFilePrefix.Text);
+                    Assert.IsTrue(reader.cw_checkBox_AddTimeStamp.Checked);
                     Assert.IsTrue(reader.cw_Radio_CurrentWindow.Checked);
                     Assert.AreEqual("1234", reader.cw_TextBox_Sleep.Text);
                     Assert.AreEqual("9", reader.cw_TextBox_Loop.Text);

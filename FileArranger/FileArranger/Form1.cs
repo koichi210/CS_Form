@@ -39,7 +39,7 @@ namespace FileArranger
 
         private readonly int SortFileRenameTargetIdx = 0;
 
-        public String[] RefrenceCandidateFolders;      // リファレンス名の候補
+        public String[] ReferenceCandidateFolders;      // リファレンス名の候補
 
         private StcFileInputOutput fio = new StcFileInputOutput();
         // StcBaseForm<SaveRestore>のprotected StcUtils utilを、FileArranger固有の拡張
@@ -181,7 +181,7 @@ namespace FileArranger
         private void cmn_textBox_Reference_TextChanged(object sender, EventArgs e)
         {
             rd_textBox_ExistItemDir.Text = cmn_textBox_Reference.Text;
-            pf_textBox_RefrenceFile.Text = cmn_textBox_Reference.Text;
+            pf_textBox_ReferenceFile.Text = cmn_textBox_Reference.Text;
         }
 
         private void cmn_button_Listup_Click(object sender, EventArgs e)
@@ -193,19 +193,19 @@ namespace FileArranger
             }
 
             // フォルダをリストアップ
-            RefrenceCandidateFolders = Directory.GetDirectories(cmn_textBox_Reference.Text);
+            ReferenceCandidateFolders = Directory.GetDirectories(cmn_textBox_Reference.Text);
 
             // 新規追加
             if ( !cmn_textBox_AddList.Text.Equals(String.Empty) )
             {
-                String[] AddRefrenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Logic.DeleteDuplicate(RefrenceCandidateFolders, ref AddRefrenceList, rd_textBox_SplitWord3.Text);
-                AddRefrenceList = AddRefrenceList.Select(str => cmn_textBox_Reference.Text + @"\" + str + cmn_textBox_AddListSuffix.Text).ToArray();
+                String[] AddReferenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                Logic.DeleteDuplicate(ReferenceCandidateFolders, ref AddReferenceList, rd_textBox_SplitWord3.Text);
+                AddReferenceList = AddReferenceList.Select(str => cmn_textBox_Reference.Text + @"\" + str + cmn_textBox_AddListSuffix.Text).ToArray();
 
-                String[] SumRefrenceList = new String[RefrenceCandidateFolders.Length + AddRefrenceList.Length];
-                RefrenceCandidateFolders.CopyTo(SumRefrenceList, 0);
-                AddRefrenceList.CopyTo(SumRefrenceList, RefrenceCandidateFolders.Length);
-                RefrenceCandidateFolders = SumRefrenceList;
+                String[] SumReferenceList = new String[ReferenceCandidateFolders.Length + AddReferenceList.Length];
+                ReferenceCandidateFolders.CopyTo(SumReferenceList, 0);
+                AddReferenceList.CopyTo(SumReferenceList, ReferenceCandidateFolders.Length);
+                ReferenceCandidateFolders = SumReferenceList;
             }
 
             // コンボボックス更新

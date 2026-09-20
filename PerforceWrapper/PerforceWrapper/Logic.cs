@@ -30,7 +30,7 @@ namespace PerforceWrapper
             }
             else if (restoreChecked)
             {
-                OperatorType = Perforce.OPERATOR_TYPE.REVENT;
+                OperatorType = Perforce.OPERATOR_TYPE.REVERT;
             }
             else if (deleteChecked)
             {

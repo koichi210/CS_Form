@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_SerchWordList = new System.Windows.Forms.TextBox();
+            this.textBox_SearchWordList = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_SerchResultList = new System.Windows.Forms.TextBox();
+            this.textBox_SearchResultList = new System.Windows.Forms.TextBox();
             this.button_Execute = new System.Windows.Forms.Button();
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
@@ -39,23 +39,23 @@
             this.checkBox_FirstWordOnly = new System.Windows.Forms.CheckBox();
             this.checkBox_OrdinalCase = new System.Windows.Forms.CheckBox();
             this.comboBox_LoadSetting = new System.Windows.Forms.ComboBox();
-            this.textBox_SerchCommonWord = new System.Windows.Forms.TextBox();
+            this.textBox_SearchCommonWord = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // textBox_SerchWordList
+            // textBox_SearchWordList
             // 
-            this.textBox_SerchWordList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBox_SearchWordList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox_SerchWordList.Location = new System.Drawing.Point(17, 143);
-            this.textBox_SerchWordList.Multiline = true;
-            this.textBox_SerchWordList.Name = "textBox_SerchWordList";
-            this.textBox_SerchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_SerchWordList.Size = new System.Drawing.Size(210, 227);
-            this.textBox_SerchWordList.TabIndex = 8;
-            this.textBox_SerchWordList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SourceList_KeyDown);
+            this.textBox_SearchWordList.Location = new System.Drawing.Point(17, 143);
+            this.textBox_SearchWordList.Multiline = true;
+            this.textBox_SearchWordList.Name = "textBox_SerchWordList";
+            this.textBox_SearchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_SearchWordList.Size = new System.Drawing.Size(210, 227);
+            this.textBox_SearchWordList.TabIndex = 8;
+            this.textBox_SearchWordList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SourceList_KeyDown);
             // 
             // label1
             // 
@@ -75,18 +75,18 @@
             this.label2.TabIndex = 9;
             this.label2.Text = "検索結果";
             // 
-            // textBox_SerchResultList
+            // textBox_SearchResultList
             // 
-            this.textBox_SerchResultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBox_SearchResultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_SerchResultList.Location = new System.Drawing.Point(252, 143);
-            this.textBox_SerchResultList.Multiline = true;
-            this.textBox_SerchResultList.Name = "textBox_SerchResultList";
-            this.textBox_SerchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_SerchResultList.Size = new System.Drawing.Size(210, 227);
-            this.textBox_SerchResultList.TabIndex = 10;
-            this.textBox_SerchResultList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_DestList_KeyDown);
+            this.textBox_SearchResultList.Location = new System.Drawing.Point(252, 143);
+            this.textBox_SearchResultList.Multiline = true;
+            this.textBox_SearchResultList.Name = "textBox_SerchResultList";
+            this.textBox_SearchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_SearchResultList.Size = new System.Drawing.Size(210, 227);
+            this.textBox_SearchResultList.TabIndex = 10;
+            this.textBox_SearchResultList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_DestList_KeyDown);
             // 
             // button_Execute
             // 
@@ -163,14 +163,14 @@
             this.comboBox_LoadSetting.TabIndex = 12;
             this.comboBox_LoadSetting.SelectedIndexChanged += new System.EventHandler(this.comboBox_LoadSetting_SelectedIndexChanged);
             // 
-            // textBox_SerchCommonWord
+            // textBox_SearchCommonWord
             // 
-            this.textBox_SerchCommonWord.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_SearchCommonWord.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_SerchCommonWord.Location = new System.Drawing.Point(8, 37);
-            this.textBox_SerchCommonWord.Name = "textBox_SerchCommonWord";
-            this.textBox_SerchCommonWord.Size = new System.Drawing.Size(231, 19);
-            this.textBox_SerchCommonWord.TabIndex = 4;
+            this.textBox_SearchCommonWord.Location = new System.Drawing.Point(8, 37);
+            this.textBox_SearchCommonWord.Name = "textBox_SerchCommonWord";
+            this.textBox_SearchCommonWord.Size = new System.Drawing.Size(231, 19);
+            this.textBox_SearchCommonWord.TabIndex = 4;
             // 
             // label3
             // 
@@ -185,7 +185,7 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.textBox_SerchCommonWord);
+            this.groupBox1.Controls.Add(this.textBox_SearchCommonWord);
             this.groupBox1.Controls.Add(this.checkBox_OrdinalCase);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.checkBox_FirstWordOnly);
@@ -207,9 +207,9 @@
             this.Controls.Add(this.button_SaveSetting);
             this.Controls.Add(this.button_Execute);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox_SerchResultList);
+            this.Controls.Add(this.textBox_SearchResultList);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox_SerchWordList);
+            this.Controls.Add(this.textBox_SearchWordList);
             this.Controls.Add(this.groupBox1);
             this.MinimumSize = new System.Drawing.Size(350, 300);
             this.Name = "Form1";
@@ -227,14 +227,14 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button_Execute;
         private System.Windows.Forms.Button button_SaveSetting;
-        public System.Windows.Forms.TextBox textBox_SerchWordList;
-        public System.Windows.Forms.TextBox textBox_SerchResultList;
+        public System.Windows.Forms.TextBox textBox_SearchWordList;
+        public System.Windows.Forms.TextBox textBox_SearchResultList;
         private System.Windows.Forms.Label label7;
         public System.Windows.Forms.TextBox textBox_ReferencePath;
         public System.Windows.Forms.CheckBox checkBox_FirstWordOnly;
         public System.Windows.Forms.CheckBox checkBox_OrdinalCase;
         private System.Windows.Forms.ComboBox comboBox_LoadSetting;
-        public System.Windows.Forms.TextBox textBox_SerchCommonWord;
+        public System.Windows.Forms.TextBox textBox_SearchCommonWord;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.GroupBox groupBox1;
     }

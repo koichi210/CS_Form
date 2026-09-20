@@ -117,7 +117,7 @@ namespace FileArranger
         {
             util.SetComboBoxFromArraySubString(
                 rd_comboBox_MergeWord,
-                RefrenceCandidateFolders,
+                ReferenceCandidateFolders,
                 rd_textBox_ExistItemDir.Text.Length + 1,
                 rd_textBox_SplitWord3.Text,
                 rd_comboBox_MergeWord.Text,
@@ -132,15 +132,15 @@ namespace FileArranger
                 rd_listView_Target.Items[i].SubItems[RenameDestIdx].Text = "";
             }
 
-            rd_listView_Rename_UpdteListBox();
+            rd_listView_Rename_UpdateListBox();
         }
 
         private void rd_comboBox_MergeWord_TextChanged(object sender, EventArgs e)
         {
-            rd_listView_Rename_UpdteListBox();
+            rd_listView_Rename_UpdateListBox();
         }
 
-        private void rd_listView_Rename_UpdteListBox()
+        private void rd_listView_Rename_UpdateListBox()
         {
             rd_label_SelectNum.Text = "選択数：" + rd_listView_Target.SelectedItems.Count.ToString();
             for (int i = 0; i < rd_listView_Target.SelectedItems.Count; i++)

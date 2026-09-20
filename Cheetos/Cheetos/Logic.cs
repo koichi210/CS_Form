@@ -8,7 +8,7 @@ using Picture;
 namespace Cheetos
 {
     /// <summary>
-    /// もともと Cheetos フォームの各タブ（DistOrient.cs / CapureWindow.cs /
+    /// もともと Cheetos フォームの各タブ（DistOrient.cs / CaptureWindow.cs /
     /// RotationPreview.cs）に private メソッドとして埋め込まれていた純粋なロジックを、
     /// テストできる形に切り出したもの。
     ///
@@ -108,14 +108,14 @@ namespace Cheetos
 
         /// <summary>
         /// キャプチャ画像のファイル名の先頭部分（保存先＋接頭辞＋任意でタイムスタンプ）を組み立てる。
-        /// 元は cw_checkBox_AddTimeStump.Checked を直接参照していたので、AddTimeStamp 引数に置き換えた。
+        /// 元は cw_checkBox_AddTimeStamp.Checked を直接参照していたので、AddTimeStamp 引数に置き換えた。
         /// </summary>
-        public static String GetFileBaseFormat(String DirectoryPath, String Prifix, Boolean AddTimeStamp)
+        public static String GetFileBaseFormat(String DirectoryPath, String Prefix, Boolean AddTimeStamp)
         {
             String FileBaseFormat = DirectoryPath + @"\";
-            if (Prifix != String.Empty)
+            if (Prefix != String.Empty)
             {
-                FileBaseFormat += Prifix + "_";
+                FileBaseFormat += Prefix + "_";
             }
             if (AddTimeStamp)
             {

@@ -125,7 +125,7 @@
     <Compile Include="..\..\_Common\NaturalStringComparer.cs">
       <Link>NaturalStringComparer.cs</Link>
     </Compile>
-    <Compile Include="TimeStump.cs" />
+    <Compile Include="TimeStamp.cs" />
     <EmbeddedResource Include="ErrorMsg.resx">
       <DependentUpon>ErrorMsg.cs</DependentUpon>
     </EmbeddedResource>

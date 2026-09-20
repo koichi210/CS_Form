@@ -13,7 +13,7 @@ namespace FFEdit
         private readonly String[] IncrCycleArray = { "無し", "秒", "分", "時間", "日" };
         private readonly String[] DigitArray = { "自動", "1桁", "2桁", "3桁", "4桁", "5桁", "6桁" };
         private const int TabIdxChangeName = 0;
-        private const int TabIdxTimeStump = 1;
+        private const int TabIdxTimeStamp = 1;
         private const int TabIdxFuntion = 2;
 
         private FileMng fm = new FileMng();
@@ -126,8 +126,8 @@ namespace FFEdit
                     ErrorList = ChangeName();
                     break;
 
-                case TabIdxTimeStump:
-                    ChangeTimeStump();
+                case TabIdxTimeStamp:
+                    ChangeTimeStamp();
                     break;
 
                 case TabIdxFuntion:
@@ -315,20 +315,20 @@ namespace FFEdit
                 opt = SearchOption.AllDirectories;
             }
 
-            String SerchPattern = "*";
+            String SearchPattern = "*";
             if (textBox_Target_Extension.Text != String.Empty)
             {
-                SerchPattern = textBox_Target_Extension.Text;
+                SearchPattern = textBox_Target_Extension.Text;
             }
 
             String[] elements;
             if (radioButton_Target_File.Checked)
             {
-                elements = Directory.GetFiles(comboBox_TargetDir.Text, SerchPattern, opt);
+                elements = Directory.GetFiles(comboBox_TargetDir.Text, SearchPattern, opt);
             }
             else
             {
-                elements = Directory.GetDirectories(comboBox_TargetDir.Text, SerchPattern, opt);
+                elements = Directory.GetDirectories(comboBox_TargetDir.Text, SearchPattern, opt);
             }
 
             // 標準のstring比較だと"HOGE_2"より"HOGE_10"が先に来てしまうため、
@@ -385,9 +385,9 @@ namespace FFEdit
             return rename.Execute();
         }
 
-        private void ChangeTimeStump()
+        private void ChangeTimeStamp()
         {
-            var ts = new TimeStump();
+            var ts = new TimeStamp();
 
             DateTime dt = new DateTime(
                 dateTimePicker_Days.Value.Year,
@@ -571,15 +571,15 @@ namespace FFEdit
 
         private void UpdateFunctionControl(object sender, EventArgs e)
         {
-            Boolean IsOperatoinEn = true;
+            Boolean IsOperationEn = true;
             if (radioButton_Delete_BlankDir.Checked)
             {
-                IsOperatoinEn = false;
+                IsOperationEn = false;
             }
-            checkBox_Operatoin_AnyDir.Enabled = IsOperatoinEn;
+            checkBox_Operation_AnyDir.Enabled = IsOperationEn;
 
             Boolean IsAnyDirEn = false;
-            if ( IsOperatoinEn && checkBox_Operatoin_AnyDir.Checked)
+            if ( IsOperationEn && checkBox_Operation_AnyDir.Checked)
             {
                 IsAnyDirEn = true;
             }
@@ -590,7 +590,7 @@ namespace FFEdit
         {
             String DestDirName = comboBox_TargetDir.Text;
             if (!radioButton_Delete_BlankDir.Checked &&
-                checkBox_Operatoin_AnyDir.Checked)
+                checkBox_Operation_AnyDir.Checked)
             {
                 DestDirName = textBox_Function_Any_Directory.Text;
             }

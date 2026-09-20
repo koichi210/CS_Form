@@ -22,11 +22,11 @@ namespace PerforceWrapper.Tests
         }
 
         [TestMethod]
-        public void GetOperatorType_復元が選択されているとREVENT()
+        public void GetOperatorType_復元が選択されているとREVERT()
         {
             var result = Logic.GetOperatorType(checkoutChecked: false, restoreChecked: true, deleteChecked: false, getLatestChecked: false);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.REVENT, result);
+            Assert.AreEqual(Perforce.OPERATOR_TYPE.REVERT, result);
         }
 
         [TestMethod]

@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.butotn_Listup = new System.Windows.Forms.Button();
+            this.button_Listup = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox_Target_Extension = new System.Windows.Forms.TextBox();
@@ -57,7 +57,7 @@
             this.radioButton_ChangeAddDirName = new System.Windows.Forms.RadioButton();
             this.comboBox_String2 = new System.Windows.Forms.ComboBox();
             this.comboBox_String1 = new System.Windows.Forms.ComboBox();
-            this.tabPage_TimeStump = new System.Windows.Forms.TabPage();
+            this.tabPage_TimeStamp = new System.Windows.Forms.TabPage();
             this.label3 = new System.Windows.Forms.Label();
             this.comboBox_TimeSpan = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -75,11 +75,11 @@
             this.textBox_StatusBar = new System.Windows.Forms.TextBox();
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.comboBox_TargetDir = new StandardTemplate.ComboBoxEx();
-            this.checkBox_Operatoin_AnyDir = new System.Windows.Forms.CheckBox();
+            this.checkBox_Operation_AnyDir = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage_ChangeName.SuspendLayout();
-            this.tabPage_TimeStump.SuspendLayout();
+            this.tabPage_TimeStamp.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.tabPage_Function.SuspendLayout();
             this.SuspendLayout();
@@ -93,16 +93,16 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "対象フォルダ";
             // 
-            // butotn_Listup
+            // button_Listup
             // 
-            this.butotn_Listup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butotn_Listup.Location = new System.Drawing.Point(403, 4);
-            this.butotn_Listup.Name = "butotn_Listup";
-            this.butotn_Listup.Size = new System.Drawing.Size(75, 23);
-            this.butotn_Listup.TabIndex = 2;
-            this.butotn_Listup.Text = "リストアップ";
-            this.butotn_Listup.UseVisualStyleBackColor = true;
-            this.butotn_Listup.Click += new System.EventHandler(this.button_Listup_Click);
+            this.button_Listup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_Listup.Location = new System.Drawing.Point(403, 4);
+            this.button_Listup.Name = "button_Listup";
+            this.button_Listup.Size = new System.Drawing.Size(75, 23);
+            this.button_Listup.TabIndex = 2;
+            this.button_Listup.Text = "リストアップ";
+            this.button_Listup.UseVisualStyleBackColor = true;
+            this.button_Listup.Click += new System.EventHandler(this.button_Listup_Click);
             // 
             // groupBox1
             // 
@@ -350,7 +350,7 @@
             this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.tabControl.Controls.Add(this.tabPage_ChangeName);
-            this.tabControl.Controls.Add(this.tabPage_TimeStump);
+            this.tabControl.Controls.Add(this.tabPage_TimeStamp);
             this.tabControl.Controls.Add(this.tabPage_Function);
             this.tabControl.Location = new System.Drawing.Point(14, 171);
             this.tabControl.Name = "tabControl";
@@ -412,21 +412,21 @@
             this.comboBox_String1.Size = new System.Drawing.Size(156, 20);
             this.comboBox_String1.TabIndex = 12;
             // 
-            // tabPage_TimeStump
+            // tabPage_TimeStamp
             // 
-            this.tabPage_TimeStump.Controls.Add(this.label3);
-            this.tabPage_TimeStump.Controls.Add(this.comboBox_TimeSpan);
-            this.tabPage_TimeStump.Controls.Add(this.groupBox2);
-            this.tabPage_TimeStump.Controls.Add(this.label2);
-            this.tabPage_TimeStump.Controls.Add(this.dateTimePicker_Time);
-            this.tabPage_TimeStump.Controls.Add(this.dateTimePicker_Days);
-            this.tabPage_TimeStump.Location = new System.Drawing.Point(4, 22);
-            this.tabPage_TimeStump.Name = "tabPage_TimeStump";
-            this.tabPage_TimeStump.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_TimeStump.Size = new System.Drawing.Size(232, 262);
-            this.tabPage_TimeStump.TabIndex = 1;
-            this.tabPage_TimeStump.Text = "タイムスタンプ";
-            this.tabPage_TimeStump.UseVisualStyleBackColor = true;
+            this.tabPage_TimeStamp.Controls.Add(this.label3);
+            this.tabPage_TimeStamp.Controls.Add(this.comboBox_TimeSpan);
+            this.tabPage_TimeStamp.Controls.Add(this.groupBox2);
+            this.tabPage_TimeStamp.Controls.Add(this.label2);
+            this.tabPage_TimeStamp.Controls.Add(this.dateTimePicker_Time);
+            this.tabPage_TimeStamp.Controls.Add(this.dateTimePicker_Days);
+            this.tabPage_TimeStamp.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_TimeStamp.Name = "tabPage_TimeStamp";
+            this.tabPage_TimeStamp.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_TimeStamp.Size = new System.Drawing.Size(232, 262);
+            this.tabPage_TimeStamp.TabIndex = 1;
+            this.tabPage_TimeStamp.Text = "タイムスタンプ";
+            this.tabPage_TimeStamp.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
@@ -525,7 +525,7 @@
             // 
             // tabPage_Function
             // 
-            this.tabPage_Function.Controls.Add(this.checkBox_Operatoin_AnyDir);
+            this.tabPage_Function.Controls.Add(this.checkBox_Operation_AnyDir);
             this.tabPage_Function.Controls.Add(this.radioButton_Copy_Target);
             this.tabPage_Function.Controls.Add(this.textBox_Function_Any_Directory);
             this.tabPage_Function.Controls.Add(this.radioButton_Move_Target);
@@ -615,17 +615,17 @@
             this.comboBox_TargetDir.TabIndex = 1;
             this.comboBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.comboBox_TargetDir_KeyDown);
             // 
-            // checkBox_Operatoin_AnyDir
+            // checkBox_Operation_AnyDir
             // 
-            this.checkBox_Operatoin_AnyDir.AutoSize = true;
-            this.checkBox_Operatoin_AnyDir.Enabled = false;
-            this.checkBox_Operatoin_AnyDir.Location = new System.Drawing.Point(25, 75);
-            this.checkBox_Operatoin_AnyDir.Name = "checkBox_Operatoin_AnyDir";
-            this.checkBox_Operatoin_AnyDir.Size = new System.Drawing.Size(111, 16);
-            this.checkBox_Operatoin_AnyDir.TabIndex = 3;
-            this.checkBox_Operatoin_AnyDir.Text = "フォルダを指定する";
-            this.checkBox_Operatoin_AnyDir.UseVisualStyleBackColor = true;
-            this.checkBox_Operatoin_AnyDir.CheckedChanged += new System.EventHandler(this.UpdateFunctionControl);
+            this.checkBox_Operation_AnyDir.AutoSize = true;
+            this.checkBox_Operation_AnyDir.Enabled = false;
+            this.checkBox_Operation_AnyDir.Location = new System.Drawing.Point(25, 75);
+            this.checkBox_Operation_AnyDir.Name = "checkBox_Operation_AnyDir";
+            this.checkBox_Operation_AnyDir.Size = new System.Drawing.Size(111, 16);
+            this.checkBox_Operation_AnyDir.TabIndex = 3;
+            this.checkBox_Operation_AnyDir.Text = "フォルダを指定する";
+            this.checkBox_Operation_AnyDir.UseVisualStyleBackColor = true;
+            this.checkBox_Operation_AnyDir.CheckedChanged += new System.EventHandler(this.UpdateFunctionControl);
             // 
             // Form1
             // 
@@ -640,7 +640,7 @@
             this.Controls.Add(this.button_Execute);
             this.Controls.Add(this.listBox);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.butotn_Listup);
+            this.Controls.Add(this.button_Listup);
             this.Controls.Add(this.label1);
             this.MinimumSize = new System.Drawing.Size(506, 535);
             this.Name = "Form1";
@@ -650,8 +650,8 @@
             this.tabControl.ResumeLayout(false);
             this.tabPage_ChangeName.ResumeLayout(false);
             this.tabPage_ChangeName.PerformLayout();
-            this.tabPage_TimeStump.ResumeLayout(false);
-            this.tabPage_TimeStump.PerformLayout();
+            this.tabPage_TimeStamp.ResumeLayout(false);
+            this.tabPage_TimeStamp.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.tabPage_Function.ResumeLayout(false);
@@ -664,7 +664,7 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button butotn_Listup;
+        private System.Windows.Forms.Button button_Listup;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton radioButton_Target_Dir;
         private System.Windows.Forms.RadioButton radioButton_Target_File;
@@ -685,7 +685,7 @@
         private System.Windows.Forms.RadioButton radioButton_ChangeExt;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage_ChangeName;
-        private System.Windows.Forms.TabPage tabPage_TimeStump;
+        private System.Windows.Forms.TabPage tabPage_TimeStamp;
         private System.Windows.Forms.DateTimePicker dateTimePicker_Days;
         private System.Windows.Forms.DateTimePicker dateTimePicker_Time;
         public System.Windows.Forms.CheckBox checkBox_LastAccessTime;
@@ -710,7 +710,7 @@
         private System.Windows.Forms.RadioButton radioButton_Copy_Target;
         private System.Windows.Forms.Label label4;
         public System.Windows.Forms.TextBox textBox_Target_Extension;
-        private System.Windows.Forms.CheckBox checkBox_Operatoin_AnyDir;
+        private System.Windows.Forms.CheckBox checkBox_Operation_AnyDir;
     }
 }
 

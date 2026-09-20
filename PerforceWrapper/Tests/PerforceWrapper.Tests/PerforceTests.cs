@@ -162,7 +162,7 @@ namespace PerforceWrapper.Tests
         // 列挙値の名前を文字列で渡し、メソッド内で Enum.Parse する。
         [DataTestMethod]
         [DataRow("EDIT", "p4 edit ")]
-        [DataRow("REVENT", "p4 revert ")]
+        [DataRow("REVERT", "p4 revert ")]
         [DataRow("DELETE", "p4 delete ")]
         [DataRow("SYNC", "p4 sync ")]
         [DataRow("DIFF", "p4 diff2 -qt ")]

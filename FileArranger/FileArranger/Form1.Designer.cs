@@ -104,15 +104,15 @@
             this.pf_button_ClearSelect = new System.Windows.Forms.Button();
             this.label12 = new System.Windows.Forms.Label();
             this.pf_textBox_SearchTitleLength = new System.Windows.Forms.TextBox();
-            this.pf_button_Listup_Refrence = new System.Windows.Forms.Button();
+            this.pf_button_Listup_Reference = new System.Windows.Forms.Button();
             this.pf_comboBox_MoveDestDirName = new StandardTemplate.ComboBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.pf_textBox_SearchTitleLine = new System.Windows.Forms.TextBox();
-            this.pf_textBox_RefrenceFile = new System.Windows.Forms.TextBox();
-            this.pf_label_RefrenceFile = new System.Windows.Forms.Label();
+            this.pf_textBox_ReferenceFile = new System.Windows.Forms.TextBox();
+            this.pf_label_ReferenceFile = new System.Windows.Forms.Label();
             this.pf_label_TotalNum = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
-            this.pf_textBox_TargetSeprator = new System.Windows.Forms.TextBox();
+            this.pf_textBox_TargetSeparator = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.pf_button_Listup_Target = new System.Windows.Forms.Button();
             this.pf_listView_Target = new System.Windows.Forms.ListView();
@@ -1015,15 +1015,15 @@
             this.tab_PartitionFile.Controls.Add(this.pf_button_ClearSelect);
             this.tab_PartitionFile.Controls.Add(this.label12);
             this.tab_PartitionFile.Controls.Add(this.pf_textBox_SearchTitleLength);
-            this.tab_PartitionFile.Controls.Add(this.pf_button_Listup_Refrence);
+            this.tab_PartitionFile.Controls.Add(this.pf_button_Listup_Reference);
             this.tab_PartitionFile.Controls.Add(this.pf_comboBox_MoveDestDirName);
             this.tab_PartitionFile.Controls.Add(this.label3);
             this.tab_PartitionFile.Controls.Add(this.pf_textBox_SearchTitleLine);
-            this.tab_PartitionFile.Controls.Add(this.pf_textBox_RefrenceFile);
-            this.tab_PartitionFile.Controls.Add(this.pf_label_RefrenceFile);
+            this.tab_PartitionFile.Controls.Add(this.pf_textBox_ReferenceFile);
+            this.tab_PartitionFile.Controls.Add(this.pf_label_ReferenceFile);
             this.tab_PartitionFile.Controls.Add(this.pf_label_TotalNum);
             this.tab_PartitionFile.Controls.Add(this.label15);
-            this.tab_PartitionFile.Controls.Add(this.pf_textBox_TargetSeprator);
+            this.tab_PartitionFile.Controls.Add(this.pf_textBox_TargetSeparator);
             this.tab_PartitionFile.Controls.Add(this.label14);
             this.tab_PartitionFile.Controls.Add(this.pf_button_Listup_Target);
             this.tab_PartitionFile.Controls.Add(this.pf_listView_Target);
@@ -1105,17 +1105,17 @@
             this.pf_textBox_SearchTitleLength.TabIndex = 16;
             this.pf_textBox_SearchTitleLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_SearchTitleLine_KeyDown);
             // 
-            // pf_button_Listup_Refrence
+            // pf_button_Listup_Reference
             // 
-            this.pf_button_Listup_Refrence.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pf_button_Listup_Refrence.Location = new System.Drawing.Point(923, 80);
-            this.pf_button_Listup_Refrence.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.pf_button_Listup_Refrence.Name = "pf_button_Listup_Refrence";
-            this.pf_button_Listup_Refrence.Size = new System.Drawing.Size(107, 34);
-            this.pf_button_Listup_Refrence.TabIndex = 8;
-            this.pf_button_Listup_Refrence.Text = "リストアップ";
-            this.pf_button_Listup_Refrence.UseVisualStyleBackColor = true;
-            this.pf_button_Listup_Refrence.Click += new System.EventHandler(this.cmn_button_Listup_Click);
+            this.pf_button_Listup_Reference.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pf_button_Listup_Reference.Location = new System.Drawing.Point(923, 80);
+            this.pf_button_Listup_Reference.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.pf_button_Listup_Reference.Name = "pf_button_Listup_Reference";
+            this.pf_button_Listup_Reference.Size = new System.Drawing.Size(107, 34);
+            this.pf_button_Listup_Reference.TabIndex = 8;
+            this.pf_button_Listup_Reference.Text = "リストアップ";
+            this.pf_button_Listup_Reference.UseVisualStyleBackColor = true;
+            this.pf_button_Listup_Reference.Click += new System.EventHandler(this.cmn_button_Listup_Click);
             // 
             // pf_comboBox_MoveDestDirName
             // 
@@ -1152,28 +1152,28 @@
             this.pf_textBox_SearchTitleLine.TabIndex = 12;
             this.pf_textBox_SearchTitleLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_SearchTitleLine_KeyDown);
             // 
-            // pf_textBox_RefrenceFile
+            // pf_textBox_ReferenceFile
             // 
-            this.pf_textBox_RefrenceFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.pf_textBox_ReferenceFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pf_textBox_RefrenceFile.Location = new System.Drawing.Point(180, 82);
-            this.pf_textBox_RefrenceFile.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.pf_textBox_RefrenceFile.Name = "pf_textBox_RefrenceFile";
-            this.pf_textBox_RefrenceFile.ReadOnly = true;
-            this.pf_textBox_RefrenceFile.Size = new System.Drawing.Size(731, 25);
-            this.pf_textBox_RefrenceFile.TabIndex = 7;
-            this.pf_textBox_RefrenceFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_RefrenceFile_KeyDown);
+            this.pf_textBox_ReferenceFile.Location = new System.Drawing.Point(180, 82);
+            this.pf_textBox_ReferenceFile.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.pf_textBox_ReferenceFile.Name = "pf_textBox_RefrenceFile";
+            this.pf_textBox_ReferenceFile.ReadOnly = true;
+            this.pf_textBox_ReferenceFile.Size = new System.Drawing.Size(731, 25);
+            this.pf_textBox_ReferenceFile.TabIndex = 7;
+            this.pf_textBox_ReferenceFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_ReferenceFile_KeyDown);
             // 
-            // pf_label_RefrenceFile
+            // pf_label_ReferenceFile
             // 
-            this.pf_label_RefrenceFile.AutoSize = true;
-            this.pf_label_RefrenceFile.Location = new System.Drawing.Point(33, 87);
-            this.pf_label_RefrenceFile.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.pf_label_RefrenceFile.Name = "pf_label_RefrenceFile";
-            this.pf_label_RefrenceFile.Size = new System.Drawing.Size(122, 18);
-            this.pf_label_RefrenceFile.TabIndex = 6;
-            this.pf_label_RefrenceFile.Text = "ファイル格納先：";
-            this.pf_label_RefrenceFile.DoubleClick += new System.EventHandler(this.pf_label_RefrenceFile_DoubleClick);
+            this.pf_label_ReferenceFile.AutoSize = true;
+            this.pf_label_ReferenceFile.Location = new System.Drawing.Point(33, 87);
+            this.pf_label_ReferenceFile.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
+            this.pf_label_ReferenceFile.Name = "pf_label_ReferenceFile";
+            this.pf_label_ReferenceFile.Size = new System.Drawing.Size(122, 18);
+            this.pf_label_ReferenceFile.TabIndex = 6;
+            this.pf_label_ReferenceFile.Text = "ファイル格納先：";
+            this.pf_label_ReferenceFile.DoubleClick += new System.EventHandler(this.pf_label_ReferenceFile_DoubleClick);
             // 
             // pf_label_TotalNum
             // 
@@ -1196,14 +1196,14 @@
             this.label15.TabIndex = 9;
             this.label15.Text = "フォルダ格納先：";
             // 
-            // pf_textBox_TargetSeprator
+            // pf_textBox_TargetSeparator
             // 
-            this.pf_textBox_TargetSeprator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pf_textBox_TargetSeprator.Location = new System.Drawing.Point(838, 50);
-            this.pf_textBox_TargetSeprator.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.pf_textBox_TargetSeprator.Name = "pf_textBox_TargetSeprator";
-            this.pf_textBox_TargetSeprator.Size = new System.Drawing.Size(72, 25);
-            this.pf_textBox_TargetSeprator.TabIndex = 4;
+            this.pf_textBox_TargetSeparator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pf_textBox_TargetSeparator.Location = new System.Drawing.Point(838, 50);
+            this.pf_textBox_TargetSeparator.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.pf_textBox_TargetSeparator.Name = "pf_textBox_TargetSeprator";
+            this.pf_textBox_TargetSeparator.Size = new System.Drawing.Size(72, 25);
+            this.pf_textBox_TargetSeparator.TabIndex = 4;
             // 
             // label14
             // 
@@ -1410,7 +1410,7 @@
         public System.Windows.Forms.Button md_button_Delete;
         public System.Windows.Forms.ListView pf_listView_Target;
         public System.Windows.Forms.Button pf_button_Listup_Target;
-        public System.Windows.Forms.TextBox pf_textBox_TargetSeprator;
+        public System.Windows.Forms.TextBox pf_textBox_TargetSeparator;
         public System.Windows.Forms.Label label14;
         public System.Windows.Forms.Label label15;
         public System.Windows.Forms.Label rd_label_TotalNum;
@@ -1422,12 +1422,12 @@
         public System.Windows.Forms.Button sf_button_Sort;
         public System.Windows.Forms.Label label17;
         public System.Windows.Forms.TextBox rd_textBox_SearchTitleLine;
-        public System.Windows.Forms.TextBox pf_textBox_RefrenceFile;
-        public System.Windows.Forms.Label pf_label_RefrenceFile;
+        public System.Windows.Forms.TextBox pf_textBox_ReferenceFile;
+        public System.Windows.Forms.Label pf_label_ReferenceFile;
         public System.Windows.Forms.Button sf_button_Listup;
         private System.Windows.Forms.Label sf_label_TotalNum;
         public StandardTemplate.ComboBoxEx pf_comboBox_MoveDestDirName;
-        public System.Windows.Forms.Button pf_button_Listup_Refrence;
+        public System.Windows.Forms.Button pf_button_Listup_Reference;
         public System.Windows.Forms.Label label20;
         public System.Windows.Forms.TextBox rd_textBox_SearchTitleLength;
         private System.Windows.Forms.ComboBox comboBox_LoadSetting;

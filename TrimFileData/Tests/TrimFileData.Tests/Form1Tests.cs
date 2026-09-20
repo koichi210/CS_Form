@@ -57,11 +57,11 @@ namespace TrimFileData.Tests
                     using (var form = new Form1())
                     {
                         FormReflection.SetText(form, "textBox_ReferencePath", referPath);
-                        FormReflection.SetText(form, "textBox_SerchWordList", "apple");
+                        FormReflection.SetText(form, "textBox_SearchWordList", "apple");
 
                         FormReflection.InvokeHandler(form, "button_Execute_Click");
 
-                        result = FormReflection.GetText(form, "textBox_SerchResultList");
+                        result = FormReflection.GetText(form, "textBox_SearchResultList");
                     }
                 }
                 catch (Exception ex)

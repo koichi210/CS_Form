@@ -55,10 +55,10 @@ namespace ToyingFile
 
         private String[] GetTargetFile()
         {
-            String SerchPattern = "*";
+            String SearchPattern = "*";
             if (textBox_File.Text != String.Empty)
             {
-                SerchPattern = textBox_File.Text;
+                SearchPattern = textBox_File.Text;
             }
 
             SearchOption opt = SearchOption.TopDirectoryOnly;
@@ -67,7 +67,7 @@ namespace ToyingFile
                 opt = SearchOption.AllDirectories;
             }
 
-            return Directory.GetFiles(textBox_Directory.Text, SerchPattern, opt);
+            return Directory.GetFiles(textBox_Directory.Text, SearchPattern, opt);
         }
 
         private void FunctionDeleteString(String[] FileList)

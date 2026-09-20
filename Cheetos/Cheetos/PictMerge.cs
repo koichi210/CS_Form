@@ -49,7 +49,7 @@ namespace Cheetos
             return true;
         }
         
-        public bool CreateMargeSourceFile()
+        public bool CreateMergeSourceFile()
         {
             SourceFileFullName = SourceFolderPath + @"\" + TargetFileName;
             SourceBackUpFullName = BackUpDirPath + @"\" + TargetFileName;
@@ -63,7 +63,7 @@ namespace Cheetos
             return true;
         }
 
-        public bool CreateMargeTargetFile()
+        public bool CreateMergeTargetFile()
         {
             String MergeFileName = TargetFileName.Replace(Prefix1, Prefix2);
             MergeFileFullName = SourceFolderPath + @"\" + MergeFileName;
@@ -232,12 +232,12 @@ namespace Cheetos
                     continue;
                 }
 
-                if (!pm.CreateMargeSourceFile())
+                if (!pm.CreateMergeSourceFile())
                 {
                     continue;
                 }
 
-                if (!pm.CreateMargeTargetFile())
+                if (!pm.CreateMergeTargetFile())
                 {
                     continue;
                 }

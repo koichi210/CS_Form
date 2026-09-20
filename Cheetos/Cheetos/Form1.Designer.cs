@@ -33,13 +33,13 @@
             this.cw_Button_DelLine = new System.Windows.Forms.Button();
             this.cw_Button_AddLine = new System.Windows.Forms.Button();
             this.cw_dataGridView = new System.Windows.Forms.DataGridView();
-            this.cw_checkBox_AddTimeStump = new System.Windows.Forms.CheckBox();
+            this.cw_checkBox_AddTimeStamp = new System.Windows.Forms.CheckBox();
             this.cw_TextBox_Status = new System.Windows.Forms.TextBox();
             this.cw_GroupBox_CaptureTarget = new System.Windows.Forms.GroupBox();
             this.cw_Radio_FullScreen = new System.Windows.Forms.RadioButton();
             this.cw_Radio_CurrentScreen = new System.Windows.Forms.RadioButton();
             this.cw_Radio_CurrentWindow = new System.Windows.Forms.RadioButton();
-            this.cw_TextBox_SaveFilePrifix = new System.Windows.Forms.TextBox();
+            this.cw_TextBox_SaveFilePrefix = new System.Windows.Forms.TextBox();
             this.label23 = new System.Windows.Forms.Label();
             this.cw_TextBox_Loop = new StandardTemplate.TextBoxEx();
             this.label18 = new System.Windows.Forms.Label();
@@ -167,10 +167,10 @@
             this.CaptureWindow.Controls.Add(this.cw_Button_DelLine);
             this.CaptureWindow.Controls.Add(this.cw_Button_AddLine);
             this.CaptureWindow.Controls.Add(this.cw_dataGridView);
-            this.CaptureWindow.Controls.Add(this.cw_checkBox_AddTimeStump);
+            this.CaptureWindow.Controls.Add(this.cw_checkBox_AddTimeStamp);
             this.CaptureWindow.Controls.Add(this.cw_TextBox_Status);
             this.CaptureWindow.Controls.Add(this.cw_GroupBox_CaptureTarget);
-            this.CaptureWindow.Controls.Add(this.cw_TextBox_SaveFilePrifix);
+            this.CaptureWindow.Controls.Add(this.cw_TextBox_SaveFilePrefix);
             this.CaptureWindow.Controls.Add(this.label23);
             this.CaptureWindow.Controls.Add(this.cw_TextBox_Loop);
             this.CaptureWindow.Controls.Add(this.label18);
@@ -223,15 +223,15 @@
             this.cw_dataGridView.TabIndex = 11;
             this.cw_dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.cw_dataGridView_CellClick);
             // 
-            // cw_checkBox_AddTimeStump
+            // cw_checkBox_AddTimeStamp
             // 
-            this.cw_checkBox_AddTimeStump.AutoSize = true;
-            this.cw_checkBox_AddTimeStump.Location = new System.Drawing.Point(162, 57);
-            this.cw_checkBox_AddTimeStump.Name = "cw_checkBox_AddTimeStump";
-            this.cw_checkBox_AddTimeStump.Size = new System.Drawing.Size(193, 16);
-            this.cw_checkBox_AddTimeStump.TabIndex = 4;
-            this.cw_checkBox_AddTimeStump.Text = "ファイル名にタイムスタンプを使用する";
-            this.cw_checkBox_AddTimeStump.UseVisualStyleBackColor = true;
+            this.cw_checkBox_AddTimeStamp.AutoSize = true;
+            this.cw_checkBox_AddTimeStamp.Location = new System.Drawing.Point(162, 57);
+            this.cw_checkBox_AddTimeStamp.Name = "cw_checkBox_AddTimeStump";
+            this.cw_checkBox_AddTimeStamp.Size = new System.Drawing.Size(193, 16);
+            this.cw_checkBox_AddTimeStamp.TabIndex = 4;
+            this.cw_checkBox_AddTimeStamp.Text = "ファイル名にタイムスタンプを使用する";
+            this.cw_checkBox_AddTimeStamp.UseVisualStyleBackColor = true;
             // 
             // cw_TextBox_Status
             // 
@@ -288,14 +288,14 @@
             this.cw_Radio_CurrentWindow.Text = "CurrentWindow";
             this.cw_Radio_CurrentWindow.UseVisualStyleBackColor = true;
             // 
-            // cw_TextBox_SaveFilePrifix
+            // cw_TextBox_SaveFilePrefix
             // 
-            this.cw_TextBox_SaveFilePrifix.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cw_TextBox_SaveFilePrefix.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cw_TextBox_SaveFilePrifix.Location = new System.Drawing.Point(152, 35);
-            this.cw_TextBox_SaveFilePrifix.Name = "cw_TextBox_SaveFilePrifix";
-            this.cw_TextBox_SaveFilePrifix.Size = new System.Drawing.Size(291, 19);
-            this.cw_TextBox_SaveFilePrifix.TabIndex = 3;
+            this.cw_TextBox_SaveFilePrefix.Location = new System.Drawing.Point(152, 35);
+            this.cw_TextBox_SaveFilePrefix.Name = "cw_TextBox_SaveFilePrifix";
+            this.cw_TextBox_SaveFilePrefix.Size = new System.Drawing.Size(291, 19);
+            this.cw_TextBox_SaveFilePrefix.TabIndex = 3;
             // 
             // label23
             // 
@@ -1366,7 +1366,7 @@
         public System.Windows.Forms.Button fc_MoveFile;
         public System.Windows.Forms.Label label22;
         public StandardTemplate.TextBoxEx fc_TargetFileName;
-        public System.Windows.Forms.TextBox cw_TextBox_SaveFilePrifix;
+        public System.Windows.Forms.TextBox cw_TextBox_SaveFilePrefix;
         public System.Windows.Forms.Label label23;
         public System.ComponentModel.BackgroundWorker bkgWorkerTrim;
         public System.ComponentModel.BackgroundWorker bkgWorkerMerge;
@@ -1412,7 +1412,7 @@
         private System.Windows.Forms.TextBox textBox＿ExpectEndTime;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label28;
-        public System.Windows.Forms.CheckBox cw_checkBox_AddTimeStump;
+        public System.Windows.Forms.CheckBox cw_checkBox_AddTimeStamp;
         public System.Windows.Forms.DataGridView cw_dataGridView;
         public System.Windows.Forms.Button cw_Button_AddLine;
         public System.Windows.Forms.Button cw_Button_DelLine;

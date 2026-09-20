@@ -198,10 +198,10 @@ namespace StaticAnalysisViewer
             DataBase_T array = DB.GetData(Combo_RankingWeekly.SelectedIndex);
 
             //表示するランキング数を取得
-            int TopRunkingNum = int.Parse(TextBox_TopRankingNum.Text);
+            int TopRankingNum = int.Parse(TextBox_TopRankingNum.Text);
 
             // ランキング文字列生成＆表示
-            TextBox_Ranking.Text = Logic.CreateRankingString(DB, PreArrayIdx, array, TopRunkingNum);
+            TextBox_Ranking.Text = Logic.CreateRankingString(DB, PreArrayIdx, array, TopRankingNum);
 
             // 「行数の合計」の文字列生成＆表示
             TextBox_CountLineTotal.Text = Logic.CreateCountNumTotal(DB, array).ToString();
@@ -228,7 +228,7 @@ namespace StaticAnalysisViewer
         private void CreateRankingGraphics()
         {
             DataBase_T array = DB.GetData(Combo_RankingWeekly.SelectedIndex);
-            int TopRunkingNum = int.Parse(TextBox_TopRankingNum.Text);
+            int TopRankingNum = int.Parse(TextBox_TopRankingNum.Text);
             int CategoryIdx = Combo_SortCategory.SelectedIndex;
 
             // 表示を消す
@@ -244,7 +244,7 @@ namespace StaticAnalysisViewer
             series.ChartType = SeriesChartType.Pie;
             series["PieStartAngle"] = "270";
 
-            int LoopMax = System.Math.Min(TopRunkingNum, array.ColumnNum);
+            int LoopMax = System.Math.Min(TopRankingNum, array.ColumnNum);
             for (int i = 0; i < LoopMax; i++)
             {
                 // Rowが短い場合はカラ行
@@ -421,14 +421,14 @@ namespace StaticAnalysisViewer
         }
 
         // データのインデックス取得
-        public int GetIdx(int ArrayIdx, int SerchIdx, string Name)
+        public int GetIdx(int ArrayIdx, int SearchIdx, string Name)
         {
             if (ArrayIdx >= 0)
             {
                 for (int i = 0; i < DataArray[ArrayIdx].ColumnNum; i++)
                 {
                     if (DataArray[ArrayIdx].Data[i].Length > 1 &&
-                        DataArray[ArrayIdx].Data[i][SerchIdx].IndexOf(Name) >= 0)
+                        DataArray[ArrayIdx].Data[i][SearchIdx].IndexOf(Name) >= 0)
                     {
                         return i;
                     }

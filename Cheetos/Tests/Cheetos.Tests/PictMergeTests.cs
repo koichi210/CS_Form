@@ -111,11 +111,11 @@ namespace Cheetos.Tests
         }
 
         // ------------------------------------------------------------------
-        // CreateMargeSourceFile / CreateMargeTargetFile
+        // CreateMergeSourceFile / CreateMergeTargetFile
         // ------------------------------------------------------------------
 
         [TestMethod]
-        public void CreateMargeSourceFileは元ファイルが無ければ失敗しエラーを記録する()
+        public void CreateMergeSourceFileは元ファイルが無ければ失敗しエラーを記録する()
         {
             var pm = new PictMerge
             {
@@ -126,14 +126,14 @@ namespace Cheetos.Tests
             };
             pm.SetTargetFileName("no_such_file.jpg");
 
-            bool result = pm.CreateMargeSourceFile();
+            bool result = pm.CreateMergeSourceFile();
 
             Assert.IsFalse(result);
             StringAssert.Contains(pm.GetErrorMessage(), "no_such_file.jpg");
         }
 
         [TestMethod]
-        public void CreateMargeSourceFileは元ファイルがあればバックアップにコピーする()
+        public void CreateMergeSourceFileは元ファイルがあればバックアップにコピーする()
         {
             CreateImage("left.jpg", 10, 10, Color.Red);
 
@@ -144,14 +144,14 @@ namespace Cheetos.Tests
             };
             pm.SetTargetFileName("left.jpg");
 
-            bool result = pm.CreateMargeSourceFile();
+            bool result = pm.CreateMergeSourceFile();
 
             Assert.IsTrue(result);
             Assert.IsTrue(File.Exists(Path.Combine(tempDirectory, "backup", "left.jpg")));
         }
 
         [TestMethod]
-        public void CreateMargeTargetFileは対となるファイルが無ければ失敗する()
+        public void CreateMergeTargetFileは対となるファイルが無ければ失敗する()
         {
             CreateImage("left.jpg", 10, 10, Color.Red);
 
@@ -164,9 +164,9 @@ namespace Cheetos.Tests
             };
             pm.SetTargetFileName("left.jpg");
             pm.IsProcTarget(); // Prefix1/Prefix2 を内部に確定させる
-            pm.CreateMargeSourceFile();
+            pm.CreateMergeSourceFile();
 
-            bool result = pm.CreateMargeTargetFile();
+            bool result = pm.CreateMergeTargetFile();
 
             Assert.IsFalse(result, "right.jpg が存在しないので失敗するはず");
         }
@@ -193,8 +193,8 @@ namespace Cheetos.Tests
             };
             pm.SetTargetFileName("left.jpg");
             Assert.IsTrue(pm.IsProcTarget());
-            Assert.IsTrue(pm.CreateMargeSourceFile());
-            Assert.IsTrue(pm.CreateMargeTargetFile());
+            Assert.IsTrue(pm.CreateMergeSourceFile());
+            Assert.IsTrue(pm.CreateMergeTargetFile());
 
             bool result = pm.MergeExecute();
 
@@ -223,8 +223,8 @@ namespace Cheetos.Tests
             };
             pm.SetTargetFileName("left.jpg");
             pm.IsProcTarget();
-            pm.CreateMargeSourceFile();
-            pm.CreateMargeTargetFile();
+            pm.CreateMergeSourceFile();
+            pm.CreateMergeTargetFile();
 
             bool result = pm.MergeExecute();
 

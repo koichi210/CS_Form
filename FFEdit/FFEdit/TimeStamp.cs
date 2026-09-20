@@ -4,7 +4,7 @@ using System.IO;
 
 namespace FFEdit
 {
-    class TimeStump
+    class TimeStamp
     {
         public String _base_dir = "";
         public List<String> _file_list;

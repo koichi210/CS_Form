@@ -22,9 +22,9 @@ namespace FileArranger
             util.ExecutePath(pf_textBox_TargetFile.Text, e);
         }
 
-        private void pf_textBox_RefrenceFile_KeyDown(object sender, KeyEventArgs e)
+        private void pf_textBox_ReferenceFile_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(pf_textBox_RefrenceFile.Text, e);
+            util.ExecutePath(pf_textBox_ReferenceFile.Text, e);
         }
 
         private void pf_button_Listup_Target_Click(object sender, EventArgs e)
@@ -106,7 +106,7 @@ namespace FileArranger
         {
             Boolean IsSuccess = true;
 
-            int SameIdx = util.GetStringFromListViewInSelect(pf_listView_Target, CreateFolderTargetIdx, SrcFileName, pf_textBox_TargetSeprator.Text, true);
+            int SameIdx = util.GetStringFromListViewInSelect(pf_listView_Target, CreateFolderTargetIdx, SrcFileName, pf_textBox_TargetSeparator.Text, true);
             if (0 <= SameIdx)
             {
                 SrcFolderName = pf_listView_Target.Items[SameIdx].SubItems[CreateFolderMoveSrcIdx].Text;
@@ -124,14 +124,14 @@ namespace FileArranger
         {
             Boolean IsSuccess = true;
 
-            TargetFolderName = util.FindStringFromComboBox(pf_comboBox_MoveDestDirName, SrcFileName, pf_textBox_TargetSeprator.Text, true);
+            TargetFolderName = util.FindStringFromComboBox(pf_comboBox_MoveDestDirName, SrcFileName, pf_textBox_TargetSeparator.Text, true);
             if (TargetFolderName != String.Empty)
             {
                 // 期待するフォルダ名が見つかった
                 SrcFolderName = TargetFolderName;
 
                 // 数値をインクリした文字列
-                TargetFolderName = GetPatitionTargetNameWithNumber(SrcFolderName, SrcFileName, "0");
+                TargetFolderName = GetPartitionTargetNameWithNumber(SrcFolderName, SrcFileName, "0");
             }
 
             if (TargetFolderName == String.Empty)
@@ -145,17 +145,17 @@ namespace FileArranger
         {
             // 期待するフォルダ名が見つからなかった
             SrcFolderName = "";
-            String SampleSrcFolderName = util.CreateNewFolderName(SrcFileName, pf_textBox_TargetSeprator.Text, true);
+            String SampleSrcFolderName = util.CreateNewFolderName(SrcFileName, pf_textBox_TargetSeparator.Text, true);
             SampleSrcFolderName += cmn_textBox_AddListSuffix.Text;
 
             // 数値を考慮した文字列
-            TargetFolderName = GetPatitionTargetNameWithNumber(SampleSrcFolderName, SrcFileName, "0");    // 複数ファイル選択時にインクリしてくれる
+            TargetFolderName = GetPartitionTargetNameWithNumber(SampleSrcFolderName, SrcFileName, "0");    // 複数ファイル選択時にインクリしてくれる
         }
 
-        private String GetPatitionTargetNameWithNumber(String SrcFolderName, String SrcFileName, String DefaultNumber)
+        private String GetPartitionTargetNameWithNumber(String SrcFolderName, String SrcFileName, String DefaultNumber)
         {
             long SrcNumber = util.GetNumberFromRear(SrcFolderName, pf_textBox_SearchTitleLine.Text, pf_textBox_SearchTitleLength.Text, DefaultNumber);
-            int AddCount = Logic.GetAddCount(pf_listView_Target, SrcFileName, pf_textBox_TargetSeprator.Text, true);
+            int AddCount = Logic.GetAddCount(pf_listView_Target, SrcFileName, pf_textBox_TargetSeparator.Text, true);
 
             String Number = Logic.GetNumber(SrcNumber, AddCount);
             int SrcNumberDigit = Logic.GetPadding(SrcNumber);
@@ -228,7 +228,7 @@ namespace FileArranger
             // 別スレッドを非同期実行
             List<object> arguments = new List<object>();
             arguments.Add(pf_textBox_TargetFile.Text);
-            arguments.Add(pf_textBox_RefrenceFile.Text);
+            arguments.Add(pf_textBox_ReferenceFile.Text);
             arguments.Add(pf_listView_Target.SelectedItems.Count);
 
             for (int i = 0; i < pf_listView_Target.SelectedItems.Count; i++)
@@ -244,7 +244,7 @@ namespace FileArranger
         private void pf_listView_Target_DoubleClick(object sender, EventArgs e)
         {
             int idx = pf_listView_Target.SelectedItems[0].Index;
-            String DirPath = pf_textBox_RefrenceFile.Text + @"\" + pf_listView_Target.Items[idx].SubItems[CreateFolderMoveSrcIdx].Text;
+            String DirPath = pf_textBox_ReferenceFile.Text + @"\" + pf_listView_Target.Items[idx].SubItems[CreateFolderMoveSrcIdx].Text;
             if (Directory.Exists(DirPath))
             {
                 util.ExecutePath(DirPath);
@@ -423,9 +423,9 @@ namespace FileArranger
             //UpdateMoveDestDirComboBox();
         }
 
-        private void pf_label_RefrenceFile_DoubleClick(object sender, EventArgs e)
+        private void pf_label_ReferenceFile_DoubleClick(object sender, EventArgs e)
         {
-            pf_textBox_RefrenceFile.ReadOnly = !pf_textBox_RefrenceFile.ReadOnly;
+            pf_textBox_ReferenceFile.ReadOnly = !pf_textBox_ReferenceFile.ReadOnly;
         }
 
         private void pf_comboBox_MoveDestDirName_DropDown(object sender, EventArgs e)

@@ -125,7 +125,7 @@ namespace FileArranger
 
         public void UpdateMoveDestDirComboBox()
         {
-            util.SetComboBoxFromArray(pf_comboBox_MoveDestDirName, RefrenceCandidateFolders, pf_textBox_RefrenceFile.Text);
+            util.SetComboBoxFromArray(pf_comboBox_MoveDestDirName, ReferenceCandidateFolders, pf_textBox_ReferenceFile.Text);
         }
     }
 }

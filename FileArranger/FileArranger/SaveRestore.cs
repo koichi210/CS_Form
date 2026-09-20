@@ -14,6 +14,9 @@ namespace FileArranger
         public void RegistLoadItem(FileArranger Parent)
         {
             SetElement("Setting");
+            // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
+            // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
+            // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
 
             RegistCtrl("Common", "cmn_textBox_Reference", Parent.cmn_textBox_Reference);
             RegistCtrl("Common", "cmn_textBox_AddList", Parent.cmn_textBox_AddList);
@@ -42,8 +45,8 @@ namespace FileArranger
             RegistCtrl("MoveFile", "mf_textBox_TargetDir", Parent.mf_textBox_TargetDir);
 
             RegistCtrl("PartitionFile", "pf_textBox_TargetFile", Parent.pf_textBox_TargetFile);
-            RegistCtrl("PartitionFile", "pf_textBox_RefrenceFile", Parent.pf_textBox_RefrenceFile);
-            RegistCtrl("PartitionFile", "pf_textBox_TargetSeprator", Parent.pf_textBox_TargetSeprator);
+            RegistCtrl("PartitionFile", "pf_textBox_RefrenceFile", Parent.pf_textBox_ReferenceFile);
+            RegistCtrl("PartitionFile", "pf_textBox_TargetSeprator", Parent.pf_textBox_TargetSeparator);
             RegistCtrl("PartitionFile", "pf_textBox_SearchTitleLine", Parent.pf_textBox_SearchTitleLine);
             RegistCtrl("PartitionFile", "pf_textBox_SearchTitleLength", Parent.pf_textBox_SearchTitleLength);
             RegistCtrl("PartitionFile", "pf_checkBox_CreateNewDir", Parent.pf_checkBox_CreateNewDir);
@@ -54,7 +57,7 @@ namespace FileArranger
             Boolean IsSuccess = LoadXmlFile(LoadFileName);
             if (IsSuccess)
             {
-                Parent.RefrenceCandidateFolders = LoadXmlFileList(LoadFileName, "RefrenceCandidate", "Value_");
+                Parent.ReferenceCandidateFolders = LoadXmlFileList(LoadFileName, "ReferenceCandidate", "Value_");
 
                 // コンボボックス更新
                 Parent.UpdateRenameComboBox();
@@ -80,14 +83,14 @@ namespace FileArranger
 
             XmlDocument document = OpenSaveXmlFile();
             SaveXmlFile(document);
-            SaveXmlParamAll("RefrenceCandidate", "Value_", Parent.RefrenceCandidateFolders);
+            SaveXmlParamAll("ReferenceCandidate", "Value_", Parent.ReferenceCandidateFolders);
             return CloseSaveXmlFile(SaveFileName);
         }
 
         // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegistLoadItemで登録済みのコントロールは
         // 汎用プロファイル(StcSaveRestore.BuildGenericProfile/ApplyGenericProfile)に詰め替えるだけで
-        // 済むが、RefrenceCandidateFoldersだけはRegistCtrlを介さない専用の配列なので、
-        // "RefrenceCandidate|Value_"というキーで同じprofileに相乗りさせる
+        // 済むが、ReferenceCandidateFoldersだけはRegistCtrlを介さない専用の配列なので、
+        // "ReferenceCandidate|Value_"というキーで同じprofileに相乗りさせる
         public Boolean SaveJsonFile(String filePath, FileArranger Parent)
         {
             try
@@ -98,7 +101,7 @@ namespace FileArranger
                 util.ModifyCombBoxList(Parent.rd_comboBox_AddTitlePostWord);
 
                 GenericProfile profile = BuildGenericProfile();
-                profile.Lists["RefrenceCandidate|Value_"] = (Parent.RefrenceCandidateFolders ?? new String[0]).ToList();
+                profile.Lists["ReferenceCandidate|Value_"] = (Parent.ReferenceCandidateFolders ?? new String[0]).ToList();
 
                 JsonFileStorage.Save(filePath, profile);
                 return true;
@@ -120,7 +123,7 @@ namespace FileArranger
             ApplyGenericProfile(profile);
 
             List<String> refFolders;
-            Parent.RefrenceCandidateFolders = profile.Lists.TryGetValue("RefrenceCandidate|Value_", out refFolders)
+            Parent.ReferenceCandidateFolders = profile.Lists.TryGetValue("ReferenceCandidate|Value_", out refFolders)
                 ? refFolders.ToArray()
                 : new String[0];
 

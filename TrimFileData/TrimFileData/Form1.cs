@@ -32,18 +32,18 @@ namespace TrimFileData
 
         private void textBox_SourceList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_SerchWordList, e);
+            util.SelectAll(textBox_SearchWordList, e);
         }
 
         private void textBox_DestList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_SerchResultList, e);
+            util.SelectAll(textBox_SearchResultList, e);
         }
 
         private void button_Execute_Click(object sender, EventArgs e)
         {
             // 出力先をクリア
-            textBox_SerchResultList.Text = "";
+            textBox_SearchResultList.Text = "";
 
             StcFileInputOutput fio = new StcFileInputOutput();
             String ReferData = fio.LoadFile(textBox_ReferencePath.Text);
@@ -54,14 +54,14 @@ namespace TrimFileData
             }
 
             // 検索ワードをリストアップ
-            String[] SourceArray = textBox_SerchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            String[] SourceArray = textBox_SearchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // リファレンスをリスト化
             String[] ReferList = ReferData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // 検索結果をコントロールにセット
-            textBox_SerchResultList.Text = Logic.GetSearchData(SourceArray, ReferList, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SerchCommonWord.Text);
-            util.SetClipboardText(textBox_SerchResultList.Text);
+            textBox_SearchResultList.Text = Logic.GetSearchData(SourceArray, ReferList, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text);
+            util.SetClipboardText(textBox_SearchResultList.Text);
         }
 
         private void textBox_ReferencePath_KeyDown(object sender, KeyEventArgs e)

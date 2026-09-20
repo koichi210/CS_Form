@@ -68,7 +68,7 @@ namespace FileArranger
             const int TargetSubItemIdx = 0;
 
             int Count = 0;
-            String SerchName = "";
+            String SearchName = "";
 
             int FileNameidx;
             if (!IsReverse)
@@ -82,7 +82,7 @@ namespace FileArranger
 
             if (0 <= FileNameidx)
             {
-                SerchName = FileName.Substring(0, FileNameidx);
+                SearchName = FileName.Substring(0, FileNameidx);
             }
 
             for (int i = 0; i < lv.SelectedItems.Count; i++)
@@ -90,7 +90,7 @@ namespace FileArranger
                 int idx = lv.SelectedItems[i].Index;
                 String SrcFileName = lv.Items[idx].SubItems[TargetSubItemIdx].Text;
 
-                if (SrcFileName.IndexOf(SerchName) != -1)
+                if (SrcFileName.IndexOf(SearchName) != -1)
                 {
                     Count++;
                 }

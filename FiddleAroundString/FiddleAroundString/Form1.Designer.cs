@@ -35,11 +35,11 @@
             this.label7 = new System.Windows.Forms.Label();
             this.button_Execute = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_SerchResultList = new System.Windows.Forms.TextBox();
+            this.textBox_SearchResultList = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox_SerchWordList = new System.Windows.Forms.TextBox();
+            this.textBox_SearchWordList = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.textBox_SerchCommonWord = new System.Windows.Forms.TextBox();
+            this.textBox_SearchCommonWord = new System.Windows.Forms.TextBox();
             this.checkBox_OrdinalCase = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
             this.checkBox_FirstWordOnly = new System.Windows.Forms.CheckBox();
@@ -100,9 +100,9 @@
             this.tabPage1.Controls.Add(this.label7);
             this.tabPage1.Controls.Add(this.button_Execute);
             this.tabPage1.Controls.Add(this.label2);
-            this.tabPage1.Controls.Add(this.textBox_SerchResultList);
+            this.tabPage1.Controls.Add(this.textBox_SearchResultList);
             this.tabPage1.Controls.Add(this.label4);
-            this.tabPage1.Controls.Add(this.textBox_SerchWordList);
+            this.tabPage1.Controls.Add(this.textBox_SearchWordList);
             this.tabPage1.Controls.Add(this.groupBox5);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
@@ -166,17 +166,17 @@
             this.label2.TabIndex = 17;
             this.label2.Text = "検索結果";
             // 
-            // textBox_SerchResultList
+            // textBox_SearchResultList
             // 
-            this.textBox_SerchResultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBox_SearchResultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_SerchResultList.Location = new System.Drawing.Point(252, 148);
-            this.textBox_SerchResultList.Multiline = true;
-            this.textBox_SerchResultList.Name = "textBox_SerchResultList";
-            this.textBox_SerchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_SerchResultList.Size = new System.Drawing.Size(388, 227);
-            this.textBox_SerchResultList.TabIndex = 18;
+            this.textBox_SearchResultList.Location = new System.Drawing.Point(252, 148);
+            this.textBox_SearchResultList.Multiline = true;
+            this.textBox_SearchResultList.Name = "textBox_SerchResultList";
+            this.textBox_SearchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_SearchResultList.Size = new System.Drawing.Size(388, 227);
+            this.textBox_SearchResultList.TabIndex = 18;
             // 
             // label4
             // 
@@ -187,22 +187,22 @@
             this.label4.TabIndex = 12;
             this.label4.Text = "リファレンスファイルパス";
             // 
-            // textBox_SerchWordList
+            // textBox_SearchWordList
             // 
-            this.textBox_SerchWordList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.textBox_SearchWordList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox_SerchWordList.Location = new System.Drawing.Point(17, 148);
-            this.textBox_SerchWordList.Multiline = true;
-            this.textBox_SerchWordList.Name = "textBox_SerchWordList";
-            this.textBox_SerchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_SerchWordList.Size = new System.Drawing.Size(210, 227);
-            this.textBox_SerchWordList.TabIndex = 16;
+            this.textBox_SearchWordList.Location = new System.Drawing.Point(17, 148);
+            this.textBox_SearchWordList.Multiline = true;
+            this.textBox_SearchWordList.Name = "textBox_SerchWordList";
+            this.textBox_SearchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_SearchWordList.Size = new System.Drawing.Size(210, 227);
+            this.textBox_SearchWordList.TabIndex = 16;
             // 
             // groupBox5
             // 
             this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox5.Controls.Add(this.textBox_SerchCommonWord);
+            this.groupBox5.Controls.Add(this.textBox_SearchCommonWord);
             this.groupBox5.Controls.Add(this.checkBox_OrdinalCase);
             this.groupBox5.Controls.Add(this.label5);
             this.groupBox5.Controls.Add(this.checkBox_FirstWordOnly);
@@ -213,14 +213,14 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "設定";
             // 
-            // textBox_SerchCommonWord
+            // textBox_SearchCommonWord
             // 
-            this.textBox_SerchCommonWord.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_SearchCommonWord.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_SerchCommonWord.Location = new System.Drawing.Point(8, 37);
-            this.textBox_SerchCommonWord.Name = "textBox_SerchCommonWord";
-            this.textBox_SerchCommonWord.Size = new System.Drawing.Size(409, 19);
-            this.textBox_SerchCommonWord.TabIndex = 4;
+            this.textBox_SearchCommonWord.Location = new System.Drawing.Point(8, 37);
+            this.textBox_SearchCommonWord.Name = "textBox_SerchCommonWord";
+            this.textBox_SearchCommonWord.Size = new System.Drawing.Size(409, 19);
+            this.textBox_SearchCommonWord.TabIndex = 4;
             // 
             // checkBox_OrdinalCase
             // 
@@ -600,11 +600,11 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button button_Execute;
         private System.Windows.Forms.Label label2;
-        public System.Windows.Forms.TextBox textBox_SerchResultList;
+        public System.Windows.Forms.TextBox textBox_SearchResultList;
         private System.Windows.Forms.Label label4;
-        public System.Windows.Forms.TextBox textBox_SerchWordList;
+        public System.Windows.Forms.TextBox textBox_SearchWordList;
         private System.Windows.Forms.GroupBox groupBox5;
-        public System.Windows.Forms.TextBox textBox_SerchCommonWord;
+        public System.Windows.Forms.TextBox textBox_SearchCommonWord;
         public System.Windows.Forms.CheckBox checkBox_OrdinalCase;
         private System.Windows.Forms.Label label5;
         public System.Windows.Forms.CheckBox checkBox_FirstWordOnly;

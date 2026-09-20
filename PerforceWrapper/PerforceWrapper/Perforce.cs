@@ -11,7 +11,7 @@ namespace PerforceWrapper
         public enum OPERATOR_TYPE
         {
             EDIT,
-            REVENT,
+            REVERT,
             DELETE,
             SYNC,
             SET_LABEL,
@@ -163,7 +163,7 @@ namespace PerforceWrapper
                 Operator += "edit ";
                 break;
 
-            case  OPERATOR_TYPE.REVENT:
+            case  OPERATOR_TYPE.REVERT:
                 Operator += "revert ";
                 break;
 

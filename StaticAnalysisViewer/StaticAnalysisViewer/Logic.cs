@@ -46,7 +46,7 @@ namespace StaticAnalysisViewer
             return CountLineTotal;
         }
 
-        public static string CreateRankingString(DataBase DB, int PreArrayIdx, DataBase_T array, int TopRunkingNum)
+        public static string CreateRankingString(DataBase DB, int PreArrayIdx, DataBase_T array, int TopRankingNum)
         {
             // ランキングのヘッダ
             string Result = string.Format("{0,4}\t{1,8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine + Environment.NewLine,
@@ -57,7 +57,7 @@ namespace StaticAnalysisViewer
                                 "MaxCycMod",
                                 "MaxCycStrict");
 
-            int LoopMax = System.Math.Min(TopRunkingNum, array.ColumnNum);
+            int LoopMax = System.Math.Min(TopRankingNum, array.ColumnNum);
             for (int i = 0; i < LoopMax; i++)
             {
                 // Rowが短い場合はカラ行
@@ -68,12 +68,12 @@ namespace StaticAnalysisViewer
 
                 string[] Path = array.Data[i][CATEGORY_IDX_FNAME].Split('\\');
 
-                int PreRunkNum = DB.GetIdx(PreArrayIdx, CATEGORY_IDX_FNAME, array.Data[i][CATEGORY_IDX_FNAME]);
-                string PreRunk = CreatePreRankingString(DB, i, PreRunkNum);
+                int PreRankNum = DB.GetIdx(PreArrayIdx, CATEGORY_IDX_FNAME, array.Data[i][CATEGORY_IDX_FNAME]);
+                string PreRank = CreatePreRankingString(DB, i, PreRankNum);
 
                 Result += string.Format("{0,4}\t{1,-8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine,
                             i + 1,                                      // Idx
-                            PreRunk,                                    // New!
+                            PreRank,                                    // New!
                             Path[Path.Length - 1].Replace("\"", ""),    // FileName
                             array.Data[i][CATEGORY_IDX_CNT_LINE],       // CountLine
                             array.Data[i][CATEGORY_IDX_CNT_CODE],       // CountCode
@@ -84,25 +84,25 @@ namespace StaticAnalysisViewer
             return Result;
         }
 
-        public static string CreatePreRankingString(DataBase DB, int CurRunkNum, int PreRunkNum)
+        public static string CreatePreRankingString(DataBase DB, int CurRankNum, int PreRankNum)
         {
             // 前回のランキングを取得し、ランキング変動文字列を生成
-            if (PreRunkNum == DB.UNKNOWN_IDX)
+            if (PreRankNum == DB.UNKNOWN_IDX)
             {
                 return ST_RANK_NEW;
             }
             else
             {
-                string PreRunkSign = ST_RANK_PEND;
-                if (PreRunkNum > CurRunkNum)
+                string PreRankSign = ST_RANK_PEND;
+                if (PreRankNum > CurRankNum)
                 {
-                    PreRunkSign = ST_RANK_UP;
+                    PreRankSign = ST_RANK_UP;
                 }
-                else if (PreRunkNum < CurRunkNum)
+                else if (PreRankNum < CurRankNum)
                 {
-                    PreRunkSign = ST_RANK_DOWN;
+                    PreRankSign = ST_RANK_DOWN;
                 }
-                return string.Format("{0}({1,2})", PreRunkSign, PreRunkNum + 1);  // 順位は1相対なので、"+1"する
+                return string.Format("{0}({1,2})", PreRankSign, PreRankNum + 1);  // 順位は1相対なので、"+1"する
             }
         }
     }

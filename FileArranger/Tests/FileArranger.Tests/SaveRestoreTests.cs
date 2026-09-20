@@ -138,8 +138,8 @@ namespace FileArranger.Tests
             using (global::FileArranger.FileArranger writer = NewForm())
             {
                 writer.pf_textBox_TargetFile.Text = @"D:\pf_target";
-                writer.pf_textBox_RefrenceFile.Text = @"D:\pf_reference";
-                writer.pf_textBox_TargetSeprator.Text = "-";
+                writer.pf_textBox_ReferenceFile.Text = @"D:\pf_reference";
+                writer.pf_textBox_TargetSeparator.Text = "-";
                 writer.pf_textBox_SearchTitleLine.Text = "1";
                 writer.pf_textBox_SearchTitleLength.Text = "2";
                 writer.pf_checkBox_CreateNewDir.Checked = true;
@@ -152,8 +152,8 @@ namespace FileArranger.Tests
                     NewSaveRestore(reader).LoadXmlFile(path);
 
                     Assert.AreEqual(@"D:\pf_target", reader.pf_textBox_TargetFile.Text);
-                    Assert.AreEqual(@"D:\pf_reference", reader.pf_textBox_RefrenceFile.Text);
-                    Assert.AreEqual("-", reader.pf_textBox_TargetSeprator.Text);
+                    Assert.AreEqual(@"D:\pf_reference", reader.pf_textBox_ReferenceFile.Text);
+                    Assert.AreEqual("-", reader.pf_textBox_TargetSeparator.Text);
                     Assert.AreEqual("1", reader.pf_textBox_SearchTitleLine.Text);
                     Assert.AreEqual("2", reader.pf_textBox_SearchTitleLength.Text);
                     Assert.IsTrue(reader.pf_checkBox_CreateNewDir.Checked);
@@ -215,7 +215,7 @@ namespace FileArranger.Tests
         {
             using (global::FileArranger.FileArranger writer = NewForm())
             {
-                writer.RefrenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
+                writer.ReferenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
 
                 var sr = new SaveRestore();
                 sr.RegistLoadItem(writer);
@@ -229,7 +229,7 @@ namespace FileArranger.Tests
                     readerSr.RegistLoadItem(reader);
 
                     Assert.IsTrue(readerSr.LoadProc(path, reader));
-                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.RefrenceCandidateFolders);
+                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.ReferenceCandidateFolders);
                 }
             }
         }
@@ -239,7 +239,7 @@ namespace FileArranger.Tests
         {
             using (global::FileArranger.FileArranger writer = NewForm())
             {
-                writer.RefrenceCandidateFolders = new string[0];
+                writer.ReferenceCandidateFolders = new string[0];
                 string path = PathFor("clearlist");
                 var sr = new SaveRestore();
                 sr.RegistLoadItem(writer);
@@ -275,14 +275,14 @@ namespace FileArranger.Tests
         public void JSON保存で共通タブの入力値と参照候補フォルダが保存して読み直すと戻る()
         {
             // データ保存先変更機能([[EventRecorder/Form1.cs]]と同じ考え方)で追加したJSON経路。
-            // RefrenceCandidateFoldersはRegistCtrlを介さない専用の配列なので、
+            // ReferenceCandidateFoldersはRegistCtrlを介さない専用の配列なので、
             // SaveJsonFile/LoadJsonFileが専用に面倒を見ていることを確認する
             using (global::FileArranger.FileArranger writer = NewForm())
             {
                 writer.cmn_textBox_Reference.Text = @"D:\ref";
                 writer.cmn_textBox_AddList.Text = "add";
                 writer.cmn_textBox_AddListSuffix.Text = "_suffix";
-                writer.RefrenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
+                writer.ReferenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
 
                 SaveRestore sr = new SaveRestore();
                 sr.RegistLoadItem(writer);
@@ -300,7 +300,7 @@ namespace FileArranger.Tests
                     Assert.AreEqual(@"D:\ref", reader.cmn_textBox_Reference.Text);
                     Assert.AreEqual("add", reader.cmn_textBox_AddList.Text);
                     Assert.AreEqual("_suffix", reader.cmn_textBox_AddListSuffix.Text);
-                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.RefrenceCandidateFolders);
+                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.ReferenceCandidateFolders);
                 }
             }
         }

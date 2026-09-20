@@ -6,17 +6,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FFEdit.Tests
 {
     /// <summary>
-    /// TimeStump（ファイルの作成日時・更新日時・アクセス日時を書き換える機能）のテスト。
+    /// TimeStamp（ファイルの作成日時・更新日時・アクセス日時を書き換える機能）のテスト。
     /// </summary>
     [TestClass]
-    public class TimeStumpTests
+    public class TimeStampTests
     {
         private string tempDirectory;
 
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "FFEditTimeStumpTests_" + Guid.NewGuid().ToString("N"));
+            tempDirectory = Path.Combine(Path.GetTempPath(), "FFEditTimeStampTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDirectory);
         }
 
@@ -48,7 +48,7 @@ namespace FFEdit.Tests
             DateTime originalCreate = before.CreationTime;
 
             var target = new DateTime(2020, 1, 2, 3, 4, 5);
-            var stump = new TimeStump
+            var stump = new TimeStamp
             {
                 _base_dir = tempDirectory,
                 _file_list = new List<string> { "a.txt" },
@@ -70,7 +70,7 @@ namespace FFEdit.Tests
             string path = CreateFile("a.txt");
 
             var target = new DateTime(2019, 5, 6, 7, 8, 9);
-            var stump = new TimeStump
+            var stump = new TimeStamp
             {
                 _base_dir = tempDirectory,
                 _file_list = new List<string> { "a.txt" },
@@ -98,7 +98,7 @@ namespace FFEdit.Tests
             var baseTime = new DateTime(2021, 1, 1);
             var oneDay = TimeSpan.FromDays(1).Ticks;
 
-            var stump = new TimeStump
+            var stump = new TimeStamp
             {
                 _base_dir = tempDirectory,
                 _file_list = new List<string> { "a.txt", "b.txt", "c.txt" },
@@ -121,7 +121,7 @@ namespace FFEdit.Tests
             var before = new FileInfo(path);
             DateTime originalWrite = before.LastWriteTime;
 
-            var stump = new TimeStump
+            var stump = new TimeStamp
             {
                 _base_dir = tempDirectory,
                 _file_list = new List<string> { "a.txt" },

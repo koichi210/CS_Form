@@ -61,7 +61,7 @@ namespace FileArranger
         // 選択されているリストビューの中から目的の文字列を探す
         public int GetStringFromListViewInSelect(ListView LvCtrl, int SrcSubItemIdx, String SrcName, String SrcTrimName = "", Boolean IsReverse = false)
         {
-            String SerchName = SrcName;
+            String SearchName = SrcName;
             int SameIdx = -1;
 
             // SrcTrimNameが設定されていたら、特定の文字列で区切る
@@ -79,7 +79,7 @@ namespace FileArranger
 
                 if (0 <= FileNameidx)
                 {
-                    SerchName = SrcName.Substring(0, FileNameidx);
+                    SearchName = SrcName.Substring(0, FileNameidx);
                 }
             }
 
@@ -89,7 +89,7 @@ namespace FileArranger
                 int idx = LvCtrl.SelectedItems[i].Index;
                 String LvString = LvCtrl.Items[idx].SubItems[SrcSubItemIdx].Text;
 
-                if (LvString.IndexOf(SerchName) != -1)
+                if (LvString.IndexOf(SearchName) != -1)
                 {
                     SameIdx = idx;
                     break;

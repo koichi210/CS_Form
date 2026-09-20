@@ -8,7 +8,7 @@ using global::Cheetos;
 namespace Cheetos.Tests
 {
     /// <summary>
-    /// Logic（DistOrient.cs / CapureWindow.cs / RotationPreview.cs から切り出した純粋ロジック）
+    /// Logic（DistOrient.cs / CaptureWindow.cs / RotationPreview.cs から切り出した純粋ロジック）
     /// のテスト。抽出前と挙動が変わっていないことを、抽出後のコードに対して確認する。
     /// </summary>
     [TestClass]
