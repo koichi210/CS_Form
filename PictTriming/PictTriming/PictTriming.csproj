@@ -64,6 +64,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="..\..\_Common\AtomicFile.cs">
+      <Link>AtomicFile.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\SimpleSettings.cs">
+      <Link>SimpleSettings.cs</Link>
+    </Compile>
     <Compile Include="..\..\_Common\StcWpfExceptionGuard.cs">
       <Link>StcWpfExceptionGuard.cs</Link>
     </Compile>

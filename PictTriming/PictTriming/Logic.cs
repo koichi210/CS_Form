@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.IO;
-using System.Xml;
 
 namespace PictTriming
 {
@@ -49,82 +48,38 @@ namespace PictTriming
             public String TargetY;
         }
 
+        private static readonly String[] Keys = { "SourceFolderPath", "BaseX", "BaseY", "TargetX", "TargetY" };
+
+        // XMLの組み立て/読み取りは同じ形式を手書きしていた4プロジェクトで共通だったため
+        // [[_Common/SimpleSettings.cs]]へ集約した。ここにはPictTriming固有の項目名の対応だけ残す
         public static void SaveSettingXml(String Path, String SourceFolderPath, String BaseX, String BaseY, String TargetX, String TargetY)
         {
-            XmlDocument document = new XmlDocument();
-
-            XmlDeclaration declaration = document.CreateXmlDeclaration("1.0", "UTF-8", null);  // XML宣言
-            XmlElement root = document.CreateElement("root");  // ルート要素
-
-            document.AppendChild(declaration);
-            document.AppendChild(root);
-
-            AppendSetting(document, root, "SourceFolderPath", SourceFolderPath);
-            AppendSetting(document, root, "BaseX", BaseX);
-            AppendSetting(document, root, "BaseY", BaseY);
-            AppendSetting(document, root, "TargetX", TargetX);
-            AppendSetting(document, root, "TargetY", TargetY);
-
-            // ファイルに保存する
-            document.Save(Path);
-        }
-
-        private static void AppendSetting(XmlDocument document, XmlElement root, String attribute, String text)
-        {
-            XmlElement element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", attribute);
-            element.InnerText = text;
-            root.AppendChild(element);
+            StandardTemplate.StcSimpleSettings settings = new StandardTemplate.StcSimpleSettings();
+            String[] values = { SourceFolderPath, BaseX, BaseY, TargetX, TargetY };
+            for (int i = 0; i < Keys.Length; i++)
+            {
+                settings.Set(Keys[i], values[i]);
+            }
+            settings.Save(Path);
         }
 
         public static Settings LoadSettingXml(String Path)
         {
-            if (!File.Exists(Path))
+            StandardTemplate.StcSimpleSettings loaded = StandardTemplate.StcSimpleSettings.Load(Path);
+            if (loaded == null)
             {
                 return null;
             }
 
-            // ファイルから読み込む
-            // 設定ファイルが壊れていても起動できるよう、読めなければ「設定なし」として扱う
-            XmlDocument document = new XmlDocument();
-            try
+            // 保存されていない項目はnullのままにする(呼び出し元が既定値を使う)
+            return new Settings
             {
-                document.Load(Path);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is XmlException)
-            {
-                return null;
-            }
-
-            Settings settings = new Settings();
-            foreach (XmlElement element in document.DocumentElement)
-            {
-                string attribute = element.GetAttribute("attribute");   // 属性
-                string text = element.InnerText;                        // 要素の内容
-
-                if (attribute.Equals("SourceFolderPath"))
-                {
-                    settings.SourceFolderPath = text;
-                }
-                else if (attribute.Equals("BaseX"))
-                {
-                    settings.BaseX = text;
-                }
-                else if (attribute.Equals("BaseY"))
-                {
-                    settings.BaseY = text;
-                }
-                else if (attribute.Equals("TargetX"))
-                {
-                    settings.TargetX = text;
-                }
-                else if (attribute.Equals("TargetY"))
-                {
-                    settings.TargetY = text;
-                }
-            }
-
-            return settings;
+                SourceFolderPath = loaded.IsExist(Keys[0]) ? loaded.Get(Keys[0]) : null,
+                BaseX = loaded.IsExist(Keys[1]) ? loaded.Get(Keys[1]) : null,
+                BaseY = loaded.IsExist(Keys[2]) ? loaded.Get(Keys[2]) : null,
+                TargetX = loaded.IsExist(Keys[3]) ? loaded.Get(Keys[3]) : null,
+                TargetY = loaded.IsExist(Keys[4]) ? loaded.Get(Keys[4]) : null,
+            };
         }
     }
 }

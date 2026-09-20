@@ -13,7 +13,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
-using System.Xml;
 
 using Picture;
 
@@ -159,101 +158,37 @@ namespace PictMerge
             }
         }
 
+        // XMLの組み立て/読み取りは同じ形式を手書きしていた4プロジェクトで共通だったため
+        // [[_Common/SimpleSettings.cs]]へ集約した。ファイル形式は従来と同じ
         private void SaveSetting_Click(object sender, RoutedEventArgs e)
         {
-            XmlDocument document = new XmlDocument();
-
-            XmlDeclaration declaration = document.CreateXmlDeclaration("1.0", "UTF-8", null);  // XML宣言
-            XmlElement root = document.CreateElement("root");  // ルート要素
-
-            document.AppendChild(declaration);
-            document.AppendChild(root);
-
-            XmlElement element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "SourceFolderPath");
-            element.InnerText = SourceFolderPath.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "SourceFile1Prefix");
-            element.InnerText = SourceFile1Prefix.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "SourceFile2Prefix");
-            element.InnerText = SourceFile2Prefix.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "DestWidth");
-            element.InnerText = DestWidth.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "DestHeight");
-            element.InnerText = DestHeight.Text;
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "TrimingHeight");
-            element.InnerText = TrimingHeight.Text;
-            root.AppendChild(element);
-
-            // ファイルに保存する
-            document.Save(SaveXmlFile);
+            StandardTemplate.StcSimpleSettings settings = new StandardTemplate.StcSimpleSettings();
+            settings.Set("SourceFolderPath", SourceFolderPath.Text);
+            settings.Set("SourceFile1Prefix", SourceFile1Prefix.Text);
+            settings.Set("SourceFile2Prefix", SourceFile2Prefix.Text);
+            settings.Set("DestWidth", DestWidth.Text);
+            settings.Set("DestHeight", DestHeight.Text);
+            settings.Set("TrimingHeight", TrimingHeight.Text);
+            settings.Save(SaveXmlFile);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            if ( ! File.Exists(SaveXmlFile))
+            StandardTemplate.StcSimpleSettings settings = StandardTemplate.StcSimpleSettings.Load(SaveXmlFile);
+            if (settings == null)
             {
+                // 設定ファイルが無い/壊れている場合は初期値のまま進める
                 return;
             }
 
-            // ファイルから読み込む
-            // 設定ファイルが壊れていても起動できるよう、読めなければ初期値のまま進める
-            XmlDocument document = new XmlDocument();
-            try
-            {
-                document.Load(SaveXmlFile);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is XmlException)
-            {
-                return;
-            }
-
-            foreach (XmlElement element in document.DocumentElement)
-            {
-                string attribute = element.GetAttribute("attribute");   // 属性
-                string text = element.InnerText;                        // 要素の内容
-
-                if (attribute.Equals("SourceFolderPath"))
-                {
-                    SourceFolderPath.Text = text;
-                }
-                else if (attribute.Equals("SourceFile1Prefix"))
-                {
-                    SourceFile1Prefix.Text = text;
-                }
-                else if (attribute.Equals("SourceFile2Prefix"))
-                {
-                    SourceFile2Prefix.Text = text;
-                }
-                else if (attribute.Equals("DestWidth"))
-                {
-                    DestWidth.Text = text;
-                }
-                else if (attribute.Equals("DestHeight"))
-                {
-                    DestHeight.Text = text;
-                }
-                else if (attribute.Equals("TrimingHeight"))
-                {
-                    TrimingHeight.Text = text;
-                }
-            }
+            SourceFolderPath.Text = settings.Get("SourceFolderPath", SourceFolderPath.Text);
+            SourceFile1Prefix.Text = settings.Get("SourceFile1Prefix", SourceFile1Prefix.Text);
+            SourceFile2Prefix.Text = settings.Get("SourceFile2Prefix", SourceFile2Prefix.Text);
+            DestWidth.Text = settings.Get("DestWidth", DestWidth.Text);
+            DestHeight.Text = settings.Get("DestHeight", DestHeight.Text);
+            TrimingHeight.Text = settings.Get("TrimingHeight", TrimingHeight.Text);
         }
 
         private void CutExec_Click(object sender, RoutedEventArgs e)

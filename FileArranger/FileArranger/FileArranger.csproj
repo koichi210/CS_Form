@@ -79,6 +79,9 @@
     <Compile Include="..\..\_Common\DataFolderMenu.cs">
       <Link>DataFolderMenu.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\AtomicFile.cs">
+      <Link>AtomicFile.cs</Link>
+    </Compile>
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>
     </Compile>

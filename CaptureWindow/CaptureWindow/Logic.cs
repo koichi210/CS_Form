@@ -1,18 +1,25 @@
 using System;
-using System.IO;
-using System.Xml;
+using StandardTemplate;
 
 namespace CaptureWindow
 {
     /// <summary>
     /// もともと Form1.cs の SaveSetting_Click / LoadSetting に実装されていた、
-    /// 設定値をXMLファイルに保存/読み込みするロジックをテストできる形に切り出した
-    /// もの。コードはそのまま移しただけで書き換えていない。TextBoxのコントロール
-    /// 参照は、呼び出し元(Form1)で読み取った値を引数として渡す/戻り値として
-    /// 受け取る形に変えた。
+    /// 設定値をXMLファイルに保存/読み込みするロジック。
+    ///
+    /// XMLの組み立てと読み取りは、同じ形式を手書きしていた4プロジェクト
+    /// (CaptureWindow/PictTriming/PictMerge/PictMerge2)で共通だったため
+    /// [[_Common/SimpleSettings.cs]]へ集約した。ここに残っているのは
+    /// 「どの項目をどのキー名で保存するか」というCaptureWindow固有の対応だけ。
+    /// ファイル形式は従来と同じなので、これまでの設定ファイルもそのまま読める。
     /// </summary>
     internal static class Logic
     {
+        private const String KeySavePath = "TextBox_SavePath";
+        private const String KeyMouseX = "TextBox_MouseX";
+        private const String KeyMouseY = "TextBox_MouseY";
+        private const String KeySleep = "TextBox_Sleep";
+
         public class Settings
         {
             public String SavePath;
@@ -23,74 +30,30 @@ namespace CaptureWindow
 
         public static void SaveSettingXml(String Path, String SavePath, String MouseX, String MouseY, String Sleep)
         {
-            XmlDocument document = new XmlDocument();
-
-            XmlDeclaration declaration = document.CreateXmlDeclaration("1.0", "UTF-8", null);  // XML宣言
-            XmlElement root = document.CreateElement("root");  // ルート要素
-
-            document.AppendChild(declaration);
-            document.AppendChild(root);
-
-            AppendSetting(document, root, "TextBox_SavePath", SavePath);
-            AppendSetting(document, root, "TextBox_MouseX", MouseX);
-            AppendSetting(document, root, "TextBox_MouseY", MouseY);
-            AppendSetting(document, root, "TextBox_Sleep", Sleep);
-
-            // ファイルに保存する
-            document.Save(Path);
-        }
-
-        private static void AppendSetting(XmlDocument document, XmlElement root, String attribute, String text)
-        {
-            XmlElement element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", attribute);
-            element.InnerText = text;
-            root.AppendChild(element);
+            StcSimpleSettings settings = new StcSimpleSettings();
+            settings.Set(KeySavePath, SavePath);
+            settings.Set(KeyMouseX, MouseX);
+            settings.Set(KeyMouseY, MouseY);
+            settings.Set(KeySleep, Sleep);
+            settings.Save(Path);
         }
 
         public static Settings LoadSettingXml(String Path)
         {
-            if (!File.Exists(Path))
+            StcSimpleSettings loaded = StcSimpleSettings.Load(Path);
+            if (loaded == null)
             {
                 return null;
             }
 
-            // 設定ファイルが壊れていても起動できるよう、読めなければ「設定なし」として扱う
-            XmlDocument document = new XmlDocument();
-            try
+            // 保存されていない項目はnullのままにする(呼び出し元が既定値を使う)
+            return new Settings
             {
-                document.Load(Path);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is XmlException)
-            {
-                return null;
-            }
-
-            Settings settings = new Settings();
-            foreach (XmlElement element in document.DocumentElement)
-            {
-                string attribute = element.GetAttribute("attribute");   // 属性
-                string text = element.InnerText;                        // 要素の内容
-
-                if (attribute.Equals("TextBox_SavePath"))
-                {
-                    settings.SavePath = text;
-                }
-                else if (attribute.Equals("TextBox_MouseX"))
-                {
-                    settings.MouseX = text;
-                }
-                else if (attribute.Equals("TextBox_MouseY"))
-                {
-                    settings.MouseY = text;
-                }
-                else if (attribute.Equals("TextBox_Sleep"))
-                {
-                    settings.Sleep = text;
-                }
-            }
-
-            return settings;
+                SavePath = loaded.IsExist(KeySavePath) ? loaded.Get(KeySavePath) : null,
+                MouseX = loaded.IsExist(KeyMouseX) ? loaded.Get(KeyMouseX) : null,
+                MouseY = loaded.IsExist(KeyMouseY) ? loaded.Get(KeyMouseY) : null,
+                Sleep = loaded.IsExist(KeySleep) ? loaded.Get(KeySleep) : null,
+            };
         }
     }
 }
