@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
@@ -54,7 +55,6 @@ namespace Cheetos
         };
 
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private StcFileInputOutput FileIO = new StcFileInputOutput();
         private StcDebug Debug = new StcDebug();
         private bool IsTaskRun = false;
 
@@ -341,6 +341,39 @@ namespace Cheetos
             ProgressBar_Status.Maximum = Maximum;
             ProgressBar_Status.Minimum = 0;
             ProgressBar_Status.Value = 0;
+        }
+
+        // 各タブのBackgroundWorker(Trim/Merge/Rotation/Orient)は進捗表示がまったく同じだったため、
+        // 1つのハンドラを4つのProgressChangedから共有する(結線はDesigner側)
+        private void BkgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            // 進捗率の表示
+            TextBox_Status.Text = e.ProgressPercentage + "/" + ProgressBar_Status.Maximum;
+            ProgressBar_Status.Value = e.ProgressPercentage;
+
+            // 一回目の更新時に、予想終了時間を表示
+            if (e.ProgressPercentage == 0)
+            {
+                SetExpectEndTime(ProgressBar_Status.Maximum);
+            }
+        }
+
+        // 指定フォルダ直下のファイル名をリストボックスへ並べる(Trim/Merge/Rotationの各タブで共通)
+        private void ListupFolderFiles(TextBox FolderPathCtrl, ListBox ListCtrl)
+        {
+            if (!Directory.Exists(FolderPathCtrl.Text))
+            {
+                MessageBox.Show("フォルダパスが不正です");
+                return;
+            }
+
+            ListCtrl.Items.Clear();
+
+            string[] files = Directory.GetFiles(FolderPathCtrl.Text, "*", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < files.Length; i++)
+            {
+                ListCtrl.Items.Add(Path.GetFileName(files[i]));
+            }
         }
 
         private void InitializeDataGridView()

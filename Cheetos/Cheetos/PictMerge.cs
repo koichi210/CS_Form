@@ -199,21 +199,7 @@ namespace Cheetos
 
         private void ListupPictMerge()
         {
-            if (!Directory.Exists(pm_SourceFolderPath.Text))
-            {
-                MessageBox.Show("フォルダパスが不正です");
-                return;
-            }
-            pm_ListBox_ListUp.Items.Clear();
-
-            string[] files = Directory.GetFiles(pm_SourceFolderPath.Text, "*", SearchOption.TopDirectoryOnly);
-
-            //配列の内容を一つ一つ追加する
-            for (int i = 0; i <= files.Length - 1; i++)
-            {
-                var FileName = Path.GetFileName(files[i]);
-                pm_ListBox_ListUp.Items.Add(FileName);
-            }
+            ListupFolderFiles(pm_SourceFolderPath, pm_ListBox_ListUp);
         }
 
         private void bkgWorkerMerge_DoWork(object sender, DoWorkEventArgs e)
@@ -266,19 +252,6 @@ namespace Cheetos
             }
             e.Result = pm.GetErrorMessage();
             worker.ReportProgress(TargetNameAry.Length);      // ⇒ProgressChanged()
-        }
-
-        private void bkgWorkerMerge_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            // 進捗率の表示
-            TextBox_Status.Text = e.ProgressPercentage + "/" + ProgressBar_Status.Maximum;
-            ProgressBar_Status.Value = e.ProgressPercentage;
-
-            // 一回目の更新時に、予想終了時間を表示
-            if (e.ProgressPercentage == 0)
-            {
-                SetExpectEndTime(ProgressBar_Status.Maximum);
-            }
         }
 
         private void bkgWorkerMerge_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

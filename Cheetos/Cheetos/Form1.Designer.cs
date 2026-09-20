@@ -1198,7 +1198,7 @@
             this.bkgWorkerTrim.WorkerReportsProgress = true;
             this.bkgWorkerTrim.WorkerSupportsCancellation = true;
             this.bkgWorkerTrim.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorkerTrim_DoWork);
-            this.bkgWorkerTrim.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerTrim_ProgressChanged);
+            this.bkgWorkerTrim.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BkgWorker_ProgressChanged);
             this.bkgWorkerTrim.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerTrim_RunWorkerCompleted);
             // 
             // bkgWorkerMerge
@@ -1206,7 +1206,7 @@
             this.bkgWorkerMerge.WorkerReportsProgress = true;
             this.bkgWorkerMerge.WorkerSupportsCancellation = true;
             this.bkgWorkerMerge.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorkerMerge_DoWork);
-            this.bkgWorkerMerge.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerMerge_ProgressChanged);
+            this.bkgWorkerMerge.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BkgWorker_ProgressChanged);
             this.bkgWorkerMerge.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerMerge_RunWorkerCompleted);
             // 
             // label_DebugMode
@@ -1224,7 +1224,7 @@
             this.bkgWorkerOrient.WorkerReportsProgress = true;
             this.bkgWorkerOrient.WorkerSupportsCancellation = true;
             this.bkgWorkerOrient.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorkerOrient_DoWork);
-            this.bkgWorkerOrient.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerOrient_ProgressChanged);
+            this.bkgWorkerOrient.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BkgWorker_ProgressChanged);
             this.bkgWorkerOrient.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerOrient_RunWorkerCompleted);
             // 
             // textBox_StartTime
@@ -1285,7 +1285,7 @@
             this.bkgWorkerRotation.WorkerReportsProgress = true;
             this.bkgWorkerRotation.WorkerSupportsCancellation = true;
             this.bkgWorkerRotation.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorkerRotation_DoWork);
-            this.bkgWorkerRotation.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerRotation_ProgressChanged);
+            this.bkgWorkerRotation.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BkgWorker_ProgressChanged);
             this.bkgWorkerRotation.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerRotation_RunWorkerCompleted);
             // 
             // Cheetos

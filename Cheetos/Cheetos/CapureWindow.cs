@@ -10,14 +10,6 @@ namespace Cheetos
     partial class Cheetos
     {
         public CaptWindow cw = new CaptWindow();
-
-        public struct EventTable
-        {
-            public Point pt;
-            public bool IsMouseMove;
-            public bool IsCapture;
-        }
-
         private void tabPageCaptureWindow_MouseMove(object sender, MouseEventArgs e)
         {
             cw_TextBox_Status.Text = "X=" + Cursor.Position.X.ToString() + ", Y=" + Cursor.Position.Y.ToString();

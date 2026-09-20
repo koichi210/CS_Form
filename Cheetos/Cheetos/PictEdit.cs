@@ -147,43 +147,4 @@ namespace Picture
             }
         }
     }
-
-    class PicEditCustom : PicEdit
-    {
-        /// ///////////////////////////////////////////////
-        /// sample Start
-        public int m_DestWidth = 0;
-
-        public int DestWidth
-        {
-            get
-            {
-                return m_DestWidth;
-            }
-            set
-            {
-                m_DestWidth = value;
-            }
-        }
-
-        /// sample End
-        /// ///////////////////////////////////////////////
-
-        public PicEditCustom(String BasePictFile)
-            : base(BasePictFile)
-        {
-        }
-
-        public PicEditCustom(int DestWidth, int DestHeight) : base(DestWidth, DestHeight)
-        {
-        }
-
-        ~PicEditCustom()
-        {
-        }
-
-        public void test()
-        {
-        }
-    }
 }

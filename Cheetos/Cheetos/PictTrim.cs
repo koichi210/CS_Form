@@ -46,21 +46,7 @@ namespace Cheetos
 
         private void ListupTrim()
         {
-            if (!Directory.Exists(pt_SourceFolderPath.Text))
-            {
-                MessageBox.Show("フォルダパスが不正です");
-                return;
-            }
-            pt_ListBox_ListUp.Items.Clear();
-
-            string[] files = Directory.GetFiles(pt_SourceFolderPath.Text, "*", SearchOption.TopDirectoryOnly);
-
-            //配列の内容を一つ一つ追加する
-            for (int i = 0; i <= files.Length - 1; i++)
-            {
-                var FileName = Path.GetFileName(files[i]);
-                pt_ListBox_ListUp.Items.Add(FileName);
-            }
+            ListupFolderFiles(pt_SourceFolderPath, pt_ListBox_ListUp);
         }
 
         private void Button_Trim_Click(object sender, EventArgs e)
@@ -189,19 +175,6 @@ namespace Cheetos
             worker.ReportProgress(TargetNameAry.Length);      // ⇒ProgressChanged()
 
             e.Result = "値も渡せます";
-        }
-
-        private void bkgWorkerTrim_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            // 進捗率の表示
-            TextBox_Status.Text = e.ProgressPercentage + "/" + ProgressBar_Status.Maximum;
-            ProgressBar_Status.Value = e.ProgressPercentage;
-
-            // 一回目の更新時に、予想終了時間を表示
-            if (e.ProgressPercentage == 0)
-            {
-                SetExpectEndTime(ProgressBar_Status.Maximum);
-            }
         }
 
         private void bkgWorkerTrim_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

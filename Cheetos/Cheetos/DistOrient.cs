@@ -57,54 +57,6 @@ namespace Cheetos
 
             Logic.IsPortrait(do_SampleFilePath.Text, int.Parse(do_WhiteLength.Text), int.Parse(do_WhiteCoef.Text), true);
         }
-
-        private void sample2(String filePath, int WhiteLength)
-        {
-            System.Drawing.Image image = System.Drawing.Image.FromFile(filePath);
-            if (image == null)
-            {
-                return;
-            }
-
-            int width = WhiteLength;
-            int height = image.Height;
-            int fileSize = (int)new System.IO.FileInfo(filePath).Length;
-
-            using (System.IO.MemoryStream stream = new System.IO.MemoryStream(fileSize))
-            {
-                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                MessageBox.Show(stream.Length.ToString());
-            }
-            image.Dispose();
-        }
-
-        private void sample3(String filePath, int WhiteLength)
-        {
-            Image image = Image.FromFile(filePath);
-            if (image == null)
-            {
-                return;
-            }
-
-            int width = WhiteLength;
-            int height = image.Height;
-            int fileSize = (int)new System.IO.FileInfo(filePath).Length;
-            Rectangle PasteRect = new Rectangle(0, 0, width, height);
-
-            using (MemoryStream stream = new MemoryStream(fileSize))
-            {
-                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                MessageBox.Show(stream.Length.ToString());
-            }
-            image.Dispose();
-        }
-
-        private void sample4(String filePath)
-        {
-            FileInfo fi = new FileInfo(filePath);
-            long filesize = fi.Length;
-        }
-
         private void bkgWorkerOrient_DoWork(object sender, DoWorkEventArgs e)
         {
             // 別スレッドで実行されるため、このメソッドではGUIを操作してはいけない
@@ -153,19 +105,6 @@ namespace Cheetos
 
             worker.ReportProgress(files.Length);      // ⇒ProgressChanged()
             e.Result = ErrorString;
-        }
-
-        private void bkgWorkerOrient_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            // 進捗率の表示
-            TextBox_Status.Text = e.ProgressPercentage + "/" + ProgressBar_Status.Maximum;
-            ProgressBar_Status.Value = e.ProgressPercentage;
-
-            // 一回目の更新時に、予想終了時間を表示
-            if (e.ProgressPercentage == 0)
-            {
-                SetExpectEndTime(ProgressBar_Status.Maximum);
-            }
         }
 
         private void bkgWorkerOrient_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
