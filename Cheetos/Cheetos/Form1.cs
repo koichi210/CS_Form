@@ -65,6 +65,7 @@ namespace Cheetos
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
         private const String AppName = "Cheetos";
         private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
 
         private readonly String SettingFileNameXml = @"Cheetos.xml";
         private readonly String SettingFileNameJson = @"Cheetos.json";
@@ -205,21 +206,7 @@ namespace Cheetos
         // 「上書きしますか?」の確認だけで済ませられるようにする(EventRecorderと同じ挙動)
         private void ProfileSave_Click(object sender, EventArgs e)
         {
-            String SaveFileName = fio.SelectSaveFileName(Profile.Text, userDataFolder);
-            if (String.IsNullOrEmpty(SaveFileName))
-            {
-                return;
-            }
-
-            if (!SaveProfile(SaveFileName))
-            {
-                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
-                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            UpdateProfileListAll(Path.GetFileName(SaveFileName));
-            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, Profile, ProfileExtensions, SaveProfile, userDataFolder);
         }
 
         // Ctrl+Sで「設定値保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)

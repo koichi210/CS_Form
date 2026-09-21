@@ -26,6 +26,7 @@ namespace FileArranger
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
         private const String AppName = "FileArranger";
         readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
 
         private readonly String[] RenameDirColumn = { "変更前", "変更後" };
         private readonly String[] PartitionFileColumn = { "対象", "移動前名称", "移動後名称" };
@@ -150,21 +151,7 @@ namespace FileArranger
 
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text, userDataFolder);
-            if (String.IsNullOrEmpty(SaveFileName))
-            {
-                return;
-            }
-
-            if (!SaveProfile(SaveFileName))
-            {
-                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
-                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            UpdateProfileListAll(Path.GetFileName(SaveFileName));
-            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile, userDataFolder);
         }
 
         // Ctrl+Sで「設定値保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)
