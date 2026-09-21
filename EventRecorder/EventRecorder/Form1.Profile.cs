@@ -252,11 +252,15 @@ namespace EventRecorder
                 if (overwriteResult == DialogResult.Yes)
                 {
                     String overwriteFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
-                    if (SaveProfile(overwriteFileName))
+                    if (!SaveProfile(overwriteFileName))
                     {
-                        UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(overwriteFileName));
-                        SyncPlaylistFileItems();
+                        MessageBox.Show("設定の保存に失敗したよ" + Environment.NewLine + overwriteFileName,
+                            AppName + " - エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
                     }
+
+                    UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(overwriteFileName));
+                    SyncPlaylistFileItems();
                     return;
                 }
             }
@@ -275,11 +279,15 @@ namespace EventRecorder
             }
 
             String SaveFileName = dlg.FileName;
-            if (SaveProfile(SaveFileName))
+            if (!SaveProfile(SaveFileName))
             {
-                UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(SaveFileName));
-                SyncPlaylistFileItems();
+                MessageBox.Show("設定の保存に失敗したよ" + Environment.NewLine + SaveFileName,
+                    AppName + " - エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(SaveFileName));
+            SyncPlaylistFileItems();
         }
     }
 }

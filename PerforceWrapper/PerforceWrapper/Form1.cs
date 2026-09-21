@@ -57,12 +57,21 @@ namespace PerforceWrapper
         private void button_profile_save_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_profile.Text);
-
-            if (SaveProfile(SaveFileName))
+            if (String.IsNullOrEmpty(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_profile, ProfileExtensions, Path.GetFileName(SaveFileName));
-                MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+                // ダイアログでキャンセルされた
+                return;
             }
+
+            if (!SaveProfile(SaveFileName))
+            {
+                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
+                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            util.UpdateProfileList(ref comboBox_profile, ProfileExtensions, Path.GetFileName(SaveFileName));
+            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
         }
 
         private void comboBox_profile_SelectedIndexChanged(object sender, EventArgs e)

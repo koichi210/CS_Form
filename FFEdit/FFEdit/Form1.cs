@@ -195,10 +195,14 @@ namespace FFEdit
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
             String saveFilePath = Path.Combine(userDataFolder, SettingFileName);
-            if (SaveProfile(saveFilePath))
+            if (!SaveProfile(saveFilePath))
             {
-                MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + saveFilePath);
+                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + saveFilePath,
+                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + saveFilePath);
         }
 
         // Ctrl+Sで「設定保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)

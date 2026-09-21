@@ -120,11 +120,21 @@ namespace ImageViewer
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_Profile.Text);
-            if (SaveProfile(SaveFileName))
+            if (String.IsNullOrEmpty(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, Path.GetFileName(SaveFileName));
-                MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+                // ダイアログでキャンセルされた
+                return;
             }
+
+            if (!SaveProfile(SaveFileName))
+            {
+                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
+                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, Path.GetFileName(SaveFileName));
+            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
         }
     }
 }

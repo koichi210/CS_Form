@@ -211,11 +211,15 @@ namespace Cheetos
                 return;
             }
 
-            if (SaveProfile(SaveFileName))
+            if (!SaveProfile(SaveFileName))
             {
-                UpdateProfileListAll(Path.GetFileName(SaveFileName));
-                MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
+                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            UpdateProfileListAll(Path.GetFileName(SaveFileName));
+            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
         }
 
         // Ctrl+Sで「設定値保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)
