@@ -26,6 +26,13 @@ namespace StaticAnalysisViewer
         private const String LegacySettingFileName = @"StaticAnalysisViewer.xml";
         private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
 
+        // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
+        // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\StaticAnalysisViewer\配下
+        // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
+        // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
+        private const String AppName = "StaticAnalysisViewer";
+        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+
         private static Boolean IsJsonFile(String filePath)
         {
             return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
@@ -53,9 +60,32 @@ namespace StaticAnalysisViewer
             InitializeCommonSettings(Properties.Resources.StaticAnalysisViewer);
 
             sr.RegistItem(this);
-            JsonSaveRestore.LoadWithMigration(sr, SettingFileName, LegacySettingFileName,
+            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
+            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path, this));
-            util.UpdateProfileList(ref comboBox_Profile);
+            util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, "", userDataFolder);
+        }
+
+        // *******************************************************************************
+        // データ保存先フォルダの変更(システムメニューから呼び出す)
+        // ([[Cheetos/Form1.cs]]の同名機能と同じ考え方)
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            DataFolderMenu.AppendToSystemMenu(this);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (DataFolderMenu.IsChangeDataFolderCommand(m))
+            {
+                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                return;
+            }
+
+            base.WndProc(ref m);
         }
 
         // Csvを読み込んで配列に追加
@@ -317,13 +347,13 @@ namespace StaticAnalysisViewer
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_Profile.Text;
+            String LoadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
             LoadProfile(LoadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
-            String LoadFileName = fio.SelectLoadFileName(SettingFileName);
+            String LoadFileName = fio.SelectLoadFileName(SettingFileName, userDataFolder);
             if (LoadProfile(LoadFileName))
             {
                 comboBox_Profile.Text = Path.GetFileName(LoadFileName);
@@ -333,7 +363,7 @@ namespace StaticAnalysisViewer
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
             JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_Profile, ProfileExtensions, SaveProfile,
-                SuccessMessage: "設定値を保存しました。");
+                userDataFolder, "設定値を保存しました。");
         }
     }
 

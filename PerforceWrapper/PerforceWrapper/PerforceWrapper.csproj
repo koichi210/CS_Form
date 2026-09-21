@@ -39,6 +39,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <!-- データ保存先フォルダ選択ダイアログ([[_Common/DataFolderChooser.cs]])用 -->
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -75,6 +77,15 @@
     </Compile>
     <Compile Include="..\..\_Common\JsonSaveRestore.cs">
       <Link>JsonSaveRestore.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\UserDataLocation.cs">
+      <Link>UserDataLocation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\DataFolderMenu.cs">
+      <Link>DataFolderMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\DataFolderChooser.cs">
+      <Link>DataFolderChooser.cs</Link>
     </Compile>
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>

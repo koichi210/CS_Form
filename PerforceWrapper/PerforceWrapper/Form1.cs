@@ -21,6 +21,13 @@ namespace PerforceWrapper
         private const String LegacySettingFileName = @"PerforceWrapper.xml";
         private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
 
+        // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
+        // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\PerforceWrapper\配下
+        // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
+        // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
+        private const String AppName = "PerforceWrapper";
+        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+
         private static Boolean IsJsonFile(String filePath)
         {
             return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
@@ -49,19 +56,42 @@ namespace PerforceWrapper
             InitializeCommonSettings(Properties.Resources.PerforceWrapper);
 
             sr.RegistItem(this);
-            JsonSaveRestore.LoadWithMigration(sr, SettingFileName, LegacySettingFileName,
+            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
+            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
-            util.UpdateProfileList(ref comboBox_profile);
+            util.UpdateProfileList(ref comboBox_profile, ProfileExtensions, "", userDataFolder);
+        }
+
+        // *******************************************************************************
+        // データ保存先フォルダの変更(システムメニューから呼び出す)
+        // ([[Cheetos/Form1.cs]]の同名機能と同じ考え方)
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            DataFolderMenu.AppendToSystemMenu(this);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (DataFolderMenu.IsChangeDataFolderCommand(m))
+            {
+                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                return;
+            }
+
+            base.WndProc(ref m);
         }
 
         private void button_profile_save_Click(object sender, EventArgs e)
         {
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_profile, ProfileExtensions, SaveProfile);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_profile, ProfileExtensions, SaveProfile, userDataFolder);
         }
 
         private void comboBox_profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_profile.Text;
+            String LoadFileName = Path.Combine(userDataFolder, comboBox_profile.Text);
             LoadProfile(LoadFileName);
         }
 
