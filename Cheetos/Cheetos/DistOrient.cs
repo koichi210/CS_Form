@@ -31,20 +31,21 @@ namespace Cheetos
             }
 
             // 別スレッドを非同期実行
-            List<object> arguments = new List<object>();
-            arguments.Add(int.Parse(do_WhiteLength.Text));
-            arguments.Add(int.Parse(do_WhiteCoef.Text));
-            arguments.Add(do_DestPortFolderPath.Text);
-            arguments.Add(do_DestLandFolderPath.Text);
-
             String[] files = Directory.GetFiles(do_SourceFolderPath.Text, do_TargetFileName.Text, SearchOption.TopDirectoryOnly);
-            arguments.Add(files);
+            OrientWorkerParam param = new OrientWorkerParam
+            {
+                WhiteLength = int.Parse(do_WhiteLength.Text),
+                WhiteCoef = int.Parse(do_WhiteCoef.Text),
+                DestPortFolderPath = do_DestPortFolderPath.Text,
+                DestLandFolderPath = do_DestLandFolderPath.Text,
+                Files = files,
+            };
 
             InitProgressBar(files.Length);
 
             SetStartTime();
             do_Distribute.Text = "中断";
-            bkgWorkerOrient.RunWorkerAsync(arguments);   // ⇒DoWork()
+            bkgWorkerOrient.RunWorkerAsync(param);   // ⇒DoWork()
         }
 
         private void do_GetSampleParam_Click(object sender, EventArgs e)
@@ -67,12 +68,12 @@ namespace Cheetos
             String ErrorString = "";
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
-            int WhiteLength = (int)genericlist[0];              // do_WhiteLength
-            int WhiteCoef = (int)genericlist[1];                // do_WhiteCoef
-            String DestPortFolderPath = (String)genericlist[2]; // do_DestPortFolderPath
-            String DestLandFolderPath = (String)genericlist[3]; // do_DestLandFolderPath
-            String[] files = (String[])genericlist[4];          // FileList
+            OrientWorkerParam param = (OrientWorkerParam)e.Argument;
+            int WhiteLength = param.WhiteLength;
+            int WhiteCoef = param.WhiteCoef;
+            String DestPortFolderPath = param.DestPortFolderPath;
+            String DestLandFolderPath = param.DestLandFolderPath;
+            String[] files = param.Files;
 
             for (int i = 0; i <= files.Length - 1; i++)
             {

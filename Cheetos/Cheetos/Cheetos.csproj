@@ -71,6 +71,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="PictEdit.cs" />
+    <Compile Include="WorkerParams.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="PictMerge.cs">
       <SubType>Form</SubType>

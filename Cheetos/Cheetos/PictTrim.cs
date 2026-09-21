@@ -89,13 +89,15 @@ namespace Cheetos
             InitProgressBar(pt_ListBox_ListUp.SelectedItems.Count);
 
             // 別スレッドを非同期実行
-            List<object> arguments = new List<object>();
-            arguments.Add(pt_BaseX.Text);
-            arguments.Add(pt_BaseY.Text);
-            arguments.Add(Target_Width);
-            arguments.Add(Target_Height);
-            arguments.Add(pt_SourceFolderPath.Text);
-            arguments.Add(BackUpDirPath);
+            TrimWorkerParam param = new TrimWorkerParam
+            {
+                BaseX = pt_BaseX.Text,
+                BaseY = pt_BaseY.Text,
+                TargetWidth = Target_Width,
+                TargetHeight = Target_Height,
+                SourceFolderPath = pt_SourceFolderPath.Text,
+                BackUpDirPath = BackUpDirPath,
+            };
 
             Debug.WriteData("Source = " + pt_SourceFolderPath.Text);
             Debug.WriteData("Backup = " + BackUpDirPath);
@@ -103,12 +105,11 @@ namespace Cheetos
             Debug.WriteData("Size(" + Target_Width + "," + Target_Height + ")");
 
             // ListBoxの値を配列で取得
-            String[] StrArray = util.GetStrArrayFromListBox(pt_ListBox_ListUp.SelectedItems);
-            arguments.Add(StrArray);
+            param.TargetNameAry = util.GetStrArrayFromListBox(pt_ListBox_ListUp.SelectedItems);
 
             SetStartTime();
             pt_Button_Trim.Text = "中断";
-            bkgWorkerTrim.RunWorkerAsync(arguments);   // ⇒DoWork()
+            bkgWorkerTrim.RunWorkerAsync(param);   // ⇒DoWork()
         }
 
         private void bkgWorkerTrim_DoWork(object sender, DoWorkEventArgs e)
@@ -119,16 +120,15 @@ namespace Cheetos
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
+            TrimWorkerParam param = (TrimWorkerParam)e.Argument;
 
-
-            int BaseX = (int)int.Parse((String)genericlist[0]); // pt_BaseX
-            int BaseY = (int)int.Parse((String)genericlist[1]); // pt_BaseY
-            int Target_Width = (int)genericlist[2];             // Target_Width
-            int Target_Height = (int)genericlist[3];            // Target_Height
-            String SourceFolderPath = (String)genericlist[4];   // pt_SourceFolderPath
-            String BackUpDirPath = (String)genericlist[5];      // BackUpDirPath
-            String[] TargetNameAry = (String[])genericlist[6];  // pm_ListBox_ListUp
+            int BaseX = int.Parse(param.BaseX);
+            int BaseY = int.Parse(param.BaseY);
+            int Target_Width = param.TargetWidth;
+            int Target_Height = param.TargetHeight;
+            String SourceFolderPath = param.SourceFolderPath;
+            String BackUpDirPath = param.BackUpDirPath;
+            String[] TargetNameAry = param.TargetNameAry;
 
             for (int ItemIdx = 0; ItemIdx < TargetNameAry.Length; ItemIdx++)
             {

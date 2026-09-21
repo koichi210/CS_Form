@@ -83,6 +83,7 @@
     <Compile Include="..\..\_Common\ProcessMemory.cs">
       <Link>ProcessMemory.cs</Link>
     </Compile>
+    <Compile Include="WorkerParams.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="FileSorter.cs" />
     <Compile Include="Program.cs" />

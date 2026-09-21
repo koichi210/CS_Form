@@ -222,19 +222,23 @@ namespace FileArranger
             progressBar.Value = 0;
 
             // 別スレッドを非同期実行
-            List<object> arguments = new List<object>();
-            arguments.Add(pf_textBox_TargetFile.Text);
-            arguments.Add(pf_textBox_ReferenceFile.Text);
-            arguments.Add(pf_listView_Target.SelectedItems.Count);
+            PartitionWorkerParam param = new PartitionWorkerParam
+            {
+                TargetFilePath = pf_textBox_TargetFile.Text,
+                TargetDir = pf_textBox_ReferenceFile.Text,
+            };
 
             for (int i = 0; i < pf_listView_Target.SelectedItems.Count; i++)
             {
                 int idx = pf_listView_Target.SelectedItems[i].Index;
-                arguments.Add(pf_listView_Target.Items[idx].SubItems[CreateFolderTargetIdx].Text);
-                arguments.Add(pf_listView_Target.Items[idx].SubItems[CreateFolderMoveSrcIdx].Text);
-                arguments.Add(pf_listView_Target.Items[idx].SubItems[CreateFolderMoveDestIdx].Text);
+                param.Items.Add(new PartitionWorkerParam.Item
+                {
+                    TargetName = pf_listView_Target.Items[idx].SubItems[CreateFolderTargetIdx].Text,
+                    MoveSrc = pf_listView_Target.Items[idx].SubItems[CreateFolderMoveSrcIdx].Text,
+                    MoveDest = pf_listView_Target.Items[idx].SubItems[CreateFolderMoveDestIdx].Text,
+                });
             }
-            bgPartition.RunWorkerAsync(arguments);   // ⇒bgPartition_DoWork()
+            bgPartition.RunWorkerAsync(param);   // ⇒bgPartition_DoWork()
         }
 
         private void pf_listView_Target_DoubleClick(object sender, EventArgs e)
@@ -293,25 +297,18 @@ namespace FileArranger
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
-            String TargetFilePath = (String)genericlist[0];
-            String TargetDir = (String)genericlist[1];
-            int ItemCount = (int)genericlist[2];
-
-            // 以前は"generic_index"という1つの変数を「先頭からのオフセット」と
-            // 「1件あたりの間隔(ストライド)」の2つの意味で使い回していた
-            // (たまたま両方とも3だったので動いていたが、読み手には分かりにくかった)。
-            // 意味ごとに変数を分けて、それぞれの役割を明確にした(値・挙動は変えていない)。
-            const int BaseOffset = 3;   // 4個目(genericlist[3])から対象データが始まる
-            const int Stride = 3;       // 1件あたり(対象名/移動前名称/移動後名称)3個おき
+            PartitionWorkerParam param = (PartitionWorkerParam)e.Argument;
+            String TargetFilePath = param.TargetFilePath;
+            String TargetDir = param.TargetDir;
+            int ItemCount = param.Items.Count;
 
             // このスレッドから直接MessageBoxを出さず、完了時にUIスレッドへまとめて渡す
             List<String> Messages = new List<String>();
             for (int i = 0; i < ItemCount; i++)
             {
-                String TargetName = (String)genericlist[BaseOffset + i * Stride + 0]; // 4個目以降が対象[3個おき]
-                String MoveSrc = (String)genericlist[BaseOffset + i * Stride + 1];    // 5個目以降が対象[3個おき]
-                String MoveDest = (String)genericlist[BaseOffset + i * Stride + 2];   // 6個目以降が対象[3個おき]
+                String TargetName = param.Items[i].TargetName;
+                String MoveSrc = param.Items[i].MoveSrc;
+                String MoveDest = param.Items[i].MoveDest;
 
                 if (MoveDest == String.Empty)
                 {

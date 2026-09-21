@@ -128,16 +128,17 @@ namespace FileArranger
             progressBar.Value = 0;
 
             // 別スレッドを非同期実行
-            List<object> arguments = new List<object>();
-            arguments.Add(mf_textBox_SourceDir.Text);
-            arguments.Add(mf_textBox_TargetDir.Text);
-            arguments.Add(mf_listBox_Target.SelectedItems.Count);
+            MoveFileWorkerParam param = new MoveFileWorkerParam
+            {
+                SourceDir = mf_textBox_SourceDir.Text,
+                TargetDir = mf_textBox_TargetDir.Text,
+            };
             for (int i = 0; i < mf_listBox_Target.SelectedItems.Count; i++)
             {
-                arguments.Add(mf_listBox_Target.SelectedItems[i].ToString() );
+                param.TargetNames.Add(mf_listBox_Target.SelectedItems[i].ToString());
             }
 
-            bgWorkerMove.RunWorkerAsync(arguments);   // ⇒bgWorker_DoWork()
+            bgWorkerMove.RunWorkerAsync(param);   // ⇒bgWorker_DoWork()
         }
 
         private void mf_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
@@ -153,14 +154,13 @@ namespace FileArranger
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
-            String Sourcedir = (String)genericlist[0];
-            String TargetDir = (String)genericlist[1];
-            int ItemCount = (int)genericlist[2];
+            MoveFileWorkerParam param = (MoveFileWorkerParam)e.Argument;
+            String Sourcedir = param.SourceDir;
+            String TargetDir = param.TargetDir;
 
-            for (int i = 0; i < ItemCount; i++)
+            for (int i = 0; i < param.TargetNames.Count; i++)
             {
-                String TargetName = (String)genericlist[3 + i];     // 3個目以降が対象のファイル名
+                String TargetName = param.TargetNames[i];
                 String SourcePath = Sourcedir + @"\" + TargetName;
                 String TargetPath = TargetDir + @"\" + fio.GetLastPathName(TargetName);
 
@@ -177,7 +177,7 @@ namespace FileArranger
                 //    return;
                 //}
             }
-            worker.ReportProgress(ItemCount);
+            worker.ReportProgress(param.TargetNames.Count);
 
             // このメソッドからの戻り値
             e.Result = "すべて完了";

@@ -91,22 +91,7 @@ namespace VisualStudioBuilder
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
-            String SaveFileName = fio.SelectSaveFileName(comboBox_Profile.Text);
-            if (String.IsNullOrEmpty(SaveFileName))
-            {
-                // ダイアログでキャンセルされた
-                return;
-            }
-
-            if (!SaveProfile(SaveFileName))
-            {
-                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
-                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, Path.GetFileName(SaveFileName));
-            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_Profile, ProfileExtensions, SaveProfile);
         }
 
         private void button_RemoveRaw_Click(object sender, EventArgs e)
@@ -192,29 +177,21 @@ namespace VisualStudioBuilder
             StcFileInputOutput fio = new StcFileInputOutput();
             fio.DeleteDirectoryAndFile(textBox_LogDirectory.Text);
 
-            List<object> arguments = new List<object>();
+            // 以前はList<object>へ順番に詰めてDoWork側で位置で取り出していたが、
+            // 並び順がずれると気づきにくいため、専用クラスをそのまま渡す
+            BuildWorkerInfo bwi = new BuildWorkerInfo
+            {
+                BuildScript = CreateAllBuildScript(),
+                IsDetectError = checkBox_DetectBuildError.Checked,
+                DetectBuildErrorWord = textBox_DetectBuildErrorWord.Text,
+                IsExclude = checkBox_IsExclude.Checked,
+                IgnoreExecuteFile = textBox_ExcludeWord.Text,
+                IsDeleteDirectory = checkBox_DeleteDirectory.Checked,
+                DeleteDirectoryName = textBox_DeleteDirectoryName.Text,
+                DetectTargetLogList = CreateDetectTargetList(),
+            };
 
-            // Build実行Script生成
-            String BuildScript = CreateAllBuildScript();
-            arguments.Add(BuildScript);
-
-            // エラー検知
-            arguments.Add(checkBox_DetectBuildError.Checked);
-            arguments.Add(textBox_DetectBuildErrorWord.Text);
-
-            // エラー検知除外
-            arguments.Add(checkBox_IsExclude.Checked);
-            arguments.Add(textBox_ExcludeWord.Text);
-
-            // ビルド後の削除ディレクトリ
-            arguments.Add(checkBox_DeleteDirectory.Checked);
-            arguments.Add(textBox_DeleteDirectoryName.Text);
-
-            // ビルドログリスト生成
-            String DetectTargetLogList = CreateDetectTargetList();
-            arguments.Add(DetectTargetLogList);
-
-            BuildWorker.RunWorkerAsync(arguments);
+            BuildWorker.RunWorkerAsync(bwi);
         }
 
         private void BuildWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -225,16 +202,7 @@ namespace VisualStudioBuilder
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
-            BuildWorkerInfo bwi = new BuildWorkerInfo();
-            bwi.BuildScript = (String)genericlist[0];           // BuildScript
-            bwi.IsDetectError = (Boolean)genericlist[1];        // checkBox_DetectBuildError
-            bwi.DetectBuildErrorWord = (String)genericlist[2];  // DetectBuildErrorWord
-            bwi.IsExclude = (Boolean)genericlist[3];            // checkBox_IsExclude
-            bwi.IgnoreExecuteFile = (String)genericlist[4];     // textBox_ExcludeWord
-            bwi.IsDeleteDirectory = (Boolean)genericlist[5];    // checkBox_DeleteDirectory
-            bwi.DeleteDirectoryName = (String)genericlist[6];   // textBox_DeleteDirectoryName
-            bwi.DetectTargetLogList = (String)genericlist[7];   // DetectTargetLogList
+            BuildWorkerInfo bwi = (BuildWorkerInfo)e.Argument;
 
             // ビルド実行
             String BatchFile = fio.CreateTempFile("Bat");

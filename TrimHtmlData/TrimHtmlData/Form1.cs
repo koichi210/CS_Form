@@ -154,22 +154,7 @@ namespace TrimHtmlData
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
-            String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text);
-            if (String.IsNullOrEmpty(SaveFileName))
-            {
-                // ダイアログでキャンセルされた
-                return;
-            }
-
-            if (!SaveProfile(SaveFileName))
-            {
-                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
-                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            util.UpdateProfileList(ref comboBox_LoadSetting, ProfileExtensions, Path.GetFileName(SaveFileName));
-            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile);
         }
     }
 }

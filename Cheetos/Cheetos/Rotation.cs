@@ -160,20 +160,21 @@ namespace Cheetos
             InitProgressBar(pr_ListBox_ListUp.SelectedItems.Count);
 
             // 別スレッドを非同期実行
-            List<object> arguments = new List<object>();
-            arguments.Add(pr_BaseX.Text);
-            arguments.Add(pr_BaseY.Text);
-            arguments.Add(pr_Angle.Text);
-            arguments.Add(pr_SourceFolderPath.Text);
-            arguments.Add(BackUpDirPath);
+            RotationWorkerParam param = new RotationWorkerParam
+            {
+                BaseX = pr_BaseX.Text,
+                BaseY = pr_BaseY.Text,
+                Angle = pr_Angle.Text,
+                SourceFolderPath = pr_SourceFolderPath.Text,
+                BackUpDirPath = BackUpDirPath,
 
-            // ListBoxの値を配列で取得
-            String[] StrArray = util.GetStrArrayFromListBox(pr_ListBox_ListUp.SelectedItems);
-            arguments.Add(StrArray);
+                // ListBoxの値を配列で取得
+                TargetNameAry = util.GetStrArrayFromListBox(pr_ListBox_ListUp.SelectedItems),
+            };
 
             SetStartTime();
             pr_Button_Rotation.Text = "中断";
-            bkgWorkerRotation.RunWorkerAsync(arguments);   // ⇒DoWork()
+            bkgWorkerRotation.RunWorkerAsync(param);   // ⇒DoWork()
         }
 
         private void bkgWorkerRotation_DoWork(object sender, DoWorkEventArgs e)
@@ -184,16 +185,16 @@ namespace Cheetos
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
+            RotationWorkerParam param = (RotationWorkerParam)e.Argument;
 
             Rotation rt = new Rotation();
 
-            rt.BaseX = (int)int.Parse((String)genericlist[0]); // pt_BaseX
-            rt.BaseY = (int)int.Parse((String)genericlist[1]); // pt_BaseY
-            rt.Angle = (int)int.Parse((String)genericlist[2]); // pr_Angle
-            rt.SourceFolderPath = (String)genericlist[3];   // pr_SourceFolderPath
-            rt.BackUpDirPath = (String)genericlist[4];      // BackUpDirPath
-            String[] TargetNameAry = (String[])genericlist[5];  // pm_ListBox_ListUp
+            rt.BaseX = int.Parse(param.BaseX);
+            rt.BaseY = int.Parse(param.BaseY);
+            rt.Angle = int.Parse(param.Angle);
+            rt.SourceFolderPath = param.SourceFolderPath;
+            rt.BackUpDirPath = param.BackUpDirPath;
+            String[] TargetNameAry = param.TargetNameAry;
 
             for (int ItemIdx = 0; ItemIdx < TargetNameAry.Length; ItemIdx++)
             {

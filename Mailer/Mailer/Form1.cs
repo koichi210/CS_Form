@@ -70,27 +70,13 @@ namespace Mailer
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
-            String FileName = comboBox_LoadSetting.Text;
-            if (FileName == String.Empty)
+            // プロファイル未選択のときは既定の設定ファイル名で保存ダイアログを出す
+            if (comboBox_LoadSetting.Text == String.Empty)
             {
-                FileName = SettingFileName;
-            }
-            String SaveFileName = fio.SelectSaveFileName(FileName);
-            if (String.IsNullOrEmpty(SaveFileName))
-            {
-                // ダイアログでキャンセルされた
-                return;
+                comboBox_LoadSetting.Text = SettingFileName;
             }
 
-            if (!SaveProfile(SaveFileName))
-            {
-                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
-                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            util.UpdateProfileList(ref comboBox_LoadSetting, ProfileExtensions, Path.GetFileName(SaveFileName));
-            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile);
         }
  
         private void button_OpenBrowse_Click(object sender, EventArgs e)

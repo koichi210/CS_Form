@@ -173,11 +173,13 @@ namespace Cheetos
             InitProgressBar(pm_ListBox_ListUp.SelectedItems.Count);
 
             // 別スレッドを非同期実行
-            List<object> arguments = new List<object>();
-            arguments.Add(BackUpDirPath);
-            arguments.Add(pm_SourceFolderPath.Text);
-            arguments.Add(pm_SourceFile1Prefix.Text);
-            arguments.Add(pm_SourceFile2Prefix.Text);
+            MergeWorkerParam param = new MergeWorkerParam
+            {
+                BackUpDirPath = BackUpDirPath,
+                SourceFolderPath = pm_SourceFolderPath.Text,
+                SourceFile1Prefix = pm_SourceFile1Prefix.Text,
+                SourceFile2Prefix = pm_SourceFile2Prefix.Text,
+            };
 
             Debug.WriteData("BackUpDirPath = " + BackUpDirPath);
             Debug.WriteData("SourceFolderPath = " + pm_SourceFolderPath.Text);
@@ -185,16 +187,14 @@ namespace Cheetos
             Debug.WriteData("Prefix2 = " + pm_SourceFile2Prefix.Text);
 
             // 切断基準となる高さ
-            String[] TrimHeightAry = pm_TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            arguments.Add(TrimHeightAry);
+            param.TrimHeightAry = pm_TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
             // ListBoxの値を配列で取得
-            String[] StrArray = util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
-            arguments.Add(StrArray);
+            param.TargetNameAry = util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
 
             SetStartTime();
             pm_MergeExec_Click.Text = "中断";
-            bkgWorkerMerge.RunWorkerAsync(arguments);   // ⇒DoWork()
+            bkgWorkerMerge.RunWorkerAsync(param);   // ⇒DoWork()
         }
 
         private void ListupPictMerge()
@@ -210,15 +210,15 @@ namespace Cheetos
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
+            MergeWorkerParam param = (MergeWorkerParam)e.Argument;
 
             PictMerge pm = new PictMerge();
-            pm.BackUpDirPath = (String)genericlist[0];      // BackUpDirPath
-            pm.SourceFolderPath = (String)genericlist[1];   // pm_SourceFolderPath.Text
-            pm.SourceFile1Prefix = (String)genericlist[2];  // pm_SourceFile1Prefix.Text
-            pm.SourceFile2Prefix = (String)genericlist[3];  // pm_SourceFile2Prefix.Text
-            pm.TrimHeightAry = (String[])genericlist[4];  // pm_TrimingHeight.Text
-            String[] TargetNameAry = (String[])genericlist[5];  // pm_ListBox_ListUp.Text
+            pm.BackUpDirPath = param.BackUpDirPath;
+            pm.SourceFolderPath = param.SourceFolderPath;
+            pm.SourceFile1Prefix = param.SourceFile1Prefix;
+            pm.SourceFile2Prefix = param.SourceFile2Prefix;
+            pm.TrimHeightAry = param.TrimHeightAry;
+            String[] TargetNameAry = param.TargetNameAry;
 
             for (int ItemIdx = 0; ItemIdx < TargetNameAry.Length; ItemIdx++)
             {

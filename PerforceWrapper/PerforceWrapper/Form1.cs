@@ -56,22 +56,7 @@ namespace PerforceWrapper
 
         private void button_profile_save_Click(object sender, EventArgs e)
         {
-            String SaveFileName = fio.SelectSaveFileName(comboBox_profile.Text);
-            if (String.IsNullOrEmpty(SaveFileName))
-            {
-                // ダイアログでキャンセルされた
-                return;
-            }
-
-            if (!SaveProfile(SaveFileName))
-            {
-                MessageBox.Show("設定の保存に失敗しました" + Environment.NewLine + SaveFileName,
-                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            util.UpdateProfileList(ref comboBox_profile, ProfileExtensions, Path.GetFileName(SaveFileName));
-            MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
+            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_profile, ProfileExtensions, SaveProfile);
         }
 
         private void comboBox_profile_SelectedIndexChanged(object sender, EventArgs e)
@@ -107,10 +92,8 @@ namespace PerforceWrapper
             String BatchFile = fio.CreateTempFile("bat");
             fio.CreateFile(BatchFile, Script);
 
-            // 実行
-            List<object> arguments = new List<object>();
-            arguments.Add(BatchFile);
-            backgroundWorker.RunWorkerAsync(arguments);   // ⇒DoWork()
+            // 実行(引数はバッチのパス1つだけなのでそのまま渡す)
+            backgroundWorker.RunWorkerAsync(BatchFile);   // ⇒DoWork()
         }
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -118,8 +101,7 @@ namespace PerforceWrapper
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
-            String BatchFile = (String)genericlist[0];
+            String BatchFile = (String)e.Argument;
 
             // コマンド実行
             util.ExecuteProcess(BatchFile);
