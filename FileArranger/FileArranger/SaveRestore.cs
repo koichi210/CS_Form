@@ -45,8 +45,8 @@ namespace FileArranger
             RegistCtrl("MoveFile", "mf_textBox_TargetDir", Parent.mf_textBox_TargetDir);
 
             RegistCtrl("PartitionFile", "pf_textBox_TargetFile", Parent.pf_textBox_TargetFile);
-            RegistCtrl("PartitionFile", "pf_textBox_RefrenceFile", Parent.pf_textBox_ReferenceFile);
-            RegistCtrl("PartitionFile", "pf_textBox_TargetSeprator", Parent.pf_textBox_TargetSeparator);
+            RegistCtrl("PartitionFile", "pf_textBox_ReferenceFile", Parent.pf_textBox_ReferenceFile, LegacyAttrValue: "pf_textBox_RefrenceFile");
+            RegistCtrl("PartitionFile", "pf_textBox_TargetSeparator", Parent.pf_textBox_TargetSeparator, LegacyAttrValue: "pf_textBox_TargetSeprator");
             RegistCtrl("PartitionFile", "pf_textBox_SearchTitleLine", Parent.pf_textBox_SearchTitleLine);
             RegistCtrl("PartitionFile", "pf_textBox_SearchTitleLength", Parent.pf_textBox_SearchTitleLength);
             RegistCtrl("PartitionFile", "pf_checkBox_CreateNewDir", Parent.pf_checkBox_CreateNewDir);

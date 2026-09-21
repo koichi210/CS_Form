@@ -29,21 +29,24 @@ CS_Form配下のtypoを一括修正したときの記録（2026-09-20）。
 | FFEdit/TimeStump.cs | FFEdit/TimeStamp.cs |
 | FFEdit.Tests/TimeStumpTests.cs | FFEdit.Tests/TimeStampTests.cs |
 
-## ⚠️ 未修正（設定ファイルのキー名）
+## ✅ 修正済み（設定ファイルのキー名、2026-09-21）
 
-設定ファイル（XML）のキーは、SaveRestore.cs で文字列リテラルとして書かれており、
-**これを変えると既存の設定ファイルの値が読めなくなる**（初期値に戻る）ため、
-今回は意図的にtypoのまま残した。
+設定ファイルのキー（SaveRestore.cs の RegistCtrl 第2引数）も直した。
+当初は「既存の設定ファイルが読めなくなる」ため見送っていたが、
+`_Common/StandardTemplateClass.cs` の `OriginDB` に **旧キーの読み替え機能
+（LegacyAttrValue）** を追加したことで、キー名を変えつつ旧ファイルも読めるようにした。
 
 ```csharp
 // 例: TrimFileData/SaveRestore.cs
-RegistCtrl("Common", "textBox_SerchCommonWord", Parent.textBox_SearchCommonWord);
-//                    ↑キー名(typoのまま)         ↑コントロール名(修正済み)
+RegistCtrl("Common", "textBox_SearchCommonWord", Parent.textBox_SearchCommonWord,
+    LegacyAttrValue: "textBox_SerchCommonWord");
+//                    ↑今後使う新キー                              ↑旧キー(読み込み時のみ使う)
 ```
 
-残っているキー名は以下の7つ。
+読み込み時、新キーで見つからなければ旧キーでも探す（XML・JSON両方に対応）。
+保存は常に新キーで行われるため、**一度保存し直せば旧キーの読み替えは以後不要**になる。
 
-| プロジェクト | 設定キー（現状） | 直したい名前 |
+| プロジェクト | 旧キー | 新キー |
 |:--|:--|:--|
 | Cheetos | cw_TextBox_SaveFilePrifix | cw_TextBox_SaveFilePrefix |
 | Cheetos | cw_checkBox_AddTimeStump | cw_checkBox_AddTimeStamp |
@@ -53,18 +56,6 @@ RegistCtrl("Common", "textBox_SerchCommonWord", Parent.textBox_SearchCommonWord)
 | TrimFileData | textBox_SerchWordList | textBox_SearchWordList |
 | TrimFileData | textBox_SerchResultList | textBox_SearchResultList |
 
-### いつ直すか
-
-⚠️ **XML→JSON移行(2026-09-21実施)のタイミングでは直せなかった。** 理由は次の通り。
-
-移行処理は「旧XMLを読む → その内容をJSONで保存し直す」という流れで、旧XMLを読む部分は
-従来どおり StcSaveRestore がキー名で照合している。ここでキー名を先に直すと、
-**旧XMLのキーと一致せず、移行時に値が読めないまま消えてしまう**。
-
-直すなら次のどちらか。
-
-1. 全員のXMLがJSONへ移行し終わったあとに、キー名を一括で変更する
-   (JSONは単なるキーと値なので、移行後なら安全に変更できる)
-2. 読み込み時に「旧キー→新キー」の読み替え表を通す仕組みを入れてから変更する
-
-いずれにしても、JSONへの移行が済んでいることが前提になる。
+検証はテストで実施（`_Common/Tests/StandardTemplate.Tests/StcSaveRestoreTests.cs`）:
+旧キーのXML/JSONを読み込めること、新旧両方あれば新キーが優先されること、
+`LegacyAttrValue`を指定しなければ従来通り新キーのみ一致することを確認済み。
