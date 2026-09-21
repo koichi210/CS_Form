@@ -28,19 +28,20 @@ namespace CaptureWindow
             public String Sleep;
         }
 
-        public static void SaveSettingXml(String Path, String SavePath, String MouseX, String MouseY, String Sleep)
+        public static void SaveSetting(String Path, String SavePath, String MouseX, String MouseY, String Sleep)
         {
             StcSimpleSettings settings = new StcSimpleSettings();
             settings.Set(KeySavePath, SavePath);
             settings.Set(KeyMouseX, MouseX);
             settings.Set(KeyMouseY, MouseY);
             settings.Set(KeySleep, Sleep);
-            settings.Save(Path);
+            settings.SaveJson(Path);
         }
 
-        public static Settings LoadSettingXml(String Path)
+        // 旧形式(CaptureWindow.xml)しか無い場合は、読み込んだ内容をJSONで保存し直して旧XMLを削除する
+        public static Settings LoadSetting(String Path)
         {
-            StcSimpleSettings loaded = StcSimpleSettings.Load(Path);
+            StcSimpleSettings loaded = StcSimpleSettings.LoadWithMigration(Path);
             if (loaded == null)
             {
                 return null;

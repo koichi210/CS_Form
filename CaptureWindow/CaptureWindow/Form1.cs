@@ -23,7 +23,7 @@ namespace CaptureWindow
         // 実機確認が必要。
         private readonly CaptWindow cw = new CaptWindow();
 
-        readonly String SaveXmlFile = @"CaptureWindow.xml";
+        readonly String SettingFile = @"CaptureWindow.json";
 
         public Form1()
         {
@@ -116,14 +116,14 @@ namespace CaptureWindow
 
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            Logic.SaveSettingXml(SaveXmlFile, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
+            Logic.SaveSetting(SettingFile, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            Logic.Settings settings = Logic.LoadSettingXml(SaveXmlFile);
+            Logic.Settings settings = Logic.LoadSetting(SettingFile);
             if (settings == null)
             {
                 return;
