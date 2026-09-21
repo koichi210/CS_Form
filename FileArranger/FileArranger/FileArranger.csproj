@@ -103,6 +103,9 @@
     <Compile Include="..\..\_Common\UserDataLocation.cs">
       <Link>UserDataLocation.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\JsonSaveRestore.cs">
+      <Link>JsonSaveRestore.cs</Link>
+    </Compile>
     <Compile Include="..\..\_Common\JsonFileStorage.cs">
       <Link>JsonFileStorage.cs</Link>
     </Compile>

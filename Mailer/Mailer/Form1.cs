@@ -14,7 +14,30 @@ namespace Mailer
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        readonly String SettingFileName = @"Mailer.xml";
+        readonly String SettingFileName = @"Mailer.json";
+
+        // 設定ファイルはJSONが基本。旧XML(Mailer.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"Mailer.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
+        }
+
         readonly String MailUrl = @"https://mail.google.com/mail/?view=cm&fs=1";
 
         private StcFileInputOutput fio = new StcFileInputOutput();
@@ -34,14 +57,15 @@ namespace Mailer
             InitializeCommonSettings(Properties.Resources.Mailer);
 
             sr.RegistLoadItem(this);
-            sr.LoadProc(SettingFileName);
+            JsonSaveRestore.LoadWithMigration(sr, SettingFileName, LegacySettingFileName,
+                path => sr.LoadProc(path));
             util.UpdateProfileList(ref comboBox_LoadSetting);
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_LoadSetting.Text;
-            sr.LoadProc(LoadFileName);
+            LoadProfile(LoadFileName);
         }
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
@@ -52,9 +76,9 @@ namespace Mailer
                 FileName = SettingFileName;
             }
             String SaveFileName = fio.SelectSaveFileName(FileName);
-            if (sr.SaveSetting(SaveFileName))
+            if (SaveProfile(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_LoadSetting, Path.GetFileName(SaveFileName));
+                util.UpdateProfileList(ref comboBox_LoadSetting, ProfileExtensions, Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }

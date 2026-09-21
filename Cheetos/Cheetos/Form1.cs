@@ -86,10 +86,11 @@ namespace Cheetos
 
             sr.RegistItem(this);
 
-            // 起動時はJSON版があればそちらを優先して読み込む(今後はJSON保存が主流になっていく方針のため)
+            // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
+            // ([[_Common/JsonSaveRestore.cs]])
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileNameJson);
             String defaultXmlPath = Path.Combine(userDataFolder, SettingFileNameXml);
-            LoadProfile(File.Exists(defaultJsonPath) ? defaultJsonPath : defaultXmlPath);
+            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
 
             UpdateProfileListAll("");
         }
@@ -115,6 +116,12 @@ namespace Cheetos
             {
                 sr.LoadProc(filePath, this);
             }
+        }
+
+        // 旧XMLの読み込み(移行用)。JsonSaveRestore.LoadWithMigrationへ渡す
+        private Boolean LoadProfileFromXml(String path)
+        {
+            return sr.LoadProc(path, this);
         }
 
         // 設定ファイルを拡張子で振り分けて保存する

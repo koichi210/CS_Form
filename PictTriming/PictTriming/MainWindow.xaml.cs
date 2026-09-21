@@ -22,7 +22,7 @@ namespace PictTriming
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly String SaveXmlFile = @"PictTrim.xml";
+        readonly String SettingFile = @"PictTrim.json";
 
         public MainWindow()
         {
@@ -91,14 +91,14 @@ namespace PictTriming
 
         private void SaveSetting_Click(object sender, RoutedEventArgs e)
         {
-            Logic.SaveSettingXml(SaveXmlFile, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
+            Logic.SaveSetting(SettingFile, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            Logic.Settings settings = Logic.LoadSettingXml(SaveXmlFile);
+            Logic.Settings settings = Logic.LoadSetting(SettingFile);
             if (settings == null)
             {
                 return;

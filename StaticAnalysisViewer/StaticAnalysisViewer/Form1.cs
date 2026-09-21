@@ -18,7 +18,30 @@ namespace StaticAnalysisViewer
         private DataBase DB = new DataBase();
 
         // Default値
-        private readonly String SettingFileName = @"StaticAnalysisViewer.xml";
+        private readonly String SettingFileName = @"StaticAnalysisViewer.json";
+
+        // 設定ファイルはJSONが基本。旧XML(StaticAnalysisViewer.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"StaticAnalysisViewer.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath, this);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath, this);
+        }
+
         private static readonly int    DEF_CATEGORY_SORT_IDX = 3;
 
         // ヘルプ
@@ -30,7 +53,8 @@ namespace StaticAnalysisViewer
             InitializeCommonSettings(Properties.Resources.StaticAnalysisViewer);
 
             sr.RegistItem(this);
-            sr.LoadProc(SettingFileName, this);
+            JsonSaveRestore.LoadWithMigration(sr, SettingFileName, LegacySettingFileName,
+                path => sr.LoadProc(path, this));
             util.UpdateProfileList(ref comboBox_Profile);
         }
 
@@ -294,13 +318,13 @@ namespace StaticAnalysisViewer
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_Profile.Text;
-            sr.LoadProc(LoadFileName, this);
+            LoadProfile(LoadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
             String LoadFileName = fio.SelectLoadFileName(SettingFileName);
-            if (sr.LoadProc(LoadFileName, this))
+            if (LoadProfile(LoadFileName))
             {
                 comboBox_Profile.Text = Path.GetFileName(LoadFileName);
             }
@@ -309,9 +333,9 @@ namespace StaticAnalysisViewer
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_Profile.Text);
-            if (sr.SaveSetting(SaveFileName, this))
+            if (SaveProfile(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_Profile, Path.GetFileName(SaveFileName));
+                util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました。" + Environment.NewLine + SaveFileName);
             }
         }

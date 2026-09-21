@@ -15,7 +15,30 @@ namespace TrimFileData
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String SettingFile = @"TrimFileData.xml";
+        private readonly String SettingFile = @"TrimFileData.json";
+
+        // 設定ファイルはJSONが基本。旧XML(TrimFileData.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"TrimFileData.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
+        }
+
 
         private StcFileInputOutput fio = new StcFileInputOutput();
 
@@ -26,8 +49,9 @@ namespace TrimFileData
             InitializeCommonSettings(Properties.Resources.TrimFileData);
 
             sr.RegistItem(this);
-            sr.LoadProc(SettingFile);
-            util.UpdateProfileList(ref comboBox_LoadSetting, SettingFile);
+            JsonSaveRestore.LoadWithMigration(sr, SettingFile, LegacySettingFileName,
+                path => sr.LoadProc(path));
+            util.UpdateProfileList(ref comboBox_LoadSetting, ProfileExtensions, SettingFile);
         }
 
         private void textBox_SourceList_KeyDown(object sender, KeyEventArgs e)
@@ -77,16 +101,16 @@ namespace TrimFileData
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_LoadSetting.Text;
             if (File.Exists(LoadFileName))
             {
-                sr.LoadProc(LoadFileName);
+                LoadProfile(LoadFileName);
             }
         }
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text);
-            if (sr.SaveSetting(SaveFileName))
+            if (SaveProfile(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_LoadSetting, Path.GetFileName(SaveFileName));
+                util.UpdateProfileList(ref comboBox_LoadSetting, ProfileExtensions, Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }

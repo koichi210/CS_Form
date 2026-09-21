@@ -52,7 +52,7 @@ namespace PictTriming
 
         // XMLの組み立て/読み取りは同じ形式を手書きしていた4プロジェクトで共通だったため
         // [[_Common/SimpleSettings.cs]]へ集約した。ここにはPictTriming固有の項目名の対応だけ残す
-        public static void SaveSettingXml(String Path, String SourceFolderPath, String BaseX, String BaseY, String TargetX, String TargetY)
+        public static void SaveSetting(String Path, String SourceFolderPath, String BaseX, String BaseY, String TargetX, String TargetY)
         {
             StandardTemplate.StcSimpleSettings settings = new StandardTemplate.StcSimpleSettings();
             String[] values = { SourceFolderPath, BaseX, BaseY, TargetX, TargetY };
@@ -60,12 +60,12 @@ namespace PictTriming
             {
                 settings.Set(Keys[i], values[i]);
             }
-            settings.Save(Path);
+            settings.SaveJson(Path);
         }
 
-        public static Settings LoadSettingXml(String Path)
+        public static Settings LoadSetting(String Path)
         {
-            StandardTemplate.StcSimpleSettings loaded = StandardTemplate.StcSimpleSettings.Load(Path);
+            StandardTemplate.StcSimpleSettings loaded = StandardTemplate.StcSimpleSettings.LoadWithMigration(Path);
             if (loaded == null)
             {
                 return null;

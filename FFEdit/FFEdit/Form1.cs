@@ -9,7 +9,30 @@ namespace FFEdit
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String SettingFileName = @"FFEdit.xml";
+        private readonly String SettingFileName = @"FFEdit.json";
+
+        // 設定ファイルはJSONが基本。旧XML(FFEdit.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"FFEdit.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath, this);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath, this);
+        }
+
         private readonly String[] IncrCycleArray = { "無し", "秒", "分", "時間", "日" };
         private readonly String[] DigitArray = { "自動", "1桁", "2桁", "3桁", "4桁", "5桁", "6桁" };
         private const int TabIdxChangeName = 0;
@@ -37,7 +60,10 @@ namespace FFEdit
             InitializeCommonSettings(Properties.Resources.FFEdit);
 
             sr.RegistItem(this);
-            sr.LoadProc(Path.Combine(userDataFolder, SettingFileName), this);
+            JsonSaveRestore.LoadWithMigration(sr,
+                Path.Combine(userDataFolder, SettingFileName),
+                Path.Combine(userDataFolder, LegacySettingFileName),
+                path => sr.LoadProc(path, this));
 
             // 桁の選択肢を生成
             comboBox_ChangeNumber_Digit.Items.Clear();
@@ -169,7 +195,7 @@ namespace FFEdit
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
             String saveFilePath = Path.Combine(userDataFolder, SettingFileName);
-            if (sr.SaveSetting(saveFilePath, this))
+            if (SaveProfile(saveFilePath))
             {
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + saveFilePath);
             }

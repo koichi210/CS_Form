@@ -23,7 +23,7 @@ namespace PictMerge
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly String SaveXmlFile = @"PictMerge.xml";
+        readonly String SettingFile = @"PictMerge.json";
 
         public MainWindow()
         {
@@ -169,14 +169,14 @@ namespace PictMerge
             settings.Set("DestWidth", DestWidth.Text);
             settings.Set("DestHeight", DestHeight.Text);
             settings.Set("TrimingHeight", TrimingHeight.Text);
-            settings.Save(SaveXmlFile);
+            settings.SaveJson(SettingFile);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            StandardTemplate.StcSimpleSettings settings = StandardTemplate.StcSimpleSettings.Load(SaveXmlFile);
+            StandardTemplate.StcSimpleSettings settings = StandardTemplate.StcSimpleSettings.LoadWithMigration(SettingFile);
             if (settings == null)
             {
                 // 設定ファイルが無い/壊れている場合は初期値のまま進める

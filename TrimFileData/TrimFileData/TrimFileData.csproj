@@ -13,6 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -36,6 +37,9 @@
   <PropertyGroup>
     <ApplicationIcon>TrimFileData.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,6 +68,12 @@
     <Compile Include="Logic.cs" />
     <Compile Include="..\..\_Common\AtomicFile.cs">
       <Link>AtomicFile.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\JsonFileStorage.cs">
+      <Link>JsonFileStorage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\JsonSaveRestore.cs">
+      <Link>JsonSaveRestore.cs</Link>
     </Compile>
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>

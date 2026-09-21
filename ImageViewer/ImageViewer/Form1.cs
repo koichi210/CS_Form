@@ -14,7 +14,30 @@ namespace ImageViewer
     partial class ImageViewer : StcBaseForm<SaveRestore>
     {
         private StcFileInputOutput fio = new StcFileInputOutput();
-        private readonly String DefaultSaveName = @"ImageViewer.xml";
+        private readonly String DefaultSaveName = @"ImageViewer.json";
+
+        // 設定ファイルはJSONが基本。旧XML(ImageViewer.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"ImageViewer.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadXmlFile(filePath);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveXmlFile(filePath);
+        }
+
 
         public ImageViewer()
         {
@@ -31,8 +54,9 @@ namespace ImageViewer
             InitializeCommonSettings(Properties.Resources.ImageViewer);
 
             sr.RegistItem(this);
-            sr.LoadXmlFile(DefaultSaveName);
-            util.UpdateProfileList(ref comboBox_Profile, DefaultSaveName);
+            JsonSaveRestore.LoadWithMigration(sr, DefaultSaveName, LegacySettingFileName,
+                path => sr.LoadXmlFile(path));
+            util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, DefaultSaveName);
         }
 
         private void textBox_FolerPath_KeyDown(object sender, KeyEventArgs e)
@@ -81,13 +105,13 @@ namespace ImageViewer
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_Profile.Text;
-            sr.LoadXmlFile(LoadFileName);
+            LoadProfile(LoadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
             String LoadFileName = fio.SelectLoadFileName(DefaultSaveName);
-            if (sr.LoadXmlFile(LoadFileName))
+            if (LoadProfile(LoadFileName))
             {
                 comboBox_Profile.Text = Path.GetFileName(LoadFileName);
             }
@@ -96,9 +120,9 @@ namespace ImageViewer
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_Profile.Text);
-            if (sr.SaveXmlFile(SaveFileName))
+            if (SaveProfile(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_Profile, Path.GetFileName(SaveFileName));
+                util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }

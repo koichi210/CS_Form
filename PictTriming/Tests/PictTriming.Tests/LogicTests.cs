@@ -67,14 +67,14 @@ namespace PictTriming.Tests
         [TestMethod]
         public void 保存した設定を読み込むと同じ値が復元される()
         {
-            string path = Path.Combine(tempDirectory, "settings.xml");
+            string path = Path.Combine(tempDirectory, "settings.json");
 
-            Logic.SaveSettingXml(path, @"C:\tmp", "10", "20", "100", "200");
+            Logic.SaveSetting(path, @"C:	mp", "10", "20", "100", "200");
 
-            Logic.Settings settings = Logic.LoadSettingXml(path);
+            Logic.Settings settings = Logic.LoadSetting(path);
 
             Assert.IsNotNull(settings);
-            Assert.AreEqual(@"C:\tmp", settings.SourceFolderPath);
+            Assert.AreEqual(@"C:	mp", settings.SourceFolderPath);
             Assert.AreEqual("10", settings.BaseX);
             Assert.AreEqual("20", settings.BaseY);
             Assert.AreEqual("100", settings.TargetX);
@@ -84,11 +84,33 @@ namespace PictTriming.Tests
         [TestMethod]
         public void 設定ファイルが存在しなければnullを返す()
         {
-            string path = Path.Combine(tempDirectory, "notfound.xml");
+            string path = Path.Combine(tempDirectory, "notfound.json");
 
-            Logic.Settings settings = Logic.LoadSettingXml(path);
+            Logic.Settings settings = Logic.LoadSetting(path);
 
             Assert.IsNull(settings);
+        }
+
+        [TestMethod]
+        public void 旧XMLしか無ければJSONへ移行され旧XMLは削除される()
+        {
+            string jsonPath = Path.Combine(tempDirectory, "migrate.json");
+            string xmlPath = Path.Combine(tempDirectory, "migrate.xml");
+
+            File.WriteAllText(xmlPath,
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<root>"
+                + "<Setting attribute=\"SourceFolderPath\">D:\\pict</Setting>"
+                + "<Setting attribute=\"BaseX\">5</Setting>"
+                + "</root>");
+
+            Logic.Settings settings = Logic.LoadSetting(jsonPath);
+
+            Assert.IsNotNull(settings);
+            Assert.AreEqual(@"D:\pict", settings.SourceFolderPath);
+            Assert.AreEqual("5", settings.BaseX);
+            Assert.IsTrue(File.Exists(jsonPath), "JSONへ保存し直されること");
+            Assert.IsFalse(File.Exists(xmlPath), "移行後は旧XMLが削除されること");
         }
     }
 }

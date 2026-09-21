@@ -57,6 +57,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -103,6 +106,12 @@
     </Compile>
     <Compile Include="..\..\_Common\AtomicFile.cs">
       <Link>AtomicFile.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\JsonFileStorage.cs">
+      <Link>JsonFileStorage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\JsonSaveRestore.cs">
+      <Link>JsonSaveRestore.cs</Link>
     </Compile>
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>

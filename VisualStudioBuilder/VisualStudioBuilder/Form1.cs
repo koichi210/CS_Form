@@ -13,7 +13,30 @@ namespace VisualStudioBuilder
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String DefaultSettingFileName = "VisualStudioBuilder.xml";
+        private readonly String DefaultSettingFileName = "VisualStudioBuilder.json";
+
+        // 設定ファイルはJSONが基本。旧XML(VisualStudioBuilder.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"VisualStudioBuilder.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath, this);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveXmlFile(filePath);
+        }
+
 
         private readonly String StrDataGridBuildListEnable = "○";
         private readonly String StrDataGridBuildListDisable = "×";
@@ -52,17 +75,18 @@ namespace VisualStudioBuilder
             InitializeDataGridView();
 
             sr.RegistItem(this);
-            sr.LoadProc(DefaultSettingFileName, this);
+            JsonSaveRestore.LoadWithMigration(sr, DefaultSettingFileName, LegacySettingFileName,
+                path => sr.LoadProc(path, this));
             UpdateBuildGUI();
             UpdateOutputGUI();
-            util.UpdateProfileList(ref comboBox_Profile, DefaultSettingFileName);
+            util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, DefaultSettingFileName);
 
         }
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_Profile.Text;
-            sr.LoadProc(LoadFileName, this);
+            LoadProfile(LoadFileName);
         }
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
@@ -70,9 +94,9 @@ namespace VisualStudioBuilder
             String SaveFileName = fio.SelectSaveFileName(comboBox_Profile.Text);
             if (SaveFileName != String.Empty)
             {
-                if (sr.SaveXmlFile(SaveFileName))
+                if (SaveProfile(SaveFileName))
                 {
-                    util.UpdateProfileList(ref comboBox_Profile, Path.GetFileName(SaveFileName));
+                    util.UpdateProfileList(ref comboBox_Profile, ProfileExtensions, Path.GetFileName(SaveFileName));
                     MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
                 }
             }

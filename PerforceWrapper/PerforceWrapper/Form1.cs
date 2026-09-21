@@ -13,7 +13,30 @@ namespace PerforceWrapper
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String SettingFileName = "PerforceWrapper.xml";
+        private readonly String SettingFileName = "PerforceWrapper.json";
+
+        // 設定ファイルはJSONが基本。旧XML(PerforceWrapper.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
+        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        private const String LegacySettingFileName = @"PerforceWrapper.xml";
+        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+
+        private static Boolean IsJsonFile(String filePath)
+        {
+            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
+        private Boolean LoadProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath);
+        }
+
+        private Boolean SaveProfile(String filePath)
+        {
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
+        }
+
 
         private StcFileInputOutput fio = new StcFileInputOutput();
         private Boolean m_IsDebug = false;
@@ -26,7 +49,8 @@ namespace PerforceWrapper
             InitializeCommonSettings(Properties.Resources.PerforceWrapper);
 
             sr.RegistItem(this);
-            sr.LoadProc(SettingFileName);
+            JsonSaveRestore.LoadWithMigration(sr, SettingFileName, LegacySettingFileName,
+                path => sr.LoadProc(path));
             util.UpdateProfileList(ref comboBox_profile);
         }
 
@@ -34,9 +58,9 @@ namespace PerforceWrapper
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_profile.Text);
 
-            if (sr.SaveSetting(SaveFileName, this))
+            if (SaveProfile(SaveFileName))
             {
-                util.UpdateProfileList(ref comboBox_profile, Path.GetFileName(SaveFileName));
+                util.UpdateProfileList(ref comboBox_profile, ProfileExtensions, Path.GetFileName(SaveFileName));
                 MessageBox.Show("設定値を保存しました♪" + Environment.NewLine + SaveFileName);
             }
         }
@@ -44,7 +68,7 @@ namespace PerforceWrapper
         private void comboBox_profile_SelectedIndexChanged(object sender, EventArgs e)
         {
             String LoadFileName = Directory.GetCurrentDirectory() + @"\" + comboBox_profile.Text;
-            sr.LoadProc(LoadFileName);
+            LoadProfile(LoadFileName);
         }
 
         private void textBox_tree_list_KeyDown(object sender, KeyEventArgs e)
