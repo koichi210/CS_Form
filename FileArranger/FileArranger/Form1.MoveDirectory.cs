@@ -87,9 +87,8 @@ namespace FileArranger
 
         private void ListupMoveDirectory(Boolean IsRestoreScrollBarPos = false)
         {
-            if (!Directory.Exists(md_textBox_SourceDir.Text))
+            if (!IsValidFolderPath(md_textBox_SourceDir.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + md_textBox_SourceDir.Text );
                 return;
             }
 
@@ -114,7 +113,7 @@ namespace FileArranger
                 // Any()が打ち切ってくれる(フォルダ内の全件を毎回列挙しなくて済む)。
                 if (Directory.EnumerateFiles(files[i]).Any())
                 {
-                    String FileName = files[i].Remove(0, md_textBox_SourceDir.Text.Length + 1);   // "\\"の分を1加算
+                    String FileName = GetDisplayName(files[i], md_textBox_SourceDir.Text);
                     md_listBox_Listup.Items.Add(FileName);
                     RegistNum++;
                 }

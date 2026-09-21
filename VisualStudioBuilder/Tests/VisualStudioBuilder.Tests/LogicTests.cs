@@ -113,5 +113,48 @@ namespace VisualStudioBuilder.Tests
 
             Assert.IsFalse(result.Contains("del "));
         }
+
+        // --- ClassifyBuildResult(ビルド結果の振り分け) ---------------------------------
+        // ログの中身を見る部分は差し替えられるので、実ファイル無しで判定だけを検証できる
+
+        [TestMethod]
+        public void ビルド結果はエラー語を含むログだけ失敗に振り分けられる()
+        {
+            String[] logs = { "a.log", "b.log", "c.log" };
+
+            String result = Logic.ClassifyBuildResult(logs, "error", false, "",
+                (path, word) => path == "b.log");
+
+            StringAssert.Contains(result, "[ビルド成功]" + Environment.NewLine + "a.log");
+            StringAssert.Contains(result, "[ビルド失敗]" + Environment.NewLine + "b.log");
+            Assert.IsFalse(result.Contains("[実行ファイルの上書きに失敗]"), "除外指定が無ければその欄は出ない");
+        }
+
+        [TestMethod]
+        public void 上書き失敗の語を含むログは上書き失敗にも振り分けられる()
+        {
+            String[] logs = { "a.log", "b.log" };
+
+            String result = Logic.ClassifyBuildResult(logs, "error", true, "locked",
+                (path, word) => path == "b.log" && word == "locked");
+
+            StringAssert.Contains(result, "[実行ファイルの上書きに失敗]" + Environment.NewLine + "b.log");
+            // 上書きに失敗した分は成功側に入らない
+            int successIdx = result.IndexOf("[ビルド成功]");
+            int excludeIdx = result.IndexOf("[実行ファイルの上書きに失敗]");
+            String successPart = result.Substring(successIdx, excludeIdx - successIdx);
+            Assert.IsFalse(successPart.Contains("b.log"));
+            StringAssert.Contains(successPart, "a.log");
+        }
+
+        [TestMethod]
+        public void ログが1件も無ければ見出しだけが返る()
+        {
+            String result = Logic.ClassifyBuildResult(new String[0], "error", false, "",
+                (path, word) => false);
+
+            StringAssert.Contains(result, "[ビルド成功]");
+            StringAssert.Contains(result, "[ビルド失敗]");
+        }
     }
 }

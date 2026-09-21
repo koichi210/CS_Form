@@ -32,20 +32,7 @@ namespace FFEdit
         
         public Boolean Restore()
         {
-            if (!fm.DecrementRegistNumber())
-            {
-                return false;
-            }
-
-            while (fm.IsExistRestoreList())
-            {
-                String SrcName = "";
-                String DestName = "";
-                fm.GetRestoreList(ref SrcName, ref DestName);
-                fm.Move(DestName, SrcName);
-            }
-
-            return true;
+            return fm.RestoreAll();
         }
 
         public String Execute()

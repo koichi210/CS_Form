@@ -24,9 +24,8 @@ namespace FileArranger
 
         private void sf_button_Listup_TargetFile_Click(object sender, EventArgs e)
         {
-            if (!Directory.Exists(sf_textBox_TargetFile.Text))
+            if (!IsValidFolderPath(sf_textBox_TargetFile.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + sf_textBox_TargetFile.Text);
                 return;
             }
 
@@ -35,7 +34,7 @@ namespace FileArranger
             sf_listBox_Target.Items.Clear();
             for (int i = 0; i < Folders.Length; i++)
             {
-                String FolderName = Folders[i].Remove(0, sf_textBox_TargetFile.Text.Length + 1);   // "\\"の分を1加算
+                String FolderName = GetDisplayName(Folders[i], sf_textBox_TargetFile.Text);
                 sf_listBox_Target.Items.Add(FolderName);
             }
 

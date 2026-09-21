@@ -81,9 +81,8 @@ namespace FileArranger
 
         private void ListupRenameTargetDirectory(int ScrollbarPos = 0)
         {
-            if (!Directory.Exists(rd_comboBox_RenameDir.Text))
+            if (!IsValidFolderPath(rd_comboBox_RenameDir.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + rd_comboBox_RenameDir.Text );
                 return;
             }
 
@@ -93,7 +92,7 @@ namespace FileArranger
             String[] Folders = Directory.GetDirectories(rd_comboBox_RenameDir.Text);
             for (int i = 0; i < Folders.Length; i++)
             {
-                String FileName = Folders[i].Remove(0, rd_comboBox_RenameDir.Text.Length + 1);   // "\\"の分を1加算
+                String FileName = GetDisplayName(Folders[i], rd_comboBox_RenameDir.Text);
 
                 String[] item = { FileName, "" };
                 rd_listView_Target.Items.Add(new ListViewItem(item));

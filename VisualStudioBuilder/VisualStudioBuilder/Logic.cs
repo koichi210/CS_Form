@@ -79,5 +79,50 @@ namespace VisualStudioBuilder
 
             return Script;
         }
+
+        // ビルド結果(ログの一覧)を成功/失敗/上書き失敗に振り分けて、表示用の文字列にする。
+        // ログの中身を見る部分だけ呼び出し側から渡してもらうことで、ここはファイルに触らない
+        // 純粋な判定処理になり、テストできる形になっている。
+        // IsDetectContent(ログのパス, 探す語) が「そのログにその語が含まれるか」を返す
+        public static String ClassifyBuildResult(String[] LogPathList, String BuildErrorWord,
+                                                 Boolean IsExclude, String IgnoreExecuteFileWord,
+                                                 Func<String, String, Boolean> IsDetectContent)
+        {
+            String SuccessList = "[ビルド成功]" + Environment.NewLine;
+            String ErrorList = "[ビルド失敗]" + Environment.NewLine;
+            String ExcludeList = "[実行ファイルの上書きに失敗]" + Environment.NewLine;
+
+            for (int i = 0; i < LogPathList.Length; i++)
+            {
+                Boolean IsSuccess = true;
+                if (IsDetectContent(LogPathList[i], BuildErrorWord))
+                {
+                    // ビルド失敗
+                    ErrorList += LogPathList[i] + Environment.NewLine;
+                    IsSuccess = false;
+                }
+
+                if (IsExclude && IsDetectContent(LogPathList[i], IgnoreExecuteFileWord))
+                {
+                    // 上書き不可
+                    ExcludeList += LogPathList[i] + Environment.NewLine;
+                    IsSuccess = false;
+                }
+
+                if (IsSuccess)
+                {
+                    // ビルド成功
+                    SuccessList += LogPathList[i] + Environment.NewLine;
+                }
+            }
+
+            String Result = SuccessList + Environment.NewLine;
+            if (IsExclude)
+            {
+                Result += ExcludeList + Environment.NewLine;
+            }
+            Result += ErrorList + Environment.NewLine;
+            return Result;
+        }
     }
 }

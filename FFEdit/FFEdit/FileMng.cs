@@ -13,6 +13,26 @@ namespace FFEdit
         private StcUtils util = new StcUtils();
         private StcFileInputOutput FileIO = new StcFileInputOutput();
 
+        // 直前の操作1回分を、記録しておいた移動元へ戻す。
+        // Rename/Functionの両方に同じ実装が置かれていたためここへ集約した
+        public Boolean RestoreAll()
+        {
+            if (!DecrementRegistNumber())
+            {
+                return false;
+            }
+
+            while (IsExistRestoreList())
+            {
+                String SrcName = "";
+                String DestName = "";
+                GetRestoreList(ref SrcName, ref DestName);
+                Move(DestName, SrcName);
+            }
+
+            return true;
+        }
+
         public bool Move(String SrcName, String DestName, Boolean IsErrorPopup = false)
         {
             bool success = true;

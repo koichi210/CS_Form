@@ -84,9 +84,8 @@ namespace FileArranger
 
         private void MoveFileListup()
         {
-            if (!Directory.Exists(mf_textBox_SourceDir.Text))
+            if (!IsValidFolderPath(mf_textBox_SourceDir.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + mf_textBox_SourceDir.Text);
                 return;
             }
 
@@ -95,7 +94,7 @@ namespace FileArranger
             mf_listBox_Target.Items.Clear();
             for (int i = 0; i < Files.Length; i++)
             {
-                String FileName = Files[i].Remove(0, mf_textBox_SourceDir.Text.Length + 1);   // "\\"の分を1加算
+                String FileName = GetDisplayName(Files[i], mf_textBox_SourceDir.Text);
                 mf_listBox_Target.Items.Add(FileName);
             }
             mf_label_TotalNum.Text = "ファイル数：" + Files.Length.ToString();

@@ -61,12 +61,8 @@ namespace FileArranger
 
         private void ListupTargetMoveDirectory(bool IsErrorPopup = true)
         {
-            if (!Directory.Exists(pf_textBox_TargetFile.Text))
+            if (!IsValidFolderPath(pf_textBox_TargetFile.Text, IsErrorPopup))
             {
-                if (IsErrorPopup )
-                {
-                    MessageBox.Show("フォルダパスが不正です。" + pf_textBox_TargetFile.Text);
-                }
                 return;
             }
 
@@ -75,7 +71,7 @@ namespace FileArranger
             pf_listView_Target.Items.Clear();
             for (int i = 0; i < Files.Length; i++)
             {
-                String FileName = Files[i].Remove(0, pf_textBox_TargetFile.Text.Length + 1);   // "\\"の分を1加算
+                String FileName = GetDisplayName(Files[i], pf_textBox_TargetFile.Text);
 
                 String[] item = { FileName, "", "" };
                 pf_listView_Target.Items.Add(new ListViewItem(item));

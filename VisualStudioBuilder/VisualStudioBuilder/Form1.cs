@@ -253,43 +253,14 @@ namespace VisualStudioBuilder
                 //}
             //}
 
-            // ビルドエラー検出
-            String SuccessList = "[ビルド成功]" + Environment.NewLine;
-            String ErrorList = "[ビルド失敗]" + Environment.NewLine;
-            String ExcludeList = "[実行ファイルの上書きに失敗]" + Environment.NewLine;
+            // ビルドエラー検出。振り分けの判定はLogic側(テスト可能)に置き、
+            // ログファイルの中身を見る部分だけここから渡す
             if (bwi.IsDetectError)
             {
                 String[] TargetArray = util.ChangeStrLinear2Array(bwi.DetectTargetLogList, Environment.NewLine);
-                for (int i = 0; i < TargetArray.Length; i++)
-                {
-                    Boolean IsSuccess = true;
-                    if (fio.DetectFileData(TargetArray[i], bwi.DetectBuildErrorWord))
-                    {
-                        // ビルド失敗
-                        ErrorList += TargetArray[i] + Environment.NewLine;
-                        IsSuccess = false;
-                    }
-
-                    if (bwi.IsExclude && (fio.DetectFileData(TargetArray[i], bwi.IgnoreExecuteFile)))
-                    {
-                        // 上書き不可
-                        ExcludeList += TargetArray[i] + Environment.NewLine;
-                        IsSuccess = false;
-                    }
-
-                    if (IsSuccess)
-                    {
-                        // ビルド成功
-                        SuccessList += TargetArray[i] + Environment.NewLine;
-                    }
-                }
-
-                e.Result = SuccessList + Environment.NewLine;
-                if (bwi.IsExclude)
-                {
-                    e.Result += ExcludeList + Environment.NewLine;
-                }
-                e.Result += ErrorList + Environment.NewLine;
+                e.Result = Logic.ClassifyBuildResult(TargetArray, bwi.DetectBuildErrorWord,
+                                                     bwi.IsExclude, bwi.IgnoreExecuteFile,
+                                                     fio.DetectFileData);
             }
             else
             {

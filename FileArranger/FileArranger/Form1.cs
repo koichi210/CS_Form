@@ -125,6 +125,29 @@ namespace FileArranger
             util.SelectAll(e);
         }
 
+        // リストアップ前のフォルダ確認。各タブで同じ確認をしていたためまとめた
+        // (IsErrorPopup=falseなら、無効でもメッセージを出さずに中断する)
+        private static Boolean IsValidFolderPath(String FolderPath, Boolean IsErrorPopup = true)
+        {
+            if (Directory.Exists(FolderPath))
+            {
+                return true;
+            }
+
+            if (IsErrorPopup)
+            {
+                MessageBox.Show("フォルダパスが不正です。" + FolderPath);
+            }
+            return false;
+        }
+
+        // フルパスから基準フォルダの分を取り除いて、表示用の名前にする
+        // (区切り文字の1文字分を足す処理が各タブに散らばっていたためまとめた)
+        private static String GetDisplayName(String FullPath, String BaseFolderPath)
+        {
+            return FullPath.Remove(0, BaseFolderPath.Length + 1);
+        }
+
         private void SaveSetting_Click(object sender, EventArgs e)
         {
             String SaveFileName = fio.SelectSaveFileName(comboBox_LoadSetting.Text, userDataFolder);
@@ -197,9 +220,8 @@ namespace FileArranger
 
         private void cmn_button_Listup_Click(object sender, EventArgs e)
         {
-            if (!Directory.Exists(cmn_textBox_Reference.Text))
+            if (!IsValidFolderPath(cmn_textBox_Reference.Text))
             {
-                MessageBox.Show("フォルダパスが不正です。" + cmn_textBox_Reference.Text);
                 return;
             }
 
