@@ -30,13 +30,13 @@
         {
             this.button_Exceute_CS = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_Output = new System.Windows.Forms.TextBox();
+            this.textBox_Output = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_Input = new System.Windows.Forms.TextBox();
+            this.textBox_Input = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.button_Exceute_C = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox_Replace_Digit = new System.Windows.Forms.TextBox();
+            this.textBox_Replace_Digit = new StandardTemplate.TextBoxEx();
             this.SuspendLayout();
             // 
             // button_Exceute_CS
@@ -142,13 +142,13 @@
 
         private System.Windows.Forms.Button button_Exceute_CS;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox_Output;
+        private StandardTemplate.TextBoxEx textBox_Output;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox_Input;
+        private StandardTemplate.TextBoxEx textBox_Input;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button button_Exceute_C;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox_Replace_Digit;
+        private StandardTemplate.TextBoxEx textBox_Replace_Digit;
     }
 }
 
