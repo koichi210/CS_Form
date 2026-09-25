@@ -68,7 +68,11 @@ namespace Mailer
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
-            util.UpdateProfileList(ref comboBox_LoadSetting, ProfileExtensions, "", userDataFolder);
+            // comboBox_LoadSettingはStandardTemplate.ComboBoxEx型だが、UpdateProfileListは
+            // ref ComboBoxを要求する(refはComboCtrlを再代入しないため実質未使用で、型不変性の
+            // 都合だけでComboBox型のローカル変数を経由する)
+            ComboBox comboBoxLoadSettingRef = comboBox_LoadSetting;
+            util.UpdateProfileList(ref comboBoxLoadSettingRef, ProfileExtensions, "", userDataFolder);
         }
 
         // *******************************************************************************
