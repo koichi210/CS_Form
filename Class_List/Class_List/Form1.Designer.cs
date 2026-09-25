@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.buttonAdd = new System.Windows.Forms.Button();
-            this.textBox_num = new System.Windows.Forms.TextBox();
+            this.textBox_num = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonRestore = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -89,7 +89,7 @@
         #endregion
 
         private System.Windows.Forms.Button buttonAdd;
-        private System.Windows.Forms.TextBox textBox_num;
+        private StandardTemplate.TextBoxEx textBox_num;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonRestore;
     }
