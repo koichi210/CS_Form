@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_Source = new System.Windows.Forms.TextBox();
+            this.textBox_Source = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_Dest = new System.Windows.Forms.TextBox();
+            this.textBox_Dest = new StandardTemplate.TextBoxEx();
             this.button_Execute = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -105,9 +105,9 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox_Source;
+        private StandardTemplate.TextBoxEx textBox_Source;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox_Dest;
+        private StandardTemplate.TextBoxEx textBox_Dest;
         private System.Windows.Forms.Button button_Execute;
     }
 }
