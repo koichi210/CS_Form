@@ -31,7 +31,7 @@
             this.radioButton_Utf8ToSjis = new System.Windows.Forms.RadioButton();
             this.radioButton_SjisToUtf8 = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
-            this.DropBox = new System.Windows.Forms.TextBox();
+            this.DropBox = new StandardTemplate.TextBoxEx();
             this.SuspendLayout();
             // 
             // radioButton_Utf8ToSjis
@@ -101,7 +101,7 @@
         private System.Windows.Forms.RadioButton radioButton_Utf8ToSjis;
         private System.Windows.Forms.RadioButton radioButton_SjisToUtf8;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox DropBox;
+        private StandardTemplate.TextBoxEx DropBox;
     }
 }
 
