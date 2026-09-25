@@ -28,21 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_SourceList = new System.Windows.Forms.TextBox();
+            this.textBox_SourceList = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_DestList = new System.Windows.Forms.TextBox();
+            this.textBox_DestList = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox_SearchWord = new System.Windows.Forms.TextBox();
+            this.textBox_SearchWord = new StandardTemplate.TextBoxEx();
             this.button_Execute = new System.Windows.Forms.Button();
             this.button_SaveSetting = new System.Windows.Forms.Button();
-            this.textBox_DelimiterWord = new System.Windows.Forms.TextBox();
+            this.textBox_DelimiterWord = new StandardTemplate.TextBoxEx();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox_TrimLineNum = new System.Windows.Forms.TextBox();
+            this.textBox_TrimLineNum = new StandardTemplate.TextBoxEx();
             this.label5 = new System.Windows.Forms.Label();
             this.checkBox_OrdinalCase = new System.Windows.Forms.CheckBox();
             this.checkBox_FirstWordOnly = new System.Windows.Forms.CheckBox();
-            this.comboBox_LoadSetting = new System.Windows.Forms.ComboBox();
+            this.comboBox_LoadSetting = new StandardTemplate.ComboBoxEx();
             this.SuspendLayout();
             // 
             // textBox_SourceList
@@ -237,16 +237,16 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button button_Execute;
         private System.Windows.Forms.Button button_SaveSetting;
-        public System.Windows.Forms.TextBox textBox_SourceList;
-        public System.Windows.Forms.TextBox textBox_DestList;
-        public System.Windows.Forms.TextBox textBox_SearchWord;
-        public System.Windows.Forms.TextBox textBox_DelimiterWord;
+        public StandardTemplate.TextBoxEx textBox_SourceList;
+        public StandardTemplate.TextBoxEx textBox_DestList;
+        public StandardTemplate.TextBoxEx textBox_SearchWord;
+        public StandardTemplate.TextBoxEx textBox_DelimiterWord;
         private System.Windows.Forms.Label label4;
-        public System.Windows.Forms.TextBox textBox_TrimLineNum;
+        public StandardTemplate.TextBoxEx textBox_TrimLineNum;
         private System.Windows.Forms.Label label5;
         public System.Windows.Forms.CheckBox checkBox_OrdinalCase;
         public System.Windows.Forms.CheckBox checkBox_FirstWordOnly;
-        private System.Windows.Forms.ComboBox comboBox_LoadSetting;
+        private StandardTemplate.ComboBoxEx comboBox_LoadSetting;
     }
 }
 
