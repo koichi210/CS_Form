@@ -28,14 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_FileName = new System.Windows.Forms.TextBox();
+            this.textBox_FileName = new StandardTemplate.TextBoxEx();
             this.button_read1 = new System.Windows.Forms.Button();
             this.button_write = new System.Windows.Forms.Button();
-            this.textBox_Param1 = new System.Windows.Forms.TextBox();
+            this.textBox_Param1 = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_Param2 = new System.Windows.Forms.TextBox();
-            this.textBox_Param3 = new System.Windows.Forms.TextBox();
-            this.textBox_Param4 = new System.Windows.Forms.TextBox();
+            this.textBox_Param2 = new StandardTemplate.TextBoxEx();
+            this.textBox_Param3 = new StandardTemplate.TextBoxEx();
+            this.textBox_Param4 = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.button_read2 = new System.Windows.Forms.Button();
             this.button_read3 = new System.Windows.Forms.Button();
@@ -205,14 +205,14 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox_FileName;
+        private StandardTemplate.TextBoxEx textBox_FileName;
         private System.Windows.Forms.Button button_read1;
         private System.Windows.Forms.Button button_write;
-        private System.Windows.Forms.TextBox textBox_Param1;
+        private StandardTemplate.TextBoxEx textBox_Param1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox_Param2;
-        private System.Windows.Forms.TextBox textBox_Param3;
-        private System.Windows.Forms.TextBox textBox_Param4;
+        private StandardTemplate.TextBoxEx textBox_Param2;
+        private StandardTemplate.TextBoxEx textBox_Param3;
+        private StandardTemplate.TextBoxEx textBox_Param4;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button_read2;
         private System.Windows.Forms.Button button_read3;
