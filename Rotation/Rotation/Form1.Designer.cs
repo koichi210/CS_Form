@@ -30,18 +30,18 @@
         {
             this.button_draw = new System.Windows.Forms.Button();
             this.pictureBox_Source = new System.Windows.Forms.PictureBox();
-            this.textBox_angle = new System.Windows.Forms.TextBox();
-            this.textBox_loadfiepath = new System.Windows.Forms.TextBox();
+            this.textBox_angle = new StandardTemplate.TextBoxEx();
+            this.textBox_loadfiepath = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.button_Save = new System.Windows.Forms.Button();
             this.pictureBox_Dest = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox_OriginY = new System.Windows.Forms.TextBox();
-            this.textBox_OriginX = new System.Windows.Forms.TextBox();
+            this.textBox_OriginY = new StandardTemplate.TextBoxEx();
+            this.textBox_OriginX = new StandardTemplate.TextBoxEx();
             this.label5 = new System.Windows.Forms.Label();
-            this.textBox_savefiepath = new System.Windows.Forms.TextBox();
+            this.textBox_savefiepath = new StandardTemplate.TextBoxEx();
             this.panel_Dest = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Source)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Dest)).BeginInit();
@@ -211,18 +211,18 @@
 
         private System.Windows.Forms.Button button_draw;
         private System.Windows.Forms.PictureBox pictureBox_Source;
-        private System.Windows.Forms.TextBox textBox_angle;
-        private System.Windows.Forms.TextBox textBox_loadfiepath;
+        private StandardTemplate.TextBoxEx textBox_angle;
+        private StandardTemplate.TextBoxEx textBox_loadfiepath;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button_Save;
         private System.Windows.Forms.PictureBox pictureBox_Dest;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox_OriginY;
-        private System.Windows.Forms.TextBox textBox_OriginX;
+        private StandardTemplate.TextBoxEx textBox_OriginY;
+        private StandardTemplate.TextBoxEx textBox_OriginX;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textBox_savefiepath;
+        private StandardTemplate.TextBoxEx textBox_savefiepath;
         private System.Windows.Forms.Panel panel_Dest;
     }
 }
