@@ -40,6 +40,8 @@ namespace EventRecorder
             this.contextMenuStrip_Grid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_DeleteRow = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_BulkChangeMouseUpWaitSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.menuItem_BulkChangeMouseUpWait = new System.Windows.Forms.ToolStripMenuItem();
             this.button_Record = new System.Windows.Forms.Button();
             this.button_Clear = new System.Windows.Forms.Button();
             this.label_Loop = new System.Windows.Forms.Label();
@@ -169,25 +171,38 @@ namespace EventRecorder
             this.contextMenuStrip_Grid.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip_Grid.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_AddRow,
-            this.menuItem_DeleteRow});
+            this.menuItem_DeleteRow,
+            this.menuItem_BulkChangeMouseUpWaitSeparator,
+            this.menuItem_BulkChangeMouseUpWait});
             this.contextMenuStrip_Grid.Name = "contextMenuStrip_Grid";
             this.contextMenuStrip_Grid.Size = new System.Drawing.Size(121, 48);
             this.contextMenuStrip_Grid.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Grid_Opening);
-            // 
+            //
             // menuItem_AddRow
-            // 
+            //
             this.menuItem_AddRow.Name = "menuItem_AddRow";
             this.menuItem_AddRow.Size = new System.Drawing.Size(120, 22);
             this.menuItem_AddRow.Text = "行の追加(&A)";
             this.menuItem_AddRow.Click += new System.EventHandler(this.menuItem_AddRow_Click);
-            // 
+            //
             // menuItem_DeleteRow
-            // 
+            //
             this.menuItem_DeleteRow.Name = "menuItem_DeleteRow";
             this.menuItem_DeleteRow.Size = new System.Drawing.Size(120, 22);
             this.menuItem_DeleteRow.Text = "行の削除(&D)";
             this.menuItem_DeleteRow.Click += new System.EventHandler(this.menuItem_DeleteRow_Click);
-            // 
+            //
+            // menuItem_BulkChangeMouseUpWaitSeparator
+            //
+            this.menuItem_BulkChangeMouseUpWaitSeparator.Name = "menuItem_BulkChangeMouseUpWaitSeparator";
+            //
+            // menuItem_BulkChangeMouseUpWait
+            //
+            this.menuItem_BulkChangeMouseUpWait.Name = "menuItem_BulkChangeMouseUpWait";
+            this.menuItem_BulkChangeMouseUpWait.Size = new System.Drawing.Size(120, 22);
+            this.menuItem_BulkChangeMouseUpWait.Text = "MOUSE_UP時間を一括変更(&W)...";
+            this.menuItem_BulkChangeMouseUpWait.Click += new System.EventHandler(this.menuItem_BulkChangeMouseUpWait_Click);
+            //
             // button_Record
             // 
             this.button_Record.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -602,6 +617,8 @@ namespace EventRecorder
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Grid;
         private System.Windows.Forms.ToolStripMenuItem menuItem_AddRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_DeleteRow;
+        private System.Windows.Forms.ToolStripSeparator menuItem_BulkChangeMouseUpWaitSeparator;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_BulkChangeMouseUpWait;
         private System.Windows.Forms.SplitContainer splitContainer_Main;
         private System.Windows.Forms.GroupBox groupBox_Playback;
         private System.Windows.Forms.GroupBox groupBox_Record;

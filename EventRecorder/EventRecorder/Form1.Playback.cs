@@ -531,6 +531,55 @@ namespace EventRecorder
             dataGridView_Events.Rows.Insert(insertAt, 1);
         }
 
+        // LEFT_UP、RIGHT_UPの各行について、直前がWAIT_MS行ならその待機時間をまとめて指定値に変更する。
+        // 直前がWAIT_MS行でない(=待機無しで連続している)行はSKIPする
+        private void menuItem_BulkChangeMouseUpWait_Click(object sender, EventArgs e)
+        {
+            using (MouseUpWaitBulkChangeForm form = new MouseUpWaitBulkChangeForm())
+            {
+                if (form.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                String waitText = form.WaitMs.ToString();
+                String leftUpType = GlobalHook.MouseHook.Stroke.LEFT_UP.ToString();
+                String rightUpType = GlobalHook.MouseHook.Stroke.RIGHT_UP.ToString();
+
+                dataGridView_Events.BeginUndoBatch();
+                try
+                {
+                    for (int i = 1; i < dataGridView_Events.Rows.Count; i++)
+                    {
+                        DataGridViewRow row = dataGridView_Events.Rows[i];
+                        if (row.IsNewRow)
+                        {
+                            continue;
+                        }
+
+                        String type = Convert.ToString(row.Cells[col_Type.Index].Value);
+                        if (type != leftUpType && type != rightUpType)
+                        {
+                            continue;
+                        }
+
+                        DataGridViewRow prevRow = dataGridView_Events.Rows[i - 1];
+                        String prevType = Convert.ToString(prevRow.Cells[col_Type.Index].Value);
+                        if (!IsWaitEventType(prevType))
+                        {
+                            continue;
+                        }
+
+                        prevRow.Cells[col_Wait.Index].Value = waitText;
+                    }
+                }
+                finally
+                {
+                    dataGridView_Events.EndUndoBatch();
+                }
+            }
+        }
+
         // 選択されている行(複数選択時は全行、未選択なら右クリックした行)を削除する。
         // KeyDown/SysKeyDownの行なら、非表示になっている対応するKeyUp/SysKeyUp行も
         // 一緒に探して削除する(片方だけ残って孤立するのを防ぐため)
