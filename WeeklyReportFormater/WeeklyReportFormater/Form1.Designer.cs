@@ -29,20 +29,20 @@
         private void InitializeComponent()
         {
             this.button_ThisWeekChange = new System.Windows.Forms.Button();
-            this.textBox_ThisWeekBefore = new System.Windows.Forms.TextBox();
+            this.textBox_ThisWeekBefore = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_ThisWeekAfter = new System.Windows.Forms.TextBox();
-            this.textBox_NextWeekAfter = new System.Windows.Forms.TextBox();
-            this.textBox_NextWeekBefore = new System.Windows.Forms.TextBox();
+            this.textBox_ThisWeekAfter = new StandardTemplate.TextBoxEx();
+            this.textBox_NextWeekAfter = new StandardTemplate.TextBoxEx();
+            this.textBox_NextWeekBefore = new StandardTemplate.TextBoxEx();
             this.button_NextWeekChange = new System.Windows.Forms.Button();
-            this.textBox_UserName = new System.Windows.Forms.TextBox();
+            this.textBox_UserName = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.textBox_PerforceAfter = new System.Windows.Forms.TextBox();
-            this.textBox_PerforceBefore = new System.Windows.Forms.TextBox();
+            this.textBox_PerforceAfter = new StandardTemplate.TextBoxEx();
+            this.textBox_PerforceBefore = new StandardTemplate.TextBoxEx();
             this.button_PerforceChange = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -235,20 +235,20 @@
         #endregion
 
         private System.Windows.Forms.Button button_ThisWeekChange;
-        private System.Windows.Forms.TextBox textBox_ThisWeekBefore;
+        private StandardTemplate.TextBoxEx textBox_ThisWeekBefore;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox_ThisWeekAfter;
-        private System.Windows.Forms.TextBox textBox_NextWeekAfter;
-        private System.Windows.Forms.TextBox textBox_NextWeekBefore;
+        private StandardTemplate.TextBoxEx textBox_ThisWeekAfter;
+        private StandardTemplate.TextBoxEx textBox_NextWeekAfter;
+        private StandardTemplate.TextBoxEx textBox_NextWeekBefore;
         private System.Windows.Forms.Button button_NextWeekChange;
-        private System.Windows.Forms.TextBox textBox_UserName;
+        private StandardTemplate.TextBoxEx textBox_UserName;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox_PerforceAfter;
-        private System.Windows.Forms.TextBox textBox_PerforceBefore;
+        private StandardTemplate.TextBoxEx textBox_PerforceAfter;
+        private StandardTemplate.TextBoxEx textBox_PerforceBefore;
         private System.Windows.Forms.Button button_PerforceChange;
         private System.Windows.Forms.Label label7;
     }

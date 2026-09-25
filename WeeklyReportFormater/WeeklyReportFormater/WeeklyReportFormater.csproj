@@ -59,6 +59,12 @@
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\TextBoxEx.cs">
+      <Link>TextBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\PathDroppedEventArgs.cs">
+      <Link>PathDroppedEventArgs.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="..\..\_Common\AtomicFile.cs">
