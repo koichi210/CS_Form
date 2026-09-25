@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_Table = new System.Windows.Forms.TextBox();
+            this.textBox_Table = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.radioButton_Encode = new System.Windows.Forms.RadioButton();
             this.radioButton_Decode = new System.Windows.Forms.RadioButton();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox_Key = new System.Windows.Forms.TextBox();
+            this.textBox_Key = new StandardTemplate.TextBoxEx();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox_Result = new System.Windows.Forms.TextBox();
+            this.textBox_Result = new StandardTemplate.TextBoxEx();
             this.button_Execute = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -154,15 +154,15 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox_Table;
+        private StandardTemplate.TextBoxEx textBox_Table;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton radioButton_Encode;
         private System.Windows.Forms.RadioButton radioButton_Decode;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox_Key;
+        private StandardTemplate.TextBoxEx textBox_Key;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox_Result;
+        private StandardTemplate.TextBoxEx textBox_Result;
         private System.Windows.Forms.Button button_Execute;
     }
 }
