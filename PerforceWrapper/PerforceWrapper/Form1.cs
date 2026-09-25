@@ -60,7 +60,11 @@ namespace PerforceWrapper
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
-            util.UpdateProfileList(ref comboBox_profile, ProfileExtensions, "", userDataFolder);
+            // UpdateProfileListはref ComboBoxを受け取る(内部でComboCtrlを別インスタンスへ
+            // 差し替えることはない)。comboBox_profileはComboBoxEx型のためref引数の型が
+            // 一致せずそのままでは渡せないので、ComboBox型のローカル変数を介して渡す
+            System.Windows.Forms.ComboBox comboBoxProfileBase = comboBox_profile;
+            util.UpdateProfileList(ref comboBoxProfileBase, ProfileExtensions, "", userDataFolder);
         }
 
         // *******************************************************************************
