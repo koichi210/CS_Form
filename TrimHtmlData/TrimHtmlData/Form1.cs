@@ -61,10 +61,7 @@ namespace TrimHtmlData
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
-            // util.UpdateProfileListはref ComboBoxを取るため、ComboBoxEx型のフィールドを直接は渡せない
-            // (refは型が完全一致する必要がある)。メソッド内で再代入はされないので、一時変数を介して渡す。
-            ComboBox comboBoxLoadSettingRef = comboBox_LoadSetting;
-            util.UpdateProfileList(ref comboBoxLoadSettingRef, ProfileExtensions, SettingFile, userDataFolder);
+            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFile, userDataFolder);
         }
 
         // *******************************************************************************
