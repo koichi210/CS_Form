@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_Number = new System.Windows.Forms.TextBox();
+            this.textBox_Number = new StandardTemplate.TextBoxEx();
             this.button_execute = new System.Windows.Forms.Button();
-            this.textBox_Result = new System.Windows.Forms.TextBox();
+            this.textBox_Result = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -101,9 +101,9 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox_Number;
+        private StandardTemplate.TextBoxEx textBox_Number;
         private System.Windows.Forms.Button button_execute;
-        private System.Windows.Forms.TextBox textBox_Result;
+        private StandardTemplate.TextBoxEx textBox_Result;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
     }
