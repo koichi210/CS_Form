@@ -65,11 +65,7 @@ namespace ImageViewer
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadXmlFile(path));
-            // comboBox_ProfileはStandardTemplate.ComboBoxEx型だが、UpdateProfileListは
-            // ref ComboBoxを要求する(refはComboCtrlを再代入しないため実質未使用で、型不変性の
-            // 都合だけでComboBox型のローカル変数を経由する)
-            ComboBox comboBoxProfileRef = comboBox_Profile;
-            util.UpdateProfileList(ref comboBoxProfileRef, ProfileExtensions, DefaultSaveName, userDataFolder);
+            util.UpdateProfileList(comboBox_Profile, ProfileExtensions, DefaultSaveName, userDataFolder);
         }
 
         // *******************************************************************************
