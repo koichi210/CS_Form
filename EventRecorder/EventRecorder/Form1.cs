@@ -235,14 +235,16 @@ namespace EventRecorder
             SetupGroupBoxRadioSync();
         }
 
-        // グループボックス内のコントロールをクリックしたら、そのグループボックスと
-        // 同じ名前のラジオボタンをCheckedにする(Record⇔Playbackのモード切り替え)
+        // グループボックス自体(枠・余白部分)や、グループボックス内のコントロールをクリックしたら、
+        // そのグループボックスと同じ名前のラジオボタンをCheckedにする(Record⇔Playbackのモード切り替え)
         private void SetupGroupBoxRadioSync()
         {
+            groupBox_Record.Click += (s, e) => radioButton_Record.Checked = true;
             foreach (Control c in groupBox_Record.Controls)
             {
                 c.Click += (s, e) => radioButton_Record.Checked = true;
             }
+            groupBox_Playback.Click += (s, e) => radioButton_Playback.Checked = true;
             foreach (Control c in groupBox_Playback.Controls)
             {
                 c.Click += (s, e) => radioButton_Playback.Checked = true;
