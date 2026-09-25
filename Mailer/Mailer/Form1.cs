@@ -129,6 +129,7 @@ namespace Mailer
             foreach (var ofs in offsetDay)
             {
                 OpenBrowse(ofs);
+                System.Threading.Thread.Sleep(param.IntervalMsec);
             }
         }
 
@@ -161,7 +162,6 @@ namespace Mailer
             }
 
             util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
-            System.Threading.Thread.Sleep(param.IntervalMsec);
         }
 
         private Boolean GetUIParam()
