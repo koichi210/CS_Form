@@ -30,7 +30,7 @@
         {
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.button_Go = new System.Windows.Forms.Button();
-            this.textBox_Url = new System.Windows.Forms.TextBox();
+            this.textBox_Url = new StandardTemplate.TextBoxEx();
             this.button_Test = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -97,7 +97,7 @@
 
         private System.Windows.Forms.WebBrowser webBrowser;
         private System.Windows.Forms.Button button_Go;
-        private System.Windows.Forms.TextBox textBox_Url;
+        private StandardTemplate.TextBoxEx textBox_Url;
         private System.Windows.Forms.Button button_Test;
     }
 }

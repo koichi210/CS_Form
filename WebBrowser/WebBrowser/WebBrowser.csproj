@@ -59,6 +59,12 @@
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\TextBoxEx.cs">
+      <Link>TextBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\PathDroppedEventArgs.cs">
+      <Link>PathDroppedEventArgs.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
