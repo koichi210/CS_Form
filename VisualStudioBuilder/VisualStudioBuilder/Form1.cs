@@ -88,10 +88,7 @@ namespace VisualStudioBuilder
                 path => sr.LoadProc(path, this));
             UpdateBuildGUI();
             UpdateOutputGUI();
-            // UpdateProfileListはSystem.Windows.Forms.ComboBoxをref引数に取るため、ComboBoxExを
-            // そのまま渡せない。中身は参照先の差し替えを行わないので、一時変数経由で呼び出す。
-            System.Windows.Forms.ComboBox comboBox_ProfileTemp = comboBox_Profile;
-            util.UpdateProfileList(ref comboBox_ProfileTemp, ProfileExtensions, DefaultSettingFileName, userDataFolder);
+            util.UpdateProfileList(comboBox_Profile, ProfileExtensions, DefaultSettingFileName, userDataFolder);
 
         }
 
