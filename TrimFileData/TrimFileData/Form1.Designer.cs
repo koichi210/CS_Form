@@ -28,18 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_SearchWordList = new System.Windows.Forms.TextBox();
+            this.textBox_SearchWordList = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_SearchResultList = new System.Windows.Forms.TextBox();
+            this.textBox_SearchResultList = new StandardTemplate.TextBoxEx();
             this.button_Execute = new System.Windows.Forms.Button();
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBox_ReferencePath = new System.Windows.Forms.TextBox();
+            this.textBox_ReferencePath = new StandardTemplate.TextBoxEx();
             this.checkBox_FirstWordOnly = new System.Windows.Forms.CheckBox();
             this.checkBox_OrdinalCase = new System.Windows.Forms.CheckBox();
-            this.comboBox_LoadSetting = new System.Windows.Forms.ComboBox();
-            this.textBox_SearchCommonWord = new System.Windows.Forms.TextBox();
+            this.comboBox_LoadSetting = new StandardTemplate.ComboBoxEx();
+            this.textBox_SearchCommonWord = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
@@ -227,14 +227,14 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button_Execute;
         private System.Windows.Forms.Button button_SaveSetting;
-        public System.Windows.Forms.TextBox textBox_SearchWordList;
-        public System.Windows.Forms.TextBox textBox_SearchResultList;
+        public StandardTemplate.TextBoxEx textBox_SearchWordList;
+        public StandardTemplate.TextBoxEx textBox_SearchResultList;
         private System.Windows.Forms.Label label7;
-        public System.Windows.Forms.TextBox textBox_ReferencePath;
+        public StandardTemplate.TextBoxEx textBox_ReferencePath;
         public System.Windows.Forms.CheckBox checkBox_FirstWordOnly;
         public System.Windows.Forms.CheckBox checkBox_OrdinalCase;
-        private System.Windows.Forms.ComboBox comboBox_LoadSetting;
-        public System.Windows.Forms.TextBox textBox_SearchCommonWord;
+        private StandardTemplate.ComboBoxEx comboBox_LoadSetting;
+        public StandardTemplate.TextBoxEx textBox_SearchCommonWord;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.GroupBox groupBox1;
     }
