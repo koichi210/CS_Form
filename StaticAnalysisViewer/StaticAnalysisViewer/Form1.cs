@@ -64,10 +64,7 @@ namespace StaticAnalysisViewer
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path, this));
-            // UpdateProfileListはSystem.Windows.Forms.ComboBoxをref引数に取るため、ComboBoxExを
-            // そのまま渡せない。中身は参照先の差し替えを行わないので、一時変数経由で呼び出す。
-            System.Windows.Forms.ComboBox comboBox_ProfileTemp = comboBox_Profile;
-            util.UpdateProfileList(ref comboBox_ProfileTemp, ProfileExtensions, "", userDataFolder);
+            util.UpdateProfileList(comboBox_Profile, ProfileExtensions, "", userDataFolder);
         }
 
         // *******************************************************************************
