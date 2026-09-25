@@ -52,7 +52,7 @@ namespace EventRecorder
             this.contextMenuStrip_Tray = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_TrayRestore = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_TrayExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.comboBox_Profile = new System.Windows.Forms.ComboBox();
+            this.comboBox_Profile = new StandardTemplate.ComboBoxEx();
             this.button_ProfileSave = new System.Windows.Forms.Button();
             this.label_MousePos = new System.Windows.Forms.Label();
             this.radioButton_Playback = new System.Windows.Forms.RadioButton();
@@ -609,7 +609,7 @@ namespace EventRecorder
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Tray;
         private System.Windows.Forms.ToolStripMenuItem menuItem_TrayRestore;
         private System.Windows.Forms.ToolStripMenuItem menuItem_TrayExit;
-        internal System.Windows.Forms.ComboBox comboBox_Profile;
+        internal StandardTemplate.ComboBoxEx comboBox_Profile;
         private System.Windows.Forms.Button button_ProfileSave;
         internal System.Windows.Forms.Label label_MousePos;
         internal System.Windows.Forms.RadioButton radioButton_Playback;

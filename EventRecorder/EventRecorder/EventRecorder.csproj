@@ -141,6 +141,9 @@
     <Compile Include="..\..\_Common\TextBoxEx.cs">
       <Link>TextBoxEx.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\ComboBoxEx.cs">
+      <Link>ComboBoxEx.cs</Link>
+    </Compile>
     <Compile Include="..\..\_Common\PathDroppedEventArgs.cs">
       <Link>PathDroppedEventArgs.cs</Link>
     </Compile>

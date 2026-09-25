@@ -18,9 +18,9 @@ namespace EventRecorder
         private void InitializeComponent()
         {
             this.label_Record = new System.Windows.Forms.Label();
-            this.textBox_Record = new System.Windows.Forms.TextBox();
+            this.textBox_Record = new StandardTemplate.TextBoxEx();
             this.label_Play = new System.Windows.Forms.Label();
-            this.textBox_Play = new System.Windows.Forms.TextBox();
+            this.textBox_Play = new StandardTemplate.TextBoxEx();
             this.label_Hint = new System.Windows.Forms.Label();
             this.button_Reset = new System.Windows.Forms.Button();
             this.button_Save = new System.Windows.Forms.Button();
@@ -117,9 +117,9 @@ namespace EventRecorder
         #endregion
 
         private System.Windows.Forms.Label label_Record;
-        private System.Windows.Forms.TextBox textBox_Record;
+        private StandardTemplate.TextBoxEx textBox_Record;
         private System.Windows.Forms.Label label_Play;
-        private System.Windows.Forms.TextBox textBox_Play;
+        private StandardTemplate.TextBoxEx textBox_Play;
         private System.Windows.Forms.Label label_Hint;
         private System.Windows.Forms.Button button_Reset;
         private System.Windows.Forms.Button button_Save;
