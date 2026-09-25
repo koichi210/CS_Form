@@ -31,7 +31,7 @@
             this.pictureBox_Image = new System.Windows.Forms.PictureBox();
             this.pictureBox_Thumnail = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_FilePath = new System.Windows.Forms.TextBox();
+            this.textBox_FilePath = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.button_Exe = new System.Windows.Forms.Button();
@@ -127,7 +127,7 @@
         private System.Windows.Forms.PictureBox pictureBox_Image;
         private System.Windows.Forms.PictureBox pictureBox_Thumnail;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox_FilePath;
+        private StandardTemplate.TextBoxEx textBox_FilePath;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button button_Exe;
