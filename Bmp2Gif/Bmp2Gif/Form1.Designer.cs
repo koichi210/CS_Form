@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_SrcBmp = new System.Windows.Forms.TextBox();
-            this.textBox_DstGif = new System.Windows.Forms.TextBox();
+            this.textBox_SrcBmp = new StandardTemplate.TextBoxEx();
+            this.textBox_DstGif = new StandardTemplate.TextBoxEx();
             this.button_Change = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -126,8 +126,8 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox_SrcBmp;
-        private System.Windows.Forms.TextBox textBox_DstGif;
+        private StandardTemplate.TextBoxEx textBox_SrcBmp;
+        private StandardTemplate.TextBoxEx textBox_DstGif;
         private System.Windows.Forms.Button button_Change;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
