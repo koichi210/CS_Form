@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.buttonAllPopup = new System.Windows.Forms.Button();
-            this.textBox_DlgNum = new System.Windows.Forms.TextBox();
+            this.textBox_DlgNum = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonSequencePopup = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_ButtonName = new System.Windows.Forms.TextBox();
+            this.textBox_ButtonName = new StandardTemplate.TextBoxEx();
             this.SuspendLayout();
             // 
             // buttonAllPopup
@@ -113,11 +113,11 @@
         #endregion
 
         private System.Windows.Forms.Button buttonAllPopup;
-        private System.Windows.Forms.TextBox textBox_DlgNum;
+        private StandardTemplate.TextBoxEx textBox_DlgNum;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonSequencePopup;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox_ButtonName;
+        private StandardTemplate.TextBoxEx textBox_ButtonName;
     }
 }
 
