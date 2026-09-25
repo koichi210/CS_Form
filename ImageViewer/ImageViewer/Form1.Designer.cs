@@ -30,14 +30,14 @@
         {
             this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_FolderPath = new System.Windows.Forms.TextBox();
+            this.textBox_FolderPath = new StandardTemplate.TextBoxEx();
             this.button_ListView = new System.Windows.Forms.Button();
             this.listView_Image = new System.Windows.Forms.ListView();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.textBox_Extension = new System.Windows.Forms.TextBox();
+            this.textBox_Extension = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.hScrollBar_Scaling = new System.Windows.Forms.HScrollBar();
-            this.comboBox_Profile = new System.Windows.Forms.ComboBox();
+            this.comboBox_Profile = new StandardTemplate.ComboBoxEx();
             this.button_ProfileLoad = new System.Windows.Forms.Button();
             this.button_ProfileSave = new System.Windows.Forms.Button();
             this.button_SampleView = new System.Windows.Forms.Button();
@@ -195,11 +195,11 @@
         private System.Windows.Forms.ImageList imageList;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.HScrollBar hScrollBar_Scaling;
-        public System.Windows.Forms.ComboBox comboBox_Profile;
+        public StandardTemplate.ComboBoxEx comboBox_Profile;
         public System.Windows.Forms.Button button_ProfileLoad;
         public System.Windows.Forms.Button button_ProfileSave;
-        public System.Windows.Forms.TextBox textBox_FolderPath;
-        public System.Windows.Forms.TextBox textBox_Extension;
+        public StandardTemplate.TextBoxEx textBox_FolderPath;
+        public StandardTemplate.TextBoxEx textBox_Extension;
         private System.Windows.Forms.Button button_SampleView;
     }
 }
