@@ -52,7 +52,7 @@ namespace CaptureWindow
                 return;
             }
 
-            String FileFormat = TextBox_SavePath.Text + @"\" + System.DateTime.Now.ToString("yyyy_dd_mm_HH_mm_ss");
+            String FileFormat = TextBox_SavePath.Text + @"\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
 
             cw.SetFileFormat(FileFormat);
             cw.SetFileIdx(1);
