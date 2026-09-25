@@ -29,17 +29,17 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBox_DeleteString = new System.Windows.Forms.TextBox();
+            this.textBox_DeleteString = new StandardTemplate.TextBoxEx();
             this.checkBox_WideNarrow = new System.Windows.Forms.CheckBox();
             this.checkBox_DeleteLine = new System.Windows.Forms.CheckBox();
             this.radioButton_DeleteString = new System.Windows.Forms.RadioButton();
-            this.textBox_Directory = new System.Windows.Forms.TextBox();
+            this.textBox_Directory = new StandardTemplate.TextBoxEx();
             this.button_Execute = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.checkBox_SubDirectory = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_File = new System.Windows.Forms.TextBox();
+            this.textBox_File = new StandardTemplate.TextBoxEx();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -209,7 +209,7 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox textBox_Directory;
+        private StandardTemplate.TextBoxEx textBox_Directory;
         private System.Windows.Forms.Button button_Execute;
         private System.Windows.Forms.RadioButton radioButton_DeleteString;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -217,9 +217,9 @@
         private System.Windows.Forms.CheckBox checkBox_SubDirectory;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox_File;
+        private StandardTemplate.TextBoxEx textBox_File;
         private System.Windows.Forms.CheckBox checkBox_DeleteLine;
-        private System.Windows.Forms.TextBox textBox_DeleteString;
+        private StandardTemplate.TextBoxEx textBox_DeleteString;
     }
 }
 
