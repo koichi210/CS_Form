@@ -30,19 +30,19 @@
         {
             this.Button_Capture = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.TextBox_SavePath = new System.Windows.Forms.TextBox();
+            this.TextBox_SavePath = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
-            this.TextBox_MouseX = new System.Windows.Forms.TextBox();
-            this.TextBox_MouseY = new System.Windows.Forms.TextBox();
+            this.TextBox_MouseX = new StandardTemplate.TextBoxEx();
+            this.TextBox_MouseY = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.Radio_FullScreen = new System.Windows.Forms.RadioButton();
             this.Radio_CurrentScreen = new System.Windows.Forms.RadioButton();
             this.Radio_CurrentWindow = new System.Windows.Forms.RadioButton();
-            this.TextBox_MousePoint = new System.Windows.Forms.TextBox();
+            this.TextBox_MousePoint = new StandardTemplate.TextBoxEx();
             this.label6 = new System.Windows.Forms.Label();
-            this.TextBox_Sleep = new System.Windows.Forms.TextBox();
+            this.TextBox_Sleep = new StandardTemplate.TextBoxEx();
             this.SaveSetting = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -222,19 +222,19 @@
 
         private System.Windows.Forms.Button Button_Capture;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox TextBox_SavePath;
+        private StandardTemplate.TextBoxEx TextBox_SavePath;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox TextBox_MouseX;
-        private System.Windows.Forms.TextBox TextBox_MouseY;
+        private StandardTemplate.TextBoxEx TextBox_MouseX;
+        private StandardTemplate.TextBoxEx TextBox_MouseY;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.RadioButton Radio_FullScreen;
         private System.Windows.Forms.RadioButton Radio_CurrentScreen;
         private System.Windows.Forms.RadioButton Radio_CurrentWindow;
-        private System.Windows.Forms.TextBox TextBox_MousePoint;
+        private StandardTemplate.TextBoxEx TextBox_MousePoint;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox TextBox_Sleep;
+        private StandardTemplate.TextBoxEx TextBox_Sleep;
         private System.Windows.Forms.Button SaveSetting;
     }
 }
