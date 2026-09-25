@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.button1 = new System.Windows.Forms.Button();
-            this.textBoxSource = new System.Windows.Forms.TextBox();
-            this.textBoxTarget = new System.Windows.Forms.TextBox();
+            this.textBoxSource = new StandardTemplate.TextBoxEx();
+            this.textBoxTarget = new StandardTemplate.TextBoxEx();
             this.SuspendLayout();
             // 
             // button1
@@ -80,8 +80,8 @@
         #endregion
 
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textBoxSource;
-        private System.Windows.Forms.TextBox textBoxTarget;
+        private StandardTemplate.TextBoxEx textBoxSource;
+        private StandardTemplate.TextBoxEx textBoxTarget;
     }
 }
 
