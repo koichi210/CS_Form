@@ -32,14 +32,14 @@
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.Button_LoadData = new System.Windows.Forms.Button();
-            this.TextBox_LoadDataList = new System.Windows.Forms.TextBox();
-            this.Combo_SortCategory = new System.Windows.Forms.ComboBox();
+            this.TextBox_LoadDataList = new StandardTemplate.TextBoxEx();
+            this.Combo_SortCategory = new StandardTemplate.ComboBoxEx();
             this.Button_Sort = new System.Windows.Forms.Button();
             this.Button_Ranking = new System.Windows.Forms.Button();
-            this.TextBox_Ranking = new System.Windows.Forms.TextBox();
+            this.TextBox_Ranking = new StandardTemplate.TextBoxEx();
             this.Label_Ranking = new System.Windows.Forms.Label();
-            this.Combo_RankingWeekly = new System.Windows.Forms.ComboBox();
-            this.TextBox_TopRankingNum = new System.Windows.Forms.TextBox();
+            this.Combo_RankingWeekly = new StandardTemplate.ComboBoxEx();
+            this.TextBox_TopRankingNum = new StandardTemplate.TextBoxEx();
             this.Label_TopRanking = new System.Windows.Forms.Label();
             this.Label_LoadDataList = new System.Windows.Forms.Label();
             this.Label_Sort = new System.Windows.Forms.Label();
@@ -47,11 +47,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.ProgressBar_LoadStatus = new System.Windows.Forms.ProgressBar();
             this.label3 = new System.Windows.Forms.Label();
-            this.TextBox_CountLineTotal = new System.Windows.Forms.TextBox();
-            this.TextBox_FileNumTotal = new System.Windows.Forms.TextBox();
+            this.TextBox_CountLineTotal = new StandardTemplate.TextBoxEx();
+            this.TextBox_FileNumTotal = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.button_Help = new System.Windows.Forms.Button();
-            this.comboBox_Profile = new System.Windows.Forms.ComboBox();
+            this.comboBox_Profile = new StandardTemplate.ComboBoxEx();
             this.button_ProfileSave = new System.Windows.Forms.Button();
             this.button_ProfileLoad = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Chart_Result)).BeginInit();
@@ -349,13 +349,13 @@
         #endregion
 
         private System.Windows.Forms.Button Button_LoadData;
-        public System.Windows.Forms.TextBox TextBox_LoadDataList;
-        private System.Windows.Forms.ComboBox Combo_SortCategory;
+        public StandardTemplate.TextBoxEx TextBox_LoadDataList;
+        private StandardTemplate.ComboBoxEx Combo_SortCategory;
         private System.Windows.Forms.Button Button_Sort;
         private System.Windows.Forms.Button Button_Ranking;
-        private System.Windows.Forms.TextBox TextBox_Ranking;
+        private StandardTemplate.TextBoxEx TextBox_Ranking;
         private System.Windows.Forms.Label Label_Ranking;
-        private System.Windows.Forms.ComboBox Combo_RankingWeekly;
+        private StandardTemplate.ComboBoxEx Combo_RankingWeekly;
         private System.Windows.Forms.Label Label_TopRanking;
         private System.Windows.Forms.Label Label_LoadDataList;
         private System.Windows.Forms.Label Label_Sort;
@@ -363,14 +363,14 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ProgressBar ProgressBar_LoadStatus;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox TextBox_CountLineTotal;
-        private System.Windows.Forms.TextBox TextBox_FileNumTotal;
+        private StandardTemplate.TextBoxEx TextBox_CountLineTotal;
+        private StandardTemplate.TextBoxEx TextBox_FileNumTotal;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button_Help;
-        private System.Windows.Forms.ComboBox comboBox_Profile;
+        private StandardTemplate.ComboBoxEx comboBox_Profile;
         private System.Windows.Forms.Button button_ProfileSave;
         private System.Windows.Forms.Button button_ProfileLoad;
-        public System.Windows.Forms.TextBox TextBox_TopRankingNum;
+        public StandardTemplate.TextBoxEx TextBox_TopRankingNum;
     }
 }
 

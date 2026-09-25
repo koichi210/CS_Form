@@ -90,6 +90,15 @@
     <Compile Include="..\..\_Common\StandardTemplateClass.cs">
       <Link>StandardTemplateClass.cs</Link>
     </Compile>
+    <Compile Include="..\..\_Common\TextBoxEx.cs">
+      <Link>TextBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\ComboBoxEx.cs">
+      <Link>ComboBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\_Common\PathDroppedEventArgs.cs">
+      <Link>PathDroppedEventArgs.cs</Link>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
