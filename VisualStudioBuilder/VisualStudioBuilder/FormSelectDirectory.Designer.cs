@@ -7,11 +7,11 @@ namespace VisualStudioBuilder
         private Label label1;
         private Button button_OK;
         private Button button_Cancel;
-        private TextBox textBox_DirectoryPath;
+        private StandardTemplate.TextBoxEx textBox_DirectoryPath;
 
         private void InitializeComponent()
         {
-            this.textBox_DirectoryPath = new System.Windows.Forms.TextBox();
+            this.textBox_DirectoryPath = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.button_OK = new System.Windows.Forms.Button();
             this.button_Cancel = new System.Windows.Forms.Button();
