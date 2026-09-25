@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_ErrorMessage = new System.Windows.Forms.TextBox();
+            this.textBox_ErrorMessage = new StandardTemplate.TextBoxEx();
             this.button_Close = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -85,7 +85,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox_ErrorMessage;
+        private StandardTemplate.TextBoxEx textBox_ErrorMessage;
         private System.Windows.Forms.Button button_Close;
         private System.Windows.Forms.Label label1;
     }

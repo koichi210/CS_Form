@@ -32,7 +32,7 @@
             this.button_Listup = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox_Target_Extension = new System.Windows.Forms.TextBox();
+            this.textBox_Target_Extension = new StandardTemplate.TextBoxEx();
             this.checkBox_Target_SubDirectory = new System.Windows.Forms.CheckBox();
             this.checkBox_Target_SelectFile = new System.Windows.Forms.CheckBox();
             this.radioButton_Target_Dir = new System.Windows.Forms.RadioButton();
@@ -43,8 +43,8 @@
             this.radioButton_ChangeNumber = new System.Windows.Forms.RadioButton();
             this.radioButton_ChangeDelNum = new System.Windows.Forms.RadioButton();
             this.label_ChangeNumber_FirstVal = new System.Windows.Forms.Label();
-            this.textBox_ChangeNumber_FirstVal = new System.Windows.Forms.TextBox();
-            this.comboBox_ChangeNumber_Digit = new System.Windows.Forms.ComboBox();
+            this.textBox_ChangeNumber_FirstVal = new StandardTemplate.TextBoxEx();
+            this.comboBox_ChangeNumber_Digit = new StandardTemplate.ComboBoxEx();
             this.checkBox_ChangeNumber_OrgName = new System.Windows.Forms.CheckBox();
             this.label_String1 = new System.Windows.Forms.Label();
             this.label_String2 = new System.Windows.Forms.Label();
@@ -55,11 +55,11 @@
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage_ChangeName = new System.Windows.Forms.TabPage();
             this.radioButton_ChangeAddDirName = new System.Windows.Forms.RadioButton();
-            this.comboBox_String2 = new System.Windows.Forms.ComboBox();
-            this.comboBox_String1 = new System.Windows.Forms.ComboBox();
+            this.comboBox_String2 = new StandardTemplate.ComboBoxEx();
+            this.comboBox_String1 = new StandardTemplate.ComboBoxEx();
             this.tabPage_TimeStamp = new System.Windows.Forms.TabPage();
             this.label3 = new System.Windows.Forms.Label();
-            this.comboBox_TimeSpan = new System.Windows.Forms.ComboBox();
+            this.comboBox_TimeSpan = new StandardTemplate.ComboBoxEx();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.checkBox_CreationTime = new System.Windows.Forms.CheckBox();
             this.checkBox_LastWriteTime = new System.Windows.Forms.CheckBox();
@@ -72,7 +72,7 @@
             this.textBox_Function_Any_Directory = new StandardTemplate.TextBoxEx();
             this.radioButton_Move_Target = new System.Windows.Forms.RadioButton();
             this.radioButton_Delete_BlankDir = new System.Windows.Forms.RadioButton();
-            this.textBox_StatusBar = new System.Windows.Forms.TextBox();
+            this.textBox_StatusBar = new StandardTemplate.TextBoxEx();
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.comboBox_TargetDir = new StandardTemplate.ComboBoxEx();
             this.checkBox_Operation_AnyDir = new System.Windows.Forms.CheckBox();
@@ -674,8 +674,8 @@
         private System.Windows.Forms.RadioButton radioButton_ChangeNumber;
         private System.Windows.Forms.RadioButton radioButton_ChangeDelNum;
         private System.Windows.Forms.Label label_ChangeNumber_FirstVal;
-        private System.Windows.Forms.TextBox textBox_ChangeNumber_FirstVal;
-        private System.Windows.Forms.ComboBox comboBox_ChangeNumber_Digit;
+        private StandardTemplate.TextBoxEx textBox_ChangeNumber_FirstVal;
+        private StandardTemplate.ComboBoxEx comboBox_ChangeNumber_Digit;
         private System.Windows.Forms.CheckBox checkBox_ChangeNumber_OrgName;
         private System.Windows.Forms.Label label_String1;
         private System.Windows.Forms.Label label_String2;
@@ -694,8 +694,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox comboBox_TimeSpan;
-        private System.Windows.Forms.TextBox textBox_StatusBar;
+        private StandardTemplate.ComboBoxEx comboBox_TimeSpan;
+        private StandardTemplate.TextBoxEx textBox_StatusBar;
         private System.Windows.Forms.CheckBox checkBox_Target_SelectFile;
         private System.Windows.Forms.CheckBox checkBox_Target_SubDirectory;
         private System.Windows.Forms.TabPage tabPage_Function;
@@ -704,12 +704,12 @@
         private StandardTemplate.TextBoxEx textBox_Function_Any_Directory;
         private System.Windows.Forms.Button button_SaveSetting;
         public StandardTemplate.ComboBoxEx comboBox_TargetDir;
-        public System.Windows.Forms.ComboBox comboBox_String2;
-        public System.Windows.Forms.ComboBox comboBox_String1;
+        public StandardTemplate.ComboBoxEx comboBox_String2;
+        public StandardTemplate.ComboBoxEx comboBox_String1;
         private System.Windows.Forms.RadioButton radioButton_ChangeAddDirName;
         private System.Windows.Forms.RadioButton radioButton_Copy_Target;
         private System.Windows.Forms.Label label4;
-        public System.Windows.Forms.TextBox textBox_Target_Extension;
+        public StandardTemplate.TextBoxEx textBox_Target_Extension;
         private System.Windows.Forms.CheckBox checkBox_Operation_AnyDir;
     }
 }
