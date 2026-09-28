@@ -227,8 +227,15 @@ namespace EventRecorder
                 }
             }
 
-            // 起動時のデフォルトモードは「レコード」
-            radioButton_Record.Checked = true;
+            // 起動時のデフォルトモードは「レコード」。ただし直前のUpdateProfileListAll("")で
+            // プロファイルが読み込まれていれば、そのプロファイルのIsRecordModeが既に
+            // radioButton_Record/Playback.Checkedへ反映済み(Form1.Profile.cs LoadProfileFromJson)
+            // なので、ここで無条件に上書きするとプレイリスト読込直後にモードが「レコード」へ
+            // 戻ってしまう。プロファイルが1つも無い(=何も読み込まれなかった)時だけ適用する
+            if (comboBox_Profile.Items.Count == 0)
+            {
+                radioButton_Record.Checked = true;
+            }
 
             // 各グループボックス内のコントロールを触ったら、同じ名前(Record/Playback)の
             // ラジオボタンへ自動でモードを切り替える

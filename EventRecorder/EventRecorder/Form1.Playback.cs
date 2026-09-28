@@ -1014,8 +1014,8 @@ namespace EventRecorder
             return true;
         }
 
-        // KeyUp/SysKeyUpの行は、リピート抑制のための内部データとしては保持したまま、
-        // テーブルの見た目からは隠す(データは残るので保存/再生には引き続き使われる)
+        // 以前はKeyUp/SysKeyUpの行をテーブルの見た目から隠していたが、記録内容を
+        // 目視確認したいという要望により、KeyUp/SysKeyUpも他の行と同じく表示するようにした
         private void UpdateRowVisibility(int rowIndex)
         {
             if (rowIndex < 0 || rowIndex >= dataGridView_Events.Rows.Count)
@@ -1024,12 +1024,7 @@ namespace EventRecorder
             }
 
             DataGridViewRow row = dataGridView_Events.Rows[rowIndex];
-            String eventType = Convert.ToString(row.Cells[col_Type.Index].Value);
-
-            Boolean isKeyUp = eventType == GlobalHook.KeyboardHook.Stroke.KEY_UP.ToString()
-                || eventType == GlobalHook.KeyboardHook.Stroke.SYSKEY_UP.ToString();
-
-            row.Visible = !isKeyUp;
+            row.Visible = true;
         }
 
         // 記録した1イベント分をSendInputで再現する
