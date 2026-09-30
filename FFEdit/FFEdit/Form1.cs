@@ -28,9 +28,16 @@ namespace FFEdit
             return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath, this);
         }
 
-        private Boolean SaveProfile(String filePath)
+        // internal: テストから保存ボタンと同じ経路で保存を確かめるため
+        internal Boolean SaveProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath, this);
+            if (!IsJsonFile(filePath))
+            {
+                return sr.SaveSetting(filePath, this);
+            }
+
+            sr.UpdateComboHistory(this);
+            return JsonSaveRestore.Save(sr, filePath);
         }
 
         private readonly String[] IncrCycleArray = { "無し", "秒", "分", "時間", "日" };

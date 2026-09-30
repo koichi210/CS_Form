@@ -42,13 +42,18 @@ namespace FFEdit
                 return false;
             }
 
-            // コンボボックスの更新
+            UpdateComboHistory(Parent);
+
+            return SaveXmlFile(SaveFileName);
+        }
+
+        // 入力中の文字をコンボボックスの履歴に足す。XML/JSONどちらで保存する場合も保存前に呼ぶこと
+        public void UpdateComboHistory(Form1 Parent)
+        {
             StcUtils util = new StcUtils();
             util.ModifyCombBoxList(Parent.comboBox_TargetDir);
             util.ModifyCombBoxList(Parent.comboBox_String1);
             util.ModifyCombBoxList(Parent.comboBox_String2);
-
-            return SaveXmlFile(SaveFileName);
         }
     }
 }

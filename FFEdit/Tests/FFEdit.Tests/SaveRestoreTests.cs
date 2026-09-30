@@ -97,6 +97,36 @@ namespace FFEdit.Tests
         }
 
         [TestMethod]
+        public void JSONで保存しても入力中の文字がコンボボックスの履歴に追加される()
+        {
+            // JSON化(2026-09-21)の際、JSON保存の経路だけ履歴追加が抜けていたことへの回帰テスト
+            using (Form1 writer = NewForm())
+            {
+                writer.comboBox_TargetDir.Items.Clear();
+                writer.comboBox_String1.Items.Clear();
+                writer.comboBox_String2.Items.Clear();
+                writer.comboBox_TargetDir.Text = @"C:\new";
+                writer.comboBox_String1.Text = "foo";
+                writer.comboBox_String2.Text = "bar";
+
+                string path = Path.Combine(tempDirectory, "history.json");
+                Assert.IsTrue(writer.SaveProfile(path));
+
+                CollectionAssert.Contains(writer.comboBox_TargetDir.Items, @"C:\new");
+                CollectionAssert.Contains(writer.comboBox_String1.Items, "foo");
+                CollectionAssert.Contains(writer.comboBox_String2.Items, "bar");
+
+                using (Form1 reader = NewForm())
+                {
+                    Assert.IsTrue(StandardTemplate.JsonSaveRestore.Load(NewSaveRestore(reader), path));
+                    CollectionAssert.Contains(reader.comboBox_TargetDir.Items, @"C:\new");
+                    CollectionAssert.Contains(reader.comboBox_String1.Items, "foo");
+                    CollectionAssert.Contains(reader.comboBox_String2.Items, "bar");
+                }
+            }
+        }
+
+        [TestMethod]
         public void 拡張子は未指定なら既定値のアスタリスクになる()
         {
             using (Form1 writer = NewForm())
