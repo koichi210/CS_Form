@@ -24,6 +24,11 @@ namespace EventRecorder
         // trueなら、実行チェック(col_PlaylistEnabled)がONの行だけをプレイリストに表示する
         private Boolean showOnlyCheckedPlaylistRows = false;
 
+        // UpdatePlaylistMissingFileHighlightsの非同期化用の世代カウンタ。
+        // File.Existsチェック(バックグラウンド)が終わる前に別のプロファイルへ
+        // 切り替えられた場合、古い結果をグリッドへ適用してしまわないようにするため
+        private int playlistHighlightGeneration = 0;
+
         // プレイリストの設定ファイル列(col_PlaylistFile)を、comboBox_Profileと同じ内容に揃える。
         // ファイルシステムへの問い合わせはcomboBox_Profile側(util.UpdateProfileList)だけで行い、
         // その結果をそのままコピーするだけにすることで、同じ一覧を二重に取得しないようにしている。
@@ -109,6 +114,9 @@ namespace EventRecorder
         // 各セルのStyle.BackColorを直接設定する方式にしている
         private void UpdatePlaylistMissingFileHighlights()
         {
+            // ファイル名の収集だけはUIスレッドで行う(ここはディスクI/Oが無いので一瞬で終わる)。
+            // 同じファイル名が複数行にある場合に備えて重複は除いておく
+            List<String> fileNames = new List<String>();
             foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
             {
                 if (row.IsNewRow)
@@ -116,32 +124,102 @@ namespace EventRecorder
                     continue;
                 }
 
-                DataGridViewCell cell = row.Cells[col_PlaylistFile.Index];
-                String fileName = Convert.ToString(cell.Value);
-
-                // cell.Style.BackColor = ... のように既存のStyleオブジェクトのプロパティだけを
-                // 書き換える形だと、DataGridViewComboBoxCellでは見た目に反映されないことがあったため、
-                // 新しいDataGridViewCellStyleを作ってStyleごと差し替える
-                DataGridViewCellStyle style = new DataGridViewCellStyle(cell.Style);
-
-                if (!String.IsNullOrEmpty(fileName)
-                    && !System.IO.File.Exists(System.IO.Path.Combine(userDataFolder, fileName)))
+                String fileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value);
+                if (!String.IsNullOrEmpty(fileName) && !fileNames.Contains(fileName))
                 {
-                    style.BackColor = Color.MistyRose;
-                    cell.ErrorText = "このファイル(" + fileName + ")は見つからないよ(削除された可能性があるよ)";
+                    fileNames.Add(fileName);
                 }
-                else
-                {
-                    style.BackColor = Color.Empty;
-                    cell.ErrorText = "";
-                }
-
-                cell.Style = style;
             }
 
-            // cell.Style.XXXへの代入(既存のStyleオブジェクトのプロパティを書き換えるだけ)は
-            // 自動で再描画がかかるとは限らないため、明示的に再描画する
-            dataGridView_Playlist.Refresh();
+            // File.Existsはディスクアクセスを伴い、プレイリストの行数によっては待たされるため、
+            // 判定自体はバックグラウンドスレッドで行い、グリッドへの反映(UIスレッド専用の操作)
+            // だけ完了後にメインスレッドへ戻す。「今の設定値をまず表示し、ファイル存在チェックの
+            // ような装飾的な処理は裏でこっそりやってほしい」というオグさんの要望に対応するため
+            int generation = ++playlistHighlightGeneration;
+            String folder = userDataFolder;
+
+            Task.Run(() =>
+            {
+                Dictionary<String, Boolean> existsMap = new Dictionary<String, Boolean>();
+                foreach (String fileName in fileNames)
+                {
+                    existsMap[fileName] = System.IO.File.Exists(System.IO.Path.Combine(folder, fileName));
+                }
+                return existsMap;
+            }).ContinueWith(task =>
+            {
+                // 判定中に別のプロファイルへ切り替えられていたら、古い結果は捨てる
+                if (generation != playlistHighlightGeneration)
+                {
+                    return;
+                }
+
+                ApplyPlaylistMissingFileHighlights(task.Result);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        // UpdatePlaylistMissingFileHighlightsが裏で集めたファイル存在チェック結果を
+        // グリッドへ反映する(こちらはUIスレッドの操作なので同期で行う)
+        private void ApplyPlaylistMissingFileHighlights(Dictionary<String, Boolean> existsMap)
+        {
+            dataGridView_Playlist.SuspendLayout();
+            try
+            {
+                Boolean changed = false;
+
+                foreach (DataGridViewRow row in dataGridView_Playlist.Rows)
+                {
+                    if (row.IsNewRow)
+                    {
+                        continue;
+                    }
+
+                    DataGridViewCell cell = row.Cells[col_PlaylistFile.Index];
+                    String fileName = Convert.ToString(cell.Value);
+
+                    Color newBackColor;
+                    String newErrorText;
+
+                    Boolean exists;
+                    if (!String.IsNullOrEmpty(fileName) && existsMap.TryGetValue(fileName, out exists) && !exists)
+                    {
+                        newBackColor = Color.MistyRose;
+                        newErrorText = "このファイル(" + fileName + ")は見つからないよ(削除された可能性があるよ)";
+                    }
+                    else
+                    {
+                        newBackColor = Color.Empty;
+                        newErrorText = "";
+                    }
+
+                    // 前回と同じ内容なら、Styleの作り直し・代入自体を省略する
+                    // (行数が多いとcell.Style=への代入コストが積み重なって描画が重くなるため)
+                    if (cell.Style.BackColor == newBackColor && cell.ErrorText == newErrorText)
+                    {
+                        continue;
+                    }
+
+                    // cell.Style.BackColor = ... のように既存のStyleオブジェクトのプロパティだけを
+                    // 書き換える形だと、DataGridViewComboBoxCellでは見た目に反映されないことがあったため、
+                    // 新しいDataGridViewCellStyleを作ってStyleごと差し替える
+                    DataGridViewCellStyle style = new DataGridViewCellStyle(cell.Style);
+                    style.BackColor = newBackColor;
+                    cell.ErrorText = newErrorText;
+                    cell.Style = style;
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    // cell.Style.XXXへの代入(既存のStyleオブジェクトのプロパティを書き換えるだけ)は
+                    // 自動で再描画がかかるとは限らないため、明示的に再描画する
+                    dataGridView_Playlist.Refresh();
+                }
+            }
+            finally
+            {
+                dataGridView_Playlist.ResumeLayout();
+            }
         }
 
         private void dataGridView_Playlist_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)

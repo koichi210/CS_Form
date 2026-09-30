@@ -84,27 +84,45 @@ namespace EventRecorder
 
             textBox_Loop.Text = String.IsNullOrEmpty(profile.LoopCount) ? "1" : profile.LoopCount;
 
-            foreach (MacroEventData ev in profile.Events ?? new List<MacroEventData>())
+            // Rows.Addを1行ずつ呼ぶ間、都度の自動サイズ計算・再描画が走らないよう
+            // SuspendLayoutで囲む(行数が多いプロファイルで読込が遅くなるのを防ぐため)
+            dataGridView_Events.SuspendLayout();
+            try
             {
-                int idx = dataGridView_Events.Rows.Add();
-                DataGridViewRow row = dataGridView_Events.Rows[idx];
-                row.Cells[col_Type.Index].Value = ev.Type;
-                row.Cells[col_X.Index].Value = ev.X;
-                row.Cells[col_Y.Index].Value = ev.Y;
-                row.Cells[col_Key.Index].Value = ev.Key;
-                row.Cells[col_Wait.Index].Value = ev.Wait;
-                row.Cells[col_Remarks.Index].Value = ev.Remarks;
+                foreach (MacroEventData ev in profile.Events ?? new List<MacroEventData>())
+                {
+                    int idx = dataGridView_Events.Rows.Add();
+                    DataGridViewRow row = dataGridView_Events.Rows[idx];
+                    row.Cells[col_Type.Index].Value = ev.Type;
+                    row.Cells[col_X.Index].Value = ev.X;
+                    row.Cells[col_Y.Index].Value = ev.Y;
+                    row.Cells[col_Key.Index].Value = ev.Key;
+                    row.Cells[col_Wait.Index].Value = ev.Wait;
+                    row.Cells[col_Remarks.Index].Value = ev.Remarks;
+                }
+            }
+            finally
+            {
+                dataGridView_Events.ResumeLayout();
             }
 
             if (clearPlaylist)
             {
-                foreach (PlaylistEntryData pl in profile.Playlist ?? new List<PlaylistEntryData>())
+                dataGridView_Playlist.SuspendLayout();
+                try
                 {
-                    int idx = dataGridView_Playlist.Rows.Add();
-                    DataGridViewRow row = dataGridView_Playlist.Rows[idx];
-                    row.Cells[col_PlaylistEnabled.Index].Value = pl.Enabled;
-                    row.Cells[col_PlaylistFile.Index].Value = pl.FileName;
-                    row.Cells[col_PlaylistLoopCount.Index].Value = pl.LoopCount;
+                    foreach (PlaylistEntryData pl in profile.Playlist ?? new List<PlaylistEntryData>())
+                    {
+                        int idx = dataGridView_Playlist.Rows.Add();
+                        DataGridViewRow row = dataGridView_Playlist.Rows[idx];
+                        row.Cells[col_PlaylistEnabled.Index].Value = pl.Enabled;
+                        row.Cells[col_PlaylistFile.Index].Value = pl.FileName;
+                        row.Cells[col_PlaylistLoopCount.Index].Value = pl.LoopCount;
+                    }
+                }
+                finally
+                {
+                    dataGridView_Playlist.ResumeLayout();
                 }
 
                 // モード切替ラジオボタン・最小化チェックボックスは、プレイリスト再生時の
