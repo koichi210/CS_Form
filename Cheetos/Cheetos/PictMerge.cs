@@ -45,7 +45,7 @@ namespace Cheetos
             return TargetFileName.IndexOf(Prefix1) != -1;
         }
 
-        public bool CreateMergeSourceFile()
+        public bool BackUpSourceFile()
         {
             SourceFileFullName = SourceFolderPath + @"\" + TargetFileName;
             SourceBackUpFullName = BackUpDirPath + @"\" + TargetFileName;
@@ -59,7 +59,7 @@ namespace Cheetos
             return true;
         }
 
-        public bool CreateMergeTargetFile()
+        public bool ResolveMergeFilePath()
         {
             String mergeFileName = TargetFileName.Replace(Prefix1, Prefix2);
             MergeFileFullName = SourceFolderPath + @"\" + mergeFileName;
@@ -100,40 +100,39 @@ namespace Cheetos
         public bool MergeExecute()
         {
             // キャンバス作成
-            PictEdit mrg = new PictEdit(SourceBackUpFullName);
-
-            mrg.CreateSourceImg(MergeFileFullName);
-            Size sz = mrg.GetCanvasSize();
-
-            for (int i = 0; i < TrimHeightAry.Length; i++)
+            using (PicEdit mrg = new PicEdit(SourceBackUpFullName))
             {
-                // 不正な行は開始前にUIスレッドで確認済み(FindInvalidTrimHeights)なので、ここでは飛ばすだけ
-                if (TrimHeightAry[i] == String.Empty || !IsValidTrimHeight(TrimHeightAry[i]))
+                mrg.CreateSourceImg(MergeFileFullName);
+                Size sz = mrg.GetCanvasSize();
+
+                for (int i = 0; i < TrimHeightAry.Length; i++)
                 {
-                    continue;
+                    // 不正な行は開始前にUIスレッドで確認済み(FindInvalidTrimHeights)なので、ここでは飛ばすだけ
+                    if (TrimHeightAry[i] == String.Empty || !IsValidTrimHeight(TrimHeightAry[i]))
+                    {
+                        continue;
+                    }
+
+                    string[] heightRange = TrimHeightAry[i].Split(new[] { "," }, StringSplitOptions.None);
+                    int startHeight = GetHeight(heightRange[0], 0);
+                    int endHeight = GetHeight(heightRange[1], sz.Height);
+                    if (sz.Height < startHeight)
+                    {
+                        // 画像サイズよりも指定されたサイズが大きい
+                        break;
+                    }
+                    Rectangle cutParam = new Rectangle(0, startHeight, sz.Width, endHeight - startHeight);
+                    mrg.MergeExec(cutParam);
                 }
 
-                string[] heightRange = TrimHeightAry[i].Split(new[] { "," }, StringSplitOptions.None);
-                int startHeight = GetHeight(heightRange[0], 0);
-                int endHeight = GetHeight(heightRange[1], sz.Height);
-                if (sz.Height < startHeight)
-                {
-                    // 画像サイズよりも指定されたサイズが大きい
-                    break;
-                }
-                Rectangle cutParam = new Rectangle(0, startHeight, sz.Width, endHeight - startHeight);
-                mrg.MergeExec(cutParam);
+                mrg.ReleaseSourceImg();
+
+                // キャンバス保存
+                mrg.SaveCanvas(SourceFileFullName);
+
+                // マージ元ファイルをバックアップへ移動
+                File.Move(MergeFileFullName, MergeBackUpFullName);
             }
-
-            mrg.ReleaseSourceImg();
-
-            // キャンバス保存
-            mrg.SaveCanvas(SourceFileFullName);
-
-            // マージ元ファイルをバックアップへ移動
-            File.Move(MergeFileFullName, MergeBackUpFullName);
-
-            mrg.Dispose();
             return true;
         }
 
@@ -203,7 +202,7 @@ namespace Cheetos
             param.TargetFileNames = util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
 
             SetStartTime();
-            pm_MergeExec_Click.Text = "中断";
+            pm_Button_Merge.Text = "中断";
             bkgWorkerMerge.RunWorkerAsync(param);   // ⇒DoWork()
         }
 
@@ -244,12 +243,12 @@ namespace Cheetos
                     continue;
                 }
 
-                if (!pm.CreateMergeSourceFile())
+                if (!pm.BackUpSourceFile())
                 {
                     continue;
                 }
 
-                if (!pm.CreateMergeTargetFile())
+                if (!pm.ResolveMergeFilePath())
                 {
                     continue;
                 }
@@ -289,7 +288,7 @@ namespace Cheetos
                 }
             }
             TextBox_Status.Text += " 完了";
-            pm_MergeExec_Click.Text = "結合";
+            pm_Button_Merge.Text = "結合";
 
             // リスト更新
             ListupPictMerge();

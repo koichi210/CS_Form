@@ -13,7 +13,7 @@ namespace Cheetos
     /// コードは元のファイルにあったものをそのまま移しただけで、中身の書き換えはしていない。
     /// 呼び出し側の Form 側フィールド参照（util / fio）は、状態を持たないユーティリティ
     /// インスタンスなのでこのクラス内で個別に new し直している。
-    /// GetFileBaseFormat だけは Form のチェックボックスを直接参照していたので、
+    /// BuildFilePathPrefix だけは Form のチェックボックスを直接参照していたので、
     /// bool のパラメータに置き換えた（呼び出し側で .Checked を渡す）。
     /// </summary>
     internal static class Logic
@@ -41,7 +41,7 @@ namespace Cheetos
 
                 // 左端
                 Rectangle leftCutParam = new Rectangle(0, 0, width, pictSize.Height);
-                long leftPictSize = GetBinSize(sourceImg, leftCutParam);
+                long leftPictSize = GetTrimmedPngByteLength(sourceImg, leftCutParam);
                 if (baseSize < leftPictSize)
                 {
                     isPortrait = false;
@@ -52,7 +52,7 @@ namespace Cheetos
                 if (isPortrait)
                 {
                     Rectangle rightCutParam = new Rectangle(pictSize.Width - width, 0, width, pictSize.Height);
-                    rightPictSize = GetBinSize(sourceImg, rightCutParam);
+                    rightPictSize = GetTrimmedPngByteLength(sourceImg, rightCutParam);
                     if (baseSize < rightPictSize)
                     {
                         isPortrait = false;
@@ -73,55 +73,53 @@ namespace Cheetos
         }
 
         /// <summary>画像の指定範囲を切り出して、PNGエンコードした場合のバイト数を返す。</summary>
-        public static long GetBinSize(String fileName, Rectangle cutParam)
+        public static long GetTrimmedPngByteLength(String fileName, Rectangle cutParam)
         {
             // ファイルパスからは1回だけデコードし、実際の計測は共通処理(Bitmap版)に委ねる。
             using (Bitmap sourceImg = new Bitmap(fileName))
             {
-                return GetBinSize(sourceImg, cutParam);
+                return GetTrimmedPngByteLength(sourceImg, cutParam);
             }
         }
 
         /// <summary>既にデコード済みのBitmapから指定範囲を切り出し、PNGエンコードした場合のバイト数を返す。</summary>
-        private static long GetBinSize(Bitmap sourceImg, Rectangle cutParam)
+        private static long GetTrimmedPngByteLength(Bitmap sourceImg, Rectangle cutParam)
         {
-            PictEdit trm = new PictEdit(cutParam.Width, cutParam.Height);
+            using (PicEdit trm = new PicEdit(cutParam.Width, cutParam.Height))
+            {
+                // 切り取り
+                trm.TrimExec(sourceImg, cutParam, new Point(0, 0));
 
-            // 切り取り
-            trm.TrimExec(sourceImg, cutParam, new Point(0, 0));
-
-            // 以前は一時PNGファイルをディスクに書いてFileInfo.Lengthを見ていたが、
-            // ディスクI/O(書き込み+削除)自体が無駄なので、メモリ上でPNGエンコードして
-            // そのバイト数を見るだけにした。
-            long length = trm.GetCanvasPngByteLength();
-
-            trm.Dispose();
-            return length;
+                // 以前は一時PNGファイルをディスクに書いてFileInfo.Lengthを見ていたが、
+                // ディスクI/O(書き込み+削除)自体が無駄なので、メモリ上でPNGエンコードして
+                // そのバイト数を見るだけにした。
+                return trm.GetCanvasPngByteLength();
+            }
         }
 
         /// <summary>
         /// キャプチャ画像のファイル名の先頭部分（保存先＋接頭辞＋任意でタイムスタンプ）を組み立てる。
         /// 元は cw_checkBox_AddTimeStamp.Checked を直接参照していたので、AddTimeStamp 引数に置き換えた。
         /// </summary>
-        public static String GetFileBaseFormat(String directoryPath, String prefix, Boolean addTimeStamp)
+        public static String BuildFilePathPrefix(String directoryPath, String prefix, Boolean addTimeStamp)
         {
-            String fileBaseFormat = directoryPath + @"\";
+            String filePathPrefix = directoryPath + @"\";
             if (prefix != String.Empty)
             {
-                fileBaseFormat += prefix + "_";
+                filePathPrefix += prefix + "_";
             }
             if (addTimeStamp)
             {
-                fileBaseFormat += DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_");
+                filePathPrefix += DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_");
             }
 
-            return fileBaseFormat;
+            return filePathPrefix;
         }
 
         /// <summary>
         /// テキストボックスの数値を、上下キーで+1/-1する。数値でなければ変更しない。
         /// </summary>
-        public static String UpdateValue(String baseValue, KeyEventArgs e)
+        public static String StepValueByArrowKey(String baseValue, KeyEventArgs e)
         {
             int addValue = 0;
             switch (e.KeyCode)

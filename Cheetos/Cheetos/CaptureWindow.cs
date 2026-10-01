@@ -31,7 +31,7 @@ namespace Cheetos
             captureStartCursorPosition = Cursor.Position;
 
             fio.EnsureDirectory(cw_TextBox_SavePath.Text, true);
-            String fileBaseFormat = Logic.GetFileBaseFormat(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrefix.Text, cw_checkBox_AddTimeStamp.Checked);
+            String filePathPrefix = Logic.BuildFilePathPrefix(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrefix.Text, cw_checkBox_AddTimeStamp.Checked);
 
             int loopCount = 1;
             if (cw_TextBox_Loop.Text != String.Empty)
@@ -41,7 +41,7 @@ namespace Cheetos
             InitProgressBar(loopCount);
             SetStartTime();
 
-            CaptureForeground(fileBaseFormat, loopCount);
+            CaptureForeground(filePathPrefix, loopCount);
 
             String errLog = cw.GetErrorLog();
             if (errLog != String.Empty)
@@ -67,7 +67,7 @@ namespace Cheetos
         }
 
 
-        private void CaptureForeground(String fileBaseFormat, int loopCount)
+        private void CaptureForeground(String filePathPrefix, int loopCount)
         {
             Task task = new Task(() =>
             {
@@ -110,7 +110,7 @@ namespace Cheetos
                             cw.SetFileIdx(1);
 
                             // ファイル名生成
-                            String fileFormat = fileBaseFormat + String.Format("{0:D4}", i);
+                            String fileFormat = filePathPrefix + String.Format("{0:D4}", i);
                             cw.SetFileFormat(fileFormat);
                             debugLog.WriteData(" Capture: Filename=" + fileFormat);
 

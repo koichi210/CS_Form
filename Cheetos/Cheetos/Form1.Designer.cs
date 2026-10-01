@@ -101,7 +101,7 @@
             this.pm_TextBox_Status = new StandardTemplate.TextBoxEx();
             this.pm_TrimmingHeight = new StandardTemplate.TextBoxEx();
             this.label17 = new System.Windows.Forms.Label();
-            this.pm_MergeExec_Click = new System.Windows.Forms.Button();
+            this.pm_Button_Merge = new System.Windows.Forms.Button();
             this.pm_ListBox_ListUp = new System.Windows.Forms.ListBox();
             this.label14 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -919,7 +919,7 @@
             this.PictMerge.Controls.Add(this.pm_TextBox_Status);
             this.PictMerge.Controls.Add(this.pm_TrimmingHeight);
             this.PictMerge.Controls.Add(this.label17);
-            this.PictMerge.Controls.Add(this.pm_MergeExec_Click);
+            this.PictMerge.Controls.Add(this.pm_Button_Merge);
             this.PictMerge.Controls.Add(this.pm_ListBox_ListUp);
             this.PictMerge.Controls.Add(this.label14);
             this.PictMerge.Controls.Add(this.label15);
@@ -969,16 +969,16 @@
             this.label17.TabIndex = 7;
             this.label17.Text = "切取る高さの範囲：";
             // 
-            // pm_MergeExec_Click
+            // pm_Button_Merge
             // 
-            this.pm_MergeExec_Click.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.pm_MergeExec_Click.Location = new System.Drawing.Point(383, 225);
-            this.pm_MergeExec_Click.Name = "pm_MergeExec_Click";
-            this.pm_MergeExec_Click.Size = new System.Drawing.Size(60, 23);
-            this.pm_MergeExec_Click.TabIndex = 12;
-            this.pm_MergeExec_Click.Text = "結合";
-            this.pm_MergeExec_Click.UseVisualStyleBackColor = true;
-            this.pm_MergeExec_Click.Click += new System.EventHandler(this.MergeExec_Click);
+            this.pm_Button_Merge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.pm_Button_Merge.Location = new System.Drawing.Point(383, 225);
+            this.pm_Button_Merge.Name = "pm_Button_Merge";
+            this.pm_Button_Merge.Size = new System.Drawing.Size(60, 23);
+            this.pm_Button_Merge.TabIndex = 12;
+            this.pm_Button_Merge.Text = "結合";
+            this.pm_Button_Merge.UseVisualStyleBackColor = true;
+            this.pm_Button_Merge.Click += new System.EventHandler(this.MergeExec_Click);
             // 
             // pm_ListBox_ListUp
             // 
@@ -1374,7 +1374,7 @@
         public System.Windows.Forms.TabPage PictMerge;
         public StandardTemplate.TextBoxEx pm_TrimmingHeight;
         public System.Windows.Forms.Label label17;
-        public System.Windows.Forms.Button pm_MergeExec_Click;
+        public System.Windows.Forms.Button pm_Button_Merge;
         public System.Windows.Forms.ListBox pm_ListBox_ListUp;
         public System.Windows.Forms.Label label14;
         public System.Windows.Forms.Label label15;

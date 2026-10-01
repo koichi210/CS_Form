@@ -70,7 +70,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="PictEdit.cs" />
+    <Compile Include="PicEdit.cs" />
     <Compile Include="WorkerParams.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="PictMerge.cs">

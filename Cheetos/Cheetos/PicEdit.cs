@@ -4,27 +4,29 @@ using System.IO;
 
 namespace Picture
 {
-    class PictEdit
+    class PicEdit : IDisposable
     {
         // 描画先
         protected Bitmap m_Canvas;
         protected Bitmap m_SourceImg;
 
-        public PictEdit(String basePictFile)
+        public PicEdit(String basePictFile)
         {
             //既存ファイルをもとに、描画先Imageオブジェクトを作成
             m_Canvas = new Bitmap(basePictFile);
         }
 
-        public PictEdit(int destWidth, int destHeight)
+        public PicEdit(int destWidth, int destHeight)
         {
             //新規に描画先Imageオブジェクトを作成
             m_Canvas = new Bitmap(destWidth, destHeight);
         }
 
+        // IDisposable。ReleaseImg が解放後に null を入れるので、二重に呼んでも
+        // (SaveCanvas の後に呼んでも) 何も起きず安全。
         public void Dispose()
         {
-            //// リソース解放
+            // リソース解放
             ReleaseImg(ref m_Canvas);
             ReleaseImg(ref m_SourceImg);
         }

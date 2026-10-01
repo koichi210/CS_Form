@@ -140,9 +140,8 @@ namespace Cheetos
                 File.Copy(filePath, backUpFilePath, true);
 
                 // トリミング
-                // キャンバス作成(途中で失敗しても画像ファイルがロックされたまま残らないようfinallyで必ず解放する)
-                PictEdit trm = new PictEdit(param.TargetWidth, param.TargetHeight);
-                try
+                // キャンバス作成(途中で失敗しても画像ファイルがロックされたまま残らないようusingで必ず解放する)
+                using (PicEdit trm = new PicEdit(param.TargetWidth, param.TargetHeight))
                 {
                     // 切り取り
                     Rectangle cutParam = new Rectangle(baseX, baseY, param.TargetWidth, param.TargetHeight);
@@ -150,10 +149,6 @@ namespace Cheetos
 
                     // キャンバス保存
                     trm.SaveCanvas(filePath);
-                }
-                finally
-                {
-                    trm.Dispose();
                 }
 
                 // 進捗率

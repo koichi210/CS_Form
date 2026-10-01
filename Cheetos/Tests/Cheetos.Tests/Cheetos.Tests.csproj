@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SaveRestoreTests.cs" />
-    <Compile Include="PictEditTests.cs" />
+    <Compile Include="PicEditTests.cs" />
     <Compile Include="LogicTests.cs" />
     <Compile Include="RotationTests.cs" />
     <Compile Include="PictMergeTests.cs" />

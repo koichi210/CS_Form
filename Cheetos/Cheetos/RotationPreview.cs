@@ -240,19 +240,19 @@ namespace Cheetos
 
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginX.Text = Logic.UpdateValue(textBox_OriginX.Text, e);
+            textBox_OriginX.Text = Logic.StepValueByArrowKey(textBox_OriginX.Text, e);
             Draw();
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginY.Text = Logic.UpdateValue(textBox_OriginY.Text, e);
+            textBox_OriginY.Text = Logic.StepValueByArrowKey(textBox_OriginY.Text, e);
             Draw();
         }
 
         private void textBox_Angle_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_angle.Text = Logic.UpdateValue(textBox_angle.Text, e);
+            textBox_angle.Text = Logic.StepValueByArrowKey(textBox_angle.Text, e);
             Draw();
         }
 

@@ -28,7 +28,7 @@ namespace Cheetos
             return true;
         }
 
-        public bool CreateRotateFile()
+        public bool BackUpTargetFile()
         {
             FilePath = SourceFolderPath + @"\" + TargetFileName;
             BackUpFilePath = BackUpDirPath + @"\" + TargetFileName;
@@ -194,7 +194,7 @@ namespace Cheetos
                     continue;
                 }
 
-                rt.CreateRotateFile();
+                rt.BackUpTargetFile();
                 rt.RotateExecute();
 
                 // 進捗率
