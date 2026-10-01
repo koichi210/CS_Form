@@ -34,17 +34,5 @@ namespace DigitalClockDisplayTitle.Properties {
                 this["FormPoint"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("90, 55")]
-        public global::System.Drawing.Size FormSize {
-            get {
-                return ((global::System.Drawing.Size)(this["FormSize"]));
-            }
-            set {
-                this["FormSize"] = value;
-            }
-        }
     }
 }

@@ -22,13 +22,11 @@ namespace DigitalClockDisplayTitle
             this.Size = new Size(75,20);
             this.Location = new Point(100, 100);
 
+            // サイズは固定なので、復元するのは位置だけ。
             // user.configが壊れていると設定へのアクセスで例外になるため、位置の復元・保存は諦めて動作を優先する
             try
             {
-                if (Properties.Settings.Default.FormSize.Width != 0 && Properties.Settings.Default.FormSize.Height != 0)
-                {
-                    this.Location = Properties.Settings.Default.FormPoint;
-                }
+                this.Location = Properties.Settings.Default.FormPoint;
             }
             catch (System.Configuration.ConfigurationException)
             {
@@ -40,7 +38,6 @@ namespace DigitalClockDisplayTitle
             try
             {
                 Properties.Settings.Default.FormPoint = this.Location;
-                //Properties.Settings.Default.FormSize = this.Size;
                 Properties.Settings.Default.Save();
             }
             catch (System.Configuration.ConfigurationException)
