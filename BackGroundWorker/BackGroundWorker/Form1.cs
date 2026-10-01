@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BackGroundWorker
@@ -29,7 +25,7 @@ namespace BackGroundWorker
             buttonStart.Enabled = false;
             buttonCancel.Enabled = true;
 
-            // 別スレッドを非同期実行
+            // 別スレッドに渡すパラメータ
             List<object> arguments = new List<object>();
             arguments.Add(100);
 
@@ -50,16 +46,16 @@ namespace BackGroundWorker
             BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
-            List<object> genericlist = e.Argument as List<object>;
+            List<object> arguments = e.Argument as List<object>;
 
-            int Param1 = (int)genericlist[0]; // 100
+            int loopCount = (int)arguments[0]; // 100
 
             // 時間のかかる処理
-            for (int i = 0; i < Param1; i++)
+            for (int i = 0; i < loopCount; i++)
             {
                 System.Threading.Thread.Sleep(100);
 
-                int percentage = 100 * i / Param1;      // 進捗率
+                int percentage = 100 * i / loopCount;      // 進捗率
                 worker.ReportProgress(percentage);      // ⇒ProgressChanged()
 
                 // キャンセルされてないかチェック
