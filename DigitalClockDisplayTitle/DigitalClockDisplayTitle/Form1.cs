@@ -6,7 +6,7 @@ namespace DigitalClockDisplayTitle
 {
     public partial class Form1 : Form
     {
-        const int WM_NCLBUTTONDBLCLK = 0x00A3;
+        private const int WM_NCLBUTTONDBLCLK = 0x00A3;
 
         public Form1()
         {
@@ -55,8 +55,7 @@ namespace DigitalClockDisplayTitle
         
         private void UpdateTime()
         {
-            DateTime d = DateTime.Now;
-            this.Text = Logic.FormatTime(d);
+            this.Text = Logic.FormatTime(DateTime.Now);
         }
 
         protected override void WndProc(ref Message m)
