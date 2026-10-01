@@ -328,7 +328,7 @@
             this.checkBox_Wide2Narrow_Number.Name = "checkBox_Wide2Narrow_Number";
             this.checkBox_Wide2Narrow_Number.Size = new System.Drawing.Size(84, 16);
             this.checkBox_Wide2Narrow_Number.TabIndex = 2;
-            this.checkBox_Wide2Narrow_Number.Text = "数値[１～２]";
+            this.checkBox_Wide2Narrow_Number.Text = "数値[０～９]";
             this.checkBox_Wide2Narrow_Number.UseVisualStyleBackColor = true;
             // 
             // radioButton_ChangeWide2Narrow
