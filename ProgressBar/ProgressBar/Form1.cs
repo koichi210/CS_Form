@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace ProgressBar
 {
     public partial class Form1 : Form
     {
-        private const int m_ProgressBarMax = 100;
-        private const int m_ProgressBarMin = 0;
+        private const int ProgressBarMax = 100;
+        private const int ProgressBarMin = 0;
 
         public Form1()
         {

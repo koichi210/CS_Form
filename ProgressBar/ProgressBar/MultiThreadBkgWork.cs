@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace ProgressBar
 {
@@ -16,8 +12,8 @@ namespace ProgressBar
                 return;
             }
 
-            progressBar_MultiThreadBkgWork.Maximum = m_ProgressBarMax;
-            progressBar_MultiThreadBkgWork.Minimum = m_ProgressBarMin;
+            progressBar_MultiThreadBkgWork.Maximum = ProgressBarMax;
+            progressBar_MultiThreadBkgWork.Minimum = ProgressBarMin;
             progressBar_MultiThreadBkgWork.Value = 0;
 
             backgroundWorker_BkgWorker.RunWorkerAsync();   // ⇒DoWork()
@@ -29,7 +25,6 @@ namespace ProgressBar
             if (backgroundWorker_BkgWorker.IsBusy)
             {
                 backgroundWorker_BkgWorker.CancelAsync();
-                return;
             }
         }
 
@@ -63,7 +58,7 @@ namespace ProgressBar
                 // MessageBox.Show("キャンセルされました");
                 // この場合はe.Resultにはアクセスできない
             }
-            else if (!(e.Error == null))
+            else if (e.Error != null)
             {
                 // MessageBox.Show("エラーが発生しました[" + e.Error.Message + "]");
             }
