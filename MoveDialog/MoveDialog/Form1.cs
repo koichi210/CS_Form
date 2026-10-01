@@ -37,7 +37,7 @@ namespace MoveDialog
                 child.Left = Logic.GetAddValue(trackBarWindowWidth.Maximum, child.Left, trackBarMoveDistance.Value, child.Width);
                 break;
             default:
-                // buttonMoveDirectionCentor
+                // buttonMoveDirectionCenter
                 child.Left = (trackBarWindowWidth.Maximum - child.Width) / 2;
                 child.Top = (trackBarWindowHeight.Maximum - child.Height) / 2;
                 break;
