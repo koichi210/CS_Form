@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace Thumnail.Tests
+namespace Thumbnail.Tests
 {
     /// <summary>
     /// private なコントロールフィールドやイベントハンドラを、production コードを

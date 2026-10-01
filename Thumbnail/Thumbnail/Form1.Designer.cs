@@ -1,4 +1,4 @@
-﻿namespace Thumnail
+﻿namespace Thumbnail
 {
     partial class Form1
     {
@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             this.pictureBox_Image = new System.Windows.Forms.PictureBox();
-            this.pictureBox_Thumnail = new System.Windows.Forms.PictureBox();
+            this.pictureBox_Thumbnail = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox_FilePath = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.button_Exe = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Image)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Thumnail)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Thumbnail)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox_Image
@@ -47,13 +47,13 @@
             this.pictureBox_Image.TabIndex = 0;
             this.pictureBox_Image.TabStop = false;
             // 
-            // pictureBox_Thumnail
+            // pictureBox_Thumbnail
             // 
-            this.pictureBox_Thumnail.Location = new System.Drawing.Point(12, 83);
-            this.pictureBox_Thumnail.Name = "pictureBox_Thumnail";
-            this.pictureBox_Thumnail.Size = new System.Drawing.Size(100, 100);
-            this.pictureBox_Thumnail.TabIndex = 1;
-            this.pictureBox_Thumnail.TabStop = false;
+            this.pictureBox_Thumbnail.Location = new System.Drawing.Point(12, 83);
+            this.pictureBox_Thumbnail.Name = "pictureBox_Thumbnail";
+            this.pictureBox_Thumbnail.Size = new System.Drawing.Size(100, 100);
+            this.pictureBox_Thumbnail.TabIndex = 1;
+            this.pictureBox_Thumbnail.TabStop = false;
             // 
             // label1
             // 
@@ -109,14 +109,14 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox_FilePath);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.pictureBox_Thumnail);
+            this.Controls.Add(this.pictureBox_Thumbnail);
             this.Controls.Add(this.pictureBox_Image);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MinimumSize = new System.Drawing.Size(345, 253);
             this.Name = "Form1";
-            this.Text = "Thumnail";
+            this.Text = "Thumbnail";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Image)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Thumnail)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Thumbnail)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -125,7 +125,7 @@
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox_Image;
-        private System.Windows.Forms.PictureBox pictureBox_Thumnail;
+        private System.Windows.Forms.PictureBox pictureBox_Thumbnail;
         private System.Windows.Forms.Label label1;
         private StandardTemplate.TextBoxEx textBox_FilePath;
         private System.Windows.Forms.Label label2;

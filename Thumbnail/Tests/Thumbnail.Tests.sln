@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thumnail", "..\Thumnail\Thumnail.csproj", "{10BE25D6-99AC-4477-9651-A971E8877DE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thumbnail", "..\Thumbnail\Thumbnail.csproj", "{10BE25D6-99AC-4477-9651-A971E8877DE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thumnail.Tests", "Thumnail.Tests\Thumnail.Tests.csproj", "{9C1E4A7D-6B3F-4D8A-9C2E-5F1B7D3A8C6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thumbnail.Tests", "Thumbnail.Tests\Thumbnail.Tests.csproj", "{9C1E4A7D-6B3F-4D8A-9C2E-5F1B7D3A8C6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

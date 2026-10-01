@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Thumnail.Tests
+namespace Thumbnail.Tests
 {
     /// <summary>
     /// Form1（画像のプレビュー/サムネイル表示サンプル）のテスト。
@@ -20,7 +20,7 @@ namespace Thumnail.Tests
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "ThumnailTests_" + Guid.NewGuid().ToString("N"));
+            tempDirectory = Path.Combine(Path.GetTempPath(), "ThumbnailTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDirectory);
         }
 
@@ -57,15 +57,15 @@ namespace Thumnail.Tests
                 FormReflection.InvokeHandler(form, "button_Exe_Click", form);
 
                 var pictureBoxImage = (PictureBox)FormReflection.GetControl(form, "pictureBox_Image");
-                var pictureBoxThumnail = (PictureBox)FormReflection.GetControl(form, "pictureBox_Thumnail");
+                var pictureBoxThumbnail = (PictureBox)FormReflection.GetControl(form, "pictureBox_Thumbnail");
 
                 Assert.IsNotNull(pictureBoxImage.Image);
                 Assert.AreEqual(pictureBoxImage.Width, pictureBoxImage.Image.Width);
                 Assert.AreEqual(pictureBoxImage.Height, pictureBoxImage.Image.Height);
 
-                Assert.IsNotNull(pictureBoxThumnail.Image);
-                Assert.AreEqual(pictureBoxThumnail.Width, pictureBoxThumnail.Image.Width);
-                Assert.AreEqual(pictureBoxThumnail.Height, pictureBoxThumnail.Image.Height);
+                Assert.IsNotNull(pictureBoxThumbnail.Image);
+                Assert.AreEqual(pictureBoxThumbnail.Width, pictureBoxThumbnail.Image.Width);
+                Assert.AreEqual(pictureBoxThumbnail.Height, pictureBoxThumbnail.Image.Height);
             }
         }
     }
