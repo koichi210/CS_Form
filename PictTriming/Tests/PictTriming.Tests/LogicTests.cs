@@ -49,12 +49,12 @@ namespace PictTriming.Tests
         }
 
         [TestMethod]
-        public void Trimingは指定範囲を切り取って保存する()
+        public void Trimは指定範囲を切り取って保存する()
         {
             string sourcePath = CreateSolidColorBmp("source.bmp", 100, 100, Color.Blue);
             string targetPath = Path.Combine(tempDirectory, "target.bmp");
 
-            Logic.Triming(targetPath, sourcePath, BaseX: 10, BaseY: 10, Target_Width: 30, Target_Height: 30);
+            Logic.Trim(targetPath, sourcePath, baseX: 10, baseY: 10, targetWidth: 30, targetHeight: 30);
 
             using (var result = new Bitmap(targetPath))
             {

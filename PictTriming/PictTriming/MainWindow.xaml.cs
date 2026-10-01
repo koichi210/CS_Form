@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Drawing;
 using System.IO;
-using System.Xml;
 
 namespace PictTriming
 {
@@ -22,7 +10,7 @@ namespace PictTriming
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly String SettingFile = @"PictTrim.json";
+        readonly String SettingFileName = @"PictTrim.json";
 
         public MainWindow()
         {
@@ -36,41 +24,39 @@ namespace PictTriming
 
         private void Button_Trim_Click(object sender, RoutedEventArgs e)
         {
-            int Target_Width;
-            int Target_Height;
+            int targetWidth;
+            int targetHeight;
 
             if (Radio_SelectPointOfEnd.IsChecked.Value)
             {
-                Target_Width = int.Parse(TargetX.Text) - int.Parse(BaseX.Text);
-                Target_Height = int.Parse(TargetY.Text) - int.Parse(BaseY.Text);
+                targetWidth = int.Parse(TargetX.Text) - int.Parse(BaseX.Text);
+                targetHeight = int.Parse(TargetY.Text) - int.Parse(BaseY.Text);
             }
             else // if ( Radio_SelectSizeOfEnd.IsChecked.Value )
             {
-                Target_Width = int.Parse(TargetX.Text);
-                Target_Height = int.Parse(TargetY.Text);
+                targetWidth = int.Parse(TargetX.Text);
+                targetHeight = int.Parse(TargetY.Text);
             }
 
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
-                String FilePath         = SourceFolderPath.Text + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
-                String BackUpFilePath   = SourceFolderPath.Text + @"\" + @"org" + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
+                String filePath         = SourceFolderPath.Text + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
+                String backupFilePath   = SourceFolderPath.Text + @"\" + @"org" + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
 
                 // オリジナルファイルをバックアップ
-                File.Copy(FilePath, BackUpFilePath, true);
+                File.Copy(filePath, backupFilePath, true);
 
                 // トリミング
-                Logic.Triming(FilePath, BackUpFilePath, int.Parse(BaseX.Text), int.Parse(BaseY.Text), Target_Width, Target_Height);
+                Logic.Trim(filePath, backupFilePath, int.Parse(BaseX.Text), int.Parse(BaseY.Text), targetWidth, targetHeight);
             }
-
-            //ListupExecute();
         }
 
         private void Button_Listup_Click(object sender, RoutedEventArgs e)
         {
-            ListupExecute();
+            ListUpFiles();
         }
 
-        private void ListupExecute()
+        private void ListUpFiles()
         {
             if (SourceFolderPath.Text.Equals(""))
             {
@@ -82,23 +68,22 @@ namespace PictTriming
             string[] files = Directory.GetFiles(SourceFolderPath.Text, "*", SearchOption.TopDirectoryOnly);
 
             //配列の内容を一つ一つ追加する
-            for (int i = 0; i <= files.Length - 1; i++)
+            foreach (string file in files)
             {
-                var FileName = System.IO.Path.GetFileName(files[i]);
-                ListBox_ListUp.Items.Add(FileName);
+                ListBox_ListUp.Items.Add(Path.GetFileName(file));
             }
         }
 
         private void SaveSetting_Click(object sender, RoutedEventArgs e)
         {
-            Logic.SaveSetting(SettingFile, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
+            Logic.SaveSetting(SettingFileName, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            Logic.Settings settings = Logic.LoadSetting(SettingFile);
+            Logic.Settings settings = Logic.LoadSetting(SettingFileName);
             if (settings == null)
             {
                 return;
@@ -130,7 +115,7 @@ namespace PictTriming
         {
             if (e.Key == Key.Enter)
             {
-                ListupExecute();
+                ListUpFiles();
             }
         }
     }
