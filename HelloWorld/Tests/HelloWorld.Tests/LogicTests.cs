@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace HelloWolrd.Tests
+namespace HelloWorld.Tests
 {
     /// <summary>
     /// Logic（Program.cs の Main から切り出した挨拶文字列）のテスト。

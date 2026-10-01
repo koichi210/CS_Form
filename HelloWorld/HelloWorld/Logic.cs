@@ -1,6 +1,6 @@
 using System;
 
-namespace HelloWolrd
+namespace HelloWorld
 {
     /// <summary>
     /// もともと Main メソッドに直接書かれていた挨拶文字列をテストできる形に
