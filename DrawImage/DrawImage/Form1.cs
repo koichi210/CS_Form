@@ -61,7 +61,7 @@ namespace DrawImage
             }
             else
             {
-                //すでに描画済みだったら、表示されているものイメージを取得
+                //すでに描画済みだったら、表示されているもののイメージを取得
                 canvas = new Bitmap(pictureBox1.Image);
             }
 
