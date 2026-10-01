@@ -1,7 +1,7 @@
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MouseTrainingWithMultiScreen.Tests
+namespace MultiScreen.Tests
 {
     /// <summary>
     /// ChildDlg（ポップアップされる子ダイアログ）のテスト。
@@ -24,7 +24,7 @@ namespace MouseTrainingWithMultiScreen.Tests
         {
             var dlg = new ChildDlg("Close");
 
-            FormReflection.InvokeHandler(dlg, "buttonAllPopup_Click", dlg);
+            FormReflection.InvokeHandler(dlg, "ChildDlg_button_Click", dlg);
 
             // 表示前(ハンドル未生成)のFormをCloseすると、FormClosingを発火せず
             // 直接Disposeされる(WinFormsの既定動作)。Disposeされたことを確認する。

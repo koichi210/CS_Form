@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace MouseTrainingWithMultiScreen.Tests
+namespace MultiScreen.Tests
 {
     /// <summary>
     /// private なコントロールフィールドやイベントハンドラを、production コードを

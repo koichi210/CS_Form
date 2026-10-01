@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace MouseTrainingWithMultiScreen
+namespace MultiScreen
 {
     public partial class ChildDlg : Form
     {
@@ -12,7 +12,7 @@ namespace MouseTrainingWithMultiScreen
             ChildDlg_button.Text = buttonName;
         }
 
-        private void buttonAllPopup_Click(object sender, EventArgs e)
+        private void ChildDlg_button_Click(object sender, EventArgs e)
         {
             this.Close();
         }

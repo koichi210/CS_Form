@@ -1,4 +1,4 @@
-﻿namespace MouseTrainingWithMultiScreen
+﻿namespace MultiScreen
 {
     partial class ChildDlg
     {
@@ -40,7 +40,7 @@
             this.ChildDlg_button.TabIndex = 0;
             this.ChildDlg_button.Text = "Unknown";
             this.ChildDlg_button.UseVisualStyleBackColor = true;
-            this.ChildDlg_button.Click += new System.EventHandler(this.buttonAllPopup_Click);
+            this.ChildDlg_button.Click += new System.EventHandler(this.ChildDlg_button_Click);
             // 
             // ChildDlg
             // 

@@ -1,4 +1,4 @@
-﻿namespace MouseTrainingWithMultiScreen
+﻿namespace MultiScreen
 {
     partial class Form1
     {

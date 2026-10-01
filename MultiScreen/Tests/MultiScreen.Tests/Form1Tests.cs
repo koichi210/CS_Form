@@ -1,7 +1,7 @@
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MouseTrainingWithMultiScreen.Tests
+namespace MultiScreen.Tests
 {
     /// <summary>
     /// Form1（ランダムな位置にダイアログをポップアップさせるマウストレーニング）の
