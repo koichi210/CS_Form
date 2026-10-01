@@ -1,16 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.Xml;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using StandardTemplate;
 
 namespace FileArranger
 {
@@ -30,15 +20,15 @@ namespace FileArranger
             }
 
             // フォルダをリストアップ
-            String[] Folders = Directory.GetDirectories(sf_textBox_TargetFile.Text);
+            String[] folders = Directory.GetDirectories(sf_textBox_TargetFile.Text);
             sf_listBox_Target.Items.Clear();
-            for (int i = 0; i < Folders.Length; i++)
+            for (int i = 0; i < folders.Length; i++)
             {
-                String FolderName = GetDisplayName(Folders[i], sf_textBox_TargetFile.Text);
-                sf_listBox_Target.Items.Add(FolderName);
+                String folderName = GetDisplayName(folders[i], sf_textBox_TargetFile.Text);
+                sf_listBox_Target.Items.Add(folderName);
             }
 
-            sf_label_TotalNum.Text = "フォルダ数：" + Folders.Length.ToString();
+            sf_label_TotalNum.Text = "フォルダ数：" + folders.Length.ToString();
 
         }
 
@@ -52,8 +42,8 @@ namespace FileArranger
 
             for (int i = 0; i < sf_listBox_Target.SelectedItems.Count; i++)
             {
-                String FilePath = sf_textBox_TargetFile.Text + @"\" + sf_listBox_Target.SelectedItems[i].ToString();
-                sorter.SortFolder(FilePath);
+                String folderPath = sf_textBox_TargetFile.Text + @"\" + sf_listBox_Target.SelectedItems[i].ToString();
+                sorter.SortFolder(folderPath);
             }
             sorter.CommitBatch();
         }

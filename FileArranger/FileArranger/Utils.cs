@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Windows.Forms;
 using StandardTemplate;
@@ -10,93 +7,69 @@ namespace FileArranger
 {
     class Utils : StcUtils
     {
-        // フォルダ名の重複回避
-        public void CreateFolderNameOverLapShirk(ref String TargetPath, int LoopIdx)
+        // フォルダ名の重複回避(同名フォルダがあれば、名前の末尾に連番と日時を付ける)
+        public void AvoidFolderNameConflict(ref String targetPath, int loopIdx)
         {
             // フォルダが存在しなければ何もしない
-            if (!Directory.Exists(TargetPath))
+            if (!Directory.Exists(targetPath))
             {
                 return;
             }
-            TargetPath = TargetPath + "_Cnt" + LoopIdx.ToString() + "_" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            targetPath = targetPath + "_Cnt" + loopIdx.ToString() + "_" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
         }
 
-        // ファイル名の重複回避
-        public Boolean CreateFileNameOverLapShirk(ref String TargetPath, int LoopIdx)
+        // ファイル名の重複回避(同名のファイル/フォルダが無ければtrue。あれば名前を変えてfalse)
+        public Boolean AvoidFileNameConflict(ref String targetPath, int loopIdx)
         {
-            if (!File.Exists(TargetPath) && !Directory.Exists(TargetPath))
+            if (!File.Exists(targetPath) && !Directory.Exists(targetPath))
             {
                 return true;
             }
-            TargetPath = TargetPath + "_Cnt" + LoopIdx.ToString() + "_" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            targetPath = targetPath + "_Cnt" + loopIdx.ToString() + "_" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
             return false;
         }
 
-        public String CreateNewFolderName(String SrcName, String TrimName = "", Boolean IsReverse = false)
+        public String CreateNewFolderName(String srcName, String trimName = "", Boolean isReverse = false)
         {
-            String NewFolderName = SrcName;
-
-            // SrcTrimNameが設定されていたら、特定の文字列で区切る
-            if (TrimName != String.Empty)
-            {
-                int FileNameidx;
-                if (!IsReverse)
-                {
-                    FileNameidx = SrcName.IndexOf(TrimName);
-                }
-                else
-                {
-                    FileNameidx = SrcName.LastIndexOf(TrimName);
-                }
-
-                if (0 <= FileNameidx)
-                {
-                    NewFolderName = SrcName.Substring(0, FileNameidx);
-                }
-            }
-
-            return NewFolderName;
+            return TrimAtSeparator(srcName, trimName, isReverse);
         }
 
-        // 選択されているリストビューの中から目的の文字列を探す
-        public int GetStringFromListViewInSelect(ListView LvCtrl, int SrcSubItemIdx, String SrcName, String SrcTrimName = "", Boolean IsReverse = false)
+        // 選択されているリストビューの項目の中から目的の文字列を含むものを探し、そのIdxを返す(無ければ-1)
+        public int FindIndexInSelectedItems(ListView listView, int subItemIdx, String srcName, String trimName = "", Boolean isReverse = false)
         {
-            String SearchName = SrcName;
-            int SameIdx = -1;
+            String searchName = TrimAtSeparator(srcName, trimName, isReverse);
 
-            // SrcTrimNameが設定されていたら、特定の文字列で区切る
-            if (SrcTrimName != String.Empty)
-            {
-                int FileNameidx;
-                if (!IsReverse)
-                {
-                    FileNameidx = SrcName.IndexOf(SrcTrimName);
-                }
-                else
-                {
-                    FileNameidx = SrcName.LastIndexOf(SrcTrimName);
-                }
-
-                if (0 <= FileNameidx)
-                {
-                    SearchName = SrcName.Substring(0, FileNameidx);
-                }
-            }
-
-            for (int i = 0; i < LvCtrl.SelectedItems.Count; i++)
+            for (int i = 0; i < listView.SelectedItems.Count; i++)
             {
                 // 参照しているListViewのIdx
-                int idx = LvCtrl.SelectedItems[i].Index;
-                String LvString = LvCtrl.Items[idx].SubItems[SrcSubItemIdx].Text;
+                int idx = listView.SelectedItems[i].Index;
+                String itemText = listView.Items[idx].SubItems[subItemIdx].Text;
 
-                if (LvString.IndexOf(SearchName) != -1)
+                if (itemText.IndexOf(searchName) != -1)
                 {
-                    SameIdx = idx;
-                    break;
+                    return idx;
                 }
             }
 
-            return SameIdx;
+            return -1;
+        }
+
+        // trimNameが設定されていたら、その文字列より前の部分を切り出す
+        // (見つからない・未設定なら元の文字列のまま)
+        private static String TrimAtSeparator(String srcName, String trimName, Boolean isReverse)
+        {
+            if (trimName == String.Empty)
+            {
+                return srcName;
+            }
+
+            int trimIdx = isReverse ? srcName.LastIndexOf(trimName) : srcName.IndexOf(trimName);
+            if (0 <= trimIdx)
+            {
+                return srcName.Substring(0, trimIdx);
+            }
+
+            return srcName;
         }
     }
 }

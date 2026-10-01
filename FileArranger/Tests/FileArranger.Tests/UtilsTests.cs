@@ -41,67 +41,67 @@ namespace FileArranger.Tests
         }
 
         // ------------------------------------------------------------------
-        // CreateFolderNameOverLapShirk
+        // AvoidFolderNameConflict
         // ------------------------------------------------------------------
 
         [TestMethod]
-        public void CreateFolderNameOverLapShirk_フォルダが存在しなければ変更しない()
+        public void AvoidFolderNameConflict_フォルダが存在しなければ変更しない()
         {
             string path = Path.Combine(tempDirectory, "not_exist");
 
-            util.CreateFolderNameOverLapShirk(ref path, 1);
+            util.AvoidFolderNameConflict(ref path, 1);
 
             Assert.AreEqual(Path.Combine(tempDirectory, "not_exist"), path);
         }
 
         [TestMethod]
-        public void CreateFolderNameOverLapShirk_フォルダが存在すれば連番付きの名前にする()
+        public void AvoidFolderNameConflict_フォルダが存在すれば連番付きの名前にする()
         {
             string original = Path.Combine(tempDirectory, "exists");
             Directory.CreateDirectory(original);
             string path = original;
 
-            util.CreateFolderNameOverLapShirk(ref path, 3);
+            util.AvoidFolderNameConflict(ref path, 3);
 
             Assert.AreNotEqual(original, path);
             StringAssert.StartsWith(path, original + "_Cnt3_");
         }
 
         [TestMethod]
-        public void CreateFolderNameOverLapShirk_LoopIdxが0でも連番0として埋め込む()
+        public void AvoidFolderNameConflict_LoopIdxが0でも連番0として埋め込む()
         {
             string original = Path.Combine(tempDirectory, "exists_zero");
             Directory.CreateDirectory(original);
             string path = original;
 
-            util.CreateFolderNameOverLapShirk(ref path, 0);
+            util.AvoidFolderNameConflict(ref path, 0);
 
             StringAssert.StartsWith(path, original + "_Cnt0_");
         }
 
         // ------------------------------------------------------------------
-        // CreateFileNameOverLapShirk
+        // AvoidFileNameConflict
         // ------------------------------------------------------------------
 
         [TestMethod]
-        public void CreateFileNameOverLapShirk_何も無ければtrueを返し名前も変えない()
+        public void AvoidFileNameConflict_何も無ければtrueを返し名前も変えない()
         {
             string path = Path.Combine(tempDirectory, "new.txt");
 
-            bool result = util.CreateFileNameOverLapShirk(ref path, 1);
+            bool result = util.AvoidFileNameConflict(ref path, 1);
 
             Assert.IsTrue(result);
             Assert.AreEqual(Path.Combine(tempDirectory, "new.txt"), path);
         }
 
         [TestMethod]
-        public void CreateFileNameOverLapShirk_ファイルが存在すればfalseを返し連番を付ける()
+        public void AvoidFileNameConflict_ファイルが存在すればfalseを返し連番を付ける()
         {
             string original = Path.Combine(tempDirectory, "dup.txt");
             File.WriteAllText(original, "dummy");
             string path = original;
 
-            bool result = util.CreateFileNameOverLapShirk(ref path, 2);
+            bool result = util.AvoidFileNameConflict(ref path, 2);
 
             Assert.IsFalse(result);
             Assert.AreNotEqual(original, path);
@@ -109,26 +109,26 @@ namespace FileArranger.Tests
         }
 
         [TestMethod]
-        public void CreateFileNameOverLapShirk_LoopIdxが0でも連番0として埋め込む()
+        public void AvoidFileNameConflict_LoopIdxが0でも連番0として埋め込む()
         {
             string original = Path.Combine(tempDirectory, "dup_zero.txt");
             File.WriteAllText(original, "dummy");
             string path = original;
 
-            util.CreateFileNameOverLapShirk(ref path, 0);
+            util.AvoidFileNameConflict(ref path, 0);
 
             StringAssert.StartsWith(path, original + "_Cnt0_");
         }
 
         [TestMethod]
-        public void CreateFileNameOverLapShirk_同名のフォルダがあってもfalseを返す()
+        public void AvoidFileNameConflict_同名のフォルダがあってもfalseを返す()
         {
             // ファイルではなくフォルダとの重複も検知する
             string original = Path.Combine(tempDirectory, "dup_dir");
             Directory.CreateDirectory(original);
             string path = original;
 
-            bool result = util.CreateFileNameOverLapShirk(ref path, 1);
+            bool result = util.AvoidFileNameConflict(ref path, 1);
 
             Assert.IsFalse(result);
         }
@@ -178,7 +178,7 @@ namespace FileArranger.Tests
         }
 
         // ------------------------------------------------------------------
-        // GetStringFromListViewInSelect
+        // FindIndexInSelectedItems
         // ------------------------------------------------------------------
 
         private static ListView NewListViewWithItems(params string[] texts)
@@ -198,48 +198,48 @@ namespace FileArranger.Tests
         }
 
         [TestMethod]
-        public void GetStringFromListViewInSelect_選択項目の中から部分一致するものを探す()
+        public void FindIndexInSelectedItems_選択項目の中から部分一致するものを探す()
         {
             using (ListView lv = NewListViewWithItems("apple_1.txt", "banana_2.txt", "cherry_3.txt"))
             {
                 lv.Items[0].Selected = true;
                 lv.Items[2].Selected = true;
 
-                int idx = util.GetStringFromListViewInSelect(lv, 0, "cherry");
+                int idx = util.FindIndexInSelectedItems(lv, 0, "cherry");
 
                 Assert.AreEqual(2, idx);
             }
         }
 
         [TestMethod]
-        public void GetStringFromListViewInSelect_選択されていない項目はヒットしない()
+        public void FindIndexInSelectedItems_選択されていない項目はヒットしない()
         {
             using (ListView lv = NewListViewWithItems("apple_1.txt", "banana_2.txt"))
             {
                 lv.Items[0].Selected = true;
                 // banana は選択していない
 
-                int idx = util.GetStringFromListViewInSelect(lv, 0, "banana");
+                int idx = util.FindIndexInSelectedItems(lv, 0, "banana");
 
                 Assert.AreEqual(-1, idx);
             }
         }
 
         [TestMethod]
-        public void GetStringFromListViewInSelect_見つからなければマイナス1()
+        public void FindIndexInSelectedItems_見つからなければマイナス1()
         {
             using (ListView lv = NewListViewWithItems("apple_1.txt"))
             {
                 lv.Items[0].Selected = true;
 
-                int idx = util.GetStringFromListViewInSelect(lv, 0, "not_found");
+                int idx = util.FindIndexInSelectedItems(lv, 0, "not_found");
 
                 Assert.AreEqual(-1, idx);
             }
         }
 
         [TestMethod]
-        public void GetStringFromListViewInSelect_TrimNameで区切ってから比較する()
+        public void FindIndexInSelectedItems_TrimNameで区切ってから比較する()
         {
             // 検索対象の文字列側を区切ってから、リストの項目に部分一致するか見る
             using (ListView lv = NewListViewWithItems("report", "summary"))
@@ -247,7 +247,7 @@ namespace FileArranger.Tests
                 lv.Items[0].Selected = true;
                 lv.Items[1].Selected = true;
 
-                int idx = util.GetStringFromListViewInSelect(lv, 0, "report_v2.txt", "_");
+                int idx = util.FindIndexInSelectedItems(lv, 0, "report_v2.txt", "_");
 
                 Assert.AreEqual(0, idx);
             }

@@ -1,16 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.Xml;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using StandardTemplate;
 
 namespace FileArranger
 {
@@ -38,14 +29,14 @@ namespace FileArranger
         {
             if (md_listBox_Listup.SelectedItems.Count > 0)
             {
-                String TargetPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItem.ToString();
-                util.ExecutePath(TargetPath);
+                String targetPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItem.ToString();
+                util.ExecutePath(targetPath);
             }
         }
 
         private void mf_button_Move_SubDir_Click(object sender, EventArgs e)
         {
-            Move_Directory(false);
+            MoveSelectedDirectories(false);
         }
 
         private void mf_button_Delete_Click(object sender, EventArgs e)
@@ -63,9 +54,9 @@ namespace FileArranger
 
             for (int i = 0; i < md_listBox_Listup.SelectedItems.Count; i++)
             {
-                String DelPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItems[i].ToString();
-                DirectoryInfo DelDir = new DirectoryInfo(DelPath);
-                DelDir.Delete(true);
+                String delPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItems[i].ToString();
+                DirectoryInfo delDir = new DirectoryInfo(delPath);
+                delDir.Delete(true);
             }
 
             // リストを更新
@@ -79,10 +70,10 @@ namespace FileArranger
 
         private void mf_button_Listup_Click(object sender, EventArgs e)
         {
-            MoveFileListup();
+            ListupMoveFileTargets();
         }
 
-        private void MoveFileListup()
+        private void ListupMoveFileTargets()
         {
             if (!IsValidFolderPath(mf_textBox_SourceDir.Text))
             {
@@ -90,14 +81,14 @@ namespace FileArranger
             }
 
             // 移動元フォルダをリストアップ
-            String[] Files = Directory.GetFiles(mf_textBox_SourceDir.Text);
+            String[] files = Directory.GetFiles(mf_textBox_SourceDir.Text);
             mf_listBox_Target.Items.Clear();
-            for (int i = 0; i < Files.Length; i++)
+            for (int i = 0; i < files.Length; i++)
             {
-                String FileName = GetDisplayName(Files[i], mf_textBox_SourceDir.Text);
-                mf_listBox_Target.Items.Add(FileName);
+                String fileName = GetDisplayName(files[i], mf_textBox_SourceDir.Text);
+                mf_listBox_Target.Items.Add(fileName);
             }
-            mf_label_TotalNum.Text = "ファイル数：" + Files.Length.ToString();
+            mf_label_TotalNum.Text = "ファイル数：" + files.Length.ToString();
         }
 
         private void mf_listBox_Target_KeyDown(object sender, KeyEventArgs e)
@@ -155,18 +146,15 @@ namespace FileArranger
 
             // このメソッドへのパラメータ
             MoveFileWorkerParam param = (MoveFileWorkerParam)e.Argument;
-            String Sourcedir = param.SourceDir;
-            String TargetDir = param.TargetDir;
-
             for (int i = 0; i < param.TargetNames.Count; i++)
             {
-                String TargetName = param.TargetNames[i];
-                String SourcePath = Sourcedir + @"\" + TargetName;
-                String TargetPath = TargetDir + @"\" + fio.GetLastPathName(TargetName);
+                String targetName = param.TargetNames[i];
+                String sourcePath = param.SourceDir + @"\" + targetName;
+                String targetPath = param.TargetDir + @"\" + fio.GetLastPathName(targetName);
 
                 // 移動先にすでにフォルダがある場合は重複回避
-                util.CreateFolderNameOverLapShirk(ref TargetPath, i);
-                fio.MoveDirectory(SourcePath, TargetPath);
+                util.AvoidFolderNameConflict(ref targetPath, i);
+                fio.MoveDirectory(sourcePath, targetPath);
 
                 worker.ReportProgress(i);      // ⇒ProgressChanged()
 
@@ -205,7 +193,7 @@ namespace FileArranger
             }
 
             // リストを更新
-            MoveFileListup();
+            ListupMoveFileTargets();
         }
     }
 }

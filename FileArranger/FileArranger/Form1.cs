@@ -1,15 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.Xml;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using StandardTemplate;
 
 namespace FileArranger
@@ -28,27 +20,28 @@ namespace FileArranger
         readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
         private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
 
-        private readonly String[] RenameDirColumn = { "変更前", "変更後" };
-        private readonly String[] PartitionFileColumn = { "対象", "移動前名称", "移動後名称" };
+        private readonly String[] RenameDirColumns = { "変更前", "変更後" };
+        private readonly String[] PartitionFileColumns = { "対象", "移動前名称", "移動後名称" };
 
+        // rd_listView_Targetの列Idx
         private readonly int RenameSrcIdx = 0;
         private readonly int RenameDestIdx = 1;
 
-        private readonly int CreateFolderTargetIdx = 0;
-        private readonly int CreateFolderMoveSrcIdx = 1;
-        private readonly int CreateFolderMoveDestIdx = 2;
+        // pf_listView_Targetの列Idx
+        private readonly int PartitionTargetIdx = 0;
+        private readonly int PartitionMoveSrcIdx = 1;
+        private readonly int PartitionMoveDestIdx = 2;
 
-        private readonly int SortFileRenameTargetIdx = 0;
-
-        public String[] ReferenceCandidateFolders;      // リファレンス名の候補
+        // リファレンス名の候補
+        public String[] ReferenceCandidateFolders { get; set; }
 
         private StcFileInputOutput fio = new StcFileInputOutput();
         // StcBaseForm<SaveRestore>のprotected StcUtils utilを、FileArranger固有の拡張
-        // メソッド(CreateFolderNameOverLapShirk等)を持つUtilsで意図的に隠す。
+        // メソッド(AvoidFolderNameConflict等)を持つUtilsで意図的に隠す。
         // UtilsはStcUtilsを継承しているだけなので、既存のutil.ExecutePath()等の呼び出しは
         // そのまま継承元のメソッドとして動く。
         private new Utils util = new Utils();
-        private StcProcessMemory pmd = new StcProcessMemory();
+        private StcProcessMemory renameDirMemory = new StcProcessMemory();    // フォルダ名変更(rdタブ)の復元用
         private FileSorter sorter = new FileSorter();
 
         public FileArranger()
@@ -57,8 +50,8 @@ namespace FileArranger
             InitializeCommonSettings(Properties.Resources.FileArranger);
 
             //ListView初期設定
-            rd_listView_Target_Update();
-            pf_listView_Target_Update();
+            SetupRenameListViewColumns();
+            SetupPartitionListViewColumns();
 
             sr.RegistLoadItem(this);
 
@@ -128,25 +121,25 @@ namespace FileArranger
 
         // リストアップ前のフォルダ確認。各タブで同じ確認をしていたためまとめた
         // (IsErrorPopup=falseなら、無効でもメッセージを出さずに中断する)
-        private static Boolean IsValidFolderPath(String FolderPath, Boolean IsErrorPopup = true)
+        private static Boolean IsValidFolderPath(String folderPath, Boolean showErrorPopup = true)
         {
-            if (Directory.Exists(FolderPath))
+            if (Directory.Exists(folderPath))
             {
                 return true;
             }
 
-            if (IsErrorPopup)
+            if (showErrorPopup)
             {
-                MessageBox.Show("フォルダパスが不正です。" + FolderPath);
+                MessageBox.Show("フォルダパスが不正です。" + folderPath);
             }
             return false;
         }
 
         // フルパスから基準フォルダの分を取り除いて、表示用の名前にする
         // (区切り文字の1文字分を足す処理が各タブに散らばっていたためまとめた)
-        private static String GetDisplayName(String FullPath, String BaseFolderPath)
+        private static String GetDisplayName(String fullPath, String baseFolderPath)
         {
-            return FullPath.Remove(0, BaseFolderPath.Length + 1);
+            return fullPath.Remove(0, baseFolderPath.Length + 1);
         }
 
         private void SaveSetting_Click(object sender, EventArgs e)
@@ -189,14 +182,14 @@ namespace FileArranger
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            LoadProfile(loadFileName);
         }
 
         private void FileArranger_ResizeEnd(object sender, EventArgs e)
         {
             rd_listView_Target.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-            pf_listView_Target_Update();
+            SetupPartitionListViewColumns();
         }
 
         private void cmn_textBox_Reference_TextChanged(object sender, EventArgs e)
@@ -218,14 +211,11 @@ namespace FileArranger
             // 新規追加
             if ( !cmn_textBox_AddList.Text.Equals(String.Empty) )
             {
-                String[] AddReferenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Logic.DeleteDuplicate(ReferenceCandidateFolders, ref AddReferenceList, rd_textBox_SplitWord3.Text);
-                AddReferenceList = AddReferenceList.Select(str => cmn_textBox_Reference.Text + @"\" + str + cmn_textBox_AddListSuffix.Text).ToArray();
+                String[] addReferenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                Logic.DeleteDuplicate(ReferenceCandidateFolders, ref addReferenceList, rd_textBox_SplitWord3.Text);
+                addReferenceList = addReferenceList.Select(str => cmn_textBox_Reference.Text + @"\" + str + cmn_textBox_AddListSuffix.Text).ToArray();
 
-                String[] SumReferenceList = new String[ReferenceCandidateFolders.Length + AddReferenceList.Length];
-                ReferenceCandidateFolders.CopyTo(SumReferenceList, 0);
-                AddReferenceList.CopyTo(SumReferenceList, ReferenceCandidateFolders.Length);
-                ReferenceCandidateFolders = SumReferenceList;
+                ReferenceCandidateFolders = ReferenceCandidateFolders.Concat(addReferenceList).ToArray();
             }
 
             // コンボボックス更新
