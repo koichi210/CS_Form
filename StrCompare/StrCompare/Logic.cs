@@ -10,51 +10,51 @@ namespace StrCompare
     /// </summary>
     internal static class Logic
     {
-        public static String Compare(String Source, String Target)
+        public static String Compare(String source, String target)
         {
-            String ResultStr = "";
+            String result = "";
 
             // 大文字・小文字は区別される（完全一致）
-            Boolean ret = Source.Equals(Target);
-            ResultStr += "大文字小文字区別する（完全一致） =" + ret.ToString() + Environment.NewLine;
+            Boolean isMatch = source.Equals(target);
+            result += "大文字小文字区別する（完全一致） =" + isMatch.ToString() + Environment.NewLine;
 
             // 大文字・小文字を区別しない（それ以外は完全一致）
-            ret = Source.Equals(Target, StringComparison.OrdinalIgnoreCase);
-            ResultStr += "大文字小文字区別しない（完全一致） =" + ret.ToString() + Environment.NewLine;
+            isMatch = source.Equals(target, StringComparison.OrdinalIgnoreCase);
+            result += "大文字小文字区別しない（完全一致） =" + isMatch.ToString() + Environment.NewLine;
 
             // 大文字・小文字を区別しない（前方一致で比較）
-            ret = Source.StartsWith(Target, StringComparison.OrdinalIgnoreCase);
-            ResultStr += "大文字小文字区別しない（前方一致） =" + ret.ToString() + Environment.NewLine;
+            isMatch = source.StartsWith(target, StringComparison.OrdinalIgnoreCase);
+            result += "大文字小文字区別しない（前方一致） =" + isMatch.ToString() + Environment.NewLine;
 
-            return ResultStr;
+            return result;
         }
 
         public static String SampleCompare()
         {
-            String Source = "sampleString";
-            String ResultStr = "";
+            String source = "sampleString";
+            String result = "";
 
             // 大文字・小文字は区別される（完全一致）
-            Boolean ret = Source.Equals("sampleString");
-            ResultStr += "[" + Source + "][" + "sampleString" + "]" + Environment.NewLine;
-            ResultStr += "大文字小文字区別する（完全一致） =" + ret.ToString() + Environment.NewLine + Environment.NewLine;
+            Boolean isMatch = source.Equals("sampleString");
+            result += "[" + source + "][" + "sampleString" + "]" + Environment.NewLine;
+            result += "大文字小文字区別する（完全一致） =" + isMatch.ToString() + Environment.NewLine + Environment.NewLine;
 
             // 大文字・小文字は区別される（完全一致）
-            ret = Source.Equals("sampleSTRING");
-            ResultStr += "[" + Source + "][" + "sampleSTRING" + "]" + Environment.NewLine;
-            ResultStr += "大文字小文字区別する（完全一致） =" + ret.ToString() + Environment.NewLine + Environment.NewLine;
+            isMatch = source.Equals("sampleSTRING");
+            result += "[" + source + "][" + "sampleSTRING" + "]" + Environment.NewLine;
+            result += "大文字小文字区別する（完全一致） =" + isMatch.ToString() + Environment.NewLine + Environment.NewLine;
 
             // 大文字・小文字を区別しない（それ以外は完全一致）
-            ret = Source.Equals("sampleSTRING", StringComparison.OrdinalIgnoreCase);
-            ResultStr += "[" + Source + "][" + "sampleSTRING" + "]" + Environment.NewLine;
-            ResultStr += "大文字小文字区別しない（完全一致） =" + ret.ToString() + Environment.NewLine + Environment.NewLine;
+            isMatch = source.Equals("sampleSTRING", StringComparison.OrdinalIgnoreCase);
+            result += "[" + source + "][" + "sampleSTRING" + "]" + Environment.NewLine;
+            result += "大文字小文字区別しない（完全一致） =" + isMatch.ToString() + Environment.NewLine + Environment.NewLine;
 
             // 大文字・小文字を区別しない（前方一致で比較）
-            ret = Source.StartsWith("SAMPLE", StringComparison.OrdinalIgnoreCase);
-            ResultStr += "[" + Source + "][" + "SAMPLE" + "]" + Environment.NewLine;
-            ResultStr += "大文字小文字区別しない（前方一致） =" + ret.ToString() + Environment.NewLine + Environment.NewLine;
+            isMatch = source.StartsWith("SAMPLE", StringComparison.OrdinalIgnoreCase);
+            result += "[" + source + "][" + "SAMPLE" + "]" + Environment.NewLine;
+            result += "大文字小文字区別しない（前方一致） =" + isMatch.ToString() + Environment.NewLine + Environment.NewLine;
 
-            return ResultStr;
+            return result;
         }
     }
 }
