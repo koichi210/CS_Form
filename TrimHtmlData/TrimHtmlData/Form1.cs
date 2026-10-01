@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Net;
-using System.Text.RegularExpressions;
 using StandardTemplate;
 
 namespace TrimHtmlData
@@ -16,7 +9,7 @@ namespace TrimHtmlData
     partial class Form1 : StcBaseForm<SaveRestore>
     {
         private Boolean IsDebug = false;
-        private readonly String SettingFile = @"TrimHtmlData.json";
+        private readonly String SettingFileName = @"TrimHtmlData.json";
 
         // 設定ファイルはJSONが基本。旧XML(TrimHtmlData.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
@@ -47,7 +40,6 @@ namespace TrimHtmlData
             return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
         }
 
-
         private StcFileInputOutput fio = new StcFileInputOutput();
 
         public Form1()
@@ -57,11 +49,11 @@ namespace TrimHtmlData
             InitializeCommonSettings(Properties.Resources.TrimHtmlData);
 
             sr.RegistItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFile);
+            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
-            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFile, userDataFolder);
+            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFileName, userDataFolder);
         }
 
         // *******************************************************************************
@@ -111,29 +103,29 @@ namespace TrimHtmlData
             // 出力先をクリア
             textBox_DestList.Text = "";
 
-            int TrimLineNum = Logic.GetTrimLine(textBox_TrimLineNum.Text);
+            int trimLineNum = Logic.GetTrimLine(textBox_TrimLineNum.Text);
 
-            StringComparison CmpOpt = StringComparison.OrdinalIgnoreCase;
+            StringComparison comparison = StringComparison.OrdinalIgnoreCase;
             if (checkBox_OrdinalCase.Checked)
             {
-                CmpOpt = StringComparison.Ordinal;
+                comparison = StringComparison.Ordinal;
             }
 
             StcDebug dbg = new StcDebug();
             dbg.SetDebugMode(IsDebug);
 
-            String[] SourceArray = textBox_SourceList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < SourceArray.Length; i++)
+            String[] urls = textBox_SourceList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (String url in urls)
             {
-                textBox_DestList.Text += "◆" + SourceArray[i] + Environment.NewLine;
+                textBox_DestList.Text += "◆" + url + Environment.NewLine;
 
-                String HtmlSource = GetHtmlSource(SourceArray[i]);
-                dbg.WriteDataInNewFile(HtmlSource, "_1_source");
+                String htmlSource = GetHtmlSource(url);
+                dbg.WriteDataInNewFile(htmlSource, "_1_source");
 
-                String Result = Logic.GetSearchString(HtmlSource, textBox_SearchWord.Text, TrimLineNum, CmpOpt, checkBox_FirstWordOnly.Checked);
-                dbg.WriteDataInNewFile(Result, "_2_search");
+                String result = Logic.GetSearchString(htmlSource, textBox_SearchWord.Text, trimLineNum, comparison, checkBox_FirstWordOnly.Checked);
+                dbg.WriteDataInNewFile(result, "_2_search");
 
-                textBox_DestList.Text += Result;
+                textBox_DestList.Text += result;
             }
 
             util.SetClipboardText(textBox_DestList.Text);
@@ -142,43 +134,31 @@ namespace TrimHtmlData
         /// <summary>
         /// Htmlのソースを取得
         /// </summary>
-        /// <param name="Url"></param>
+        /// <param name="url"></param>
         /// <returns></returns>
-        private String GetHtmlSource(String Url)
+        private String GetHtmlSource(String url)
         {
-            String HtmlSource = "";
+            String htmlSource = "";
             WebClient client = new WebClient();
             try
             {
                 client.Encoding = System.Text.Encoding.UTF8;
-                HtmlSource = client.DownloadString(Url);
+                htmlSource = client.DownloadString(url);
             }
             catch (Exception)
             {
-                MessageBox.Show("ソース取得に失敗しました。" + Environment.NewLine + Url);
+                MessageBox.Show("ソース取得に失敗しました。" + Environment.NewLine + url);
             }
 
-            return util.ChangeNewLineCodeLF2CRLF(HtmlSource);
-        }
-
-        /// <summary>
-        /// Htmlに埋め込まれた画像を取得
-        /// </summary>
-        private void GetHtmlPicture()
-        {
-            WebClient client = new WebClient();
-            Byte[] data = client.DownloadData("https://www.yahoo.co.jp/weather.jpg");
-
-            String PicFileName = @"D:\tmp\sample.jpg";
-            File.WriteAllBytes(PicFileName, data);
+            return util.ChangeNewLineCodeLF2CRLF(htmlSource);
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
-            if (File.Exists(LoadFileName))
+            String loadFilePath = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            if (File.Exists(loadFilePath))
             {
-                LoadProfile(LoadFileName);
+                LoadProfile(loadFilePath);
             }
         }
 

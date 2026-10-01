@@ -11,7 +11,7 @@ namespace TrimHtmlData
     /// checkBox_FirstWordOnly.Checked などのコントロール参照は、呼び出し元(Form1)で
     /// 読み取った値を引数として渡す形に変えた。
     ///
-    /// TrimLineNum が2以上でヒット行が末尾付近だと StringArray[i + j] が配列範囲外になっていたが、
+    /// trimLineNum が2以上でヒット行が末尾付近だと lines[i + j] が配列範囲外になっていたが、
     /// 末尾でクランプするよう修正済み(取得できる行数が足りない場合は、ある分だけ返す)。
     /// </summary>
     internal static class Logic
@@ -19,30 +19,30 @@ namespace TrimHtmlData
         public static int GetTrimLine(String trimLineNumText)
         {
             StcUtils util = new StcUtils();
-            int TrimLineNum = util.GetInteger(trimLineNumText);
-            if (TrimLineNum == 0)
+            int trimLineNum = util.GetInteger(trimLineNumText);
+            if (trimLineNum == 0)
             {
-                TrimLineNum = 1;
+                trimLineNum = 1;
             }
 
-            return TrimLineNum;
+            return trimLineNum;
         }
 
-        public static String GetSearchString(String SourceList, String SearchWord, int TrimLineNum, StringComparison CmpOpt, Boolean firstWordOnly)
+        public static String GetSearchString(String htmlSource, String searchWord, int trimLineNum, StringComparison comparison, Boolean firstWordOnly)
         {
-            String[] StringArray = SourceList.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            String[] lines = htmlSource.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             // String +=はヒット行数が多いほど文字列全体のコピーが積み上がって遅くなるため、
             // StringBuilderに置き換える(ロジック・境界チェックの挙動は変えていない)。
-            StringBuilder ResultBuilder = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
-            for (int i = 0; i < StringArray.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
-                if (StringArray[i].IndexOf(SearchWord, CmpOpt) != -1)
+                if (lines[i].IndexOf(searchWord, comparison) != -1)
                 {
                     // Hitした行を含む指定行数分取得(末尾を超えないようクランプする)
-                    for (int j = 0; j < TrimLineNum && (i + j) < StringArray.Length; j++)
+                    for (int j = 0; j < trimLineNum && (i + j) < lines.Length; j++)
                     {
-                        ResultBuilder.Append(StringArray[i + j]).Append(Environment.NewLine);
+                        result.Append(lines[i + j]).Append(Environment.NewLine);
                     }
 
                     // 最初に見つかったワードのみ
@@ -52,11 +52,11 @@ namespace TrimHtmlData
                     }
 
                     // 次のワードとの境界
-                    ResultBuilder.Append(Environment.NewLine);
+                    result.Append(Environment.NewLine);
                 }
             }
 
-            return ResultBuilder.Append(Environment.NewLine).ToString();
+            return result.Append(Environment.NewLine).ToString();
         }
     }
 }
