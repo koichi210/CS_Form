@@ -1,16 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
 
@@ -40,47 +29,47 @@ namespace PictMerge
             LoadSetting();
         }
 
-        private void Merget(String TargetFile, String SourceFile, String MergeFile, int TrimHeight)
+        private void MergeImage(String targetFile, String sourceFile, String mergeFile, int trimHeight)
         {
             // 入力値の変換は画像を開く前に行う(途中で失敗しても画像ファイルがロックされたまま残らないように)
-            int Width = int.Parse(PictWidth.Text);
-            int Height = int.Parse(PictHeight.Text);
+            int width = int.Parse(PictWidth.Text);
+            int height = int.Parse(PictHeight.Text);
 
             // 切り取る部分（上）
-            int HeightLower = Height - TrimHeight;
-            System.Drawing.Rectangle srcRectUpper = new System.Drawing.Rectangle(0, 0, Width, TrimHeight);
-            System.Drawing.Rectangle srcRectLower = new System.Drawing.Rectangle(0, TrimHeight, Width, HeightLower);
+            int lowerHeight = height - trimHeight;
+            System.Drawing.Rectangle srcRectUpper = new System.Drawing.Rectangle(0, 0, width, trimHeight);
+            System.Drawing.Rectangle srcRectLower = new System.Drawing.Rectangle(0, trimHeight, width, lowerHeight);
 
             // 描画する部分
-            System.Drawing.Rectangle desRectUpper = new System.Drawing.Rectangle(0, 0, Width, TrimHeight);
-            System.Drawing.Rectangle desRectLower = new System.Drawing.Rectangle(0, 0, Width, HeightLower);
+            System.Drawing.Rectangle desRectUpper = new System.Drawing.Rectangle(0, 0, width, trimHeight);
+            System.Drawing.Rectangle desRectLower = new System.Drawing.Rectangle(0, 0, width, lowerHeight);
 
-            using (Bitmap BmpTarget1 = new Bitmap(Width, Height))
+            using (Bitmap bmpTarget = new Bitmap(width, height))
             {
-                using (Bitmap BmpSource1 = new Bitmap(SourceFile))
-                using (Bitmap BmpSource2 = new Bitmap(MergeFile))
-                using (Bitmap TargetUpper = new Bitmap(BmpSource1))
-                using (Bitmap TargetLower = new Bitmap(BmpSource2))
+                using (Bitmap bmpSource1 = new Bitmap(sourceFile))
+                using (Bitmap bmpSource2 = new Bitmap(mergeFile))
+                using (Bitmap targetUpper = new Bitmap(bmpSource1))
+                using (Bitmap targetLower = new Bitmap(bmpSource2))
                 {
                     // 描画（上）
-                    using (Graphics g = Graphics.FromImage(TargetUpper))
+                    using (Graphics g = Graphics.FromImage(targetUpper))
                     {
-                        g.DrawImage(BmpSource1, desRectUpper, srcRectUpper, GraphicsUnit.Pixel);
+                        g.DrawImage(bmpSource1, desRectUpper, srcRectUpper, GraphicsUnit.Pixel);
                     }
 
                     // 描画（下）
-                    using (Graphics g = Graphics.FromImage(TargetLower))
+                    using (Graphics g = Graphics.FromImage(targetLower))
                     {
-                        g.DrawImage(BmpSource2, desRectLower, srcRectLower, GraphicsUnit.Pixel);
+                        g.DrawImage(bmpSource2, desRectLower, srcRectLower, GraphicsUnit.Pixel);
                     }
 
-                    using (Graphics g = Graphics.FromImage(BmpTarget1))
+                    using (Graphics g = Graphics.FromImage(bmpTarget))
                     {
-                        g.DrawImage(TargetUpper, 0, 0);
-                        g.DrawImage(TargetLower, 0, TrimHeight);
+                        g.DrawImage(targetUpper, 0, 0);
+                        g.DrawImage(targetLower, 0, trimHeight);
                     }
                 }
-                BmpTarget1.Save(TargetFile);
+                bmpTarget.Save(targetFile);
             }
         }
 
@@ -96,62 +85,63 @@ namespace PictMerge
             string[] files = Directory.GetFiles(SourceFolderPath.Text, "*", SearchOption.TopDirectoryOnly);
 
             //配列の内容を一つ一つ追加する
-            for (int i = 0; i <= files.Length - 1; i++)
+            foreach (string file in files)
             {
-                var FileName = System.IO.Path.GetFileName(files[i]);
-                ListBox_ListUp.Items.Add(FileName);
+                ListBox_ListUp.Items.Add(System.IO.Path.GetFileName(file));
             }
         }
 
         private void MergeExec_Click(object sender, RoutedEventArgs e)
         {
             // オリジナル
-            Merge_Org();
+            MergeSelectedFiles();
         }
 
-        private void Merge_Org()
+        private void MergeSelectedFiles()
         {
             // 切断基準となる高さ
-            string[] TrimHeight = TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] trimHeights = TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
-                for (int j = 0; j < TrimHeight.Length; j++)
+                for (int j = 0; j < trimHeights.Length; j++)
                 {
                     //　オリジナルファイル＆バックアップファイル
-                    String SourceFilePath = SourceFolderPath.Text + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
-                    String BackUpSourceFilePath = SourceFolderPath.Text + @"\" + @"org" + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
+                    String sourceFilePath = SourceFolderPath.Text + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
+                    String backupSourceFilePath = SourceFolderPath.Text + @"\" + @"org" + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
 
                     Directory.CreateDirectory(SourceFolderPath.Text + @"\" + @"org");
 
                     // 文字列が部分一致したら処理
-                    if (SourceFilePath.IndexOf(SourceFile1Prefix.Text.ToString()) != -1)
+                    if (sourceFilePath.IndexOf(SourceFile1Prefix.Text) != -1)
                     {
                         //　マージファイル＆バックアップファイル
-                        String MergeFilePath = SourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
-                        String BackUpMergeFilePath = BackUpSourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
+                        String mergeFilePath = sourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
+                        String backupMergeFilePath = backupSourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
 
                         // 元ファイルをバックアップ
 
-                        File.Copy(SourceFilePath, BackUpSourceFilePath, true);
-                        File.Copy(MergeFilePath, BackUpMergeFilePath, true);
+                        File.Copy(sourceFilePath, backupSourceFilePath, true);
+                        File.Copy(mergeFilePath, backupMergeFilePath, true);
 
-                        if (TrimHeight[j].Equals(""))
+                        if (trimHeights[j].Equals(""))
                         {
                             continue;
                         }
+
+                        int trimHeight = int.Parse(trimHeights[j]);
 
                         // TODO：入れ子にするための暫定
                         // マージ実行
                         if (j % 2 == 0)
                         {
-                            Merget(SourceFilePath, BackUpSourceFilePath, BackUpMergeFilePath, int.Parse(TrimHeight[j].ToString()));
-                            Merget(MergeFilePath, BackUpMergeFilePath, BackUpSourceFilePath, int.Parse(TrimHeight[j].ToString()));
+                            MergeImage(sourceFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
+                            MergeImage(mergeFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
                         }
                         else
                         {
-                            Merget(SourceFilePath, BackUpMergeFilePath, BackUpSourceFilePath, int.Parse(TrimHeight[j].ToString()));
-                            Merget(MergeFilePath, BackUpSourceFilePath, BackUpMergeFilePath, int.Parse(TrimHeight[j].ToString()));
+                            MergeImage(sourceFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
+                            MergeImage(mergeFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
                         }
                     }
                 }
@@ -193,15 +183,6 @@ namespace PictMerge
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            //// Trim
-            //Trim trm = new Trim();
-            //trm.PointX = 0;
-            //trm.PointY = 0;
-            //trm.PictHeight = int.Parse(PictHeight.Text);
-            //trm.PictWidth = int.Parse(PictWidth.Text);
-            //trm.SourcePictName = @"D:\tmp\cheetos\Test3\Color\Sample_1.png";
-            //trm.TargetPictName = @"D:\tmp\cheetos\Test3\Color\Sample_1_cut.png";
-            //trm.Triming(50, 50, 100, 100);
         }
     }
 }
