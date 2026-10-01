@@ -53,7 +53,7 @@ namespace ResizeImg.Tests
         {
             string sourcePath = CreateSolidColorBmp("sample.bmp", 100, 100, Color.Blue);
 
-            Logic.Triming(sourcePath, BaseX: 10, BaseY: 10, Width: 30, Height: 30);
+            Logic.TrimImage(sourcePath, baseX: 10, baseY: 10, width: 30, height: 30);
 
             string expectedTargetPath = sourcePath.Replace(".", "_new.");
             Assert.IsTrue(File.Exists(expectedTargetPath));
@@ -74,11 +74,11 @@ namespace ResizeImg.Tests
             Bitmap sample, org;
             Logic.CreatePreviewImages(
                 sourcePath,
-                BaseX: 0, BaseY: 0, Width: 50, Height: 50,
-                PictureBox1Width: 100, PictureBox1Height: 100,
-                PictureBox2Width: 80, PictureBox2Height: 80,
-                OrgSizeCandidate1: 592, OrgSizeCandidate2: 312,
-                SampleCanvas: out sample, OrgCanvas: out org);
+                baseX: 0, baseY: 0, width: 50, height: 50,
+                sampleWidth: 100, sampleHeight: 100,
+                originalWidth: 80, originalHeight: 80,
+                originalSizeCandidate1: 592, originalSizeCandidate2: 312,
+                sampleImage: out sample, originalImage: out org);
 
             using (sample)
             using (org)
@@ -95,19 +95,19 @@ namespace ResizeImg.Tests
         [TestMethod]
         public void CreatePreviewImagesは大きい方のOrgSizeCandidateを採用する()
         {
-            // OrgPictSizeの選択(大きい方)を切り出し範囲経由で間接的に確認する。
-            // 300x300の画像に対しOrgSizeCandidate2(250)の方が大きいので、
+            // originalPictSizeの選択(大きい方)を切り出し範囲経由で間接的に確認する。
+            // 300x300の画像に対しoriginalSizeCandidate2(250)の方が大きいので、
             // 250x250の範囲がオリジナル側の切り出し元になる。
             string sourcePath = CreateSolidColorBmp("sample.bmp", 300, 300, Color.Green);
 
             Bitmap sample, org;
             Logic.CreatePreviewImages(
                 sourcePath,
-                BaseX: 0, BaseY: 0, Width: 10, Height: 10,
-                PictureBox1Width: 10, PictureBox1Height: 10,
-                PictureBox2Width: 250, PictureBox2Height: 250,
-                OrgSizeCandidate1: 100, OrgSizeCandidate2: 250,
-                SampleCanvas: out sample, OrgCanvas: out org);
+                baseX: 0, baseY: 0, width: 10, height: 10,
+                sampleWidth: 10, sampleHeight: 10,
+                originalWidth: 250, originalHeight: 250,
+                originalSizeCandidate1: 100, originalSizeCandidate2: 250,
+                sampleImage: out sample, originalImage: out org);
 
             using (sample)
             using (org)
