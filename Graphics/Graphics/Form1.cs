@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -12,10 +6,7 @@ namespace Graphics
 {
     public partial class Form1 : Form
     {
-        private int StartBarPoint = 0;  // 棒グラフの描画基点（描画するたびに基点をインクリ）
-
-        private Series series;
-        private Chart chart;
+        private int startDegree = 0;  // Sin波の描画基点[度]（描画するたびに基点をインクリ）
 
         public Form1()
         {
@@ -25,7 +16,7 @@ namespace Graphics
         private void buttonBarGraph_Click(object sender, EventArgs e)
         {
             //Seriesの作成
-            series = new Series();
+            Series series = new Series();
 
             //グラフのタイプを指定(今回は線)
             series.ChartType = SeriesChartType.Line;
@@ -33,23 +24,23 @@ namespace Graphics
             //グラフのデータを追加(試しにsin関数)
             for (int i = 0; i < 360; i++)
             {
-                series.Points.AddXY(i, Math.Sin((i - StartBarPoint) * Math.PI / 180.0));
+                series.Points.AddXY(i, Math.Sin((i - startDegree) * Math.PI / 180.0));
             }
 
             //作ったSeriesをchartコントロールに追加する
             chart1.Series.Add(series);
 
-            StartBarPoint += 10;
+            startDegree += 10;
         }
 
         private void buttonCircleGraph_Click(object sender, EventArgs e)
         {
-            chart = new Chart();
+            Chart chart = new Chart();
 
             chart.Width = 200;
             chart.Height = 200;
 
-            series = new Series();
+            Series series = new Series();
             series.ChartType = SeriesChartType.Pie;
             series["PieStartAngle"] = "270";
 
@@ -95,8 +86,6 @@ namespace Graphics
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
-            //chart1.Controls.Remove(chart);
-
             if (chart1.Controls.Count > 0)
             {
                 chart1.Controls.RemoveAt(0);
