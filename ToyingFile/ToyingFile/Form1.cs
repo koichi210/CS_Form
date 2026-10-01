@@ -1,10 +1,4 @@
 ﻿﻿﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using StandardTemplate;
 using System.IO;
@@ -44,42 +38,42 @@ namespace ToyingFile
             }
 
             //リストアップ
-            String[] TargetFileList = GetTargetFile();
+            String[] targetFiles = GetTargetFiles();
 
             // メニュー
             if (radioButton_DeleteString.Checked)
             {
-                FunctionDeleteString(TargetFileList);
+                DeleteStringFromFiles(targetFiles);
             }
         }
 
-        private String[] GetTargetFile()
+        private String[] GetTargetFiles()
         {
-            String SearchPattern = "*";
+            String searchPattern = "*";
             if (textBox_File.Text != String.Empty)
             {
-                SearchPattern = textBox_File.Text;
+                searchPattern = textBox_File.Text;
             }
 
-            SearchOption opt = SearchOption.TopDirectoryOnly;
+            SearchOption searchOption = SearchOption.TopDirectoryOnly;
             if (checkBox_SubDirectory.Checked)
             {
-                opt = SearchOption.AllDirectories;
+                searchOption = SearchOption.AllDirectories;
             }
 
-            return Directory.GetFiles(textBox_Directory.Text, SearchPattern, opt);
+            return Directory.GetFiles(textBox_Directory.Text, searchPattern, searchOption);
         }
 
-        private void FunctionDeleteString(String[] FileList)
+        private void DeleteStringFromFiles(String[] filePaths)
         {
-            String[] DeleteArray = textBox_DeleteString.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            String[] deleteStrings = textBox_DeleteString.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             StcFileInputOutput fio = new StcFileInputOutput();
-            for (int i = 0; i < FileList.Length; i++)
+            foreach (String filePath in filePaths)
             {
-                String FileData = fio.LoadFile(FileList[i]);
-                String ResultData = Logic.DeleteStringFromContent(FileData, DeleteArray, checkBox_WideNarrow.Checked, checkBox_DeleteLine.Checked);
-                fio.SaveFile(FileList[i], ResultData);
+                String fileData = fio.LoadFile(filePath);
+                String resultData = Logic.DeleteStringFromContent(fileData, deleteStrings, checkBox_WideNarrow.Checked, checkBox_DeleteLine.Checked);
+                fio.SaveFile(filePath, resultData);
             }
         }
     }

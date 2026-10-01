@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace ToyingFile
 {
     /// <summary>
-    /// もともと Form1.cs の FunctionDeleteString に埋め込まれていた、ファイル内容から
+    /// もともと Form1.cs の FunctionDeleteString(現 DeleteStringFromFiles) に埋め込まれていた、ファイル内容から
     /// 指定文字列を含む行を処理するロジックを、テストできる形に切り出したもの。
     ///
     /// コードはそのまま移しただけで書き換えていない。ファイルの読み書き(fio.LoadFile/
@@ -19,17 +19,16 @@ namespace ToyingFile
     internal static class Logic
     {
         /// <summary>
-        /// ファイル内容(改行区切り)から、DeleteArray のいずれかを含む行を処理する。
+        /// ファイル内容(改行区切り)から、deleteStrings のいずれかを含む行を処理する。
         /// deleteWholeLine=true なら行ごと空行にする。false なら該当文字列だけ削除する。
         /// </summary>
-        public static String DeleteStringFromContent(String FileData, String[] DeleteArray, Boolean exactMatch, Boolean deleteWholeLine)
+        public static String DeleteStringFromContent(String fileData, String[] deleteStrings, Boolean exactMatch, Boolean deleteWholeLine)
         {
-            StringComparison CmpOpt = exactMatch ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            StringComparison comparison = exactMatch ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
-            String[] FileDataArray = FileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            String[] lines = fileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
-            var list = new List<String>();
-            list.AddRange(FileDataArray);
+            var list = new List<String>(lines);
 
             for (int j = 0; j < list.Count; j++)
             {
@@ -38,10 +37,10 @@ namespace ToyingFile
                     continue;
                 }
 
-                for (int k = 0; k < DeleteArray.Length; k++)
+                for (int k = 0; k < deleteStrings.Length; k++)
                 {
                     //削除対象の行か判別
-                    if (list[j].IndexOf(DeleteArray[k], CmpOpt) != -1)
+                    if (list[j].IndexOf(deleteStrings[k], comparison) != -1)
                     {
                         if (deleteWholeLine)
                         {
@@ -51,11 +50,11 @@ namespace ToyingFile
                         else if (exactMatch)
                         {
                             // 文字だけ削除ならReplace
-                            list[j] = list[j].Replace(DeleteArray[k], "");
+                            list[j] = list[j].Replace(deleteStrings[k], "");
                         }
                         else
                         {
-                            list[j] = Regex.Replace(list[j], Regex.Escape(DeleteArray[k]), "", RegexOptions.IgnoreCase);
+                            list[j] = Regex.Replace(list[j], Regex.Escape(deleteStrings[k]), "", RegexOptions.IgnoreCase);
                         }
                     }
                 }
