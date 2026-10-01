@@ -31,7 +31,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.SuspendLayout();
             // 
             // button1
@@ -88,7 +87,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.HelpProvider helpProvider1;
     }
 }
 
