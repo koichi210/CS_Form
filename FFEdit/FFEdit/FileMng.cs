@@ -90,7 +90,7 @@ namespace FFEdit
             {
                 if (showErrorPopup)
                 {
-                    MessageBox.Show("指定パスが移動できませんでした。" + Environment.NewLine +
+                    MessageBox.Show("指定パスがコピーできませんでした。" + Environment.NewLine +
                         srcName + Environment.NewLine +
                         destName);
                 }
