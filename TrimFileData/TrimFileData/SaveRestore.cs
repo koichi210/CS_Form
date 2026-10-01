@@ -7,9 +7,8 @@ namespace TrimFileData
         public void RegisterItem(Form1 parent)
         {
             // コントロールを列挙
-            // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
-            // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
-            // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
+            // 第2引数(設定ファイルのキー名)のtypoは修正済み。旧キー名で保存された既存の設定ファイルは
+            // legacyAttrValueで旧キーを読み替えて読み込む([[_TechnicalNote/typo修正リスト.md]])
             RegisterCtrl("Common", "textBox_ReferencePath", parent.textBox_ReferencePath);
             RegisterCtrl("Common", "textBox_SearchCommonWord", parent.textBox_SearchCommonWord, legacyAttrValue: "textBox_SerchCommonWord");
             RegisterCtrl("Common", "checkBox_FirstWordOnly", parent.checkBox_FirstWordOnly);
