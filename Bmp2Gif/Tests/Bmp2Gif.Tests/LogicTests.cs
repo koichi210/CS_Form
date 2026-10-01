@@ -54,7 +54,7 @@ namespace Bmp2Gif.Tests
             string srcPath = CreateSampleBmp(20, 20);
             string dstPath = Path.Combine(tempDirectory, "result.gif");
 
-            Logic.ConvertBmpToGif(srcPath, dstPath, AddComment: false);
+            Logic.ConvertBmpToGif(srcPath, dstPath, addComment: false);
 
             Assert.IsTrue(File.Exists(dstPath));
             using (var result = Image.FromFile(dstPath))
@@ -71,7 +71,7 @@ namespace Bmp2Gif.Tests
             string srcPath = CreateSampleBmp(400, 100);
             string dstPath = Path.Combine(tempDirectory, "result_comment.gif");
 
-            Logic.ConvertBmpToGif(srcPath, dstPath, AddComment: true);
+            Logic.ConvertBmpToGif(srcPath, dstPath, addComment: true);
 
             Assert.IsTrue(File.Exists(dstPath));
             using (var result = Image.FromFile(dstPath))
@@ -88,7 +88,7 @@ namespace Bmp2Gif.Tests
             string srcPath = CreateSampleBmp(400, 100);
             string dstPath = Path.Combine(tempDirectory, "result_pixel.gif");
 
-            Logic.ConvertBmpToGif(srcPath, dstPath, AddComment: true);
+            Logic.ConvertBmpToGif(srcPath, dstPath, addComment: true);
 
             using (var result = new Bitmap(dstPath))
             {

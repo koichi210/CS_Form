@@ -13,12 +13,12 @@ namespace Bmp2Gif
     /// </summary>
     internal static class Logic
     {
-        public static void ConvertBmpToGif(String SrcPath, String DstPath, Boolean AddComment)
+        public static void ConvertBmpToGif(String srcPath, String dstPath, Boolean addComment)
         {
-            Bitmap bmp = new Bitmap(SrcPath);
+            Bitmap bmp = new Bitmap(srcPath);
             Graphics g = Graphics.FromImage(bmp);
 
-            if (AddComment)
+            if (addComment)
             {
                 g.FillRectangle(
                     new SolidBrush(Color.OrangeRed),
@@ -34,7 +34,7 @@ namespace Bmp2Gif
                     40,
                     25);
             }
-            bmp.Save(DstPath, ImageFormat.Gif);
+            bmp.Save(dstPath, ImageFormat.Gif);
 
             g.Dispose();
             bmp.Dispose();
