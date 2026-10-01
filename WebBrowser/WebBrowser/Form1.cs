@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace WebBrowser
@@ -36,14 +30,13 @@ namespace WebBrowser
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                return;
             }
         }
 
         private void button_Test_Click(object sender, EventArgs e)
         {
-            String str = webBrowser.DocumentText;
-            MessageBox.Show(str, "Source Text");
+            String documentText = webBrowser.DocumentText;
+            MessageBox.Show(documentText, "Source Text");
         }
     }
 }
