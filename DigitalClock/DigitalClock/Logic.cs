@@ -10,9 +10,9 @@ namespace DigitalClock
     /// </summary>
     internal static class Logic
     {
-        public static String FormatTime(DateTime d)
+        public static String FormatTime(DateTime time)
         {
-            return String.Format("{0:00}:{1:00}:{2:00}", d.Hour, d.Minute, d.Second);
+            return String.Format("{0:00}:{1:00}:{2:00}", time.Hour, time.Minute, time.Second);
         }
     }
 }

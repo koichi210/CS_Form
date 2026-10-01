@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace DigitalClock
@@ -12,6 +7,7 @@ namespace DigitalClock
     public partial class Form1 : Form
     {
         private Point mouseDownPoint;
+
         public Form1()
         {
             InitializeComponent();
@@ -59,8 +55,7 @@ namespace DigitalClock
         
         private void UpdateTime()
         {
-            DateTime d = DateTime.Now;
-            label_time.Text = Logic.FormatTime(d);
+            label_time.Text = Logic.FormatTime(DateTime.Now);
         }
 
         private void label_time_MouseDown(object sender, MouseEventArgs e)
