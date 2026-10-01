@@ -1,8 +1,6 @@
 using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
-using StandardTemplate;
 using Picture;
 
 namespace Cheetos
@@ -24,134 +22,124 @@ namespace Cheetos
         /// 画像の左右の白フチの太さを比較し、縦長（Portrait）向けの画像かどうかを判定する。
         /// IsSample=true のときは判定結果をポップアップ表示する（もとの実装のまま）。
         /// </summary>
-        public static bool IsPortrait(String TargetFileName, int WhiteWidth, int WhiteCoef, Boolean IsSample = false)
+        public static bool IsPortrait(String targetFileName, int whiteWidth, int whiteCoef, Boolean isSample = false)
         {
-            Boolean IsPort = true;
+            Boolean isPortrait = true;
 
             // 以前はサイズ取得(GetPictSize)・左端切り出し・右端切り出しのそれぞれで
             // 同じ元ファイルをフルデコードしており、1枚の画像につき都合3回デコードしていた。
             // ここで1回だけデコードしたBitmapを使い回すことでデコード回数を1回に減らす。
-            using (Bitmap SourceImg = new Bitmap(TargetFileName))
+            using (Bitmap sourceImg = new Bitmap(targetFileName))
             {
-                Size pict_sz = new Size(SourceImg.Width, SourceImg.Height);
+                Size pictSize = sourceImg.Size;
 
                 // 指定幅より画像サイズが小さければ、画像サイズの幅に合わせる
-                int width = Math.Min(WhiteWidth, pict_sz.Width);
+                int width = Math.Min(whiteWidth, pictSize.Width);
 
-                // WhiteCoefは、WhiteAreaを算出するための係数(実測値)
-                int BaseSize = width * pict_sz.Height / WhiteCoef;
+                // whiteCoefは、WhiteAreaを算出するための係数(実測値)
+                int baseSize = width * pictSize.Height / whiteCoef;
 
                 // 左端
-                long LeftPictSize = 0;
-                if (IsPort == true)
+                Rectangle leftCutParam = new Rectangle(0, 0, width, pictSize.Height);
+                long leftPictSize = GetBinSize(sourceImg, leftCutParam);
+                if (baseSize < leftPictSize)
                 {
-                    Rectangle CutParam = new Rectangle(0, 0, width, pict_sz.Height);
-                    LeftPictSize = GetBinSize(SourceImg, CutParam);
-                    if (BaseSize < LeftPictSize)
+                    isPortrait = false;
+                }
+
+                // 右端(左端で横長と判定済みなら計測しない)
+                long rightPictSize = 0;
+                if (isPortrait)
+                {
+                    Rectangle rightCutParam = new Rectangle(pictSize.Width - width, 0, width, pictSize.Height);
+                    rightPictSize = GetBinSize(sourceImg, rightCutParam);
+                    if (baseSize < rightPictSize)
                     {
-                        IsPort = false;
+                        isPortrait = false;
                     }
                 }
 
-                // 右端
-                long RightPictSize = 0;
-                if (IsPort == true)
+                if (isSample)
                 {
-                    Rectangle CutParam = new Rectangle(pict_sz.Width - width, 0, width, pict_sz.Height);
-                    RightPictSize = GetBinSize(SourceImg, CutParam);
-                    if (BaseSize < RightPictSize)
-                    {
-                        IsPort = false;
-                    }
+                    String resultStr = "IsPortrait=" + isPortrait.ToString() + Environment.NewLine +
+                        "BaseSize=" + baseSize.ToString() + Environment.NewLine +
+                        "LeftPictSize=" + leftPictSize.ToString() + Environment.NewLine +
+                        "RightPictSize=" + rightPictSize.ToString();
+                    MessageBox.Show(resultStr, "画像情報");
                 }
 
-                if (IsSample)
-                {
-                    String ResultStr = "IsPortrait=" + IsPort.ToString() + Environment.NewLine +
-                        "BaseSize=" + BaseSize.ToString() + Environment.NewLine +
-                        "LeftPictSize=" + LeftPictSize.ToString() + Environment.NewLine +
-                        "RightPictSize=" + RightPictSize.ToString();
-                    MessageBox.Show(ResultStr, "画像情報");
-                }
-
-                return IsPort;
+                return isPortrait;
             }
         }
 
         /// <summary>画像の指定範囲を切り出して、PNGエンコードした場合のバイト数を返す。</summary>
-        public static long GetBinSize(String FileName, Rectangle CutParam)
+        public static long GetBinSize(String fileName, Rectangle cutParam)
         {
             // ファイルパスからは1回だけデコードし、実際の計測は共通処理(Bitmap版)に委ねる。
-            using (Bitmap SourceImg = new Bitmap(FileName))
+            using (Bitmap sourceImg = new Bitmap(fileName))
             {
-                return GetBinSize(SourceImg, CutParam);
+                return GetBinSize(sourceImg, cutParam);
             }
         }
 
         /// <summary>既にデコード済みのBitmapから指定範囲を切り出し、PNGエンコードした場合のバイト数を返す。</summary>
-        private static long GetBinSize(Bitmap SourceImg, Rectangle CutParam)
+        private static long GetBinSize(Bitmap sourceImg, Rectangle cutParam)
         {
-            PicEdit trm = new PicEdit(CutParam.Width, CutParam.Height);
+            PicEdit trm = new PicEdit(cutParam.Width, cutParam.Height);
 
             // 切り取り
-            Point PutParam = new Point(0, 0);
-            trm.TrimExec(SourceImg, CutParam, PutParam);
+            trm.TrimExec(sourceImg, cutParam, new Point(0, 0));
 
             // 以前は一時PNGファイルをディスクに書いてFileInfo.Lengthを見ていたが、
             // ディスクI/O(書き込み+削除)自体が無駄なので、メモリ上でPNGエンコードして
             // そのバイト数を見るだけにした。
-            long Length = trm.GetCanvasPngByteLength();
+            long length = trm.GetCanvasPngByteLength();
 
             trm.Dispose();
-            return Length;
+            return length;
         }
 
         /// <summary>
         /// キャプチャ画像のファイル名の先頭部分（保存先＋接頭辞＋任意でタイムスタンプ）を組み立てる。
         /// 元は cw_checkBox_AddTimeStamp.Checked を直接参照していたので、AddTimeStamp 引数に置き換えた。
         /// </summary>
-        public static String GetFileBaseFormat(String DirectoryPath, String Prefix, Boolean AddTimeStamp)
+        public static String GetFileBaseFormat(String directoryPath, String prefix, Boolean addTimeStamp)
         {
-            String FileBaseFormat = DirectoryPath + @"\";
-            if (Prefix != String.Empty)
+            String fileBaseFormat = directoryPath + @"\";
+            if (prefix != String.Empty)
             {
-                FileBaseFormat += Prefix + "_";
+                fileBaseFormat += prefix + "_";
             }
-            if (AddTimeStamp)
+            if (addTimeStamp)
             {
-                FileBaseFormat += System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_");
+                fileBaseFormat += DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_");
             }
 
-            return FileBaseFormat;
+            return fileBaseFormat;
         }
 
         /// <summary>
         /// テキストボックスの数値を、上下キーで+1/-1する。数値でなければ変更しない。
         /// </summary>
-        public static String UpdateValue(String base_value, KeyEventArgs e)
+        public static String UpdateValue(String baseValue, KeyEventArgs e)
         {
-            int add_value = 0;
+            int addValue = 0;
             switch (e.KeyCode)
             {
                 case Keys.Up:
-                    add_value = 1;
+                    addValue = 1;
                     break;
                 case Keys.Down:
-                    add_value = -1;
-                    break;
-                case Keys.Enter:
-                    break;
-                default:
+                    addValue = -1;
                     break;
             }
 
             int val;
-            if (Int32.TryParse(base_value.ToString(), out val))
+            if (Int32.TryParse(baseValue, out val))
             {
-                val += add_value;
-                return val.ToString();
+                return (val + addValue).ToString();
             }
-            return base_value;
+            return baseValue;
         }
     }
 }

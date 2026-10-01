@@ -20,9 +20,10 @@ namespace Cheetos
         private Label label2;
         private StandardTemplate.TextBoxEx textBox_angle;
 
-        public String OriginX = "";
-        public String OriginY = "";
-        public String Angle = "";
+        // OKで閉じたときに確定した値
+        public String OriginX { get; private set; } = "";
+        public String OriginY { get; private set; } = "";
+        public String Angle { get; private set; } = "";
 
         private void InitializeComponent()
         {
@@ -202,13 +203,13 @@ namespace Cheetos
             InitializeComponent();
         }
 
-        public RotationPreview(String OriginX, String OriginY, String Angle )
+        public RotationPreview(String originX, String originY, String angle)
         {
             InitializeComponent();
 
-            textBox_OriginX.Text = OriginX;
-            textBox_OriginY.Text = OriginY;
-            textBox_angle.Text = Angle;
+            textBox_OriginX.Text = originX;
+            textBox_OriginY.Text = originY;
+            textBox_angle.Text = angle;
         }
 
         private void button_ClickDraw(object sender, EventArgs e)
@@ -279,19 +280,19 @@ namespace Cheetos
             }
 
             int val;
-            if (!Int32.TryParse(textBox_OriginX.Text.ToString(), out val))
+            if (!Int32.TryParse(textBox_OriginX.Text, out val))
             {
                 textBox_OriginX.Text = "";
             }
-            if (!Int32.TryParse(textBox_OriginY.Text.ToString(), out val))
+            if (!Int32.TryParse(textBox_OriginY.Text, out val))
             {
                 textBox_OriginY.Text = "";
             }
-            if (!Int32.TryParse(textBox_angle.Text.ToString(), out val))
+            if (!Int32.TryParse(textBox_angle.Text, out val))
             {
                 textBox_angle.Text = "";
             }
-            
+
             return true;
         }
 
@@ -303,22 +304,18 @@ namespace Cheetos
             }
 
             Bitmap img = new Bitmap(textBox_loadfiepath.Text);
-            int max = img.Width;
-            if (img.Width < img.Height)
-            {
-                max = img.Height;
-            }
+            int max = Math.Max(img.Width, img.Height);
             pictureBox_Dest.Size = new Size(max * 2, max * 2);
             Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
 
             //ラジアン単位に変換
             int angle = 0;
-            Int32.TryParse(textBox_angle.Text.ToString(), out angle);
+            Int32.TryParse(textBox_angle.Text, out angle);
             double d = angle / (180 / Math.PI);
 
             //新しい座標位置を計算する
-            float x = float.Parse(textBox_OriginX.Text.ToString());
-            float y = float.Parse(textBox_OriginY.Text.ToString());
+            float x = float.Parse(textBox_OriginX.Text);
+            float y = float.Parse(textBox_OriginY.Text);
 
             float x1 = x + img.Width * (float)Math.Cos(d);
             float y1 = y + img.Width * (float)Math.Sin(d);
@@ -338,7 +335,6 @@ namespace Cheetos
                 //画像を表示
                 g.DrawImage(img, destinationPoints);
 
-                g.Dispose();
                 img.Dispose();
             }
 

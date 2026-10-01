@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
@@ -26,22 +25,23 @@ namespace Cheetos
             pt_TextBox_Status.Text = "ファイル数：" + pt_ListBox_ListUp.SelectedItems.Count.ToString();
         }
 
-        private void UpdatePitTrimSize()
+        // 終点指定⇔サイズ指定の切り替えに合わせて、入力欄の値を換算し直す
+        private void UpdatePictTrimSize()
         {
-            Point Target = new Point();
-            if (pt_Radio_SelectPointOfEnd.Checked == true)
+            Point target = new Point();
+            if (pt_Radio_SelectPointOfEnd.Checked)
             {
-                Target.X = int.Parse(pt_TargetX.Text) + int.Parse(pt_BaseX.Text);
-                Target.Y = int.Parse(pt_TargetY.Text) + int.Parse(pt_BaseY.Text);
+                target.X = int.Parse(pt_TargetX.Text) + int.Parse(pt_BaseX.Text);
+                target.Y = int.Parse(pt_TargetY.Text) + int.Parse(pt_BaseY.Text);
             }
-            else // (pt_Radio_SelectPointOfEnd.Checked == true)
+            else // (pt_Radio_SelectSizeOfEnd.Checked == true)
             {
-                Target.X = int.Parse(pt_TargetX.Text) - int.Parse(pt_BaseX.Text);
-                Target.Y = int.Parse(pt_TargetY.Text) - int.Parse(pt_BaseY.Text);
+                target.X = int.Parse(pt_TargetX.Text) - int.Parse(pt_BaseX.Text);
+                target.Y = int.Parse(pt_TargetY.Text) - int.Parse(pt_BaseY.Text);
             }
 
-            pt_TargetX.Text = Target.X.ToString();
-            pt_TargetY.Text = Target.Y.ToString();
+            pt_TargetX.Text = target.X.ToString();
+            pt_TargetY.Text = target.Y.ToString();
         }
 
         private void ListupTrim()
@@ -51,7 +51,7 @@ namespace Cheetos
 
         private void Button_Trim_Click(object sender, EventArgs e)
         {
-            Debug.WriteData("Button_Trim_Click" + Environment.NewLine, false);
+            debugLog.WriteData("Button_Trim_Click" + Environment.NewLine, false);
 
             // キャンセル
             if (bkgWorkerTrim.IsBusy)
@@ -60,10 +60,10 @@ namespace Cheetos
                 return;
             }
 
-            String BackUpDirPath = pt_SourceFolderPath.Text + @"\" + @"Bk_Trim";
-            if (!fio.EnsureDirectory(BackUpDirPath))
+            String backUpDirPath = pt_SourceFolderPath.Text + @"\" + @"Bk_Trim";
+            if (!fio.EnsureDirectory(backUpDirPath))
             {
-                MessageBox.Show("無効なフォルダパスです。\n" + BackUpDirPath);
+                MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
                 return;
             }
 
@@ -73,17 +73,17 @@ namespace Cheetos
                 return;
             }
 
-            int Target_Width;
-            int Target_Height;
-            if (pt_Radio_SelectPointOfEnd.Checked == true)
+            int targetWidth;
+            int targetHeight;
+            if (pt_Radio_SelectPointOfEnd.Checked)
             {
-                Target_Width = int.Parse(pt_TargetX.Text) - int.Parse(pt_BaseX.Text);
-                Target_Height = int.Parse(pt_TargetY.Text) - int.Parse(pt_BaseY.Text);
+                targetWidth = int.Parse(pt_TargetX.Text) - int.Parse(pt_BaseX.Text);
+                targetHeight = int.Parse(pt_TargetY.Text) - int.Parse(pt_BaseY.Text);
             }
-            else // if ( pt_Radio_SelectSizeOfEnd.IsChecked.Value )
+            else // pt_Radio_SelectSizeOfEnd
             {
-                Target_Width = int.Parse(pt_TargetX.Text);
-                Target_Height = int.Parse(pt_TargetY.Text);
+                targetWidth = int.Parse(pt_TargetX.Text);
+                targetHeight = int.Parse(pt_TargetY.Text);
             }
 
             InitProgressBar(pt_ListBox_ListUp.SelectedItems.Count);
@@ -93,19 +93,19 @@ namespace Cheetos
             {
                 BaseX = pt_BaseX.Text,
                 BaseY = pt_BaseY.Text,
-                TargetWidth = Target_Width,
-                TargetHeight = Target_Height,
+                TargetWidth = targetWidth,
+                TargetHeight = targetHeight,
                 SourceFolderPath = pt_SourceFolderPath.Text,
-                BackUpDirPath = BackUpDirPath,
+                BackUpDirPath = backUpDirPath,
             };
 
-            Debug.WriteData("Source = " + pt_SourceFolderPath.Text);
-            Debug.WriteData("Backup = " + BackUpDirPath);
-            Debug.WriteData("Pos(" + pt_BaseX.Text + "," + pt_BaseY.Text + ")");
-            Debug.WriteData("Size(" + Target_Width + "," + Target_Height + ")");
+            debugLog.WriteData("Source = " + pt_SourceFolderPath.Text);
+            debugLog.WriteData("Backup = " + backUpDirPath);
+            debugLog.WriteData("Pos(" + pt_BaseX.Text + "," + pt_BaseY.Text + ")");
+            debugLog.WriteData("Size(" + targetWidth + "," + targetHeight + ")");
 
             // ListBoxの値を配列で取得
-            param.TargetNameAry = util.GetStrArrayFromListBox(pt_ListBox_ListUp.SelectedItems);
+            param.TargetFileNames = util.GetStrArrayFromListBox(pt_ListBox_ListUp.SelectedItems);
 
             SetStartTime();
             pt_Button_Trim.Text = "中断";
@@ -122,40 +122,34 @@ namespace Cheetos
             // このメソッドへのパラメータ
             TrimWorkerParam param = (TrimWorkerParam)e.Argument;
 
-            int BaseX = int.Parse(param.BaseX);
-            int BaseY = int.Parse(param.BaseY);
-            int Target_Width = param.TargetWidth;
-            int Target_Height = param.TargetHeight;
-            String SourceFolderPath = param.SourceFolderPath;
-            String BackUpDirPath = param.BackUpDirPath;
-            String[] TargetNameAry = param.TargetNameAry;
+            int baseX = int.Parse(param.BaseX);
+            int baseY = int.Parse(param.BaseY);
+            String[] targetFileNames = param.TargetFileNames;
 
-            for (int ItemIdx = 0; ItemIdx < TargetNameAry.Length; ItemIdx++)
+            for (int itemIdx = 0; itemIdx < targetFileNames.Length; itemIdx++)
             {
-                if (TargetNameAry[ItemIdx] == String.Empty)
+                if (targetFileNames[itemIdx] == String.Empty)
                 {
                     continue;
                 }
 
-                String FilePath = SourceFolderPath + @"\" + TargetNameAry[ItemIdx];
-                String BackUpFilePath = BackUpDirPath + @"\" + TargetNameAry[ItemIdx];
+                String filePath = param.SourceFolderPath + @"\" + targetFileNames[itemIdx];
+                String backUpFilePath = param.BackUpDirPath + @"\" + targetFileNames[itemIdx];
 
                 // オリジナルファイルをバックアップ
-                File.Copy(FilePath, BackUpFilePath, true);
+                File.Copy(filePath, backUpFilePath, true);
 
                 // トリミング
                 // キャンバス作成(途中で失敗しても画像ファイルがロックされたまま残らないようfinallyで必ず解放する)
-                PicEdit trm = new PicEdit(Target_Width, Target_Height);
+                PicEdit trm = new PicEdit(param.TargetWidth, param.TargetHeight);
                 try
                 {
                     // 切り取り
-                    Rectangle CutParam = new Rectangle(BaseX, BaseY, Target_Width, Target_Height);
-
-                    Point PutParam = new Point(0, 0);
-                    trm.TrimExec(BackUpFilePath, CutParam, PutParam);
+                    Rectangle cutParam = new Rectangle(baseX, baseY, param.TargetWidth, param.TargetHeight);
+                    trm.TrimExec(backUpFilePath, cutParam, new Point(0, 0));
 
                     // キャンバス保存
-                    trm.SaveCanvas(FilePath);
+                    trm.SaveCanvas(filePath);
                 }
                 finally
                 {
@@ -163,7 +157,7 @@ namespace Cheetos
                 }
 
                 // 進捗率
-                worker.ReportProgress(ItemIdx);      // ⇒ProgressChanged()
+                worker.ReportProgress(itemIdx);      // ⇒ProgressChanged()
 
                 // キャンセルされてないかチェック
                 if (worker.CancellationPending)
@@ -172,9 +166,7 @@ namespace Cheetos
                     return;
                 }
             }
-            worker.ReportProgress(TargetNameAry.Length);      // ⇒ProgressChanged()
-
-            e.Result = "値も渡せます";
+            worker.ReportProgress(targetFileNames.Length);      // ⇒ProgressChanged()
         }
 
         private void bkgWorkerTrim_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -184,14 +176,9 @@ namespace Cheetos
                 MessageBox.Show("キャンセルされました");
                 // この場合はe.Resultにはアクセスできない
             }
-            else if (!(e.Error == null))
+            else if (e.Error != null)
             {
                 MessageBox.Show("エラーが発生しました[" + e.Error.Message + "]");
-            }
-            else
-            {
-                // 処理結果の表示
-                //MessageBox.Show("正常に完了しました");
             }
             TextBox_Status.Text += " 完了";
             pt_Button_Trim.Text = "切り取り";

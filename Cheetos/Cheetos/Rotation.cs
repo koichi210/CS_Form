@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
@@ -8,24 +7,24 @@ namespace Cheetos
 {
     public class Rotation
     {
-        public int BaseX = 0;
-        public int BaseY = 0;
-        public int Angle = 0;
-        public String SourceFolderPath = String.Empty;
-        public String BackUpDirPath = String.Empty;
+        public int BaseX { get; set; } = 0;
+        public int BaseY { get; set; } = 0;
+        public int Angle { get; set; } = 0;
+        public String SourceFolderPath { get; set; } = String.Empty;
+        public String BackUpDirPath { get; set; } = String.Empty;
 
         private String TargetFileName = String.Empty;
         private String FilePath = String.Empty;
         private String BackUpFilePath = String.Empty;
 
-        public bool SetTargetFileName(String target_file_name)
+        public bool SetTargetFileName(String targetFileName)
         {
-            if (target_file_name == String.Empty)
+            if (targetFileName == String.Empty)
             {
                 // 空行だったら処理しない
                 return false;
             }
-            TargetFileName = target_file_name;
+            TargetFileName = targetFileName;
             return true;
         }
 
@@ -34,11 +33,6 @@ namespace Cheetos
             FilePath = SourceFolderPath + @"\" + TargetFileName;
             BackUpFilePath = BackUpDirPath + @"\" + TargetFileName;
 
-            //if (!File.Exists(FilePath))
-            //{
-            //    ErrorList += "ファイルが存在しません。" + FilePath + Environment.NewLine;
-            //    return false;
-            //}
             File.Copy(FilePath, BackUpFilePath, true);
             return true;
         }
@@ -52,13 +46,9 @@ namespace Cheetos
                 // 読み込み元と同じファイルへ上書き保存するため、imgは保存より前に解放しておく必要がある
                 using (Bitmap img = new Bitmap(FilePath))
                 {
+                    // 元画像の対角線の長さを一辺とする正方形のキャンバスを用意する
                     int length = (int)Math.Sqrt(img.Width * img.Width + img.Height * img.Height);
-
-                    using (PictureBox pic_box = new PictureBox())
-                    {
-                        pic_box.Size = new Size(length, length);
-                        canvas = new Bitmap(pic_box.Width, pic_box.Height);
-                    }
+                    canvas = new Bitmap(length, length);
 
                     //ラジアン単位に変換
                     double d = Angle / (180 / Math.PI);
@@ -136,23 +126,23 @@ namespace Cheetos
                 return;
             }
 
-            String BackUpDirPath = pr_SourceFolderPath.Text + @"\" + @"Bk_Rotate";
-            if (!fio.EnsureDirectory(BackUpDirPath))
+            String backUpDirPath = pr_SourceFolderPath.Text + @"\" + @"Bk_Rotate";
+            if (!fio.EnsureDirectory(backUpDirPath))
             {
-                MessageBox.Show("無効なフォルダパスです。\n" + BackUpDirPath);
+                MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
                 return;
             }
 
             int val;
-            if (!Int32.TryParse(pr_BaseX.Text.ToString(), out val))
+            if (!Int32.TryParse(pr_BaseX.Text, out val))
             {
                 pr_BaseX.Text = "";
             }
-            if (!Int32.TryParse(pr_BaseY.Text.ToString(), out val))
+            if (!Int32.TryParse(pr_BaseY.Text, out val))
             {
                 pr_BaseY.Text = "";
             }
-            if (!Int32.TryParse(pr_Angle.Text.ToString(), out val))
+            if (!Int32.TryParse(pr_Angle.Text, out val))
             {
                 pr_Angle.Text = "";
             }
@@ -166,10 +156,10 @@ namespace Cheetos
                 BaseY = pr_BaseY.Text,
                 Angle = pr_Angle.Text,
                 SourceFolderPath = pr_SourceFolderPath.Text,
-                BackUpDirPath = BackUpDirPath,
+                BackUpDirPath = backUpDirPath,
 
                 // ListBoxの値を配列で取得
-                TargetNameAry = util.GetStrArrayFromListBox(pr_ListBox_ListUp.SelectedItems),
+                TargetFileNames = util.GetStrArrayFromListBox(pr_ListBox_ListUp.SelectedItems),
             };
 
             SetStartTime();
@@ -187,18 +177,19 @@ namespace Cheetos
             // このメソッドへのパラメータ
             RotationWorkerParam param = (RotationWorkerParam)e.Argument;
 
-            Rotation rt = new Rotation();
-
-            rt.BaseX = int.Parse(param.BaseX);
-            rt.BaseY = int.Parse(param.BaseY);
-            rt.Angle = int.Parse(param.Angle);
-            rt.SourceFolderPath = param.SourceFolderPath;
-            rt.BackUpDirPath = param.BackUpDirPath;
-            String[] TargetNameAry = param.TargetNameAry;
-
-            for (int ItemIdx = 0; ItemIdx < TargetNameAry.Length; ItemIdx++)
+            Rotation rt = new Rotation
             {
-                if (!rt.SetTargetFileName(TargetNameAry[ItemIdx]))
+                BaseX = int.Parse(param.BaseX),
+                BaseY = int.Parse(param.BaseY),
+                Angle = int.Parse(param.Angle),
+                SourceFolderPath = param.SourceFolderPath,
+                BackUpDirPath = param.BackUpDirPath,
+            };
+            String[] targetFileNames = param.TargetFileNames;
+
+            for (int itemIdx = 0; itemIdx < targetFileNames.Length; itemIdx++)
+            {
+                if (!rt.SetTargetFileName(targetFileNames[itemIdx]))
                 {
                     continue;
                 }
@@ -207,7 +198,7 @@ namespace Cheetos
                 rt.RotateExecute();
 
                 // 進捗率
-                worker.ReportProgress(ItemIdx);      // ⇒ProgressChanged()
+                worker.ReportProgress(itemIdx);      // ⇒ProgressChanged()
 
                 // キャンセルされてないかチェック
                 if (worker.CancellationPending)
@@ -216,7 +207,7 @@ namespace Cheetos
                     break;
                 }
             }
-            worker.ReportProgress(TargetNameAry.Length);      // ⇒ProgressChanged()
+            worker.ReportProgress(targetFileNames.Length);      // ⇒ProgressChanged()
         }
 
         private void bkgWorkerRotation_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -226,14 +217,9 @@ namespace Cheetos
                 MessageBox.Show("キャンセルされました");
                 // この場合はe.Resultにはアクセスできない
             }
-            else if (!(e.Error == null))
+            else if (e.Error != null)
             {
                 MessageBox.Show("エラーが発生しました[" + e.Error.Message + "]");
-            }
-            else
-            {
-                // 処理結果の表示
-                //MessageBox.Show("正常に完了しました");
             }
             TextBox_Status.Text += " 完了";
             pr_Button_Rotation.Text = "回転実行";

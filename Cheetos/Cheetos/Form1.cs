@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
-using System.Runtime.InteropServices;
 using StandardTemplate;
 
 namespace Cheetos
@@ -18,7 +16,7 @@ namespace Cheetos
             DROP_DOWN,
         };
 
-        private struct DataGridClass
+        private struct DataGridColumnDef
         {
             public String HeaderName;
             public DataGridType Type;
@@ -36,27 +34,27 @@ namespace Cheetos
         private const String ExecuteStr = "〇";
         private const String NotExecuteStr = "×";
 
-        private readonly DataGridClass[] DataGridParam = new DataGridClass[]{
-            new DataGridClass() { HeaderName = GridHeaderSleepStr, Type = DataGridType.EDIT_BOX },
-            new DataGridClass() { HeaderName = GridHeaderMouseXStr, Type = DataGridType.EDIT_BOX },
-            new DataGridClass() { HeaderName = GridHeaderMouseYStr, Type = DataGridType.EDIT_BOX },
-            new DataGridClass() { HeaderName = GridHeaderMouseActionStr, Type = DataGridType.DROP_DOWN },
-            new DataGridClass() { HeaderName = GridHeaderCaptureStr, Type = DataGridType.DROP_DOWN }
+        private readonly DataGridColumnDef[] DataGridColumns = new DataGridColumnDef[]{
+            new DataGridColumnDef() { HeaderName = GridHeaderSleepStr, Type = DataGridType.EDIT_BOX },
+            new DataGridColumnDef() { HeaderName = GridHeaderMouseXStr, Type = DataGridType.EDIT_BOX },
+            new DataGridColumnDef() { HeaderName = GridHeaderMouseYStr, Type = DataGridType.EDIT_BOX },
+            new DataGridColumnDef() { HeaderName = GridHeaderMouseActionStr, Type = DataGridType.DROP_DOWN },
+            new DataGridColumnDef() { HeaderName = GridHeaderCaptureStr, Type = DataGridType.DROP_DOWN }
         };
 
-        private readonly String[] MouseEvent = new String[] {
+        private readonly String[] MouseEventItems = new String[] {
             MouseEventMoveStr,
             MouseEventLeftDownStr
         };
 
-        private readonly String[] CaptureEvent = new String[] {
+        private readonly String[] CaptureEventItems = new String[] {
             ExecuteStr,
             NotExecuteStr
         };
 
-        private StcFileInputOutput fio = new StcFileInputOutput();
-        private StcDebug Debug = new StcDebug();
-        private bool IsTaskRun = false;
+        private readonly StcFileInputOutput fio = new StcFileInputOutput();
+        private readonly StcDebug debugLog = new StcDebug();
+        private bool isCaptureRunning = false;
 
         // プロファイル(Cheetos.xml/Cheetos.json)の置き場。exe直下(bin/Debug、bin/Release)は
         // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
@@ -80,7 +78,7 @@ namespace Cheetos
             cw.TargetWindow = this;
 
             // デバッグログに時間を表示
-            Debug.SetWriteTime(true);
+            debugLog.SetWriteTime(true);
 
             // DataGridViewの初期設定
             InitializeDataGridView();
@@ -148,58 +146,39 @@ namespace Cheetos
             util.SetComboBoxText(Profile, defaultProfileName);
         }
 
-        private int GetDataGridColumnIdx(String ColumnName)
+        // 見つからない場合は0(先頭列)を返す
+        private int GetDataGridColumnIdx(String columnName)
         {
-            int ColumnIdx = 0;
-            for (int i = 0; i < DataGridParam.Length; i++)
+            for (int i = 0; i < DataGridColumns.Length; i++)
             {
-                if (ColumnName.Equals(DataGridParam[i].HeaderName))
+                if (columnName.Equals(DataGridColumns[i].HeaderName))
                 {
-                    ColumnIdx = i;
-                    break;
+                    return i;
                 }
             }
 
-            return ColumnIdx;
+            return 0;
         }
 
-        private CaptWindow.MOUSE_EVENT GetMouseEvent(String MouseEventStr)
+        // "Move"以外(未設定含む)はLEFT_CLICK扱い
+        private CaptWindow.MOUSE_EVENT GetMouseEvent(String mouseEventStr)
         {
-            CaptWindow.MOUSE_EVENT Event = CaptWindow.MOUSE_EVENT.LEFT_CLICK;
-            switch (MouseEventStr)
+            if (mouseEventStr == MouseEventMoveStr)
             {
-                case MouseEventMoveStr:
-                    Event = CaptWindow.MOUSE_EVENT.MOVE;
-                    break;
-
-                case MouseEventLeftDownStr:
-                    Event = CaptWindow.MOUSE_EVENT.LEFT_CLICK;
-                    break;
+                return CaptWindow.MOUSE_EVENT.MOVE;
             }
-            return Event;
+            return CaptWindow.MOUSE_EVENT.LEFT_CLICK;
         }
 
-        private Boolean IsCaptureEvent(String CaptureEventStr)
+        // "〇"のときだけキャプチャする(未設定含む、それ以外はキャプチャしない)
+        private Boolean IsCaptureEvent(String captureEventStr)
         {
-            Boolean IsCapture = true;
-            switch (CaptureEventStr)
-            {
-                case ExecuteStr:
-                    IsCapture = true;
-                    break;
-
-                default: // nobreak
-                case NotExecuteStr:
-                    IsCapture = false;
-                    break;
-            }
-            return IsCapture;
+            return captureEventStr == ExecuteStr;
         }
 
         private void Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, Profile.Text);
-            LoadProfile(LoadFileName);
+            LoadProfile(Path.Combine(userDataFolder, Profile.Text));
         }
 
         // プルダウンで既存ファイルが選ばれている時は、毎回ダイアログを開かず
@@ -261,23 +240,22 @@ namespace Cheetos
             string[] files = Directory.GetFiles(fc_SourceFolderPath.Text, fc_TargetFileName.Text, SearchOption.TopDirectoryOnly);
 
             InitProgressBar(files.Length);
-            for (int i = 0; i <= files.Length - 1; i++)
+            for (int i = 0; i < files.Length; i++)
             {
-                String DestName = fc_DestFolderPath.Text + @"\" + Path.GetFileName(files[i]);
-                File.Move(files[i], DestName);
+                String destName = fc_DestFolderPath.Text + @"\" + Path.GetFileName(files[i]);
+                File.Move(files[i], destName);
 
                 // 進捗率の表示
-                int ProgressVal = i + 1;
-                TextBox_Status.Text = ProgressVal.ToString() + "/" + ProgressBar_Status.Maximum;
-                ProgressBar_Status.Value = ProgressVal;
+                int progressVal = i + 1;
+                TextBox_Status.Text = progressVal.ToString() + "/" + ProgressBar_Status.Maximum;
+                ProgressBar_Status.Value = progressVal;
             }
         }
 
         private void label_DebugMode_DoubleClick(object sender, EventArgs e)
         {
-            Boolean IsDebugMode = Debug.GetDebugMode();
-            Debug.SetDebugMode(!IsDebugMode);
-            MessageBox.Show("DebugMode=" + Debug.GetDebugMode().ToString());
+            debugLog.SetDebugMode(!debugLog.GetDebugMode());
+            MessageBox.Show("DebugMode=" + debugLog.GetDebugMode().ToString());
         }
 
         public void SetStartTime()
@@ -286,7 +264,7 @@ namespace Cheetos
             textBox＿ExpectEndTime.Text = "";
         }
 
-        public void SetExpectEndTime(int TotalNum)
+        public void SetExpectEndTime(int totalNum)
         {
             // 開始時間
             DateTime dtStart = DateTime.Parse(textBox_StartTime.Text);
@@ -295,8 +273,8 @@ namespace Cheetos
             DateTime dtEnd = DateTime.Now;
 
             // 一個分の処理時間
-            long ProcTime = dtEnd.Ticks - dtStart.Ticks;
-            DateTime dtExpect = new DateTime(dtStart.Ticks + ProcTime * TotalNum);
+            long procTime = dtEnd.Ticks - dtStart.Ticks;
+            DateTime dtExpect = new DateTime(dtStart.Ticks + procTime * totalNum);
 
             textBox＿ExpectEndTime.Text = dtExpect.ToString();
         }
@@ -308,35 +286,37 @@ namespace Cheetos
 
         private void pt_Radio_SelectPointOfEnd_Click(object sender, EventArgs e)
         {
-            UpdatePitTrimSize();
+            UpdatePictTrimSize();
         }
 
         private void pt_Radio_SelectSizeOfEnd_Click(object sender, EventArgs e)
         {
-            UpdatePitTrimSize();
+            UpdatePictTrimSize();
         }
 
         private void pt_ListBox_ListUp_DoubleClick(object sender, EventArgs e)
         {
-            for (int i = 0; i < pt_ListBox_ListUp.SelectedItems.Count; i++)
-            {
-                String FilePath = pt_SourceFolderPath.Text + @"\" + pt_ListBox_ListUp.SelectedItems[i].ToString();
-                util.ExecutePath(FilePath);
-            }
+            OpenSelectedFiles(pt_SourceFolderPath, pt_ListBox_ListUp);
         }
 
         private void pm_ListBox_ListUp_DoubleClick(object sender, EventArgs e)
         {
-            for (int i = 0; i < pm_ListBox_ListUp.SelectedItems.Count; i++)
+            OpenSelectedFiles(pm_SourceFolderPath, pm_ListBox_ListUp);
+        }
+
+        // リストボックスで選択中のファイルを関連付けで開く(Trim/Mergeの各タブで共通)
+        private void OpenSelectedFiles(TextBox folderPathCtrl, ListBox listCtrl)
+        {
+            for (int i = 0; i < listCtrl.SelectedItems.Count; i++)
             {
-                String FilePath = pm_SourceFolderPath.Text + @"\" + pm_ListBox_ListUp.SelectedItems[i].ToString();
-                util.ExecutePath(FilePath);
+                String filePath = folderPathCtrl.Text + @"\" + listCtrl.SelectedItems[i].ToString();
+                util.ExecutePath(filePath);
             }
         }
 
-        private void InitProgressBar(int Maximum, int Minimum = 0)
+        private void InitProgressBar(int maximum)
         {
-            ProgressBar_Status.Maximum = Maximum;
+            ProgressBar_Status.Maximum = maximum;
             ProgressBar_Status.Minimum = 0;
             ProgressBar_Status.Value = 0;
         }
@@ -357,20 +337,20 @@ namespace Cheetos
         }
 
         // 指定フォルダ直下のファイル名をリストボックスへ並べる(Trim/Merge/Rotationの各タブで共通)
-        private void ListupFolderFiles(TextBox FolderPathCtrl, ListBox ListCtrl)
+        private void ListupFolderFiles(TextBox folderPathCtrl, ListBox listCtrl)
         {
-            if (!Directory.Exists(FolderPathCtrl.Text))
+            if (!Directory.Exists(folderPathCtrl.Text))
             {
                 MessageBox.Show("フォルダパスが不正です");
                 return;
             }
 
-            ListCtrl.Items.Clear();
+            listCtrl.Items.Clear();
 
-            string[] files = Directory.GetFiles(FolderPathCtrl.Text, "*", SearchOption.TopDirectoryOnly);
+            string[] files = Directory.GetFiles(folderPathCtrl.Text, "*", SearchOption.TopDirectoryOnly);
             for (int i = 0; i < files.Length; i++)
             {
-                ListCtrl.Items.Add(Path.GetFileName(files[i]));
+                listCtrl.Items.Add(Path.GetFileName(files[i]));
             }
         }
 
@@ -383,40 +363,21 @@ namespace Cheetos
             cw_dataGridView.AllowUserToAddRows = false;
 
             // 個別に挿入していないColumn項目数（ComboBox等を別途Insertしているので除外したい）
-            int EditColumn = 0;
-            for (int i = 0; i < DataGridParam.Length; i++)
+            cw_dataGridView.ColumnCount = DataGridColumns.Count(c => c.Type == DataGridType.EDIT_BOX);
+
+            // ComboBoxのリスト作成
+            DataGridViewComboBoxColumn column = new DataGridViewComboBoxColumn();
+            column.Items.AddRange(MouseEventItems);
+            cw_dataGridView.Columns.Add(column);
+
+            column = new DataGridViewComboBoxColumn();
+            column.Items.AddRange(CaptureEventItems);
+            cw_dataGridView.Columns.Add(column);
+
+            // ヘッダ作成
+            for (int i = 0; i < DataGridColumns.Length; i++)
             {
-                if (DataGridParam[i].Type == DataGridType.EDIT_BOX)
-                {
-                    EditColumn++;
-                }
-            }
-            cw_dataGridView.ColumnCount = EditColumn;
-
-            {
-                // ComboBoxのリスト作成
-                DataGridViewComboBoxColumn column = new DataGridViewComboBoxColumn();
-                for (int i = 0; i < MouseEvent.Length; i++)
-                {
-                    column.Items.Add(MouseEvent[i]);
-                }
-                cw_dataGridView.Columns.Add(column);
-
-                //DataGridViewCheckBoxColumn CheckColumn = new DataGridViewCheckBoxColumn();
-                //cw_dataGridView.Columns.Add(CheckColumn);
-
-                column = new DataGridViewComboBoxColumn();
-                for (int i = 0; i < CaptureEvent.Length; i++)
-                {
-                    column.Items.Add(CaptureEvent[i]);
-                }
-                cw_dataGridView.Columns.Add(column);
-
-                // ヘッダ作成
-                for (int i = 0; i < DataGridParam.Length; i++)
-                {
-                    cw_dataGridView.Columns[i].HeaderText = DataGridParam[i].HeaderName;
-                }
+                cw_dataGridView.Columns[i].HeaderText = DataGridColumns[i].HeaderName;
             }
 
             // 幅設定
@@ -429,7 +390,7 @@ namespace Cheetos
         {
             DataGridView dgv = (DataGridView)sender;
 
-            switch (DataGridParam[e.ColumnIndex].Type)
+            switch (DataGridColumns[e.ColumnIndex].Type)
             {
                 case DataGridType.DROP_DOWN:
                     dgv.BeginEdit(false);
@@ -448,14 +409,14 @@ namespace Cheetos
 
         private void cw_Button_AddLine_Click(object sender, EventArgs e)
         {
-            int InsertIndex = cw_dataGridView.CurrentRow.Index + 1;
-            cw_dataGridView.Rows.Insert(InsertIndex);
+            int insertIndex = cw_dataGridView.CurrentRow.Index + 1;
+            cw_dataGridView.Rows.Insert(insertIndex);
 
-            int ColumnIdx = GetDataGridColumnIdx(GridHeaderMouseActionStr);
-            util.SetDataGridCell(cw_dataGridView, InsertIndex, ColumnIdx, MouseEventMoveStr);
+            int columnIdx = GetDataGridColumnIdx(GridHeaderMouseActionStr);
+            util.SetDataGridCell(cw_dataGridView, insertIndex, columnIdx, MouseEventMoveStr);
 
-            ColumnIdx = GetDataGridColumnIdx(GridHeaderCaptureStr);
-            util.SetDataGridCell(cw_dataGridView, InsertIndex, ColumnIdx, NotExecuteStr);
+            columnIdx = GetDataGridColumnIdx(GridHeaderCaptureStr);
+            util.SetDataGridCell(cw_dataGridView, insertIndex, columnIdx, NotExecuteStr);
         }
 
         private void cw_Button_DelLine_Click(object sender, EventArgs e)

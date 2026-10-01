@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Drawing;
-using Picture;
 
 namespace Cheetos
 {
@@ -65,32 +62,22 @@ namespace Cheetos
             // senderの値はbgWorkerの値と同じ
             BackgroundWorker worker = (BackgroundWorker)sender;
 
-            String ErrorString = "";
+            String errorString = "";
 
             // このメソッドへのパラメータ
             OrientWorkerParam param = (OrientWorkerParam)e.Argument;
-            int WhiteLength = param.WhiteLength;
-            int WhiteCoef = param.WhiteCoef;
-            String DestPortFolderPath = param.DestPortFolderPath;
-            String DestLandFolderPath = param.DestLandFolderPath;
             String[] files = param.Files;
 
-            for (int i = 0; i <= files.Length - 1; i++)
+            for (int i = 0; i < files.Length; i++)
             {
-                String DestName;
-                if (Logic.IsPortrait(files[i], WhiteLength, WhiteCoef))
-                {
-                    DestName = DestPortFolderPath;
-                }
-                else
-                {
-                    DestName = DestLandFolderPath;
-                }
-                DestName += @"\" + Path.GetFileName(files[i]);
+                String destFolderPath = Logic.IsPortrait(files[i], param.WhiteLength, param.WhiteCoef)
+                    ? param.DestPortFolderPath
+                    : param.DestLandFolderPath;
+                String destName = destFolderPath + @"\" + Path.GetFileName(files[i]);
 
-                if (!fio.FileMove(files[i], DestName))
+                if (!fio.FileMove(files[i], destName))
                 {
-                    ErrorString += "Move " + files[i] + " " + DestName + Environment.NewLine;
+                    errorString += "Move " + files[i] + " " + destName + Environment.NewLine;
                 }
 
                 // 進捗率の表示
@@ -105,7 +92,7 @@ namespace Cheetos
             }
 
             worker.ReportProgress(files.Length);      // ⇒ProgressChanged()
-            e.Result = ErrorString;
+            e.Result = errorString;
         }
 
         private void bkgWorkerOrient_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -115,24 +102,19 @@ namespace Cheetos
                 MessageBox.Show("キャンセルされました");
                 // この場合はe.Resultにはアクセスできない
             }
-            else if (!(e.Error == null))
+            else if (e.Error != null)
             {
                 MessageBox.Show("エラーが発生しました[" + e.Error.Message + "]");
             }
             else
             {
-                String Result = e.Result.ToString();
-                if (Result != String.Empty)
+                String result = e.Result.ToString();
+                if (result != String.Empty)
                 {
-                    MessageBox.Show("処理が失敗しました。" + Environment.NewLine + Result,
+                    MessageBox.Show("処理が失敗しました。" + Environment.NewLine + result,
                         "Warning",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
-                }
-                else
-                {
-                    // 処理結果の表示
-                    //MessageBox.Show("正常に完了しました");
                 }
             }
             TextBox_Status.Text += " 完了";
