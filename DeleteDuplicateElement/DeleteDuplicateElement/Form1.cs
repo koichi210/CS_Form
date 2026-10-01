@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using StandardTemplate;
 
@@ -43,9 +37,9 @@ namespace DeleteDuplicateElement
         
         private void button_Execute_Click(object sender, EventArgs e)
         {
-            String[] SourceArray = util.ChangeStrLinear2Array(textBox_Source.Text, Environment.NewLine);
-            String[] TrimDupArray = util.TrimDuplication(SourceArray);
-            textBox_Dest.Text = util.ChangeStrArray2Linear(TrimDupArray, Environment.NewLine);
+            String[] sourceArray = util.ChangeStrLinear2Array(textBox_Source.Text, Environment.NewLine);
+            String[] uniqueArray = util.TrimDuplication(sourceArray);
+            textBox_Dest.Text = util.ChangeStrArray2Linear(uniqueArray, Environment.NewLine);
         }
     }
 }
