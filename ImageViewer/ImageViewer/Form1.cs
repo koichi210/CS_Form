@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using StandardTemplate;
@@ -94,18 +88,22 @@ namespace ImageViewer
             util.ExecutePath(textBox_FolderPath.Text, e);
         }
 
-        private void button_SampleView_Click(object sender, EventArgs e)
+        // 現在の拡大率でプレビューを表示する(isSample=trueのときは1枚だけ)
+        private void ShowPreview(bool isSample)
         {
             PreView pv = new PreView();
             pv.SetSize(hScrollBar_Scaling.Value);
-            pv.View(imageList, listView_Image, textBox_FolderPath.Text, textBox_Extension.Text, true);
+            pv.View(imageList, listView_Image, textBox_FolderPath.Text, textBox_Extension.Text, isSample);
+        }
+
+        private void button_SampleView_Click(object sender, EventArgs e)
+        {
+            ShowPreview(true);
         }
 
         private void button_ListView_Click(object sender, EventArgs e)
         {
-            PreView pv = new PreView();
-            pv.SetSize(hScrollBar_Scaling.Value);
-            pv.View(imageList, listView_Image, textBox_FolderPath.Text, textBox_Extension.Text);
+            ShowPreview(false);
         }
 
         private void hScrollBar_Scaling_Scroll(object sender, ScrollEventArgs e)
@@ -118,9 +116,7 @@ namespace ImageViewer
 
             if (Directory.Exists(textBox_FolderPath.Text))
             {
-                PreView pv = new PreView();
-                pv.SetSize(hScrollBar_Scaling.Value);
-                pv.View(imageList, listView_Image, textBox_FolderPath.Text, textBox_Extension.Text, true);
+                ShowPreview(true);
             }
         }
 
@@ -134,16 +130,16 @@ namespace ImageViewer
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
+            LoadProfile(loadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
-            String LoadFileName = fio.SelectLoadFileName(DefaultSaveName, userDataFolder);
-            if (LoadProfile(LoadFileName))
+            String loadFileName = fio.SelectLoadFileName(DefaultSaveName, userDataFolder);
+            if (LoadProfile(loadFileName))
             {
-                comboBox_Profile.Text = Path.GetFileName(LoadFileName);
+                comboBox_Profile.Text = Path.GetFileName(loadFileName);
             }
         }
 

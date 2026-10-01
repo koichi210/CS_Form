@@ -1,21 +1,15 @@
 ﻿﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.Windows.Forms;
 using StandardTemplate;
 
 namespace ImageViewer
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(ImageViewer Parent)
+        public void RegistItem(ImageViewer parent)
         {
             // コントロールを列挙
-            RegistCtrl("Parent", "textBox_FolderPath", Parent.textBox_FolderPath);
-            RegistCtrl("Parent", "textBox_Extension", Parent.textBox_Extension);
+            RegistCtrl("Parent", "textBox_FolderPath", parent.textBox_FolderPath);
+            RegistCtrl("Parent", "textBox_Extension", parent.textBox_Extension);
         }
     }
 }
