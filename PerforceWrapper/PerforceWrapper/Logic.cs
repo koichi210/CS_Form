@@ -23,54 +23,54 @@ namespace PerforceWrapper
         public static Perforce.OPERATOR_TYPE GetOperatorType(
             bool checkoutChecked, bool restoreChecked, bool deleteChecked, bool getLatestChecked)
         {
-            Perforce.OPERATOR_TYPE OperatorType = Perforce.OPERATOR_TYPE.SYNC;
+            Perforce.OPERATOR_TYPE operatorType = Perforce.OPERATOR_TYPE.SYNC;
             if (checkoutChecked)
             {
-                OperatorType = Perforce.OPERATOR_TYPE.EDIT;
+                operatorType = Perforce.OPERATOR_TYPE.EDIT;
             }
             else if (restoreChecked)
             {
-                OperatorType = Perforce.OPERATOR_TYPE.REVERT;
+                operatorType = Perforce.OPERATOR_TYPE.REVERT;
             }
             else if (deleteChecked)
             {
-                OperatorType = Perforce.OPERATOR_TYPE.DELETE;
+                operatorType = Perforce.OPERATOR_TYPE.DELETE;
             }
             else if (getLatestChecked)
             {
-                OperatorType = Perforce.OPERATOR_TYPE.SYNC;
+                operatorType = Perforce.OPERATOR_TYPE.SYNC;
             }
 
-            return OperatorType;
+            return operatorType;
         }
 
         /// <summary>タブコントロールの選択インデックスから、現在のタブIDを判定する。</summary>
         public static TAB_ID GetCurrentTabId(int selectedTabIndex)
         {
-            TAB_ID TabId = TAB_ID.BASE_OPERATION;
+            TAB_ID tabId = TAB_ID.BASE_OPERATION;
             switch (selectedTabIndex)
             {
                 case 0:
-                    TabId = TAB_ID.BASE_OPERATION;
+                    tabId = TAB_ID.BASE_OPERATION;
                     break;
 
                 case 1:
-                    TabId = TAB_ID.SET_LABEL;
+                    tabId = TAB_ID.SET_LABEL;
                     break;
 
                 case 2:
-                    TabId = TAB_ID.DIFF_LABEL;
+                    tabId = TAB_ID.DIFF_LABEL;
                     break;
 
                 case 3:
-                    TabId = TAB_ID.APPLY_LABEL;
+                    tabId = TAB_ID.APPLY_LABEL;
                     break;
 
                 default:
                     break;
             }
 
-            return TabId;
+            return tabId;
         }
     }
 }

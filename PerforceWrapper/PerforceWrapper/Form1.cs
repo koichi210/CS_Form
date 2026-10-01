@@ -1,10 +1,5 @@
 ﻿﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using StandardTemplate;
@@ -13,7 +8,7 @@ namespace PerforceWrapper
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String SettingFileName = "PerforceWrapper.json";
+        private const String SettingFileName = "PerforceWrapper.json";
 
         // 設定ファイルはJSONが基本。旧XML(PerforceWrapper.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
@@ -91,8 +86,8 @@ namespace PerforceWrapper
 
         private void comboBox_profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_profile.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = Path.Combine(userDataFolder, comboBox_profile.Text);
+            LoadProfile(loadFileName);
         }
 
         private void textBox_tree_list_KeyDown(object sender, KeyEventArgs e)
@@ -100,17 +95,16 @@ namespace PerforceWrapper
             util.SelectAll(e);
         }
 
-        private String ExecuteForeground(String Script)
+        private String ExecuteForeground(String script)
         {
-            String BatchFile = fio.CreateTempFile("bat");
-            fio.CreateFile(BatchFile, Script);
+            String batchFile = fio.CreateTempFile("bat");
+            fio.CreateFile(batchFile, script);
 
-            String Output = "";
-            util.ExecuteProcess(out Output, BatchFile);
-            return Output;
+            util.ExecuteProcess(out String output, batchFile);
+            return output;
         }
 
-        private void Execute(String Script)
+        private void Execute(String script)
         {
             // 実行中に押されると RunWorkerAsync が例外になり、パスワード入りのバッチだけが残ってしまうため先に弾く
             if (backgroundWorker.IsBusy)
@@ -119,25 +113,23 @@ namespace PerforceWrapper
                 return;
             }
 
-            String BatchFile = fio.CreateTempFile("bat");
-            fio.CreateFile(BatchFile, Script);
+            String batchFile = fio.CreateTempFile("bat");
+            fio.CreateFile(batchFile, script);
 
             // 実行(引数はバッチのパス1つだけなのでそのまま渡す)
-            backgroundWorker.RunWorkerAsync(BatchFile);   // ⇒DoWork()
+            backgroundWorker.RunWorkerAsync(batchFile);   // ⇒DoWork()
         }
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker worker = (BackgroundWorker)sender;
-
             // このメソッドへのパラメータ
-            String BatchFile = (String)e.Argument;
+            String batchFile = (String)e.Argument;
 
             // コマンド実行
-            util.ExecuteProcess(BatchFile);
+            util.ExecuteProcess(batchFile);
 
             // パスワードが含まれるのでファイルを削除する
-            //File.Delete(BatchFile);
+            //File.Delete(batchFile);
 
             // このメソッドからの戻り値
             e.Result = "SUCCESS";
@@ -156,34 +148,23 @@ namespace PerforceWrapper
         {
             pf.SetServerName(comboBox_perforce_server.Text);
             pf.SetWorkspace(comboBox_perforce_workspace.Text);
-            pf.SetCharacter(comboBox_perforce_charset.Text);
+            pf.SetCharset(comboBox_perforce_charset.Text);
             pf.SetUserName(comboBox_perforce_user.Text);
             pf.SetUserPass(textbox_perforce_password.Text);
         }
 
         private void UpdateControlUI(object sender, EventArgs e)
         {
-            Boolean IsStandardChangeListEnable = false;
-            if (radioButton_so_menu_get_latest.Checked)
-            {
-                IsStandardChangeListEnable = true;
-            }
-            textBox_so_changelist.Enabled = IsStandardChangeListEnable;
-
-            Boolean IsTreeEnable = true;
-            Logic.TAB_ID CurrentTabId = Logic.GetCurrentTabId(tabControl.SelectedIndex);
-            if (CurrentTabId == Logic.TAB_ID.DIFF_LABEL)
-            {
-                IsTreeEnable = false;
-            }
-            textBox_tree_list.Enabled = IsTreeEnable;
+            // 変更リスト番号は「最新を取得」のときだけ、ツリー指定は「ラベル比較」以外のときだけ入力できる
+            textBox_so_changelist.Enabled = radioButton_so_menu_get_latest.Checked;
+            textBox_tree_list.Enabled = Logic.GetCurrentTabId(tabControl.SelectedIndex) != Logic.TAB_ID.DIFF_LABEL;
         }
 
         private void button_execute_Click(object sender, EventArgs e)
         {
-            Logic.TAB_ID TabId = Logic.GetCurrentTabId(tabControl.SelectedIndex);
+            Logic.TAB_ID tabId = Logic.GetCurrentTabId(tabControl.SelectedIndex);
 
-            switch(TabId)
+            switch(tabId)
             {
             case Logic.TAB_ID.BASE_OPERATION:
                 BaseOperationExecute();
@@ -218,13 +199,13 @@ namespace PerforceWrapper
             SetPerforceEnv(pf);
 
             // 選択された操作のコマンド生成
-            Perforce.OPERATOR_TYPE OperatorType = Logic.GetOperatorType(
+            Perforce.OPERATOR_TYPE operatorType = Logic.GetOperatorType(
                 radioButton_so_menu_checkout.Checked,
                 radioButton_so_menu_restore.Checked,
                 radioButton_so_menu_delete.Checked,
                 radioButton_so_menu_get_latest.Checked);
-            pf.SetOperatorType(OperatorType);
-            if (OperatorType == Perforce.OPERATOR_TYPE.SYNC)
+            pf.SetOperatorType(operatorType);
+            if (operatorType == Perforce.OPERATOR_TYPE.SYNC)
             {
                 pf.SetRevision(textBox_so_changelist.Text);
             }
@@ -283,20 +264,19 @@ namespace PerforceWrapper
             pf.SetDebugMode(m_IsDebug);
 
             // 比較対象
-            String Command = pf.GetLabelDesignationPathName(textBox_dl_src_tree.Text, textBox_dl_src_label_name.Text);
-            Command += " ";
-            Command += pf.GetLabelDesignationPathName(textBox_dl_dest_tree.Text, textBox_dl_dest_label_name.Text);
+            String command = pf.GetLabelDesignationPathName(textBox_dl_src_tree.Text, textBox_dl_src_label_name.Text);
+            command += " ";
+            command += pf.GetLabelDesignationPathName(textBox_dl_dest_tree.Text, textBox_dl_dest_label_name.Text);
 
             // 比較結果格納
-            StcFileInputOutput fio = new StcFileInputOutput();
-            String DiffFile = fio.CreateTempFile();
-            Command += " > " + DiffFile;
+            String diffFile = fio.CreateTempFile();
+            command += " > " + diffFile;
 
-            ExecuteForeground(pf.CreateCommandDefined(Command));
+            ExecuteForeground(pf.CreateCommandDefined(command));
 
             // 比較結果検証
-            FileInfo fi = new FileInfo(DiffFile);
-            if ( 0 < fi.Length)
+            FileInfo diffFileInfo = new FileInfo(diffFile);
+            if ( 0 < diffFileInfo.Length)
             {
                 MessageBox.Show("差分があります", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -318,12 +298,12 @@ namespace PerforceWrapper
             SetPerforceEnv(pf);
 
             // 選択された操作のコマンド生成
-            Perforce.OPERATOR_TYPE OperatorType = Perforce.OPERATOR_TYPE.COPY;
+            Perforce.OPERATOR_TYPE operatorType = Perforce.OPERATOR_TYPE.COPY;
             if (radioButton_al_merge.Checked)
             {
-                OperatorType = Perforce.OPERATOR_TYPE.MERGE;
+                operatorType = Perforce.OPERATOR_TYPE.MERGE;
             }
-            pf.SetOperatorType(OperatorType);
+            pf.SetOperatorType(operatorType);
             pf.SetRevision(textBox_ak_label_name.Text);
             pf.SetBranchMapName(textBox_ak_branch_map.Text);
             pf.SetTargetTree(textBox_tree_list.Text);

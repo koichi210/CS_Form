@@ -1,7 +1,4 @@
-﻿﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using StandardTemplate;
 
 namespace PerforceWrapper
@@ -26,233 +23,224 @@ namespace PerforceWrapper
         String m_UserName = "";
         String m_UserPass = "";
         String m_UserPassFile = "";
-        String m_Character = "";
+        String m_Charset = "";
         String m_TargetTree = "";
         String m_Revision = "";
         String m_LabelName = "";
         String m_BranchMapName = "";
         OPERATOR_TYPE m_OperatorType = OPERATOR_TYPE.SYNC;
 
-        public void SetDebugMode( Boolean IsDebug )
+        public void SetDebugMode( Boolean isDebug )
         {
-            m_IsDebug = IsDebug;
+            m_IsDebug = isDebug;
         }
-        public void SetServerName(String ServerName)
+        public void SetServerName(String serverName)
         {
-            m_ServerName = ServerName;
-        }
-
-        public void SetWorkspace(String Workspace)
-        {
-            m_Workspace = Workspace;
+            m_ServerName = serverName;
         }
 
-        public void SetUserName(String UserName)
+        public void SetWorkspace(String workspace)
         {
-            m_UserName = UserName;
+            m_Workspace = workspace;
         }
 
-        public void SetUserPass(String UserPass)
+        public void SetUserName(String userName)
         {
-            m_UserPass = UserPass;
+            m_UserName = userName;
         }
 
-        public void SetCharacter(String Character)
+        public void SetUserPass(String userPass)
         {
-            m_Character = Character;
+            m_UserPass = userPass;
         }
 
-        public void SetOperatorType(OPERATOR_TYPE OperatorType)
+        public void SetCharset(String charset)
         {
-            m_OperatorType = OperatorType;
+            m_Charset = charset;
         }
 
-        public void SetRevision(String Revision)
+        public void SetOperatorType(OPERATOR_TYPE operatorType)
         {
-            m_Revision = Revision;
+            m_OperatorType = operatorType;
         }
 
-        public void SetLabelName(String LabelName)
+        public void SetRevision(String revision)
         {
-            m_LabelName = LabelName;
+            m_Revision = revision;
         }
 
-        public void SetBranchMapName(String BranchMapName)
+        public void SetLabelName(String labelName)
         {
-            m_BranchMapName = BranchMapName;
+            m_LabelName = labelName;
         }
 
-        public void SetTargetTree(String TargetTree)
+        public void SetBranchMapName(String branchMapName)
         {
-            m_TargetTree = TargetTree;
+            m_BranchMapName = branchMapName;
+        }
+
+        public void SetTargetTree(String targetTree)
+        {
+            m_TargetTree = targetTree;
         }
 
         public String CreateCommandUseTree()
         {
-            String Command = CreateEnvCommand();
-            String Operator = GetOperatorCommand();
+            String command = CreateEnvCommand();
+            String operatorCommand = GetOperatorCommand();
 
             // 指定ツリーすべてに対してコマンド生成
-            String[] TreeArray = m_TargetTree.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            foreach (String Tree in TreeArray)
+            String[] trees = m_TargetTree.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (String tree in trees)
             {
-                if (Tree == String.Empty)
+                if (tree == String.Empty)
                 {
                     continue;
                 }
 
-                Command += Operator + AppendTreeSymbol(Tree);
-                Command += GetRevision() + Environment.NewLine;
+                command += operatorCommand + AppendTreeSymbol(tree);
+                command += GetRevision() + Environment.NewLine;
             }
-            Command += CreatePostCommand();
+            command += CreatePostCommand();
 
-            return Command;
+            return command;
         }
 
         private String GetRevision()
         {
-            String Revision = "";
             if (m_Revision != String.Empty)
             {
-                Revision = "@" + m_Revision;
+                return "@" + m_Revision;
             }
-            else
+
+            return "#head";
+        }
+
+        public String CreateCommandDefined(String definedCommand)
+        {
+            String command = CreateEnvCommand();
+            command += GetOperatorCommand() + definedCommand + Environment.NewLine;
+            command += CreatePostCommand();
+            return command;
+        }
+
+        public String GetLabelDesignationPathName(String pathName, String labelName )
+        {
+            return AppendTreeSymbol(pathName) + "@" + labelName;
+        }
+
+        private String AppendTreeSymbol(String filePath)
+        {
+            const String DirSpec = "...";
+            if (filePath.EndsWith(DirSpec))
             {
-                Revision = "#head";
+                return filePath;
             }
 
-            return Revision;
-        }
-
-        public String CreateCommandDefined(String DefinedCommand)
-        {
-            String Command = CreateEnvCommand();
-            String Operator = GetOperatorCommand();
-
-            Command += Operator + DefinedCommand + Environment.NewLine;
-            Command += CreatePostCommand();
-            return Command;
-        }
-
-        public String GetLabelDesignationPathName(String PathName, String LabelName )
-        {
-            return AppendTreeSymbol(PathName) + "@" + LabelName;
-        }
-
-        private String AppendTreeSymbol(String FilePath)
-        {
-            String Command = FilePath;
-
-            String DirSpec = "...";
-            if (!FilePath.EndsWith(DirSpec))
-            {
-                Command += DirSpec;
-            }
-
-            return Command;
+            return filePath + DirSpec;
         }
 
         private String GetOperatorCommand()
         {
-            String Operator = "p4 ";
+            String operatorCommand = "p4 ";
 
             // Operationごとにコマンド切替
             switch(m_OperatorType)
             {
             case  OPERATOR_TYPE.EDIT:
-                Operator += "edit ";
+                operatorCommand += "edit ";
                 break;
 
             case  OPERATOR_TYPE.REVERT:
-                Operator += "revert ";
+                operatorCommand += "revert ";
                 break;
 
             case  OPERATOR_TYPE.DELETE:
-                Operator += "delete ";
+                operatorCommand += "delete ";
                 break;
 
             case  OPERATOR_TYPE.SYNC:
-                Operator += "sync ";
+                operatorCommand += "sync ";
                 break;
 
             case OPERATOR_TYPE.SET_LABEL:
-                Operator += "tag -l " + m_LabelName + " ";
+                operatorCommand += "tag -l " + m_LabelName + " ";
                 break;
 
             case OPERATOR_TYPE.DIFF:
-                Operator += "diff2 -qt ";
+                operatorCommand += "diff2 -qt ";
                 break;
 
             case OPERATOR_TYPE.COPY:
-                Operator += "copy -b " + m_BranchMapName + " -s ";
+                operatorCommand += "copy -b " + m_BranchMapName + " -s ";
                 break;
 
             case OPERATOR_TYPE.MERGE:
-                Operator += "integrate -b " + m_BranchMapName + " -s ";
+                operatorCommand += "integrate -b " + m_BranchMapName + " -s ";
                 break;
             }
 
-            return Operator;
+            return operatorCommand;
         }
 
         private String CreateEnvCommand()
         {
-            String Command = "";
+            String command = "";
 
             if (m_ServerName != String.Empty)
             {
-                Command += "set P4PORT=" + m_ServerName + Environment.NewLine;
+                command += "set P4PORT=" + m_ServerName + Environment.NewLine;
             }
 
             if (m_Workspace != String.Empty)
             {
-                Command += "set P4CLIENT=" + m_Workspace + Environment.NewLine;
+                command += "set P4CLIENT=" + m_Workspace + Environment.NewLine;
             }
 
-            if (m_Character != String.Empty)
+            if (m_Charset != String.Empty)
             {
-                Command += "set P4CHARSET=" + m_Character + Environment.NewLine;
+                command += "set P4CHARSET=" + m_Charset + Environment.NewLine;
             }
 
             if (m_UserName != String.Empty)
             {
-                Command += "set P4USER=" + m_UserName + Environment.NewLine;
+                command += "set P4USER=" + m_UserName + Environment.NewLine;
             }
 
             // Perforceログイン設定
             if (m_UserName != String.Empty && m_UserPass != String.Empty)
             {
-                Command += "cat " + CreatePasswordFile(m_UserPass) + " | ";
-                Command += "p4 -u " + m_UserName + " login -a" + Environment.NewLine;
+                command += "cat " + CreatePasswordFile(m_UserPass) + " | ";
+                command += "p4 -u " + m_UserName + " login -a" + Environment.NewLine;
             }
 
-            return Command;
+            return command;
         }
 
-        private String CreatePasswordFile(String Password)
+        private String CreatePasswordFile(String password)
         {
             StcFileInputOutput fio = new StcFileInputOutput();
             m_UserPassFile = fio.CreateTempFile();
-            fio.CreateFile(m_UserPassFile, Password);
+            fio.CreateFile(m_UserPassFile, password);
 
             return m_UserPassFile;
         }
 
         private String CreatePostCommand()
         {
-            String Command = "";
+            String command = "";
 
             if (m_UserPassFile != String.Empty)
             {
-                Command += "del " + m_UserPassFile + Environment.NewLine;
+                command += "del " + m_UserPassFile + Environment.NewLine;
             }
 
             if (m_IsDebug)
             {
-                Command += "PAUSE" + Environment.NewLine;
+                command += "PAUSE" + Environment.NewLine;
             }
 
-            return Command;
+            return command;
         }
     }
 }
