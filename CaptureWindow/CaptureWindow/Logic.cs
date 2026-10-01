@@ -8,7 +8,7 @@ namespace CaptureWindow
     /// 設定値をXMLファイルに保存/読み込みするロジック。
     ///
     /// XMLの組み立てと読み取りは、同じ形式を手書きしていた4プロジェクト
-    /// (CaptureWindow/PictTriming/PictMerge/PictMerge2)で共通だったため
+    /// (CaptureWindow/PictTrimming/PictMerge/PictMerge2)で共通だったため
     /// [[_Common/SimpleSettings.cs]]へ集約した。ここに残っているのは
     /// 「どの項目をどのキー名で保存するか」というCaptureWindow固有の対応だけ。
     /// ファイル形式は従来と同じなので、これまでの設定ファイルもそのまま読める。
