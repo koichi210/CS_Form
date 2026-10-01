@@ -10,7 +10,7 @@ namespace PassValue.Tests
     public class FormSubTests
     {
         [TestMethod]
-        public void 設定ボタンでtextBox1の内容がvalueプロパティに反映される()
+        public void 設定ボタンでtextBox1の内容がValueプロパティに反映される()
         {
             using (var fs = new FormSub())
             {
@@ -19,7 +19,7 @@ namespace PassValue.Tests
 
                 FormReflection.InvokeHandler(fs, "button_Click_Setting", fs);
 
-                Assert.AreEqual("入力された値", fs.value);
+                Assert.AreEqual("入力された値", fs.Value);
             }
         }
 

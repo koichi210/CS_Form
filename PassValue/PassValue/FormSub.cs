@@ -10,15 +10,16 @@ namespace PassValue
         private Button buttonOk;
         private TextBox textBox1;
 
-        public string value { get; set; }
+        public string Value { get; set; }
 
         public FormSub()
         {
             InitializeComponent();
         }
+
         private void button_Click_Setting(object sender, EventArgs e)
         {
-            value = textBox1.Text;
+            Value = textBox1.Text;
         }
 
         private void InitializeComponent()
