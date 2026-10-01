@@ -14,53 +14,53 @@ namespace TrimFileData
     /// </summary>
     internal static class Logic
     {
-        public static String GetSearchData(String[] SourceArray, String[] ReferList, Boolean ordinalCase, Boolean firstWordOnly, String searchCommonWord)
+        public static String GetSearchData(String[] searchWordLines, String[] referLines, Boolean ordinalCase, Boolean firstWordOnly, String searchCommonWord)
         {
-            StringComparison CmpOpt = ordinalCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            StringComparison comparison = ordinalCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
             StcUtils util = new StcUtils();
 
             // String +=はループの度に文字列全体をコピーし直すため、行数が多いと遅くなる。
             // StringBuilderに溜めてから最後に1回だけToString()する。
-            StringBuilder ResultBuilder = new StringBuilder();
-            for (int i = 0; i < SourceArray.Length; i++)
+            StringBuilder resultBuilder = new StringBuilder();
+            for (int i = 0; i < searchWordLines.Length; i++)
             {
-                ResultBuilder.Append("◆").Append(SourceArray[i]).Append(Environment.NewLine);
+                resultBuilder.Append("◆").Append(searchWordLines[i]).Append(Environment.NewLine);
 
-                String[] SourceList = SourceArray[i].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                String Candidate = GetHitWord(SourceList, ReferList, CmpOpt, firstWordOnly, searchCommonWord);
-                ResultBuilder.Append(util.TrimDuplication(Candidate, Environment.NewLine));
-                ResultBuilder.Append(Environment.NewLine).Append(Environment.NewLine);
+                String[] searchWords = searchWordLines[i].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                String hitLines = GetHitLines(searchWords, referLines, comparison, firstWordOnly, searchCommonWord);
+                resultBuilder.Append(util.TrimDuplication(hitLines, Environment.NewLine));
+                resultBuilder.Append(Environment.NewLine).Append(Environment.NewLine);
             }
 
-            return ResultBuilder.ToString();
+            return resultBuilder.ToString();
         }
 
-        public static String GetHitWord(String[] SourceList, String[] ReferList, StringComparison CmpOpt, Boolean firstWordOnly, String searchCommonWord)
+        public static String GetHitLines(String[] searchWords, String[] referLines, StringComparison comparison, Boolean firstWordOnly, String searchCommonWord)
         {
-            // searchCommonWordによる絞り込みはSourceListのどの単語(j)でも結果が変わらないため、
+            // searchCommonWordによる絞り込みはsearchWordsのどの単語(j)でも結果が変わらないため、
             // 以前は単語数(j)×参照行数(k)回、毎回同じIndexOf判定を繰り返していた。
-            // 単語ループに入る前に1回だけReferListを絞り込んでおけば、絞り込み自体はO(k)で済む。
-            Boolean HasCommonWord = searchCommonWord != "";
-            List<String> FilteredRefer = new List<String>(ReferList.Length);
-            foreach (String line in ReferList)
+            // 単語ループに入る前に1回だけreferLinesを絞り込んでおけば、絞り込み自体はO(k)で済む。
+            Boolean hasCommonWord = searchCommonWord != "";
+            List<String> filteredLines = new List<String>(referLines.Length);
+            foreach (String line in referLines)
             {
-                if (!HasCommonWord || line.IndexOf(searchCommonWord, CmpOpt) != -1)
+                if (!hasCommonWord || line.IndexOf(searchCommonWord, comparison) != -1)
                 {
-                    FilteredRefer.Add(line);
+                    filteredLines.Add(line);
                 }
             }
 
-            StringBuilder ResultBuilder = new StringBuilder();
+            StringBuilder resultBuilder = new StringBuilder();
 
-            for (int j = 0; j < SourceList.Length; j++)
+            for (int j = 0; j < searchWords.Length; j++)
             {
-                for (int k = 0; k < FilteredRefer.Count; k++)
+                for (int k = 0; k < filteredLines.Count; k++)
                 {
-                    if (FilteredRefer[k].IndexOf(SourceList[j], CmpOpt) != -1)
+                    if (filteredLines[k].IndexOf(searchWords[j], comparison) != -1)
                     {
                         //Fileから抽出
-                        ResultBuilder.Append(FilteredRefer[k]).Append(Environment.NewLine);
+                        resultBuilder.Append(filteredLines[k]).Append(Environment.NewLine);
 
                         // 最初に見つかった項目のみ抽出
                         if (firstWordOnly)
@@ -71,7 +71,7 @@ namespace TrimFileData
                 }
             }
 
-            return ResultBuilder.ToString();
+            return resultBuilder.ToString();
         }
     }
 }

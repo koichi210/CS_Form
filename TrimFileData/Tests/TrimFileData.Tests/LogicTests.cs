@@ -51,7 +51,7 @@ namespace TrimFileData.Tests
             string[] source = { "apple" };
             string[] refer = { "apple one", "apple two", "apple three" };
 
-            string result = Logic.GetHitWord(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: true, searchCommonWord: "");
+            string result = Logic.GetHitLines(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: true, searchCommonWord: "");
 
             StringAssert.Contains(result, "apple one");
             Assert.IsFalse(result.Contains("apple two"));
@@ -63,7 +63,7 @@ namespace TrimFileData.Tests
         {
             string[] refer = { "apple one", "apple two" };
 
-            string result = Logic.GetHitWord(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: false, searchCommonWord: "");
+            string result = Logic.GetHitLines(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: false, searchCommonWord: "");
 
             StringAssert.Contains(result, "apple one");
             StringAssert.Contains(result, "apple two");
@@ -74,7 +74,7 @@ namespace TrimFileData.Tests
         {
             string[] refer = { "apple + common", "apple only" };
 
-            string result = Logic.GetHitWord(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: false, searchCommonWord: "common");
+            string result = Logic.GetHitLines(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: false, searchCommonWord: "common");
 
             StringAssert.Contains(result, "apple + common");
             Assert.IsFalse(result.Contains("apple only"));
@@ -85,7 +85,7 @@ namespace TrimFileData.Tests
         {
             string[] refer = { "apple + common", "apple only" };
 
-            string result = Logic.GetHitWord(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: false, searchCommonWord: "");
+            string result = Logic.GetHitLines(new[] { "apple" }, refer, StringComparison.OrdinalIgnoreCase, firstWordOnly: false, searchCommonWord: "");
 
             StringAssert.Contains(result, "apple + common");
             StringAssert.Contains(result, "apple only");

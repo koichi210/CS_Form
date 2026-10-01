@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using System.Net;
-using System.Text.RegularExpressions;
 using StandardTemplate;
 
 namespace TrimFileData
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String SettingFile = @"TrimFileData.json";
+        private readonly String SettingFileName = @"TrimFileData.json";
 
         // 設定ファイルはJSONが基本。旧XML(TrimFileData.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
@@ -46,7 +38,6 @@ namespace TrimFileData
             return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
         }
 
-
         private StcFileInputOutput fio = new StcFileInputOutput();
 
         public Form1()
@@ -56,11 +47,11 @@ namespace TrimFileData
             InitializeCommonSettings(Properties.Resources.TrimFileData);
 
             sr.RegistItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFile);
+            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
-            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFile, userDataFolder);
+            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFileName, userDataFolder);
         }
 
         // *******************************************************************************
@@ -99,22 +90,21 @@ namespace TrimFileData
             // 出力先をクリア
             textBox_SearchResultList.Text = "";
 
-            StcFileInputOutput fio = new StcFileInputOutput();
-            String ReferData = fio.LoadFile(textBox_ReferencePath.Text);
-            if (ReferData == String.Empty)
+            String referData = fio.LoadFile(textBox_ReferencePath.Text);
+            if (referData == String.Empty)
             {
                 MessageBox.Show("リファレンスファイルが開けません。" + Environment.NewLine + textBox_ReferencePath.Text);
                 return;
             }
 
             // 検索ワードをリストアップ
-            String[] SourceArray = textBox_SearchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            String[] searchWordLines = textBox_SearchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // リファレンスをリスト化
-            String[] ReferList = ReferData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            String[] referLines = referData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // 検索結果をコントロールにセット
-            textBox_SearchResultList.Text = Logic.GetSearchData(SourceArray, ReferList, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text);
+            textBox_SearchResultList.Text = Logic.GetSearchData(searchWordLines, referLines, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text);
             util.SetClipboardText(textBox_SearchResultList.Text);
         }
 
@@ -128,10 +118,10 @@ namespace TrimFileData
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
-            if (File.Exists(LoadFileName))
+            String loadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            if (File.Exists(loadFileName))
             {
-                LoadProfile(LoadFileName);
+                LoadProfile(loadFileName);
             }
         }
 
