@@ -1,12 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using StandardTemplate;
 
@@ -63,7 +56,7 @@ namespace Mailer
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.Mailer);
 
-            sr.RegistLoadItem(this);
+            sr.RegistItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
@@ -94,8 +87,8 @@ namespace Mailer
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            LoadProfile(loadFileName);
         }
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
@@ -111,60 +104,61 @@ namespace Mailer
  
         private void button_OpenBrowse_Click(object sender, EventArgs e)
         {
-            if (!GetUIParam())
+            if (!TryReadUIParam())
             {
                 return;
             }
 
-            OpenBrowse();
+            OpenBrowser();
         }
 
         private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
         {
-            if (!GetUIParam())
+            if (!TryReadUIParam())
             {
                 return;
             }
-            var offsetDay = Logic.GetLoopList(param.CreateNum, check_BoxReverse.Checked);
-            foreach (var ofs in offsetDay)
+            var dayOffsets = Logic.GetLoopList(param.CreateNum, check_BoxReverse.Checked);
+            foreach (var dayOffset in dayOffsets)
             {
-                OpenBrowse(ofs);
+                OpenBrowser(dayOffset);
                 System.Threading.Thread.Sleep(param.IntervalMsec);
             }
         }
 
-        private void OpenBrowse(int daysOffset = 0)
+        private void OpenBrowser(int daysOffset = 0)
         {
-            String BrowseUrl = MailUrl;
+            String browseUrl = MailUrl;
             if (textBox_MailTo.Text != String.Empty)
             {
-                BrowseUrl += "&to=" + textBox_MailTo.Text;
+                browseUrl += "&to=" + textBox_MailTo.Text;
             }
             if (textBox_MailCc.Text != String.Empty)
             {
-                BrowseUrl += "&cc=" + textBox_MailCc.Text;
+                browseUrl += "&cc=" + textBox_MailCc.Text;
             }
             if (textBox_MailBcc.Text != String.Empty)
             {
-                BrowseUrl += "&bcc=" + textBox_MailBcc.Text;
+                browseUrl += "&bcc=" + textBox_MailBcc.Text;
             }
 
             if (textBox_MailSubject.Text != String.Empty)
             {
-                DateTime UserDate = param.UserDate.AddDays(daysOffset);
-                String ChromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
-                BrowseUrl += "&su=" + Logic.GetReplaceDay(ChromeFormatText, UserDate);
+                DateTime userDate = param.UserDate.AddDays(daysOffset);
+                String chromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
+                browseUrl += "&su=" + Logic.GetReplaceDay(chromeFormatText, userDate);
             }
 
             if (textBox_MailBody.Text != String.Empty)
             {
-                BrowseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
+                browseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
             }
 
-            util.ExecuteProcess(textBox_BrowserPath.Text, BrowseUrl);
+            util.ExecuteProcess(textBox_BrowserPath.Text, browseUrl);
         }
 
-        private Boolean GetUIParam()
+        // 画面の入力値をparamへ読み込む。ブラウザが見つからなければfalse
+        private Boolean TryReadUIParam()
         {
             if( !util.IsExistFileNameInEnvironment(textBox_BrowserPath.Text) )
             {
@@ -194,7 +188,7 @@ namespace Mailer
 
         private void button_Help_Click(object sender, EventArgs e)
         {
-            var Message = "USAGE:" + Environment.NewLine +
+            var helpText = "USAGE:" + Environment.NewLine +
                 "  %%today%% ・・・・        1/1" + Environment.NewLine +
                 "  %%TODAY%% ・・・・   2024/1/1" + Environment.NewLine +
                 "  %%tomorrow%% ・・・       1/2" + Environment.NewLine +
@@ -205,7 +199,7 @@ namespace Mailer
                 "  %%USERSDAY%% ・・・  2024/2/3 (select day)" + Environment.NewLine +
                 "  %%dayofweek%% ・・・ 月       (is selected 2024/1/1)" + Environment.NewLine +
                 "  %%DAYOFWEEK%% ・・・ 月曜日   (is selected 2024/1/1)";
-            MessageBox.Show(Message);
+            MessageBox.Show(helpText);
         }
     }
 }
