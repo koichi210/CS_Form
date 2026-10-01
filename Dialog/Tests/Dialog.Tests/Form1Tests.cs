@@ -8,7 +8,7 @@ namespace Dialog.Tests
     /// Form1 / DialogDynamic / FormStatic（モーダル・モードレスダイアログのサンプル）
     /// のテスト。
     ///
-    /// ⚠️ button_Click / button_static_modal_Click / button_static_modeless_Click は
+    /// ⚠️ buttonDynamic_Click / button_static_modal_Click / button_static_modeless_Click は
     /// 実際にダイアログをShowDialog()/Show()で表示する。ShowDialog()は誰かが閉じる
     /// までブロックするためテストがハングしてしまう。これらのクリックハンドラは
     /// テスト対象から除外し、ダイアログを「表示せず生成しただけ」の状態で
