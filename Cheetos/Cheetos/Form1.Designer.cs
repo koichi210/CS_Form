@@ -1,4 +1,4 @@
-﻿﻿namespace Cheetos
+﻿namespace Cheetos
 {
     partial class Cheetos
     {
