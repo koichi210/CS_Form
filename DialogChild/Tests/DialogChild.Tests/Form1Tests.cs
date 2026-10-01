@@ -39,7 +39,7 @@ namespace DialogChild.Tests
                 var trackBarWindowWidth = (TrackBar)FormReflection.GetControl(form, "trackBarWindowWidth");
                 var trackBarWindowHeight = (TrackBar)FormReflection.GetControl(form, "trackBarWindowHeight");
 
-                var sender = new Button { Name = "buttonMoveDirectionCentor" };
+                var sender = new Button { Name = "buttonMoveDirectionCenter" };
                 FormReflection.InvokeHandler(form, "updatePosition", sender);
 
                 int expectedLeft = (trackBarWindowWidth.Maximum - child.Width) / 2;

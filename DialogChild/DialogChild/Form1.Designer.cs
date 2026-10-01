@@ -32,7 +32,7 @@
             this.groupBoxMoveDirection = new System.Windows.Forms.GroupBox();
             this.buttonMoveDirectionDown = new System.Windows.Forms.Button();
             this.buttonMoveDirectionRight = new System.Windows.Forms.Button();
-            this.buttonMoveDirectionCentor = new System.Windows.Forms.Button();
+            this.buttonMoveDirectionCenter = new System.Windows.Forms.Button();
             this.buttonMoveDirectionLeft = new System.Windows.Forms.Button();
             this.checkBoxVisible = new System.Windows.Forms.CheckBox();
             this.groupBoxSetWindow = new System.Windows.Forms.GroupBox();
@@ -80,7 +80,7 @@
             // 
             this.groupBoxMoveDirection.Controls.Add(this.buttonMoveDirectionDown);
             this.groupBoxMoveDirection.Controls.Add(this.buttonMoveDirectionRight);
-            this.groupBoxMoveDirection.Controls.Add(this.buttonMoveDirectionCentor);
+            this.groupBoxMoveDirection.Controls.Add(this.buttonMoveDirectionCenter);
             this.groupBoxMoveDirection.Controls.Add(this.buttonMoveDirectionLeft);
             this.groupBoxMoveDirection.Controls.Add(this.buttonMoveDirectionUp);
             this.groupBoxMoveDirection.Location = new System.Drawing.Point(12, 12);
@@ -110,15 +110,15 @@
             this.buttonMoveDirectionRight.UseVisualStyleBackColor = true;
             this.buttonMoveDirectionRight.Click += new System.EventHandler(this.updatePosition);
             // 
-            // buttonMoveDirectionCentor
+            // buttonMoveDirectionCenter
             // 
-            this.buttonMoveDirectionCentor.Location = new System.Drawing.Point(72, 81);
-            this.buttonMoveDirectionCentor.Name = "buttonMoveDirectionCentor";
-            this.buttonMoveDirectionCentor.Size = new System.Drawing.Size(50, 50);
-            this.buttonMoveDirectionCentor.TabIndex = 2;
-            this.buttonMoveDirectionCentor.Text = "・";
-            this.buttonMoveDirectionCentor.UseVisualStyleBackColor = true;
-            this.buttonMoveDirectionCentor.Click += new System.EventHandler(this.updatePosition);
+            this.buttonMoveDirectionCenter.Location = new System.Drawing.Point(72, 81);
+            this.buttonMoveDirectionCenter.Name = "buttonMoveDirectionCenter";
+            this.buttonMoveDirectionCenter.Size = new System.Drawing.Size(50, 50);
+            this.buttonMoveDirectionCenter.TabIndex = 2;
+            this.buttonMoveDirectionCenter.Text = "・";
+            this.buttonMoveDirectionCenter.UseVisualStyleBackColor = true;
+            this.buttonMoveDirectionCenter.Click += new System.EventHandler(this.updatePosition);
             // 
             // buttonMoveDirectionLeft
             // 
@@ -399,7 +399,7 @@
         private System.Windows.Forms.GroupBox groupBoxMoveDirection;
         private System.Windows.Forms.Button buttonMoveDirectionDown;
         private System.Windows.Forms.Button buttonMoveDirectionRight;
-        private System.Windows.Forms.Button buttonMoveDirectionCentor;
+        private System.Windows.Forms.Button buttonMoveDirectionCenter;
         private System.Windows.Forms.Button buttonMoveDirectionLeft;
         private System.Windows.Forms.CheckBox checkBoxVisible;
         private System.Windows.Forms.GroupBox groupBoxSetWindow;
