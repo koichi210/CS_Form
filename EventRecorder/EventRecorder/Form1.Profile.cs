@@ -183,8 +183,10 @@ namespace EventRecorder
         }
 
         // filePathの拡張子で振り分けて保存する(JSONならJsonFileStorage、XMLなら従来のsr.SaveSetting)
-        private Boolean SaveProfile(String filePath)
+        // 失敗時はダイアログを出さず理由だけ返す(エラー表示はSaveProfileWithErrorDialogで1回だけ行う)
+        private Boolean SaveProfile(String filePath, out String errorMessage)
         {
+            errorMessage = "";
             if (IsJsonFile(filePath))
             {
                 try
@@ -194,16 +196,29 @@ namespace EventRecorder
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "保存に失敗したよ: " + ex.Message,
-                        "EventRecorder - 保存エラー",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    errorMessage = ex.Message;
                     return false;
                 }
             }
 
             return sr.SaveSetting(filePath);
+        }
+
+        private Boolean SaveProfileWithErrorDialog(String filePath)
+        {
+            String errorMessage;
+            if (SaveProfile(filePath, out errorMessage))
+            {
+                return true;
+            }
+
+            String message = "設定の保存に失敗したよ" + Environment.NewLine + filePath;
+            if (errorMessage != String.Empty)
+            {
+                message += Environment.NewLine + errorMessage;
+            }
+            MessageBox.Show(message, AppName + " - 保存エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
         }
 
         // comboBox_Profile(プレイリストのcol_PlaylistFileも含む)へ、userDataFolder配下の
@@ -263,10 +278,8 @@ namespace EventRecorder
                 if (overwriteResult == DialogResult.Yes)
                 {
                     String overwriteFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
-                    if (!SaveProfile(overwriteFileName))
+                    if (!SaveProfileWithErrorDialog(overwriteFileName))
                     {
-                        MessageBox.Show("設定の保存に失敗したよ" + Environment.NewLine + overwriteFileName,
-                            AppName + " - エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
@@ -290,10 +303,8 @@ namespace EventRecorder
             }
 
             String saveFileName = dlg.FileName;
-            if (!SaveProfile(saveFileName))
+            if (!SaveProfileWithErrorDialog(saveFileName))
             {
-                MessageBox.Show("設定の保存に失敗したよ" + Environment.NewLine + saveFileName,
-                    AppName + " - エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
