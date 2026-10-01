@@ -119,7 +119,7 @@ namespace VisualStudioBuilder
             base.WndProc(ref m);
         }
 
-        private void button_RemoveRaw_Click(object sender, EventArgs e)
+        private void button_RemoveRow_Click(object sender, EventArgs e)
         {
             if (dataGridView.RowCount > 1)
             {
@@ -342,7 +342,7 @@ namespace VisualStudioBuilder
             return Logic.CreateBuildScript(buildEnable, solutionName, projectPath, textBox_LogDirectory.Text, isExportLog);
         }
 
-        private void button_AddRaw_Click(object sender, EventArgs e)
+        private void button_AddRow_Click(object sender, EventArgs e)
         {
             // 選択されたRowの一つ下に追加
             dataGridView.Rows.Insert(dataGridView.CurrentRow.Index+1);

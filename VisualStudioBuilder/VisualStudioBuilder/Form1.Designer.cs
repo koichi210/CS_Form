@@ -35,9 +35,9 @@
             this.textBox_BuildOption = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.button_Build = new System.Windows.Forms.Button();
-            this.button_AddRaw = new System.Windows.Forms.Button();
+            this.button_AddRow = new System.Windows.Forms.Button();
             this.BuildWorker = new System.ComponentModel.BackgroundWorker();
-            this.button_RemoveRaw = new System.Windows.Forms.Button();
+            this.button_RemoveRow = new System.Windows.Forms.Button();
             this.button_SaveSetting = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -137,16 +137,16 @@
             this.button_Build.UseVisualStyleBackColor = true;
             this.button_Build.Click += new System.EventHandler(this.button_Build_Click);
             // 
-            // button_AddRaw
+            // button_AddRow
             // 
-            this.button_AddRaw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_AddRaw.Location = new System.Drawing.Point(12, 305);
-            this.button_AddRaw.Name = "button_AddRaw";
-            this.button_AddRaw.Size = new System.Drawing.Size(75, 23);
-            this.button_AddRaw.TabIndex = 8;
-            this.button_AddRaw.Text = "一行追加";
-            this.button_AddRaw.UseVisualStyleBackColor = true;
-            this.button_AddRaw.Click += new System.EventHandler(this.button_AddRaw_Click);
+            this.button_AddRow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_AddRow.Location = new System.Drawing.Point(12, 305);
+            this.button_AddRow.Name = "button_AddRow";
+            this.button_AddRow.Size = new System.Drawing.Size(75, 23);
+            this.button_AddRow.TabIndex = 8;
+            this.button_AddRow.Text = "一行追加";
+            this.button_AddRow.UseVisualStyleBackColor = true;
+            this.button_AddRow.Click += new System.EventHandler(this.button_AddRow_Click);
             // 
             // BuildWorker
             // 
@@ -154,16 +154,16 @@
             this.BuildWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BuildWorker_DoWork);
             this.BuildWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BuildWorker_RunWorkerCompleted);
             // 
-            // button_RemoveRaw
+            // button_RemoveRow
             // 
-            this.button_RemoveRaw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_RemoveRaw.Location = new System.Drawing.Point(93, 305);
-            this.button_RemoveRaw.Name = "button_RemoveRaw";
-            this.button_RemoveRaw.Size = new System.Drawing.Size(75, 23);
-            this.button_RemoveRaw.TabIndex = 9;
-            this.button_RemoveRaw.Text = "一行削除";
-            this.button_RemoveRaw.UseVisualStyleBackColor = true;
-            this.button_RemoveRaw.Click += new System.EventHandler(this.button_RemoveRaw_Click);
+            this.button_RemoveRow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_RemoveRow.Location = new System.Drawing.Point(93, 305);
+            this.button_RemoveRow.Name = "button_RemoveRow";
+            this.button_RemoveRow.Size = new System.Drawing.Size(75, 23);
+            this.button_RemoveRow.TabIndex = 9;
+            this.button_RemoveRow.Text = "一行削除";
+            this.button_RemoveRow.UseVisualStyleBackColor = true;
+            this.button_RemoveRow.Click += new System.EventHandler(this.button_RemoveRow_Click);
             // 
             // button_SaveSetting
             // 
@@ -340,8 +340,8 @@
             this.tabPage2.Controls.Add(this.dataGridView);
             this.tabPage2.Controls.Add(this.label3);
             this.tabPage2.Controls.Add(this.button_Build);
-            this.tabPage2.Controls.Add(this.button_RemoveRaw);
-            this.tabPage2.Controls.Add(this.button_AddRaw);
+            this.tabPage2.Controls.Add(this.button_RemoveRow);
+            this.tabPage2.Controls.Add(this.button_AddRow);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -407,9 +407,9 @@
         private System.Windows.Forms.Button button_Build;
         public StandardTemplate.TextBoxEx textBox_VisualStudioExePath;
         public StandardTemplate.TextBoxEx textBox_BuildOption;
-        private System.Windows.Forms.Button button_AddRaw;
+        private System.Windows.Forms.Button button_AddRow;
         private System.ComponentModel.BackgroundWorker BuildWorker;
-        private System.Windows.Forms.Button button_RemoveRaw;
+        private System.Windows.Forms.Button button_RemoveRow;
         private System.Windows.Forms.Button button_SaveSetting;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
