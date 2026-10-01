@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace DrawImage
@@ -19,32 +14,32 @@ namespace DrawImage
         private void button_DrawLine_Click(object sender, EventArgs e)
         {
             //(10, 20)-(100, 200)に線を引く
-            Point BasePt = new Point(10, 20);
-            Point SizePt = new Point(100, 200);
-            Color clr = Color.Blue;
-            DrawLine(BasePt, SizePt, clr);
+            Point startPoint = new Point(10, 20);
+            Point endPoint = new Point(100, 200);
+            Color color = Color.Blue;
+            DrawLine(startPoint, endPoint, color);
         }
 
         private void button_DrawLine2_Click(object sender, EventArgs e)
         {
-            Point BasePt = new Point(100, 20);
-            Point SizePt = new Point(10, 200);
-            Color clr = Color.Red;
-            DrawLine(BasePt, SizePt, clr);
+            Point startPoint = new Point(100, 20);
+            Point endPoint = new Point(10, 200);
+            Color color = Color.Red;
+            DrawLine(startPoint, endPoint, color);
         }
 
         private void button_Circle_Click(object sender, EventArgs e)
         {
-            Rectangle rt = new Rectangle(15, 70, 50, 50);
+            Rectangle rect = new Rectangle(15, 70, 50, 50);
             Brush brush = Brushes.White;
-            DrawCircle(rt, brush);
+            DrawCircle(rect, brush);
         }
 
         private void button_Circle2_Click(object sender, EventArgs e)
         {
-            Rectangle rt = new Rectangle(40, 100, 50, 50);
+            Rectangle rect = new Rectangle(40, 100, 50, 50);
             Brush brush = Brushes.Black;
-            DrawCircle(rt, brush);
+            DrawCircle(rect, brush);
         }
 
         private void button_Delete_Click(object sender, EventArgs e)
@@ -73,13 +68,13 @@ namespace DrawImage
             return canvas;
         }
 
-        private void DrawLine(Point BasePt, Point SizePt, Color clr)
+        private void DrawLine(Point startPoint, Point endPoint, Color color)
         {
             Bitmap canvas = GetCanvas();
             Graphics g = Graphics.FromImage(canvas);
 
-            Pen pen = new Pen(clr, 3);
-            g.DrawLine(pen, BasePt, SizePt);
+            Pen pen = new Pen(color, 3);
+            g.DrawLine(pen, startPoint, endPoint);
 
             pen.Dispose();
             g.Dispose();
@@ -87,12 +82,12 @@ namespace DrawImage
             pictureBox1.Image = canvas;
         }
 
-        private void DrawCircle(Rectangle rt, Brush brush)
+        private void DrawCircle(Rectangle rect, Brush brush)
         {
             Bitmap canvas = GetCanvas();
             Graphics g = Graphics.FromImage(canvas);
 
-            g.FillEllipse(brush, rt);
+            g.FillEllipse(brush, rect);
             g.Dispose();
 
             pictureBox1.Image = canvas;
