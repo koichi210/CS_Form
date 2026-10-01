@@ -3,7 +3,7 @@ using System;
 namespace PlantUML
 {
     /// <summary>
-    /// もともと MainWindow.xaml.cs の button1_Click に埋め込まれていた、PlantUML
+    /// もともと MainWindow.xaml.cs の Execute_Click に埋め込まれていた、PlantUML
     /// 実行コマンドの組み立てロジックをテストできる形に切り出したもの。コードは
     /// そのまま移しただけで書き換えていない。実際のバッチファイル書き出しと
     /// プロセス起動(Process.Start/WaitForExit)は呼び出し元(MainWindow)に残し、

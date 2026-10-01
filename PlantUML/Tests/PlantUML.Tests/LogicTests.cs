@@ -6,7 +6,7 @@ namespace PlantUML.Tests
     /// Logic（MainWindow.xaml.cs から切り出した、PlantUML実行コマンドの組み立て
     /// ロジック）のテスト。
     ///
-    /// ⚠️ button1_Click は実際にバッチファイルを書き出しProcess.Start+WaitForExit
+    /// ⚠️ Execute_Click は実際にバッチファイルを書き出しProcess.Start+WaitForExit
     /// で外部プロセス(java)を実行するため、テスト環境で安全に実行できない。
     /// この抽出したコマンド組み立て部分だけをテスト対象にする。
     /// </summary>

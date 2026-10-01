@@ -20,7 +20,7 @@ namespace PlantUML
 
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void Execute_Click(object sender, RoutedEventArgs e)
         {
             String commandParam = Logic.BuildCommandParam(PlantumlPath.Text, ConfigFile.Text, System.IO.File.Exists(ConfigFile.Text), InFile.Text);
 
