@@ -31,7 +31,7 @@
             this.button_draw = new System.Windows.Forms.Button();
             this.pictureBox_Source = new System.Windows.Forms.PictureBox();
             this.textBox_angle = new StandardTemplate.TextBoxEx();
-            this.textBox_loadfiepath = new StandardTemplate.TextBoxEx();
+            this.textBox_loadfilepath = new StandardTemplate.TextBoxEx();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.button_Save = new System.Windows.Forms.Button();
@@ -41,7 +41,7 @@
             this.textBox_OriginY = new StandardTemplate.TextBoxEx();
             this.textBox_OriginX = new StandardTemplate.TextBoxEx();
             this.label5 = new System.Windows.Forms.Label();
-            this.textBox_savefiepath = new StandardTemplate.TextBoxEx();
+            this.textBox_savefilepath = new StandardTemplate.TextBoxEx();
             this.panel_Dest = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Source)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Dest)).BeginInit();
@@ -75,12 +75,12 @@
             this.textBox_angle.Text = "0";
             this.textBox_angle.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_angle_KeyDown);
             // 
-            // textBox_loadfiepath
+            // textBox_loadfilepath
             // 
-            this.textBox_loadfiepath.Location = new System.Drawing.Point(114, 16);
-            this.textBox_loadfiepath.Name = "textBox_loadfiepath";
-            this.textBox_loadfiepath.Size = new System.Drawing.Size(331, 19);
-            this.textBox_loadfiepath.TabIndex = 1;
+            this.textBox_loadfilepath.Location = new System.Drawing.Point(114, 16);
+            this.textBox_loadfilepath.Name = "textBox_loadfilepath";
+            this.textBox_loadfilepath.Size = new System.Drawing.Size(331, 19);
+            this.textBox_loadfilepath.TabIndex = 1;
             // 
             // label1
             // 
@@ -163,12 +163,12 @@
             this.label5.TabIndex = 3;
             this.label5.Text = "保存ファイルパス";
             // 
-            // textBox_savefiepath
+            // textBox_savefilepath
             // 
-            this.textBox_savefiepath.Location = new System.Drawing.Point(547, 16);
-            this.textBox_savefiepath.Name = "textBox_savefiepath";
-            this.textBox_savefiepath.Size = new System.Drawing.Size(266, 19);
-            this.textBox_savefiepath.TabIndex = 4;
+            this.textBox_savefilepath.Location = new System.Drawing.Point(547, 16);
+            this.textBox_savefilepath.Name = "textBox_savefilepath";
+            this.textBox_savefilepath.Size = new System.Drawing.Size(266, 19);
+            this.textBox_savefilepath.TabIndex = 4;
             // 
             // panel_Dest
             // 
@@ -185,7 +185,7 @@
             this.ClientSize = new System.Drawing.Size(910, 811);
             this.Controls.Add(this.panel_Dest);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.textBox_savefiepath);
+            this.Controls.Add(this.textBox_savefilepath);
             this.Controls.Add(this.textBox_OriginX);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBox_OriginY);
@@ -194,7 +194,7 @@
             this.Controls.Add(this.button_Save);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox_loadfiepath);
+            this.Controls.Add(this.textBox_loadfilepath);
             this.Controls.Add(this.textBox_angle);
             this.Controls.Add(this.pictureBox_Source);
             this.Controls.Add(this.button_draw);
@@ -212,7 +212,7 @@
         private System.Windows.Forms.Button button_draw;
         private System.Windows.Forms.PictureBox pictureBox_Source;
         private StandardTemplate.TextBoxEx textBox_angle;
-        private StandardTemplate.TextBoxEx textBox_loadfiepath;
+        private StandardTemplate.TextBoxEx textBox_loadfilepath;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button_Save;
@@ -222,7 +222,7 @@
         private StandardTemplate.TextBoxEx textBox_OriginY;
         private StandardTemplate.TextBoxEx textBox_OriginX;
         private System.Windows.Forms.Label label5;
-        private StandardTemplate.TextBoxEx textBox_savefiepath;
+        private StandardTemplate.TextBoxEx textBox_savefilepath;
         private System.Windows.Forms.Panel panel_Dest;
     }
 }

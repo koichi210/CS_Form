@@ -19,7 +19,7 @@ namespace Rotation
                 pictureBox_Source.Image.Dispose();
                 pictureBox_Source.Image = null;
             }
-            pictureBox_Source.Image = Image.FromFile(textBox_loadfiepath.Text);
+            pictureBox_Source.Image = Image.FromFile(textBox_loadfilepath.Text);
             DrawPictureBox();
         }
 
@@ -55,7 +55,7 @@ namespace Rotation
             int angle;
             float x;
             float y;
-            if (!File.Exists(textBox_loadfiepath.Text) ||
+            if (!File.Exists(textBox_loadfilepath.Text) ||
                 !Int32.TryParse(textBox_angle.Text, out angle) ||
                 !float.TryParse(textBox_OriginX.Text, out x) ||
                 !float.TryParse(textBox_OriginY.Text, out y))
@@ -66,7 +66,7 @@ namespace Rotation
             Bitmap img;
             try
             {
-                img = new Bitmap(textBox_loadfiepath.Text);
+                img = new Bitmap(textBox_loadfilepath.Text);
             }
             catch (ArgumentException)
             {
@@ -100,7 +100,7 @@ namespace Rotation
 
             if (isSave)
             {
-                canvas.Save(textBox_savefiepath.Text);
+                canvas.Save(textBox_savefilepath.Text);
             }
             return true;
         }
