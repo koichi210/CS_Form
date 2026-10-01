@@ -1,13 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Xml;
 using StandardTemplate;
 
 namespace CaptureWindow
@@ -21,9 +13,9 @@ namespace CaptureWindow
         // ※実際にマウスカーソルを動かして物理クリックを送る/画面を撮る処理なので、
         // 自動テストでは検証できない。挙動が変わっていないか、Captureボタンを押しての
         // 実機確認が必要。
-        private readonly CaptWindow cw = new CaptWindow();
+        private readonly CaptWindow captWindow = new CaptWindow();
 
-        readonly String SettingFile = @"CaptureWindow.json";
+        private readonly String SettingFilePath = @"CaptureWindow.json";
 
         public Form1()
         {
@@ -36,39 +28,39 @@ namespace CaptureWindow
             TextBox_Sleep.Text = @"3";
 
             // 以前のMouseProc()と同じ「指定座標をクリックしてから元の位置に戻す」動作にする設定
-            cw.SetMouseMove(true);
-            cw.RestoreMousePosition(true);
+            captWindow.SetMouseMove(true);
+            captWindow.RestoreMousePosition(true);
             // CURRENT_SCREENキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
-            cw.TargetWindow = this;
-            cw.SetCaptureCase(true);
+            captWindow.TargetWindow = this;
+            captWindow.SetCaptureCase(true);
 
             LoadSetting();
         }
 
         private void Button_Capture_Click(object sender, EventArgs e)
         {
-            if (!IsExistSavePath())
+            if (!EnsureSavePathExists())
             {
                 return;
             }
 
-            String FileFormat = TextBox_SavePath.Text + @"\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            String fileFormat = TextBox_SavePath.Text + @"\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
 
-            cw.SetFileFormat(FileFormat);
-            cw.SetFileIdx(1);
-            cw.SetCaptureTarget(GetSelectedCaptureTarget());
+            captWindow.SetFileFormat(fileFormat);
+            captWindow.SetFileIdx(1);
+            captWindow.SetCaptureTarget(GetSelectedCaptureTarget());
 
-            cw.CaptureProc();   // "_1.png" として保存、呼ぶたびにFileIdxが自動で進む
+            captWindow.CaptureProc();   // "_1.png" として保存、呼ぶたびにFileIdxが自動で進む
 
             if (!TextBox_MouseX.Text.Equals("") && !TextBox_MouseY.Text.Equals(""))
             {
-                cw.MouseProc(TextBox_MouseX.Text, TextBox_MouseY.Text, CaptWindow.MOUSE_EVENT.LEFT_CLICK);
+                captWindow.MouseProc(TextBox_MouseX.Text, TextBox_MouseY.Text, CaptWindow.MOUSE_EVENT.LEFT_CLICK);
 
                 if (!TextBox_Sleep.Text.Equals(""))
                 {
                     System.Threading.Thread.Sleep(int.Parse(TextBox_Sleep.Text)*1000);
                 }
-                cw.CaptureProc();   // "_2.png" として保存
+                captWindow.CaptureProc();   // "_2.png" として保存
             }
         }
 
@@ -85,28 +77,26 @@ namespace CaptureWindow
             return CaptWindow.CAPTURE_TARGET.CURRENT_WINDOW;
         }
 
-        private bool IsExistSavePath()
+        private bool EnsureSavePathExists()
         {
-            bool IsExist = true;
-            if (! System.IO.Directory.Exists(TextBox_SavePath.Text))
+            if (System.IO.Directory.Exists(TextBox_SavePath.Text))
             {
-                DialogResult result = MessageBox.Show("ディレクトリは存在しません。作成しますか？",
-                    "Warning",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Exclamation,
-                    MessageBoxDefaultButton.Button1);
-
-                if (result == DialogResult.Yes)
-                {
-                    System.IO.Directory.CreateDirectory(TextBox_SavePath.Text);
-                }
-                else
-                {
-                    IsExist = false;
-                }
+                return true;
             }
 
-            return IsExist;
+            DialogResult result = MessageBox.Show("ディレクトリは存在しません。作成しますか？",
+                "Warning",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Exclamation,
+                MessageBoxDefaultButton.Button1);
+
+            if (result != DialogResult.Yes)
+            {
+                return false;
+            }
+
+            System.IO.Directory.CreateDirectory(TextBox_SavePath.Text);
+            return true;
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
@@ -116,14 +106,14 @@ namespace CaptureWindow
 
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            Logic.SaveSetting(SettingFile, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
+            Logic.SaveSetting(SettingFilePath, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            Logic.Settings settings = Logic.LoadSetting(SettingFile);
+            Logic.Settings settings = Logic.LoadSetting(SettingFilePath);
             if (settings == null)
             {
                 return;

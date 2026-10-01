@@ -22,26 +22,26 @@ namespace CaptureWindow
 
         public class Settings
         {
-            public String SavePath;
-            public String MouseX;
-            public String MouseY;
-            public String Sleep;
+            public String SavePath { get; set; }
+            public String MouseX { get; set; }
+            public String MouseY { get; set; }
+            public String Sleep { get; set; }
         }
 
-        public static void SaveSetting(String Path, String SavePath, String MouseX, String MouseY, String Sleep)
+        public static void SaveSetting(String path, String savePath, String mouseX, String mouseY, String sleep)
         {
             StcSimpleSettings settings = new StcSimpleSettings();
-            settings.Set(KeySavePath, SavePath);
-            settings.Set(KeyMouseX, MouseX);
-            settings.Set(KeyMouseY, MouseY);
-            settings.Set(KeySleep, Sleep);
-            settings.SaveJson(Path);
+            settings.Set(KeySavePath, savePath);
+            settings.Set(KeyMouseX, mouseX);
+            settings.Set(KeyMouseY, mouseY);
+            settings.Set(KeySleep, sleep);
+            settings.SaveJson(path);
         }
 
         // 旧形式(CaptureWindow.xml)しか無い場合は、読み込んだ内容をJSONで保存し直して旧XMLを削除する
-        public static Settings LoadSetting(String Path)
+        public static Settings LoadSetting(String path)
         {
-            StcSimpleSettings loaded = StcSimpleSettings.LoadWithMigration(Path);
+            StcSimpleSettings loaded = StcSimpleSettings.LoadWithMigration(path);
             if (loaded == null)
             {
                 return null;
