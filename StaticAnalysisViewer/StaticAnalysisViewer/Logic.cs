@@ -23,33 +23,33 @@ namespace StaticAnalysisViewer
         private static readonly int CATEGORY_IDX_CYCLOMATIC = 3;
 
         /// <summary>ファイルパスから、ランキングに表示するラベル（直上のフォルダ名）を作る。</summary>
-        public static string CreateLabelName(string FilePath)
+        public static string CreateLabelName(string filePath)
         {
-            var DirPath = System.IO.Path.GetDirectoryName(FilePath);
-            var DirArray = DirPath.Split('\\');
-            return DirArray[DirArray.Length - 1];
+            var dirPath = System.IO.Path.GetDirectoryName(filePath);
+            var dirArray = dirPath.Split('\\');
+            return dirArray[dirArray.Length - 1];
         }
 
-        public static int CreateCountNumTotal(DataBase DB, DataBase_T array)
+        public static int CreateCountNumTotal(DataBase db, DataBase_T array)
         {
-            int CountLineTotal = 0;
+            int countLineTotal = 0;
             for (int i = 0; i < array.ColumnNum; i++)
             {
                 // Rowが短い場合はカラ行
-                if (array.Data[i].Length < DB.GetRowNum())
+                if (array.Data[i].Length < db.GetRowNum())
                 {
                     continue;
                 }
 
-                CountLineTotal += int.Parse(array.Data[i][CATEGORY_IDX_CNT_LINE]);
+                countLineTotal += int.Parse(array.Data[i][CATEGORY_IDX_CNT_LINE]);
             }
-            return CountLineTotal;
+            return countLineTotal;
         }
 
-        public static string CreateRankingString(DataBase DB, int PreArrayIdx, DataBase_T array, int TopRankingNum)
+        public static string CreateRankingString(DataBase db, int preArrayIdx, DataBase_T array, int topRankingNum)
         {
             // ランキングのヘッダ
-            string Result = string.Format("{0,4}\t{1,8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine + Environment.NewLine,
+            string result = string.Format("{0,4}\t{1,8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine + Environment.NewLine,
                                 "Rank",
                                 "LastWeek",
                                 "FileName",
@@ -57,53 +57,51 @@ namespace StaticAnalysisViewer
                                 "MaxCycMod",
                                 "MaxCycStrict");
 
-            int LoopMax = System.Math.Min(TopRankingNum, array.ColumnNum);
-            for (int i = 0; i < LoopMax; i++)
+            int loopMax = System.Math.Min(topRankingNum, array.ColumnNum);
+            for (int i = 0; i < loopMax; i++)
             {
                 // Rowが短い場合はカラ行
-                if (array.Data[i].Length < DB.GetRowNum())
+                if (array.Data[i].Length < db.GetRowNum())
                 {
                     continue;
                 }
 
-                string[] Path = array.Data[i][CATEGORY_IDX_FNAME].Split('\\');
+                string[] path = array.Data[i][CATEGORY_IDX_FNAME].Split('\\');
 
-                int PreRankNum = DB.GetIdx(PreArrayIdx, CATEGORY_IDX_FNAME, array.Data[i][CATEGORY_IDX_FNAME]);
-                string PreRank = CreatePreRankingString(DB, i, PreRankNum);
+                int preRankNum = db.GetIdx(preArrayIdx, CATEGORY_IDX_FNAME, array.Data[i][CATEGORY_IDX_FNAME]);
+                string preRank = CreatePreRankingString(db, i, preRankNum);
 
-                Result += string.Format("{0,4}\t{1,-8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine,
+                result += string.Format("{0,4}\t{1,-8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine,
                             i + 1,                                      // Idx
-                            PreRank,                                    // New!
-                            Path[Path.Length - 1].Replace("\"", ""),    // FileName
+                            preRank,                                    // New!
+                            path[path.Length - 1].Replace("\"", ""),    // FileName
                             array.Data[i][CATEGORY_IDX_CNT_LINE],       // CountLine
                             array.Data[i][CATEGORY_IDX_CNT_CODE],       // CountCode
                             array.Data[i][CATEGORY_IDX_CYCLOMATIC]      // Cyclomatic
                             );
             }
 
-            return Result;
+            return result;
         }
 
-        public static string CreatePreRankingString(DataBase DB, int CurRankNum, int PreRankNum)
+        public static string CreatePreRankingString(DataBase db, int curRankNum, int preRankNum)
         {
             // 前回のランキングを取得し、ランキング変動文字列を生成
-            if (PreRankNum == DB.UNKNOWN_IDX)
+            if (preRankNum == db.UNKNOWN_IDX)
             {
                 return ST_RANK_NEW;
             }
-            else
+
+            string preRankSign = ST_RANK_PEND;
+            if (preRankNum > curRankNum)
             {
-                string PreRankSign = ST_RANK_PEND;
-                if (PreRankNum > CurRankNum)
-                {
-                    PreRankSign = ST_RANK_UP;
-                }
-                else if (PreRankNum < CurRankNum)
-                {
-                    PreRankSign = ST_RANK_DOWN;
-                }
-                return string.Format("{0}({1,2})", PreRankSign, PreRankNum + 1);  // 順位は1相対なので、"+1"する
+                preRankSign = ST_RANK_UP;
             }
+            else if (preRankNum < curRankNum)
+            {
+                preRankSign = ST_RANK_DOWN;
+            }
+            return string.Format("{0}({1,2})", preRankSign, preRankNum + 1);  // 順位は1相対なので、"+1"する
         }
     }
 }

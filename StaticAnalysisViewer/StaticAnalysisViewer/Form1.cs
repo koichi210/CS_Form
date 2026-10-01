@@ -1,10 +1,5 @@
 ﻿﻿﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -52,7 +47,7 @@ namespace StaticAnalysisViewer
         private static readonly int    DEF_CATEGORY_SORT_IDX = 3;
 
         // ヘルプ
-        public String HelpLink = "";
+        public String HelpLink { get; set; } = "";
 
         public Form1()
         {
@@ -165,7 +160,7 @@ namespace StaticAnalysisViewer
         private bool CreateDataBase()
         {
             // 最初に取り込むcsvからCategoryを作成する
-            bool IsCategoryAlreadySet = false;
+            bool isCategoryAlreadySet = false;
 
             //プログレスバーの初期化
             ProgressBar_LoadStatus.Maximum = TextBox_LoadDataList.Lines.Length;
@@ -175,27 +170,27 @@ namespace StaticAnalysisViewer
             DB.Initialize();
             for (int i = ProgressBar_LoadStatus.Minimum; i < ProgressBar_LoadStatus.Maximum; i++, ProgressBar_LoadStatus.Value++)
             {
-                string Data = fio.LoadFile(TextBox_LoadDataList.Lines[i]);
-                if (Data.Equals(""))
+                string data = fio.LoadFile(TextBox_LoadDataList.Lines[i]);
+                if (data.Equals(""))
                 {
                     //ファイルパスが無効だったら次へ
                     continue;
                 }
 
                 // ランキングに表示するラベルを生成
-                string Label = Logic.CreateLabelName(TextBox_LoadDataList.Lines[i]);
+                string label = Logic.CreateLabelName(TextBox_LoadDataList.Lines[i]);
 
                 // DBにデータを設定
-                DB.CreateArray(Data, Label);
-                Combo_RankingWeekly.Items.Add(Label);
+                DB.CreateArray(data, label);
+                Combo_RankingWeekly.Items.Add(label);
 
                 // Categoryコンボボックスを設定
-                if (! IsCategoryAlreadySet)
+                if (! isCategoryAlreadySet)
                 {
-                    string[] Category = DB.GetCategory();
-                    Combo_SortCategory.Items.AddRange(Category);
+                    string[] categories = DB.GetCategories();
+                    Combo_SortCategory.Items.AddRange(categories);
                     Combo_SortCategory.SelectedIndex = DEF_CATEGORY_SORT_IDX;
-                    IsCategoryAlreadySet = true;
+                    isCategoryAlreadySet = true;
                 }
             }
 
@@ -214,8 +209,8 @@ namespace StaticAnalysisViewer
         // 並び替え要求
         private bool SortExecute()
         {
-            int ArrayNum = DB.GetArrayNum();
-            if (ArrayNum == 0)
+            int arrayNum = DB.GetArrayNum();
+            if (arrayNum == 0)
             {
                 MessageBox.Show("並び替えるデータがありません。",
                     "Warning",
@@ -225,7 +220,7 @@ namespace StaticAnalysisViewer
             }
 
             // データベースの登録されているすべてを並べ替え
-            for (int i = 0; i < ArrayNum; i++)
+            for (int i = 0; i < arrayNum; i++)
             {
                 DB.SortData(i, Combo_SortCategory.SelectedIndex);
             }
@@ -246,16 +241,16 @@ namespace StaticAnalysisViewer
             }
 
             // ひとつ前の配列Idx
-            int PreArrayIdx = Combo_RankingWeekly.SelectedIndex - 1;
+            int preArrayIdx = Combo_RankingWeekly.SelectedIndex - 1;
 
             // 表示対象の配列取得
             DataBase_T array = DB.GetData(Combo_RankingWeekly.SelectedIndex);
 
             //表示するランキング数を取得
-            int TopRankingNum = int.Parse(TextBox_TopRankingNum.Text);
+            int topRankingNum = int.Parse(TextBox_TopRankingNum.Text);
 
             // ランキング文字列生成＆表示
-            TextBox_Ranking.Text = Logic.CreateRankingString(DB, PreArrayIdx, array, TopRankingNum);
+            TextBox_Ranking.Text = Logic.CreateRankingString(DB, preArrayIdx, array, topRankingNum);
 
             // 「行数の合計」の文字列生成＆表示
             TextBox_CountLineTotal.Text = Logic.CreateCountNumTotal(DB, array).ToString();
@@ -282,8 +277,8 @@ namespace StaticAnalysisViewer
         private void CreateRankingGraphics()
         {
             DataBase_T array = DB.GetData(Combo_RankingWeekly.SelectedIndex);
-            int TopRankingNum = int.Parse(TextBox_TopRankingNum.Text);
-            int CategoryIdx = Combo_SortCategory.SelectedIndex;
+            int topRankingNum = int.Parse(TextBox_TopRankingNum.Text);
+            int categoryIdx = Combo_SortCategory.SelectedIndex;
 
             // 表示を消す
             Chart_Result.Series.Clear();
@@ -298,8 +293,8 @@ namespace StaticAnalysisViewer
             series.ChartType = SeriesChartType.Pie;
             series["PieStartAngle"] = "270";
 
-            int LoopMax = System.Math.Min(TopRankingNum, array.ColumnNum);
-            for (int i = 0; i < LoopMax; i++)
+            int loopMax = System.Math.Min(topRankingNum, array.ColumnNum);
+            for (int i = 0; i < loopMax; i++)
             {
                 // Rowが短い場合はカラ行
                 if (array.Data[i].Length < DB.GetRowNum())
@@ -307,15 +302,15 @@ namespace StaticAnalysisViewer
                     continue;
                 }
 
-                int YValues = 0;
-                if (array.Data[i][CategoryIdx] != String.Empty)
+                int yValue = 0;
+                if (array.Data[i][categoryIdx] != String.Empty)
                 {
-                    YValues = int.Parse(array.Data[i][CategoryIdx]);
+                    yValue = int.Parse(array.Data[i][categoryIdx]);
                 }
 
                 DataPoint point = new DataPoint();
                 point.XValue = 0;
-                point.YValues = new double[] { YValues };
+                point.YValues = new double[] { yValue };
                 series.Points.Add(point);
 
                 // TODO：凡例を表示
@@ -347,16 +342,16 @@ namespace StaticAnalysisViewer
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
+            LoadProfile(loadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
-            String LoadFileName = fio.SelectLoadFileName(SettingFileName, userDataFolder);
-            if (LoadProfile(LoadFileName))
+            String loadFileName = fio.SelectLoadFileName(SettingFileName, userDataFolder);
+            if (LoadProfile(loadFileName))
             {
-                comboBox_Profile.Text = Path.GetFileName(LoadFileName);
+                comboBox_Profile.Text = Path.GetFileName(loadFileName);
             }
         }
 
@@ -369,116 +364,116 @@ namespace StaticAnalysisViewer
 
     public partial class DataBase
     {
-        public readonly int UNKNOWN_IDX = -1;
+        public int UNKNOWN_IDX { get; } = -1;
 
         // 以前は10000件固定の配列で、超えると配列外で落ちていたのでListにした
         private List<DataBase_T> DataArray = new List<DataBase_T>();
-        private string[] Category;
+        private string[] Categories;
         private int CategoryIdx = 0;
         private int RowMaxNum = 0;      // 行の最大数（制約：一意とする）
 
         // 並べ替えメソッド(値の大きい順。比較できない行は後ろへ)
         private int CompareArray(string[] x, string[] y)
         {
-            int XValue;
-            int YValue;
-            Boolean IsXComparable = TryGetCategoryValue(x, out XValue);
-            Boolean IsYComparable = TryGetCategoryValue(y, out YValue);
+            int xValue;
+            int yValue;
+            Boolean isXComparable = TryGetCategoryValue(x, out xValue);
+            Boolean isYComparable = TryGetCategoryValue(y, out yValue);
 
             // 両方とも比較不能なときに1と-1を返し分けていたため、x>yとy>xが同時に成立して
             // Array.Sortが「矛盾した結果を返します」で落ちることがあった
-            if (!IsXComparable && !IsYComparable)
+            if (!isXComparable && !isYComparable)
             {
                 return 0;
             }
-            if (!IsXComparable)
+            if (!isXComparable)
             {
                 return 1;
             }
-            if (!IsYComparable)
+            if (!isYComparable)
             {
                 return -1;
             }
 
-            return YValue.CompareTo(XValue);
+            return yValue.CompareTo(xValue);
         }
 
         // 比較対象の列が範囲内にあり、数値として読める場合だけtrue
-        private Boolean TryGetCategoryValue(string[] Values, out int Value)
+        private Boolean TryGetCategoryValue(string[] values, out int value)
         {
-            Value = 0;
-            return CategoryIdx < Values.Length && int.TryParse(Values[CategoryIdx], out Value);
+            value = 0;
+            return CategoryIdx < values.Length && int.TryParse(values[CategoryIdx], out value);
         }
 
         // 初期化
         public void Initialize()
         {
             DataArray.Clear();
-            Category = null;
+            Categories = null;
             CategoryIdx = 0;
             RowMaxNum = 0;
         }
 
         // データ配列生成
-        public void CreateArray(string Data, string Label)
+        public void CreateArray(string data, string label)
         {
-            DataBase_T Entry = new DataBase_T();
-            Entry.Label = Label;
+            DataBase_T entry = new DataBase_T();
+            entry.Label = label;
 
             // 行ごとに抽出
-            var Rows = Data.Split('\n');
-            int Length = Rows.Length - 1;
-            Entry.Data = new string[Length][];
+            var rows = data.Split('\n');
+            int length = rows.Length - 1;
+            entry.Data = new string[length][];
 
-            if (Category == null)
+            if (Categories == null)
             {
-                Category = Rows[0].Split(',');
+                Categories = rows[0].Split(',');
             }
 
             //セルごとに抽出
-            for (int i = 0, idx = 1; i < Length; i++, idx++)
+            for (int i = 0, idx = 1; i < length; i++, idx++)
             {
-                Entry.Data[i] = Rows[idx].Split(',');
+                entry.Data[i] = rows[idx].Split(',');
             }
 
             // 列数を設定
-            Entry.ColumnNum = Length;
+            entry.ColumnNum = length;
 
             // 制約：すべて同一のフォーマットを読むこと。読み込むファイルごとにRowが変わらないこと
             // 行数の最大値を更新
             if (RowMaxNum == 0)
             {
-                RowMaxNum = Entry.Data[0].Length;
+                RowMaxNum = entry.Data[0].Length;
             }
 
-            DataArray.Add(Entry);
+            DataArray.Add(entry);
         }
 
         // データを並び替える
-        public void SortData(int ArrayIdx, int Idx)
+        public void SortData(int arrayIdx, int categoryIdx)
         {
             // 並び替え基準を記憶
-            CategoryIdx = Idx;
+            CategoryIdx = categoryIdx;
 
             // 並び替え
-            System.Array.Sort(DataArray[ArrayIdx].Data, CompareArray);
+            System.Array.Sort(DataArray[arrayIdx].Data, CompareArray);
         }
 
         // データ配列取得
-        public DataBase_T GetData(int Idx)
+        public DataBase_T GetData(int arrayIdx)
         {
-            return DataArray[Idx];
+            return DataArray[arrayIdx];
         }
 
         // データのインデックス取得
-        public int GetIdx(int ArrayIdx, int SearchIdx, string Name)
+        public int GetIdx(int arrayIdx, int searchIdx, string name)
         {
-            if (ArrayIdx >= 0)
+            if (arrayIdx >= 0)
             {
-                for (int i = 0; i < DataArray[ArrayIdx].ColumnNum; i++)
+                for (int i = 0; i < DataArray[arrayIdx].ColumnNum; i++)
                 {
-                    if (DataArray[ArrayIdx].Data[i].Length > 1 &&
-                        DataArray[ArrayIdx].Data[i][SearchIdx].IndexOf(Name) >= 0)
+                    if (DataArray[arrayIdx].Data[i].Length > 1 &&
+                        DataArray[arrayIdx].Data[i][searchIdx].IndexOf(name) >= 0)
                     {
                         return i;
                     }
@@ -488,9 +483,9 @@ namespace StaticAnalysisViewer
         }
 
         // カテゴリ文字列を取得
-        public string[] GetCategory()
+        public string[] GetCategories()
         {
-            return Category;
+            return Categories;
         }
 
         // 配列数取得
@@ -506,9 +501,9 @@ namespace StaticAnalysisViewer
         }
 
         // 列数取得
-        public int GetColumnNum(int ArrayIdx)
+        public int GetColumnNum(int arrayIdx)
         {
-            return DataArray[ArrayIdx].ColumnNum;
+            return DataArray[arrayIdx].ColumnNum;
         }
     }
 

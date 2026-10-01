@@ -27,7 +27,7 @@ namespace StaticAnalysisViewer.Tests
 
             db.CreateArray(SampleCsv, "week1");
 
-            CollectionAssert.AreEqual(new[] { "FileName", "CountLine", "CountCode", "Cyclomatic" }, db.GetCategory());
+            CollectionAssert.AreEqual(new[] { "FileName", "CountLine", "CountCode", "Cyclomatic" }, db.GetCategories());
         }
 
         [TestMethod]
@@ -117,7 +117,7 @@ namespace StaticAnalysisViewer.Tests
             db.Initialize();
 
             Assert.AreEqual(0, db.GetArrayNum());
-            Assert.IsNull(db.GetCategory());
+            Assert.IsNull(db.GetCategories());
         }
 
         [TestMethod]
