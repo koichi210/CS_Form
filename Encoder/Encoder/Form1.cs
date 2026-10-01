@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using StandardTemplate;
@@ -22,28 +16,28 @@ namespace Encoder
             radioButton_Utf8ToSjis.Checked = true;
         }
 
-        private void Execute(String InputPathName)
+        private void Execute(String inputPathName)
         {
-            if (Directory.Exists(InputPathName))
+            if (Directory.Exists(inputPathName))
             {
-                MessageBox.Show("フォルダは対応外です。" + Environment.NewLine + InputPathName);
+                MessageBox.Show("フォルダは対応外です。" + Environment.NewLine + inputPathName);
                 return;
             }
 
-            if (!File.Exists(InputPathName))
+            if (!File.Exists(inputPathName))
             {
-                MessageBox.Show("ファイルパスを確認してください。" + Environment.NewLine + InputPathName);
+                MessageBox.Show("ファイルパスを確認してください。" + Environment.NewLine + inputPathName);
                 return;
             }
 
             if (radioButton_Utf8ToSjis.Checked)
             {
                 StcFileInputOutput fio = new StcFileInputOutput();
-                String OutFileName = Path.GetDirectoryName(InputPathName);
-                OutFileName += @"\" + Path.GetFileNameWithoutExtension(InputPathName);
-                OutFileName += "_sjis";
-                OutFileName += Path.GetExtension(InputPathName);
-                fio.ChangeStringCodeUTF2SJIS(InputPathName, OutFileName);
+                String outputFileName = Path.GetDirectoryName(inputPathName)
+                    + @"\" + Path.GetFileNameWithoutExtension(inputPathName)
+                    + "_sjis"
+                    + Path.GetExtension(inputPathName);
+                fio.ChangeStringCodeUTF2SJIS(inputPathName, outputFileName);
             }
             else
             {
@@ -58,10 +52,10 @@ namespace Encoder
 
         private void DropBox_DragDrop(object sender, DragEventArgs e)
         {
-            String[] FileList = (String[])e.Data.GetData(DataFormats.FileDrop, false);
-            for(int i=0; i < FileList.Length; i++)
+            String[] fileList = (String[])e.Data.GetData(DataFormats.FileDrop, false);
+            foreach (String filePath in fileList)
             {
-                Execute(FileList[i]);
+                Execute(filePath);
             }
         }
     }
