@@ -22,7 +22,6 @@ namespace MoveDialog
 
         private void updatePosition(object sender, EventArgs e)
         {
-            //if (sender.Equals(this.buttonMoveDirectionUp))
             switch ((sender as Button).Name)
             {
             case "buttonMoveDirectionUp":
