@@ -93,7 +93,7 @@ namespace EventRecorder
                 return;
             }
 
-            QueueRow(s.Stroke.ToString(), s.X.ToString(), s.Y.ToString(), "", ElapsedMs());
+            QueueRow(s.Stroke.ToString(), s.X.ToString(), s.Y.ToString(), "", TakeElapsedMsAndReset());
         }
 
         private void OnKeyboardEvent(ref GlobalHook.KeyboardHook.StateKeyboard s)
@@ -173,11 +173,12 @@ namespace EventRecorder
                 pressedKeys.Remove(s.Key);
             }
 
-            QueueRow(s.Stroke.ToString(), "", "", s.Key.ToString(), ElapsedMs());
+            QueueRow(s.Stroke.ToString(), "", "", s.Key.ToString(), TakeElapsedMsAndReset());
         }
 
-        // 直前のイベントからの経過ms。記録開始直後の1件目は「記録開始からの待機」になる
-        private int ElapsedMs()
+        // 直前のイベント(前回この関数を呼んだ時点)からの経過msを返し、基準時刻(lastEventTick)を今に更新する。
+        // 記録開始直後の1件目は「記録開始からの待機」になる
+        private int TakeElapsedMsAndReset()
         {
             int now = Environment.TickCount;
             int wait = now - lastEventTick;
