@@ -12,26 +12,26 @@ namespace DialogChild
     {
         public static int GetSubValue(int currentValue, int distanceValue, int offsetValue = 0)
         {
-            int determiningValue = currentValue - distanceValue - offsetValue;
-            if (determiningValue < 0)
+            int result = currentValue - distanceValue - offsetValue;
+            if (result < 0)
             {
                 // 座標が負値になる場合、画面端に張り付く
-                determiningValue = 0;
+                result = 0;
             }
 
-            return determiningValue;
+            return result;
         }
 
         public static int GetAddValue(int maxValue, int currentValue, int distanceValue, int offsetValue = 0)
         {
-            int determiningValue = currentValue + distanceValue;
-            if (determiningValue > maxValue - offsetValue)
+            int result = currentValue + distanceValue;
+            if (result > maxValue - offsetValue)
             {
                 // 座標が画角を超える場合、画面端に張り付く
-                determiningValue = maxValue - offsetValue;
+                result = maxValue - offsetValue;
             }
 
-            return determiningValue;
+            return result;
         }
     }
 }
