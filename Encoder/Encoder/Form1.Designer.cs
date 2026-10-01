@@ -90,7 +90,7 @@
             this.MaximumSize = new System.Drawing.Size(256, 115);
             this.MinimumSize = new System.Drawing.Size(256, 115);
             this.Name = "Form1";
-            this.Text = "EncordDecord";
+            this.Text = "EncodeDecode";
             this.ResumeLayout(false);
             this.PerformLayout();
 
