@@ -18,7 +18,7 @@ namespace othello
             ComCom,
         }
 
-        private Draw draw = new Draw();
+        private BoardRenderer renderer = new BoardRenderer();
         private GameMaster gm = new GameMaster();
         private PlayMode playMode = PlayMode.PlayerPlayer;
         private int comLevel = 1;
@@ -62,7 +62,7 @@ namespace othello
 
             ResetGame();
 
-            draw.SetDrawArea(pictureBoxField);
+            renderer.SetDrawArea(pictureBoxField);
             RedrawBoard();
         }
 
@@ -502,7 +502,7 @@ namespace othello
                 return;
             }
 
-            // Draw側の罫線描画(「全体*i/8」で位置を計算)と同じ考え方でマス目を求める。
+            // BoardRenderer側の罫線描画(「全体*i/8」で位置を計算)と同じ考え方でマス目を求める。
             // 先に1マス分の幅を割ってしまうと、盤面のサイズによっては罫線とクリック判定の
             // マス目がわずかにズレることがあるため、掛け算してから割る。
             int x = e.X * GameMaster.BoardSize / pictureBoxField.Width;
@@ -542,7 +542,7 @@ namespace othello
                     return;
                 }
 
-                draw.CreateCanvas();
+                renderer.CreateCanvas();
                 RedrawBoard();
             });
         }
@@ -556,7 +556,7 @@ namespace othello
         {
             bool showNotice = !isTimedOut && !gm.IsGameEnd && !IsComTurn(gm.CurrentTurn);
             bool[,] validMoves = showNotice ? gm.GetValidMoves(gm.CurrentTurn) : null;
-            draw.DrawField(gm.Table, validMoves);
+            renderer.DrawField(gm.Table, validMoves);
             UpdateStatusLabel();
             UpdateTimeLabel();
 

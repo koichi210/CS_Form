@@ -5,12 +5,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace othello.Tests
 {
     /// <summary>
-    /// Draw（オセロ盤面をPictureBoxに描画するクラス、Form1とは独立した
+    /// BoardRenderer（オセロ盤面をPictureBoxに描画するクラス、Form1とは独立した
     /// 通常クラス）のテスト。実際のPictureBoxを使い、描画結果のピクセルを
     /// 確認することで検証する。
     /// </summary>
     [TestClass]
-    public class DrawTests
+    public class BoardRendererTests
     {
         private PictureBox CreatePictureBox()
         {
@@ -23,8 +23,8 @@ namespace othello.Tests
         {
             using (var pb = CreatePictureBox())
             {
-                var draw = new Draw();
-                draw.SetDrawArea(pb);
+                var renderer = new BoardRenderer();
+                renderer.SetDrawArea(pb);
 
                 Assert.IsNotNull(pb.Image);
                 Assert.AreEqual(80, pb.Image.Width);
@@ -37,11 +37,11 @@ namespace othello.Tests
         {
             using (var pb = CreatePictureBox())
             {
-                var draw = new Draw();
-                draw.SetDrawArea(pb);
+                var renderer = new BoardRenderer();
+                renderer.SetDrawArea(pb);
                 Assert.IsNotNull(pb.Image);
 
-                draw.DeleteCanvas();
+                renderer.DeleteCanvas();
 
                 Assert.IsNull(pb.Image);
             }
@@ -52,10 +52,10 @@ namespace othello.Tests
         {
             using (var pb = CreatePictureBox())
             {
-                var draw = new Draw();
-                draw.SetDrawArea(pb);
+                var renderer = new BoardRenderer();
+                renderer.SetDrawArea(pb);
 
-                draw.FillBackground(Brushes.Red);
+                renderer.FillBackground(Brushes.Red);
 
                 using (var bmp = new Bitmap(pb.Image))
                 {
@@ -70,11 +70,11 @@ namespace othello.Tests
         {
             using (var pb = CreatePictureBox())
             {
-                var draw = new Draw();
-                draw.SetDrawArea(pb);
-                draw.FillBackground(Brushes.White);
+                var renderer = new BoardRenderer();
+                renderer.SetDrawArea(pb);
+                renderer.FillBackground(Brushes.White);
 
-                draw.DrawLine(new Point(0, 40), new Point(80, 40), Color.Blue, 2);
+                renderer.DrawLine(new Point(0, 40), new Point(80, 40), Color.Blue, 2);
 
                 using (var bmp = new Bitmap(pb.Image))
                 {
@@ -88,10 +88,10 @@ namespace othello.Tests
         {
             using (var pb = CreatePictureBox())
             {
-                var draw = new Draw();
-                draw.SetDrawArea(pb);
+                var renderer = new BoardRenderer();
+                renderer.SetDrawArea(pb);
 
-                draw.InitField();
+                renderer.InitField();
 
                 using (var bmp = new Bitmap(pb.Image))
                 {

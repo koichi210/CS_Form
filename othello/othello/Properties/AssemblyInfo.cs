@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
-// テストプロジェクトから internal クラス（Draw / GameMaster など）を
+// テストプロジェクトから internal クラス（BoardRenderer / GameMaster など）を
 // 直接参照できるようにする
 [assembly: InternalsVisibleTo("othello.Tests")]
 

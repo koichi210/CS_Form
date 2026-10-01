@@ -6,7 +6,7 @@ namespace othello.Tests
     /// Form1（オセロ盤面のフォーム）のテスト。
     ///
     /// ⚠️ button_ReStart_Click は常にMessageBox.Showを呼ぶため、テスト対象から
-    /// 除外する。盤面描画ロジック自体はDrawTestsでDrawクラスを直接検証している。
+    /// 除外する。盤面描画ロジック自体はBoardRendererTestsでBoardRendererクラスを直接検証している。
     /// </summary>
     [TestClass]
     public class Form1Tests
