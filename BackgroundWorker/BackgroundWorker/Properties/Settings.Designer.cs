@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BackGroundWorker.Properties
+namespace BackgroundWorker.Properties
 {
 
 

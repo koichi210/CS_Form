@@ -1,4 +1,4 @@
-﻿namespace BackGroundWorker
+﻿namespace BackgroundWorker
 {
     partial class Form1
     {

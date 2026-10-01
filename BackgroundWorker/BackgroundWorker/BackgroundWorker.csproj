@@ -8,8 +8,8 @@
     <ProjectGuid>{3A22831F-26CC-474C-8133-551857B03D46}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BackGroundWorker</RootNamespace>
-    <AssemblyName>BackGroundWorker</AssemblyName>
+    <RootNamespace>BackgroundWorker</RootNamespace>
+    <AssemblyName>BackgroundWorker</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>

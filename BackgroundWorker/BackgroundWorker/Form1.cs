@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace BackGroundWorker
+namespace BackgroundWorker
 {
     public partial class Form1 : Form
     {
@@ -43,7 +43,7 @@ namespace BackGroundWorker
             // 別スレッドで実行されるため、このメソッドではGUIを操作してはいけない
 
             // senderの値はbgWorkerの値と同じ
-            BackgroundWorker worker = (BackgroundWorker)sender;
+            System.ComponentModel.BackgroundWorker worker = (System.ComponentModel.BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
             List<object> arguments = e.Argument as List<object>;

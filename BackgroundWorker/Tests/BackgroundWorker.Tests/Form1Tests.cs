@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackGroundWorker.Tests
+namespace BackgroundWorker.Tests
 {
     /// <summary>
     /// Form1（BackgroundWorkerの使い方を示すサンプル）のテスト。
@@ -22,7 +22,7 @@ namespace BackGroundWorker.Tests
         public void DoWorkは指定回数繰り返して完了結果を返す()
         {
             using (var form = new Form1())
-            using (var worker = new BackgroundWorker())
+            using (var worker = new System.ComponentModel.BackgroundWorker())
             {
                 worker.WorkerReportsProgress = true;
                 worker.WorkerSupportsCancellation = true;
@@ -41,7 +41,7 @@ namespace BackGroundWorker.Tests
         public void DoWorkはキャンセル済みならCancelをtrueにして早期終了する()
         {
             using (var form = new Form1())
-            using (var worker = new BackgroundWorker())
+            using (var worker = new System.ComponentModel.BackgroundWorker())
             {
                 worker.WorkerReportsProgress = true;
                 worker.WorkerSupportsCancellation = true;

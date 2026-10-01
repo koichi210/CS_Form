@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace BackGroundWorker.Tests
+namespace BackgroundWorker.Tests
 {
     /// <summary>
     /// private なコントロールフィールドやイベントハンドラを、production コードを
