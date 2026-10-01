@@ -46,7 +46,7 @@ namespace ChotChotChat
 
         public String Disconnect()
         {
-            // 接続待ちの途中で失敗した場合もポートを開放するため、isConnectedに関係なく閉じる
+            // 接続待ちの途中で失敗した場合もポートを解放するため、isConnectedに関係なく閉じる
             isConnected = false;
             if (client != null)
             {
