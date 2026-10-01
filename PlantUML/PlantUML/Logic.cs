@@ -12,18 +12,16 @@ namespace PlantUML
     /// </summary>
     internal static class Logic
     {
-        public static String BuildCommandParam(String PlantumlPath, String ConfigFile, Boolean ConfigFileExists, String InFile)
+        public static String BuildCommandParam(String plantumlPath, String configFile, Boolean configFileExists, String inFile)
         {
-            String CommandParam;
-
-            CommandParam = string.Format(@"java -jar " + PlantumlPath);
-            if (ConfigFileExists)
+            String commandParam = string.Format(@"java -jar " + plantumlPath);
+            if (configFileExists)
             {
-                CommandParam += string.Format(" -config {0}", ConfigFile);
+                commandParam += string.Format(" -config {0}", configFile);
             }
-            CommandParam += string.Format(" -charset UTF-8 {0}", InFile);
+            commandParam += string.Format(" -charset UTF-8 {0}", inFile);
 
-            return CommandParam;
+            return commandParam;
         }
     }
 }

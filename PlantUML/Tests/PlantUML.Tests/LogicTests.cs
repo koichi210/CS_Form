@@ -16,7 +16,7 @@ namespace PlantUML.Tests
         [TestMethod]
         public void ConfigFileが存在する場合はconfigオプションを含む()
         {
-            string result = Logic.BuildCommandParam(@"plantuml.jar", @"sample\config.txt", ConfigFileExists: true, InFile: @"sample\sequence.puml");
+            string result = Logic.BuildCommandParam(@"plantuml.jar", @"sample\config.txt", configFileExists: true, inFile: @"sample\sequence.puml");
 
             Assert.AreEqual(@"java -jar plantuml.jar -config sample\config.txt -charset UTF-8 sample\sequence.puml", result);
         }
@@ -24,7 +24,7 @@ namespace PlantUML.Tests
         [TestMethod]
         public void ConfigFileが存在しない場合はconfigオプションを含まない()
         {
-            string result = Logic.BuildCommandParam(@"plantuml.jar", @"sample\config.txt", ConfigFileExists: false, InFile: @"sample\sequence.puml");
+            string result = Logic.BuildCommandParam(@"plantuml.jar", @"sample\config.txt", configFileExists: false, inFile: @"sample\sequence.puml");
 
             Assert.AreEqual(@"java -jar plantuml.jar -charset UTF-8 sample\sequence.puml", result);
         }
@@ -32,7 +32,7 @@ namespace PlantUML.Tests
         [TestMethod]
         public void 常にUTF8の文字コード指定と入力ファイルが末尾に付く()
         {
-            string result = Logic.BuildCommandParam(@"C:\tools\plantuml.jar", @"cfg.txt", ConfigFileExists: false, InFile: @"diagram.puml");
+            string result = Logic.BuildCommandParam(@"C:\tools\plantuml.jar", @"cfg.txt", configFileExists: false, inFile: @"diagram.puml");
 
             StringAssert.EndsWith(result, "-charset UTF-8 diagram.puml");
         }

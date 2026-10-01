@@ -1,16 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Diagnostics;
 
 namespace PlantUML
@@ -20,7 +9,7 @@ namespace PlantUML
     /// </summary>
     public partial class MainWindow : Window
     {
-        private String ScriptName = "PlantUML.bat";
+        private String scriptName = "PlantUML.bat";
         public MainWindow()
         {
             InitializeComponent();
@@ -33,15 +22,14 @@ namespace PlantUML
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            String CommandParam = Logic.BuildCommandParam(PlantumlPath.Text, ConfigFile.Text, System.IO.File.Exists(ConfigFile.Text), InFile.Text);
+            String commandParam = Logic.BuildCommandParam(PlantumlPath.Text, ConfigFile.Text, System.IO.File.Exists(ConfigFile.Text), InFile.Text);
 
-            System.IO.StreamWriter writer = new System.IO.StreamWriter(ScriptName);
-            writer.WriteLine(CommandParam);
+            System.IO.StreamWriter writer = new System.IO.StreamWriter(scriptName);
+            writer.WriteLine(commandParam);
             writer.Close();
 
-            Process p = Process.Start(ScriptName);
-            p.WaitForExit();              // プロセスの終了を待つ
-            int iExitCode = p.ExitCode;
+            Process process = Process.Start(scriptName);
+            process.WaitForExit();              // プロセスの終了を待つ
         }
     }
 }
