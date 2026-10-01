@@ -5,7 +5,7 @@ namespace VariableArgument.Tests
     /// <summary>
     /// Form1（C#にはsprintfの可変引数相当が無いことを示すサンプル）のテスト。
     ///
-    /// ⚠️ button_Exceute_C_Click は常にMessageBox.Showを呼ぶため、テスト対象から
+    /// ⚠️ button_Execute_C_Click は常にMessageBox.Showを呼ぶため、テスト対象から
     /// 除外する。
     /// </summary>
     [TestClass]
@@ -19,7 +19,7 @@ namespace VariableArgument.Tests
                 FormReflection.SetText(form, "textBox_Input", "Santa_%d.raw");
                 FormReflection.SetText(form, "textBox_Replace_Digit", "3");
 
-                FormReflection.InvokeHandler(form, "button_Exceute_CS_Click", form);
+                FormReflection.InvokeHandler(form, "button_Execute_CS_Click", form);
 
                 string output = FormReflection.GetControl(form, "textBox_Output").Text;
                 Assert.AreEqual("Santa_3.raw", output);
@@ -34,7 +34,7 @@ namespace VariableArgument.Tests
                 FormReflection.SetText(form, "textBox_Input", "%d_%d");
                 FormReflection.SetText(form, "textBox_Replace_Digit", "7");
 
-                FormReflection.InvokeHandler(form, "button_Exceute_CS_Click", form);
+                FormReflection.InvokeHandler(form, "button_Execute_CS_Click", form);
 
                 string output = FormReflection.GetControl(form, "textBox_Output").Text;
                 Assert.AreEqual("7_7", output);

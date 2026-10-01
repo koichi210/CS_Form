@@ -28,26 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button_Exceute_CS = new System.Windows.Forms.Button();
+            this.button_Execute_CS = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox_Output = new StandardTemplate.TextBoxEx();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox_Input = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
-            this.button_Exceute_C = new System.Windows.Forms.Button();
+            this.button_Execute_C = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox_Replace_Digit = new StandardTemplate.TextBoxEx();
             this.SuspendLayout();
             // 
-            // button_Exceute_CS
+            // button_Execute_CS
             // 
-            this.button_Exceute_CS.Location = new System.Drawing.Point(165, 150);
-            this.button_Exceute_CS.Name = "button_Exceute_CS";
-            this.button_Exceute_CS.Size = new System.Drawing.Size(100, 23);
-            this.button_Exceute_CS.TabIndex = 8;
-            this.button_Exceute_CS.Text = "C#風に実行";
-            this.button_Exceute_CS.UseVisualStyleBackColor = true;
-            this.button_Exceute_CS.Click += new System.EventHandler(this.button_Exceute_CS_Click);
+            this.button_Execute_CS.Location = new System.Drawing.Point(165, 150);
+            this.button_Execute_CS.Name = "button_Execute_CS";
+            this.button_Execute_CS.Size = new System.Drawing.Size(100, 23);
+            this.button_Execute_CS.TabIndex = 8;
+            this.button_Execute_CS.Text = "C#風に実行";
+            this.button_Execute_CS.UseVisualStyleBackColor = true;
+            this.button_Execute_CS.Click += new System.EventHandler(this.button_Execute_CS_Click);
             // 
             // label1
             // 
@@ -91,15 +91,15 @@
             this.label3.TabIndex = 0;
             this.label3.Text = "%d を数値にして出力";
             // 
-            // button_Exceute_C
+            // button_Execute_C
             // 
-            this.button_Exceute_C.Location = new System.Drawing.Point(165, 123);
-            this.button_Exceute_C.Name = "button_Exceute_C";
-            this.button_Exceute_C.Size = new System.Drawing.Size(100, 23);
-            this.button_Exceute_C.TabIndex = 7;
-            this.button_Exceute_C.Text = "C言語風に実行";
-            this.button_Exceute_C.UseVisualStyleBackColor = true;
-            this.button_Exceute_C.Click += new System.EventHandler(this.button_Exceute_C_Click);
+            this.button_Execute_C.Location = new System.Drawing.Point(165, 123);
+            this.button_Execute_C.Name = "button_Execute_C";
+            this.button_Execute_C.Size = new System.Drawing.Size(100, 23);
+            this.button_Execute_C.TabIndex = 7;
+            this.button_Execute_C.Text = "C言語風に実行";
+            this.button_Execute_C.UseVisualStyleBackColor = true;
+            this.button_Execute_C.Click += new System.EventHandler(this.button_Execute_C_Click);
             // 
             // label4
             // 
@@ -124,13 +124,13 @@
             this.ClientSize = new System.Drawing.Size(284, 208);
             this.Controls.Add(this.textBox_Replace_Digit);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.button_Exceute_C);
+            this.Controls.Add(this.button_Execute_C);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox_Input);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox_Output);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button_Exceute_CS);
+            this.Controls.Add(this.button_Execute_CS);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -140,13 +140,13 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button_Exceute_CS;
+        private System.Windows.Forms.Button button_Execute_CS;
         private System.Windows.Forms.Label label1;
         private StandardTemplate.TextBoxEx textBox_Output;
         private System.Windows.Forms.Label label2;
         private StandardTemplate.TextBoxEx textBox_Input;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button_Exceute_C;
+        private System.Windows.Forms.Button button_Execute_C;
         private System.Windows.Forms.Label label4;
         private StandardTemplate.TextBoxEx textBox_Replace_Digit;
     }

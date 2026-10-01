@@ -13,12 +13,12 @@ namespace VariableArgument
             textBox_Replace_Digit.Text = "1";
         }
 
-        private void button_Exceute_C_Click(object sender, EventArgs e)
+        private void button_Execute_C_Click(object sender, EventArgs e)
         {
             MessageBox.Show("C#ではsprintfとか使えませんでした。。");
         }
 
-        private void button_Exceute_CS_Click(object sender, EventArgs e)
+        private void button_Execute_CS_Click(object sender, EventArgs e)
         {
             textBox_Output.Text = textBox_Input.Text.Replace("%d", textBox_Replace_Digit.Text);
         }
