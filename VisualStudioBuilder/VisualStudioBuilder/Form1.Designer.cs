@@ -1,4 +1,4 @@
-﻿﻿namespace VisualStudioBuilder
+﻿namespace VisualStudioBuilder
 {
     partial class Form1
     {
