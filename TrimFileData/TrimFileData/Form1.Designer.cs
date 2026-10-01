@@ -55,7 +55,7 @@
             this.textBox_SearchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox_SearchWordList.Size = new System.Drawing.Size(210, 227);
             this.textBox_SearchWordList.TabIndex = 8;
-            this.textBox_SearchWordList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SourceList_KeyDown);
+            this.textBox_SearchWordList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SearchWordList_KeyDown);
             // 
             // label1
             // 
@@ -86,7 +86,7 @@
             this.textBox_SearchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox_SearchResultList.Size = new System.Drawing.Size(210, 227);
             this.textBox_SearchResultList.TabIndex = 10;
-            this.textBox_SearchResultList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_DestList_KeyDown);
+            this.textBox_SearchResultList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SearchResultList_KeyDown);
             // 
             // button_Execute
             // 

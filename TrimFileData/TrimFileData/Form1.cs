@@ -75,12 +75,12 @@ namespace TrimFileData
             base.WndProc(ref m);
         }
 
-        private void textBox_SourceList_KeyDown(object sender, KeyEventArgs e)
+        private void textBox_SearchWordList_KeyDown(object sender, KeyEventArgs e)
         {
             util.SelectAll(textBox_SearchWordList, e);
         }
 
-        private void textBox_DestList_KeyDown(object sender, KeyEventArgs e)
+        private void textBox_SearchResultList_KeyDown(object sender, KeyEventArgs e)
         {
             util.SelectAll(textBox_SearchResultList, e);
         }
