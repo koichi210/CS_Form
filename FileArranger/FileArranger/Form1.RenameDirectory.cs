@@ -88,7 +88,7 @@ namespace FileArranger
                 rd_listView_Target.Items.Add(new ListViewItem(item));
             }
 
-            if (visibleItemIdx > folders.Length)
+            if (visibleItemIdx >= folders.Length)
             {
                 visibleItemIdx = folders.Length - 1;
             }
