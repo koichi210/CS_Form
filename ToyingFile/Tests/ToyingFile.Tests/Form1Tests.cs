@@ -46,7 +46,7 @@ namespace ToyingFile.Tests
                 FormReflection.SetText(form, "textBox_Directory", tempDirectory);
                 FormReflection.SetText(form, "textBox_DeleteString", "SECRET");
                 FormReflection.SetChecked(form, "radioButton_DeleteString", true);
-                FormReflection.SetChecked(form, "checkBox_WideNarrow", true);
+                FormReflection.SetChecked(form, "checkBox_CaseSensitive", true);
 
                 FormReflection.InvokeHandler(form, "button_Execute_Click");
             }
@@ -69,7 +69,7 @@ namespace ToyingFile.Tests
                 FormReflection.SetText(form, "textBox_DeleteString", "TARGET");
                 FormReflection.SetChecked(form, "checkBox_SubDirectory", true);
                 FormReflection.SetChecked(form, "radioButton_DeleteString", true);
-                FormReflection.SetChecked(form, "checkBox_WideNarrow", true);
+                FormReflection.SetChecked(form, "checkBox_CaseSensitive", true);
 
                 FormReflection.InvokeHandler(form, "button_Execute_Click");
             }

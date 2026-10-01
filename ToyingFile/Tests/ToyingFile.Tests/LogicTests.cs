@@ -15,7 +15,7 @@ namespace ToyingFile.Tests
         {
             string content = "keep this" + Environment.NewLine + "delete THIS word" + Environment.NewLine + "keep too";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "THIS" }, exactMatch: true, deleteWholeLine: false);
+            string result = Logic.DeleteStringFromContent(content, new[] { "THIS" }, caseSensitive: true, deleteWholeLine: false);
 
             Assert.AreEqual("keep this" + Environment.NewLine + "delete  word" + Environment.NewLine + "keep too", result);
         }
@@ -25,28 +25,28 @@ namespace ToyingFile.Tests
         {
             string content = "keep this" + Environment.NewLine + "delete this line" + Environment.NewLine + "keep too";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "delete" }, exactMatch: true, deleteWholeLine: true);
+            string result = Logic.DeleteStringFromContent(content, new[] { "delete" }, caseSensitive: true, deleteWholeLine: true);
 
             Assert.AreEqual("keep this" + Environment.NewLine + "" + Environment.NewLine + "keep too", result);
         }
 
         [TestMethod]
-        public void exactMatchがtrueなら大文字小文字を区別して検索する()
+        public void caseSensitiveがtrueなら大文字小文字を区別して検索する()
         {
             string content = "target line" + Environment.NewLine + "TARGET line";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "target" }, exactMatch: true, deleteWholeLine: true);
+            string result = Logic.DeleteStringFromContent(content, new[] { "target" }, caseSensitive: true, deleteWholeLine: true);
 
             // 1行目だけ完全一致するので空行に、2行目(大文字)は対象外でそのまま残る
             Assert.AreEqual("" + Environment.NewLine + "TARGET line", result);
         }
 
         [TestMethod]
-        public void exactMatchがfalseなら大文字小文字を区別せず検索する()
+        public void caseSensitiveがfalseなら大文字小文字を区別せず検索する()
         {
             string content = "target line" + Environment.NewLine + "TARGET line";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "target" }, exactMatch: false, deleteWholeLine: true);
+            string result = Logic.DeleteStringFromContent(content, new[] { "target" }, caseSensitive: false, deleteWholeLine: true);
 
             // どちらも検索には一致するので両方空行になる
             Assert.AreEqual("" + Environment.NewLine + "", result);
@@ -59,7 +59,7 @@ namespace ToyingFile.Tests
             // 大文字側が消えずに残っていた。Regex.Replaceに変えて判定と削除の挙動を揃えた。
             string content = "TARGET line";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "target" }, exactMatch: false, deleteWholeLine: false);
+            string result = Logic.DeleteStringFromContent(content, new[] { "target" }, caseSensitive: false, deleteWholeLine: false);
 
             Assert.AreEqual(" line", result, "検索がヒットした文字列は削除される");
         }
@@ -69,7 +69,7 @@ namespace ToyingFile.Tests
         {
             string content = "" + Environment.NewLine + "keep this";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "keep" }, exactMatch: true, deleteWholeLine: true);
+            string result = Logic.DeleteStringFromContent(content, new[] { "keep" }, caseSensitive: true, deleteWholeLine: true);
 
             Assert.AreEqual("" + Environment.NewLine + "", result);
         }
@@ -79,7 +79,7 @@ namespace ToyingFile.Tests
         {
             string content = "foo bar baz";
 
-            string result = Logic.DeleteStringFromContent(content, new[] { "foo", "baz" }, exactMatch: true, deleteWholeLine: false);
+            string result = Logic.DeleteStringFromContent(content, new[] { "foo", "baz" }, caseSensitive: true, deleteWholeLine: false);
 
             Assert.AreEqual(" bar ", result);
         }

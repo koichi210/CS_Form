@@ -11,7 +11,7 @@ namespace ToyingFile
     /// コードはそのまま移しただけで書き換えていない。ファイルの読み書き(fio.LoadFile/
     /// SaveFile)は Form1 側に残し、ここには文字列だけを渡す・返す形にした。
     ///
-    /// exactMatch(大文字小文字を区別するか)は、以前は「削除対象の行かどうかを判定する IndexOf」
+    /// caseSensitive(大文字小文字を区別するか)は、以前は「削除対象の行かどうかを判定する IndexOf」
     /// にしか効いておらず、実際に削除する String.Replace は常に大文字小文字を区別していた
     /// (.NET Framework の String.Replace に大文字小文字を無視するオーバーロードが無いため)。
     /// 区別しない場合は Regex.Replace を使うことで、判定と削除の挙動を揃えている。
@@ -22,9 +22,9 @@ namespace ToyingFile
         /// ファイル内容(改行区切り)から、deleteStrings のいずれかを含む行を処理する。
         /// deleteWholeLine=true なら行ごと空行にする。false なら該当文字列だけ削除する。
         /// </summary>
-        public static String DeleteStringFromContent(String fileData, String[] deleteStrings, Boolean exactMatch, Boolean deleteWholeLine)
+        public static String DeleteStringFromContent(String fileData, String[] deleteStrings, Boolean caseSensitive, Boolean deleteWholeLine)
         {
-            StringComparison comparison = exactMatch ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            StringComparison comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
             String[] lines = fileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
@@ -47,7 +47,7 @@ namespace ToyingFile
                             // 一行削除&空行追加
                             list[j] = "";
                         }
-                        else if (exactMatch)
+                        else if (caseSensitive)
                         {
                             // 文字だけ削除ならReplace
                             list[j] = list[j].Replace(deleteStrings[k], "");

@@ -30,7 +30,7 @@
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBox_DeleteString = new StandardTemplate.TextBoxEx();
-            this.checkBox_WideNarrow = new System.Windows.Forms.CheckBox();
+            this.checkBox_CaseSensitive = new System.Windows.Forms.CheckBox();
             this.checkBox_DeleteLine = new System.Windows.Forms.CheckBox();
             this.radioButton_DeleteString = new System.Windows.Forms.RadioButton();
             this.textBox_Directory = new StandardTemplate.TextBoxEx();
@@ -50,7 +50,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.textBox_DeleteString);
-            this.groupBox1.Controls.Add(this.checkBox_WideNarrow);
+            this.groupBox1.Controls.Add(this.checkBox_CaseSensitive);
             this.groupBox1.Controls.Add(this.checkBox_DeleteLine);
             this.groupBox1.Controls.Add(this.radioButton_DeleteString);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
@@ -75,16 +75,16 @@
             this.textBox_DeleteString.WordWrap = false;
             this.textBox_DeleteString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_DeleteString_KeyDown);
             // 
-            // checkBox_WideNarrow
+            // checkBox_CaseSensitive
             // 
-            this.checkBox_WideNarrow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.checkBox_WideNarrow.AutoSize = true;
-            this.checkBox_WideNarrow.Location = new System.Drawing.Point(38, 94);
-            this.checkBox_WideNarrow.Name = "checkBox_WideNarrow";
-            this.checkBox_WideNarrow.Size = new System.Drawing.Size(129, 16);
-            this.checkBox_WideNarrow.TabIndex = 2;
-            this.checkBox_WideNarrow.Text = "大文字小文字を区別";
-            this.checkBox_WideNarrow.UseVisualStyleBackColor = true;
+            this.checkBox_CaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox_CaseSensitive.AutoSize = true;
+            this.checkBox_CaseSensitive.Location = new System.Drawing.Point(38, 94);
+            this.checkBox_CaseSensitive.Name = "checkBox_CaseSensitive";
+            this.checkBox_CaseSensitive.Size = new System.Drawing.Size(129, 16);
+            this.checkBox_CaseSensitive.TabIndex = 2;
+            this.checkBox_CaseSensitive.Text = "大文字小文字を区別";
+            this.checkBox_CaseSensitive.UseVisualStyleBackColor = true;
             // 
             // checkBox_DeleteLine
             // 
@@ -213,7 +213,7 @@
         private System.Windows.Forms.Button button_Execute;
         private System.Windows.Forms.RadioButton radioButton_DeleteString;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.CheckBox checkBox_WideNarrow;
+        private System.Windows.Forms.CheckBox checkBox_CaseSensitive;
         private System.Windows.Forms.CheckBox checkBox_SubDirectory;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label1;

@@ -72,7 +72,7 @@ namespace ToyingFile
             foreach (String filePath in filePaths)
             {
                 String fileData = fio.LoadFile(filePath);
-                String resultData = Logic.DeleteStringFromContent(fileData, deleteStrings, checkBox_WideNarrow.Checked, checkBox_DeleteLine.Checked);
+                String resultData = Logic.DeleteStringFromContent(fileData, deleteStrings, checkBox_CaseSensitive.Checked, checkBox_DeleteLine.Checked);
                 fio.SaveFile(filePath, resultData);
             }
         }
