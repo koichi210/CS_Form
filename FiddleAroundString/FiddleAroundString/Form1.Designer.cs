@@ -173,7 +173,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_SearchResultList.Location = new System.Drawing.Point(252, 148);
             this.textBox_SearchResultList.Multiline = true;
-            this.textBox_SearchResultList.Name = "textBox_SerchResultList";
+            this.textBox_SearchResultList.Name = "textBox_SearchResultList";
             this.textBox_SearchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox_SearchResultList.Size = new System.Drawing.Size(388, 227);
             this.textBox_SearchResultList.TabIndex = 18;
@@ -193,7 +193,7 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox_SearchWordList.Location = new System.Drawing.Point(17, 148);
             this.textBox_SearchWordList.Multiline = true;
-            this.textBox_SearchWordList.Name = "textBox_SerchWordList";
+            this.textBox_SearchWordList.Name = "textBox_SearchWordList";
             this.textBox_SearchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox_SearchWordList.Size = new System.Drawing.Size(210, 227);
             this.textBox_SearchWordList.TabIndex = 16;
@@ -218,7 +218,7 @@
             this.textBox_SearchCommonWord.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_SearchCommonWord.Location = new System.Drawing.Point(8, 37);
-            this.textBox_SearchCommonWord.Name = "textBox_SerchCommonWord";
+            this.textBox_SearchCommonWord.Name = "textBox_SearchCommonWord";
             this.textBox_SearchCommonWord.Size = new System.Drawing.Size(409, 19);
             this.textBox_SearchCommonWord.TabIndex = 4;
             // 

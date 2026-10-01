@@ -10,7 +10,7 @@ using System.Windows.Forms;
 //		・英小字
 //		・スペース
 
-//★ToingFile
+//★ToyingFile
 //	・指定フォルダ内のファイルから、指定の文字を削除
 //	　・大文字小文字を区別
 //	　・行を削除
