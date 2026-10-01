@@ -15,7 +15,7 @@ namespace Bmp2Gif
 
         private void button_Change_Click(object sender, EventArgs e)
         {
-            Logic.ConvertBmpToGif(textBox_SrcBmp.Text, textBox_DstGif.Text, checkBoxAddComent.Checked);
+            Logic.ConvertBmpToGif(textBox_SrcBmp.Text, textBox_DstGif.Text, checkBoxAddComment.Checked);
         }
     }
 }

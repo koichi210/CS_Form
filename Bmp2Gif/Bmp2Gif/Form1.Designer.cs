@@ -34,7 +34,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.checkBoxAddComent = new System.Windows.Forms.CheckBox();
+            this.checkBoxAddComment = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // textBox_SrcBmp
@@ -93,22 +93,22 @@
             this.label3.TabIndex = 2;
             this.label3.Text = "↓";
             // 
-            // checkBoxAddComent
+            // checkBoxAddComment
             // 
-            this.checkBoxAddComent.AutoSize = true;
-            this.checkBoxAddComent.Location = new System.Drawing.Point(222, 74);
-            this.checkBoxAddComent.Name = "checkBoxAddComent";
-            this.checkBoxAddComent.Size = new System.Drawing.Size(100, 16);
-            this.checkBoxAddComent.TabIndex = 5;
-            this.checkBoxAddComent.Text = "コメント追加する";
-            this.checkBoxAddComent.UseVisualStyleBackColor = true;
+            this.checkBoxAddComment.AutoSize = true;
+            this.checkBoxAddComment.Location = new System.Drawing.Point(222, 74);
+            this.checkBoxAddComment.Name = "checkBoxAddComment";
+            this.checkBoxAddComment.Size = new System.Drawing.Size(100, 16);
+            this.checkBoxAddComment.TabIndex = 5;
+            this.checkBoxAddComment.Text = "コメント追加する";
+            this.checkBoxAddComment.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(334, 132);
-            this.Controls.Add(this.checkBoxAddComent);
+            this.Controls.Add(this.checkBoxAddComment);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -132,7 +132,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.CheckBox checkBoxAddComent;
+        private System.Windows.Forms.CheckBox checkBoxAddComment;
     }
 }
 
