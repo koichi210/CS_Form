@@ -8,7 +8,7 @@ namespace Class_List.Tests
     ///
     /// ⚠️ ResultDump は常に MessageBox.Show を呼ぶため、これを呼び出す
     /// buttonAdd_Click / buttonRestore_Click はテスト対象から除外し、
-    /// 実際にロジックを持つ AddList / SubList / UpdateIdx を直接呼び出して検証する。
+    /// 実際にロジックを持つ AddList / RemoveIfLastGroup / UpdateIdx を直接呼び出して検証する。
     /// </summary>
     [TestClass]
     public class Form1Tests
@@ -67,7 +67,7 @@ namespace Class_List.Tests
         }
 
         [TestMethod]
-        public void SubListは現在のLastIdxと一致する要素だけ削除しtrueを返す()
+        public void RemoveIfLastGroupは現在のLastIdxと一致する要素だけ削除しtrueを返す()
         {
             using (var form = new Form1())
             {
@@ -76,7 +76,7 @@ namespace Class_List.Tests
                 form.UpdateIdx(Form1.INDEX_COUNTER.INCREMENT);         // LastIdx: 0 -> 1
                 FormReflection.InvokeMethod(form, "AddList", list, 2); // Group=1で追加
 
-                object result = FormReflection.InvokeMethod(form, "SubList", list, 1);
+                object result = FormReflection.InvokeMethod(form, "RemoveIfLastGroup", list, 1);
 
                 Assert.IsTrue((bool)result);
                 Assert.AreEqual(1, list.Count);
@@ -85,7 +85,7 @@ namespace Class_List.Tests
         }
 
         [TestMethod]
-        public void SubListは一致しなければ削除せずfalseを返す()
+        public void RemoveIfLastGroupは一致しなければ削除せずfalseを返す()
         {
             using (var form = new Form1())
             {
@@ -93,7 +93,7 @@ namespace Class_List.Tests
                 FormReflection.InvokeMethod(form, "AddList", list, 1); // Group=0で追加
                 form.UpdateIdx(Form1.INDEX_COUNTER.INCREMENT);         // LastIdx: 0 -> 1
 
-                object result = FormReflection.InvokeMethod(form, "SubList", list, 0);
+                object result = FormReflection.InvokeMethod(form, "RemoveIfLastGroup", list, 0);
 
                 Assert.IsFalse((bool)result);
                 Assert.AreEqual(1, list.Count);

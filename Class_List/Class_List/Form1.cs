@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Class_List
@@ -17,9 +12,9 @@ namespace Class_List
             public String SrcName;
             public String DestName;
 
-            public Table(int idx, string srcName, string destName)
+            public Table(int group, string srcName, string destName)
             {
-                Group = idx;
+                Group = group;
                 SrcName = srcName;
                 DestName = destName;
             }
@@ -32,9 +27,9 @@ namespace Class_List
         };
 
 
-        public void UpdateIdx(INDEX_COUNTER cnt)
+        public void UpdateIdx(INDEX_COUNTER counter)
         {
-            switch (cnt)
+            switch (counter)
             {
                 case INDEX_COUNTER.INCREMENT:
                     LastIdx++;
@@ -73,7 +68,7 @@ namespace Class_List
             UpdateIdx(INDEX_COUNTER.DECREMENT);
             for (int i = AllList.Count - 1; i > 0; i--)
             {
-                if (!SubList(AllList, i))
+                if (!RemoveIfLastGroup(AllList, i))
                 {
                     break;
                 }
@@ -82,16 +77,16 @@ namespace Class_List
             ResultDump();
         }
 
-        private void AddList(List<Table> arr, int num)
+        private void AddList(List<Table> list, int num)
         {
-            arr.Add(new Table(LastIdx, "Source" + num.ToString(), "Destination" + num.ToString()));
+            list.Add(new Table(LastIdx, "Source" + num.ToString(), "Destination" + num.ToString()));
         }
 
-        private Boolean SubList(List<Table> arr, int num)
+        private Boolean RemoveIfLastGroup(List<Table> list, int index)
         {
-            if (arr[num].Group == LastIdx)
+            if (list[index].Group == LastIdx)
             {
-                arr.RemoveAt(num);
+                list.RemoveAt(index);
                 return true;
             }
             return false;
@@ -99,15 +94,15 @@ namespace Class_List
 
         private void ResultDump()
         {
-            String Result = "";
+            String result = "";
             for (int i = 0; i < AllList.Count; i++)
             {
-                Result += "[" + i.ToString() + "]" + Environment.NewLine;
-                Result += "  Group=    " + AllList[i].Group + Environment.NewLine;
-                Result += "  SrcName= " + AllList[i].SrcName + Environment.NewLine;
-                Result += "  DestName=" + AllList[i].DestName + Environment.NewLine;
+                result += "[" + i.ToString() + "]" + Environment.NewLine;
+                result += "  Group=    " + AllList[i].Group + Environment.NewLine;
+                result += "  SrcName= " + AllList[i].SrcName + Environment.NewLine;
+                result += "  DestName=" + AllList[i].DestName + Environment.NewLine;
             }
-            MessageBox.Show(Result, "Tableの中身");
+            MessageBox.Show(result, "Tableの中身");
         }
     }
 }
