@@ -126,5 +126,52 @@ namespace PictMerge2.Tests
 
             custom.ReleaseSourceImg();
         }
+
+        // ---- IDisposable ----
+
+        [TestMethod]
+        public void IDisposableを実装していてusingで使える()
+        {
+            using (var edit = new PicEdit(4, 4))
+            {
+                Assert.IsInstanceOfType(edit, typeof(IDisposable));
+            }
+        }
+
+        [TestMethod]
+        public void Disposeを2回呼んでも例外にならない()
+        {
+            string sourcePath = CreateSolidColorBmp("dispose_twice.bmp", 10, 10, Color.Blue);
+            var edit = new PicEdit(10, 10);
+            edit.CreateSourceImg(sourcePath);
+
+            edit.Dispose();
+            edit.Dispose();
+        }
+
+        [TestMethod]
+        public void ReleaseSourceImgの後にDisposeしても例外にならない()
+        {
+            string sourcePath = CreateSolidColorBmp("release_then_dispose.bmp", 10, 10, Color.Blue);
+            var edit = new PicEdit(10, 10);
+            edit.CreateSourceImg(sourcePath);
+            edit.ReleaseSourceImg();
+
+            edit.Dispose();
+        }
+
+        [TestMethod]
+        public void usingを抜けると画像ファイルのロックが外れる()
+        {
+            string basePath = CreateSolidColorBmp("lock.bmp", 10, 10, Color.Blue);
+            using (var edit = new PicEdit(basePath))
+            {
+                edit.CreateSourceImg(basePath);
+            }
+
+            // Bitmap が解放されずにロックが残っていれば IOException になる
+            File.Delete(basePath);
+            Assert.IsFalse(File.Exists(basePath));
+        }
     }
 }

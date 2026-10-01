@@ -3,7 +3,7 @@ using System.Windows;
 using System.Drawing;
 using System.IO;
 
-using PicEdit;
+using Picture;
 
 namespace PictMerge
 {

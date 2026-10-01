@@ -201,13 +201,14 @@ namespace PictMerge
             System.Drawing.Point putParam = new System.Drawing.Point(putX, putY);
 
             // キャンバス作成
-            PicEdit trimmer = new PicEdit(destWidth, destHeight);
+            using (PicEdit trimmer = new PicEdit(destWidth, destHeight))
+            {
+                // 切り取り
+                trimmer.TrimExec(sourcePictName, cutParam, putParam);
 
-            // 切り取り
-            trimmer.TrimExec(sourcePictName, cutParam, putParam);
-
-            // キャンバス保存
-            trimmer.SaveCanvas(targetPictName);
+                // キャンバス保存
+                trimmer.SaveCanvas(targetPictName);
+            }
         }
 
         private void Merge_Click(object sender, RoutedEventArgs e)
@@ -221,28 +222,29 @@ namespace PictMerge
             int cutHeight = int.Parse(DestHeight.Text);
 
             // キャンバス作成
-            PicEdit merger = new PicEdit(sourcePictName);
-
-            // 切断基準となる高さ（1行に「開始,終了」）
-            string[] trimRanges = TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
-            // マージ
-            merger.CreateSourceImg(mergePictName);
-
-            foreach (string trimRange in trimRanges)
+            using (PicEdit merger = new PicEdit(sourcePictName))
             {
-                string[] heights = trimRange.Split(new[] { "," }, StringSplitOptions.None);
-                int startHeight = int.Parse(heights[0]);
-                int endHeight = int.Parse(heights[1]);
+                // 切断基準となる高さ（1行に「開始,終了」）
+                string[] trimRanges = TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
-                System.Drawing.Rectangle cutParam = new System.Drawing.Rectangle(cutX, startHeight, cutWidth, endHeight - startHeight);
-                merger.MergeExec(cutParam);
+                // マージ
+                merger.CreateSourceImg(mergePictName);
+
+                foreach (string trimRange in trimRanges)
+                {
+                    string[] heights = trimRange.Split(new[] { "," }, StringSplitOptions.None);
+                    int startHeight = int.Parse(heights[0]);
+                    int endHeight = int.Parse(heights[1]);
+
+                    System.Drawing.Rectangle cutParam = new System.Drawing.Rectangle(cutX, startHeight, cutWidth, endHeight - startHeight);
+                    merger.MergeExec(cutParam);
+                }
+
+                merger.ReleaseSourceImg();
+
+                // キャンバス保存
+                merger.SaveCanvas(targetPictName);
             }
-
-            merger.ReleaseSourceImg();
-
-            // キャンバス保存
-            merger.SaveCanvas(targetPictName);
         }
     }
 }

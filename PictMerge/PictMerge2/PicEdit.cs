@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace Picture
 {
-    class PicEdit
+    class PicEdit : IDisposable
     {
         // 描画先
         protected Bitmap m_Canvas;
@@ -23,16 +23,25 @@ namespace Picture
 
         ~PicEdit()
         {
-            // リソース解放
+            Dispose(false);
+        }
+
+        // IDisposable。using で囲めばファイナライザを待たずにその場で画像を解放できる。
+        // ReleaseImg が解放後に null を入れるので、二重に呼んでも安全。
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            // リソース解放(ファイナライザから呼ばれた場合も従来どおり両方の画像を解放する)
             // m_SourceImgはCreateSourceImg()を呼ぶまでnullのまま(MergeExec系を
             // 使わないインスタンスだと一度も設定されない)。以前は無条件にDispose()
-            // していたため、その場合ファイナライザ内でNullReferenceExceptionが
-            // 起きるバグだった(TODO「必ず走るけどok？」が指摘していた通り)。
-            m_Canvas.Dispose();
-            if (m_SourceImg != null)
-            {
-                m_SourceImg.Dispose();
-            }
+            // していたためファイナライザ内でNullReferenceExceptionが起きるバグがあった。
+            ReleaseImg(ref m_Canvas);
+            ReleaseImg(ref m_SourceImg);
         }
 
         public void SaveCanvas(String savePictFile)
@@ -65,12 +74,8 @@ namespace Picture
 
         public void ReleaseSourceImg()
         {
-            // 上のファイナライザと同じ理由でnullチェックを追加(CreateSourceImg未実行なら
-            // m_SourceImgはnullのまま)
-            if (m_SourceImg != null)
-            {
-                m_SourceImg.Dispose();
-            }
+            // CreateSourceImg未実行ならm_SourceImgはnullのまま(ReleaseImg側でnullチェックする)
+            ReleaseImg(ref m_SourceImg);
         }
 
         public void MergeExec(Rectangle cutParam)
@@ -92,6 +97,15 @@ namespace Picture
                     //画像の一部を描画
                     g.DrawImage(img, pasteRect, cutParam, GraphicsUnit.Pixel);
                 }
+            }
+        }
+
+        private void ReleaseImg(ref Bitmap img)
+        {
+            if (img != null)
+            {
+                img.Dispose();
+                img = null;
             }
         }
     }

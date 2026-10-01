@@ -1,36 +1,44 @@
 ﻿using System;
 using System.Drawing;
 
-namespace PicEdit
+namespace Picture
 {
-    class Trim
+    class PicEdit : IDisposable
     {
         // 描画先
         protected Bitmap m_Canvas;
         protected Bitmap m_SourceImg;
 
-        public Trim(String basePictFile)
+        public PicEdit(String basePictFile)
         {
             //既存ファイルをもとに、描画先Imageオブジェクトを作成
             m_Canvas = new Bitmap(basePictFile);
         }
 
-        public Trim(int destWidth, int destHeight)
+        public PicEdit(int destWidth, int destHeight)
         {
             //新規に描画先Imageオブジェクトを作成
             m_Canvas = new Bitmap(destWidth, destHeight);
         }
 
-        ~Trim()
+        ~PicEdit()
         {
-            // リソース解放
-            m_Canvas.Dispose();
+            Dispose(false);
+        }
 
-            if (m_SourceImg != null)
-            {
-                m_SourceImg.Dispose();
-                m_SourceImg = null;
-            }
+        // IDisposable。using で囲めばファイナライザを待たずにその場で画像を解放できる。
+        // ReleaseImg が解放後に null を入れるので、二重に呼んでも安全。
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            // リソース解放(ファイナライザから呼ばれた場合も従来どおり両方の画像を解放する)
+            ReleaseImg(ref m_Canvas);
+            ReleaseImg(ref m_SourceImg);
         }
 
         public void SaveCanvas(String savePictFile)
@@ -63,11 +71,8 @@ namespace PicEdit
 
         public void ReleaseSourceImg()
         {
-            // CreateSourceImg未実行ならm_SourceImgはnullのまま(ファイナライザ側と同じ理由)
-            if (m_SourceImg != null)
-            {
-                m_SourceImg.Dispose();
-            }
+            // CreateSourceImg未実行ならm_SourceImgはnullのまま(ReleaseImg側でnullチェックする)
+            ReleaseImg(ref m_SourceImg);
         }
 
         public void MergeExec(Rectangle cutParam)
@@ -89,6 +94,15 @@ namespace PicEdit
                     //画像の一部を描画
                     g.DrawImage(img, pasteRect, cutParam, GraphicsUnit.Pixel);
                 }
+            }
+        }
+
+        private void ReleaseImg(ref Bitmap img)
+        {
+            if (img != null)
+            {
+                img.Dispose();
+                img = null;
             }
         }
     }

@@ -2,16 +2,16 @@ using System;
 using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PicEdit;
+using Picture;
 
 namespace PictMerge.Tests
 {
     /// <summary>
-    /// Trim（PicEdit.cs、Form/Windowとは独立した画像切り取り/合成クラス）のテスト。
+    /// PicEdit（PicEdit.cs、Form/Windowとは独立した画像切り取り/合成クラス）のテスト。
     /// 実際の画像ファイルを使い、描画結果のピクセルを確認することで検証する。
     /// </summary>
     [TestClass]
-    public class TrimTests
+    public class PicEditTests
     {
         private string tempDirectory;
 
@@ -54,11 +54,11 @@ namespace PictMerge.Tests
         {
             string sourcePath = CreateSolidColorBmp("source.bmp", 100, 100, Color.Blue);
 
-            var trim = new Trim(50, 50);
-            trim.TrimExec(sourcePath, new Rectangle(0, 0, 50, 50), new Point(0, 0));
+            var edit = new PicEdit(50, 50);
+            edit.TrimExec(sourcePath, new Rectangle(0, 0, 50, 50), new Point(0, 0));
 
             string savedPath = Path.Combine(tempDirectory, "result.bmp");
-            trim.SaveCanvas(savedPath);
+            edit.SaveCanvas(savedPath);
 
             using (var result = new Bitmap(savedPath))
             {
@@ -71,13 +71,13 @@ namespace PictMerge.Tests
         {
             string sourcePath = CreateSolidColorBmp("source.bmp", 100, 100, Color.Red);
 
-            var trim = new Trim(50, 50);
-            trim.CreateSourceImg(sourcePath);
-            trim.MergeExec(new Rectangle(0, 0, 50, 50));
-            trim.ReleaseSourceImg();
+            var edit = new PicEdit(50, 50);
+            edit.CreateSourceImg(sourcePath);
+            edit.MergeExec(new Rectangle(0, 0, 50, 50));
+            edit.ReleaseSourceImg();
 
             string savedPath = Path.Combine(tempDirectory, "merged.bmp");
-            trim.SaveCanvas(savedPath);
+            edit.SaveCanvas(savedPath);
 
             using (var result = new Bitmap(savedPath))
             {
@@ -86,20 +86,67 @@ namespace PictMerge.Tests
         }
 
         [TestMethod]
-        public void 既存ファイルからTrimを生成すると同じ内容がキャンバスになる()
+        public void 既存ファイルからPicEditを生成すると同じ内容がキャンバスになる()
         {
             string sourcePath = CreateSolidColorBmp("source.bmp", 30, 30, Color.Yellow);
 
-            var trim = new Trim(sourcePath);
+            var edit = new PicEdit(sourcePath);
 
             string savedPath = Path.Combine(tempDirectory, "copied.bmp");
-            trim.SaveCanvas(savedPath);
+            edit.SaveCanvas(savedPath);
 
             using (var result = new Bitmap(savedPath))
             {
                 Assert.AreEqual(30, result.Width);
                 Assert.AreEqual(Color.Yellow.ToArgb(), result.GetPixel(5, 5).ToArgb());
             }
+        }
+
+        // ---- IDisposable ----
+
+        [TestMethod]
+        public void IDisposableを実装していてusingで使える()
+        {
+            using (var edit = new PicEdit(4, 4))
+            {
+                Assert.IsInstanceOfType(edit, typeof(IDisposable));
+            }
+        }
+
+        [TestMethod]
+        public void Disposeを2回呼んでも例外にならない()
+        {
+            string sourcePath = CreateSolidColorBmp("dispose_twice.bmp", 10, 10, Color.Blue);
+            var edit = new PicEdit(10, 10);
+            edit.CreateSourceImg(sourcePath);
+
+            edit.Dispose();
+            edit.Dispose();
+        }
+
+        [TestMethod]
+        public void ReleaseSourceImgの後にDisposeしても例外にならない()
+        {
+            string sourcePath = CreateSolidColorBmp("release_then_dispose.bmp", 10, 10, Color.Blue);
+            var edit = new PicEdit(10, 10);
+            edit.CreateSourceImg(sourcePath);
+            edit.ReleaseSourceImg();
+
+            edit.Dispose();
+        }
+
+        [TestMethod]
+        public void usingを抜けると画像ファイルのロックが外れる()
+        {
+            string basePath = CreateSolidColorBmp("lock.bmp", 10, 10, Color.Blue);
+            using (var edit = new PicEdit(basePath))
+            {
+                edit.CreateSourceImg(basePath);
+            }
+
+            // Bitmap が解放されずにロックが残っていれば IOException になる
+            File.Delete(basePath);
+            Assert.IsFalse(File.Exists(basePath));
         }
     }
 }
