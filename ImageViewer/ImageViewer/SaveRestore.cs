@@ -5,7 +5,7 @@ namespace ImageViewer
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegisterItem(ImageViewer parent)
+        public void RegisterItem(Form1 parent)
         {
             // コントロールを列挙
             RegisterCtrl("Parent", "textBox_FolderPath", parent.textBox_FolderPath);

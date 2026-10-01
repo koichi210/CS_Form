@@ -5,7 +5,7 @@ using StandardTemplate;
 
 namespace ImageViewer
 {
-    partial class ImageViewer : StcBaseForm<SaveRestore>
+    partial class Form1 : StcBaseForm<SaveRestore>
     {
         private StcFileInputOutput fio = new StcFileInputOutput();
         private readonly String DefaultSaveName = @"ImageViewer.json";
@@ -40,7 +40,7 @@ namespace ImageViewer
         }
 
 
-        public ImageViewer()
+        public Form1()
         {
             InitializeComponent();
             textBox_FolderPath.Text = @"C:\tmp";

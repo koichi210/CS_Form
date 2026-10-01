@@ -6,9 +6,6 @@ namespace ImageViewer.Tests
 {
     /// <summary>
     /// ImageViewer.SaveRestore（StcSaveRestore を継承した設定保存クラス）のテスト。
-    ///
-    /// Form のクラス名が名前空間と同じ "ImageViewer" のため、テストコード内では
-    /// 常に完全修飾名 global::ImageViewer.ImageViewer でフォームの型を指す。
     /// </summary>
     [TestClass]
     public class SaveRestoreTests
@@ -35,15 +32,15 @@ namespace ImageViewer.Tests
             }
         }
 
-        private static global::ImageViewer.ImageViewer NewForm()
+        private static Form1 NewForm()
         {
-            return new global::ImageViewer.ImageViewer();
+            return new Form1();
         }
 
         [TestMethod]
         public void フォルダパスと拡張子の指定が保存して読み直すと戻る()
         {
-            using (global::ImageViewer.ImageViewer writer = NewForm())
+            using (Form1 writer = NewForm())
             {
                 writer.textBox_FolderPath.Text = @"D:\photos";
                 writer.textBox_Extension.Text = "*.jpg";
@@ -53,7 +50,7 @@ namespace ImageViewer.Tests
                 string path = Path.Combine(tempDirectory, "setting.xml");
                 Assert.IsTrue(sr.SaveXmlFile(path));
 
-                using (global::ImageViewer.ImageViewer reader = NewForm())
+                using (Form1 reader = NewForm())
                 {
                     var readerSr = new SaveRestore();
                     readerSr.RegisterItem(reader);

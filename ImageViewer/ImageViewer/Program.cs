@@ -14,7 +14,7 @@ namespace ImageViewer
             StcExceptionGuard.Install();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ImageViewer());
+            Application.Run(new Form1());
         }
     }
 }

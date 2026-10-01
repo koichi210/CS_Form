@@ -1,6 +1,6 @@
 ﻿namespace ImageViewer
 {
-    partial class ImageViewer
+    partial class Form1
     {
         /// <summary>
         /// 必要なデザイナー変数です。
@@ -163,7 +163,7 @@
             this.button_SampleView.UseVisualStyleBackColor = true;
             this.button_SampleView.Click += new System.EventHandler(this.button_SampleView_Click);
             // 
-            // ImageViewer
+            // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -180,7 +180,7 @@
             this.Controls.Add(this.textBox_FolderPath);
             this.Controls.Add(this.label1);
             this.MinimumSize = new System.Drawing.Size(422, 349);
-            this.Name = "ImageViewer";
+            this.Name = "Form1";
             this.Text = "ImageViewer";
             this.ResumeLayout(false);
             this.PerformLayout();
