@@ -9,7 +9,7 @@ namespace Cheetos
         {
             SetElement("Setting");
             // 第2引数(設定ファイルのキー名)のtypoは修正済み。旧キー名で保存された既存の設定ファイルは
-            // legacyAttrValueで旧キーを読み替えて読み込む([[_TechnicalNote/typo修正リスト.md]])
+            // legacyAttrValueで旧キーを読み替えて読み込む([[_Common/StandardTemplateClass.cs]]のOriginDB)
 
             RegisterCtrl("CaptureWindow", "cw_TextBox_SavePath", parent.cw_TextBox_SavePath);
             RegisterCtrl("CaptureWindow", "cw_TextBox_SaveFilePrefix", parent.cw_TextBox_SaveFilePrefix, legacyAttrValue: "cw_TextBox_SaveFilePrifix");

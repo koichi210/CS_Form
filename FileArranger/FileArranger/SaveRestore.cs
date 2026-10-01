@@ -12,7 +12,7 @@ namespace FileArranger
         {
             SetElement("Setting");
             // 第2引数(設定ファイルのキー名)のtypoは修正済み。旧キー名で保存された既存の設定ファイルは
-            // legacyAttrValueで旧キーを読み替えて読み込む([[_TechnicalNote/typo修正リスト.md]])
+            // legacyAttrValueで旧キーを読み替えて読み込む([[_Common/StandardTemplateClass.cs]]のOriginDB)
 
             RegisterCtrl("Common", "cmn_textBox_Reference", parent.cmn_textBox_Reference);
             RegisterCtrl("Common", "cmn_textBox_AddList", parent.cmn_textBox_AddList);
