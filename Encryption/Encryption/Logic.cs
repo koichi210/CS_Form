@@ -13,41 +13,31 @@ namespace Encryption
     {
         public static String Execute(String tableText, Boolean isDecode, String keyText)
         {
-            var line = tableText;
-
-            string[] key_s = line.Split(' ');
-            int[] key_i = key_s.Select(str => int.Parse(str)).ToArray();
-
-            bool encdec = true;
-            if (isDecode)
-            {
-                encdec = false;
-            }
+            string[] tableTokens = tableText.Split(' ');
+            int[] table = tableTokens.Select(str => int.Parse(str)).ToArray();
 
             // Key
-            int word = int.Parse(keyText);
+            int keyNumber = int.Parse(keyText);
 
             // decodeのときはテーブルを反転
-
-            if (!encdec)
+            if (isDecode)
             {
-                int[] key_ii = key_s.Select(str => int.Parse(str)).ToArray();
-                for (int i = 0; i < key_ii.Length; i++)
+                int[] encodeTable = tableTokens.Select(str => int.Parse(str)).ToArray();
+                for (int i = 0; i < encodeTable.Length; i++)
                 {
-                    int idx = key_ii[i];
-                    key_i[idx] = i;
+                    table[encodeTable[i]] = i;
                 }
             }
 
-            string ans = "";
-            while (word != 0)
+            string result = "";
+            while (keyNumber != 0)
             {
-                int idx = word % 10;
-                word /= 10;
-                ans = key_i[idx].ToString() + ans;
+                int digit = keyNumber % 10;
+                keyNumber /= 10;
+                result = table[digit].ToString() + result;
             }
 
-            return ans;
+            return result;
         }
     }
 }
