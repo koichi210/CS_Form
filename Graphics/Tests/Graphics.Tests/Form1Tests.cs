@@ -4,21 +4,21 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Graphics.Tests
 {
     /// <summary>
-    /// Form1（Chartコントロールに棒グラフ/円グラフを描画するサンプル）のテスト。
+    /// Form1（Chartコントロールに折れ線グラフ/円グラフを描画するサンプル）のテスト。
     /// MessageBox.Show を呼ぶ箇所は無いため、全ハンドラをテスト対象にできる。
     /// </summary>
     [TestClass]
     public class Form1Tests
     {
         [TestMethod]
-        public void 棒グラフボタンでchart1に360点のSin波Seriesが追加される()
+        public void 折れ線グラフボタンでchart1に360点のSin波Seriesが追加される()
         {
             using (var form = new Form1())
             {
                 var chart1 = (Chart)FormReflection.GetControl(form, "chart1");
                 int beforeCount = chart1.Series.Count; // デザイナーで既定のSeriesが1つ登録済み
 
-                FormReflection.InvokeHandler(form, "buttonBarGraph_Click", form);
+                FormReflection.InvokeHandler(form, "buttonLineGraph_Click", form);
 
                 Assert.AreEqual(beforeCount + 1, chart1.Series.Count);
                 var added = chart1.Series[chart1.Series.Count - 1];
@@ -28,15 +28,15 @@ namespace Graphics.Tests
         }
 
         [TestMethod]
-        public void 棒グラフボタンを連続で押すとSeriesが積み重なる()
+        public void 折れ線グラフボタンを連続で押すとSeriesが積み重なる()
         {
             using (var form = new Form1())
             {
                 var chart1 = (Chart)FormReflection.GetControl(form, "chart1");
                 int beforeCount = chart1.Series.Count; // デザイナーで既定のSeriesが1つ登録済み
 
-                FormReflection.InvokeHandler(form, "buttonBarGraph_Click", form);
-                FormReflection.InvokeHandler(form, "buttonBarGraph_Click", form);
+                FormReflection.InvokeHandler(form, "buttonLineGraph_Click", form);
+                FormReflection.InvokeHandler(form, "buttonLineGraph_Click", form);
 
                 Assert.AreEqual(beforeCount + 2, chart1.Series.Count);
             }
@@ -67,7 +67,7 @@ namespace Graphics.Tests
                 var chart1 = (Chart)FormReflection.GetControl(form, "chart1");
                 int beforeSeriesCount = chart1.Series.Count; // デザイナーで既定のSeriesが1つ登録済み
 
-                FormReflection.InvokeHandler(form, "buttonBarGraph_Click", form);
+                FormReflection.InvokeHandler(form, "buttonLineGraph_Click", form);
                 FormReflection.InvokeHandler(form, "buttonCircleGraph_Click", form);
 
                 Assert.AreEqual(beforeSeriesCount + 1, chart1.Series.Count);

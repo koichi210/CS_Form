@@ -13,7 +13,7 @@ namespace Graphics
             InitializeComponent();
         }
 
-        private void buttonBarGraph_Click(object sender, EventArgs e)
+        private void buttonLineGraph_Click(object sender, EventArgs e)
         {
             //Seriesの作成
             Series series = new Series();

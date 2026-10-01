@@ -32,9 +32,9 @@
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.buttonBarGraph = new System.Windows.Forms.Button();
+            this.buttonLineGraph = new System.Windows.Forms.Button();
             this.buttonCircleGraph = new System.Windows.Forms.Button();
-            this.Delete = new System.Windows.Forms.Button();
+            this.buttonDelete = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -54,15 +54,15 @@
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
             // 
-            // buttonBarGraph
+            // buttonLineGraph
             // 
-            this.buttonBarGraph.Location = new System.Drawing.Point(166, 318);
-            this.buttonBarGraph.Name = "buttonBarGraph";
-            this.buttonBarGraph.Size = new System.Drawing.Size(75, 23);
-            this.buttonBarGraph.TabIndex = 1;
-            this.buttonBarGraph.Text = "棒グラフ";
-            this.buttonBarGraph.UseVisualStyleBackColor = true;
-            this.buttonBarGraph.Click += new System.EventHandler(this.buttonBarGraph_Click);
+            this.buttonLineGraph.Location = new System.Drawing.Point(166, 318);
+            this.buttonLineGraph.Name = "buttonLineGraph";
+            this.buttonLineGraph.Size = new System.Drawing.Size(75, 23);
+            this.buttonLineGraph.TabIndex = 1;
+            this.buttonLineGraph.Text = "折れ線グラフ";
+            this.buttonLineGraph.UseVisualStyleBackColor = true;
+            this.buttonLineGraph.Click += new System.EventHandler(this.buttonLineGraph_Click);
             // 
             // buttonCircleGraph
             // 
@@ -74,24 +74,24 @@
             this.buttonCircleGraph.UseVisualStyleBackColor = true;
             this.buttonCircleGraph.Click += new System.EventHandler(this.buttonCircleGraph_Click);
             // 
-            // Delete
+            // buttonDelete
             // 
-            this.Delete.Location = new System.Drawing.Point(247, 318);
-            this.Delete.Name = "Delete";
-            this.Delete.Size = new System.Drawing.Size(75, 23);
-            this.Delete.TabIndex = 3;
-            this.Delete.Text = "消去";
-            this.Delete.UseVisualStyleBackColor = true;
-            this.Delete.Click += new System.EventHandler(this.buttonDelete_Click);
+            this.buttonDelete.Location = new System.Drawing.Point(247, 318);
+            this.buttonDelete.Name = "buttonDelete";
+            this.buttonDelete.Size = new System.Drawing.Size(75, 23);
+            this.buttonDelete.TabIndex = 3;
+            this.buttonDelete.Text = "消去";
+            this.buttonDelete.UseVisualStyleBackColor = true;
+            this.buttonDelete.Click += new System.EventHandler(this.buttonDelete_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(340, 400);
-            this.Controls.Add(this.Delete);
+            this.Controls.Add(this.buttonDelete);
             this.Controls.Add(this.buttonCircleGraph);
-            this.Controls.Add(this.buttonBarGraph);
+            this.Controls.Add(this.buttonLineGraph);
             this.Controls.Add(this.chart1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -103,9 +103,9 @@
         #endregion
 
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-        private System.Windows.Forms.Button buttonBarGraph;
+        private System.Windows.Forms.Button buttonLineGraph;
         private System.Windows.Forms.Button buttonCircleGraph;
-        private System.Windows.Forms.Button Delete;
+        private System.Windows.Forms.Button buttonDelete;
     }
 }
 
