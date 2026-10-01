@@ -49,7 +49,7 @@ namespace ResizeImg.Tests
         }
 
         [TestMethod]
-        public void Trimingは指定範囲を切り取り拡張子の前にnewを付けて保存する()
+        public void Trimmingは指定範囲を切り取り拡張子の前にnewを付けて保存する()
         {
             string sourcePath = CreateSolidColorBmp("sample.bmp", 100, 100, Color.Blue);
 
