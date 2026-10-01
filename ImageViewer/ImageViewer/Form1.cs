@@ -83,7 +83,7 @@ namespace ImageViewer
             base.WndProc(ref m);
         }
 
-        private void textBox_FolerPath_KeyDown(object sender, KeyEventArgs e)
+        private void textBox_FolderPath_KeyDown(object sender, KeyEventArgs e)
         {
             util.ExecutePath(textBox_FolderPath.Text, e);
         }

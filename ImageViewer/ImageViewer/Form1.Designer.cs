@@ -60,7 +60,7 @@
             this.textBox_FolderPath.Name = "textBox_FolderPath";
             this.textBox_FolderPath.Size = new System.Drawing.Size(295, 19);
             this.textBox_FolderPath.TabIndex = 1;
-            this.textBox_FolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_FolerPath_KeyDown);
+            this.textBox_FolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_FolderPath_KeyDown);
             // 
             // button_ListView
             // 
