@@ -261,7 +261,7 @@ namespace Cheetos
         public void SetStartTime()
         {
             textBox_StartTime.Text = DateTime.Now.ToString();
-            textBox＿ExpectEndTime.Text = "";
+            textBox_ExpectEndTime.Text = "";
         }
 
         public void SetExpectEndTime(int totalNum)
@@ -276,10 +276,10 @@ namespace Cheetos
             long procTime = dtEnd.Ticks - dtStart.Ticks;
             DateTime dtExpect = new DateTime(dtStart.Ticks + procTime * totalNum);
 
-            textBox＿ExpectEndTime.Text = dtExpect.ToString();
+            textBox_ExpectEndTime.Text = dtExpect.ToString();
         }
 
-        private void pm_TrimingHeight_KeyDown(object sender, KeyEventArgs e)
+        private void pm_TrimmingHeight_KeyDown(object sender, KeyEventArgs e)
         {
             util.SelectAll(e);
         }

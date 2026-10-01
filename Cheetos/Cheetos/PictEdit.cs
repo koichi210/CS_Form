@@ -4,19 +4,19 @@ using System.IO;
 
 namespace Picture
 {
-    class PicEdit
+    class PictEdit
     {
         // 描画先
         protected Bitmap m_Canvas;
         protected Bitmap m_SourceImg;
 
-        public PicEdit(String basePictFile)
+        public PictEdit(String basePictFile)
         {
             //既存ファイルをもとに、描画先Imageオブジェクトを作成
             m_Canvas = new Bitmap(basePictFile);
         }
 
-        public PicEdit(int destWidth, int destHeight)
+        public PictEdit(int destWidth, int destHeight)
         {
             //新規に描画先Imageオブジェクトを作成
             m_Canvas = new Bitmap(destWidth, destHeight);

@@ -99,7 +99,7 @@
             this.do_Distribute = new System.Windows.Forms.Button();
             this.PictMerge = new System.Windows.Forms.TabPage();
             this.pm_TextBox_Status = new StandardTemplate.TextBoxEx();
-            this.pm_TrimingHeight = new StandardTemplate.TextBoxEx();
+            this.pm_TrimmingHeight = new StandardTemplate.TextBoxEx();
             this.label17 = new System.Windows.Forms.Label();
             this.pm_MergeExec_Click = new System.Windows.Forms.Button();
             this.pm_ListBox_ListUp = new System.Windows.Forms.ListBox();
@@ -128,7 +128,7 @@
             this.bkgWorkerOrient = new System.ComponentModel.BackgroundWorker();
             this.textBox_StartTime = new StandardTemplate.TextBoxEx();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.textBox＿ExpectEndTime = new StandardTemplate.TextBoxEx();
+            this.textBox_ExpectEndTime = new StandardTemplate.TextBoxEx();
             this.label29 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
             this.bkgWorkerRotation = new System.ComponentModel.BackgroundWorker();
@@ -227,7 +227,7 @@
             // 
             this.cw_checkBox_AddTimeStamp.AutoSize = true;
             this.cw_checkBox_AddTimeStamp.Location = new System.Drawing.Point(162, 57);
-            this.cw_checkBox_AddTimeStamp.Name = "cw_checkBox_AddTimeStump";
+            this.cw_checkBox_AddTimeStamp.Name = "cw_checkBox_AddTimeStamp";
             this.cw_checkBox_AddTimeStamp.Size = new System.Drawing.Size(193, 16);
             this.cw_checkBox_AddTimeStamp.TabIndex = 4;
             this.cw_checkBox_AddTimeStamp.Text = "ファイル名にタイムスタンプを使用する";
@@ -293,7 +293,7 @@
             this.cw_TextBox_SaveFilePrefix.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cw_TextBox_SaveFilePrefix.Location = new System.Drawing.Point(152, 35);
-            this.cw_TextBox_SaveFilePrefix.Name = "cw_TextBox_SaveFilePrifix";
+            this.cw_TextBox_SaveFilePrefix.Name = "cw_TextBox_SaveFilePrefix";
             this.cw_TextBox_SaveFilePrefix.Size = new System.Drawing.Size(291, 19);
             this.cw_TextBox_SaveFilePrefix.TabIndex = 3;
             // 
@@ -917,7 +917,7 @@
             // PictMerge
             // 
             this.PictMerge.Controls.Add(this.pm_TextBox_Status);
-            this.PictMerge.Controls.Add(this.pm_TrimingHeight);
+            this.PictMerge.Controls.Add(this.pm_TrimmingHeight);
             this.PictMerge.Controls.Add(this.label17);
             this.PictMerge.Controls.Add(this.pm_MergeExec_Click);
             this.PictMerge.Controls.Add(this.pm_ListBox_ListUp);
@@ -947,18 +947,18 @@
             this.pm_TextBox_Status.TabIndex = 11;
             this.pm_TextBox_Status.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // pm_TrimingHeight
+            // pm_TrimmingHeight
             // 
-            this.pm_TrimingHeight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.pm_TrimmingHeight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.pm_TrimingHeight.Location = new System.Drawing.Point(115, 86);
-            this.pm_TrimingHeight.Multiline = true;
-            this.pm_TrimingHeight.Name = "pm_TrimingHeight";
-            this.pm_TrimingHeight.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.pm_TrimingHeight.Size = new System.Drawing.Size(100, 137);
-            this.pm_TrimingHeight.TabIndex = 8;
-            this.pm_TrimingHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.pm_TrimingHeight.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pm_TrimingHeight_KeyDown);
+            this.pm_TrimmingHeight.Location = new System.Drawing.Point(115, 86);
+            this.pm_TrimmingHeight.Multiline = true;
+            this.pm_TrimmingHeight.Name = "pm_TrimmingHeight";
+            this.pm_TrimmingHeight.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.pm_TrimmingHeight.Size = new System.Drawing.Size(100, 137);
+            this.pm_TrimmingHeight.TabIndex = 8;
+            this.pm_TrimmingHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.pm_TrimmingHeight.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pm_TrimmingHeight_KeyDown);
             // 
             // label17
             // 
@@ -1240,7 +1240,7 @@
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.textBox＿ExpectEndTime);
+            this.groupBox2.Controls.Add(this.textBox_ExpectEndTime);
             this.groupBox2.Controls.Add(this.label29);
             this.groupBox2.Controls.Add(this.label28);
             this.groupBox2.Controls.Add(this.ProgressBar_Status);
@@ -1253,14 +1253,14 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "処理状況";
             // 
-            // textBox＿ExpectEndTime
+            // textBox_ExpectEndTime
             // 
-            this.textBox＿ExpectEndTime.Location = new System.Drawing.Point(75, 42);
-            this.textBox＿ExpectEndTime.Name = "textBox＿ExpectEndTime";
-            this.textBox＿ExpectEndTime.ReadOnly = true;
-            this.textBox＿ExpectEndTime.Size = new System.Drawing.Size(115, 19);
-            this.textBox＿ExpectEndTime.TabIndex = 3;
-            this.textBox＿ExpectEndTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_ExpectEndTime.Location = new System.Drawing.Point(75, 42);
+            this.textBox_ExpectEndTime.Name = "textBox_ExpectEndTime";
+            this.textBox_ExpectEndTime.ReadOnly = true;
+            this.textBox_ExpectEndTime.Size = new System.Drawing.Size(115, 19);
+            this.textBox_ExpectEndTime.TabIndex = 3;
+            this.textBox_ExpectEndTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label29
             // 
@@ -1372,7 +1372,7 @@
         public System.ComponentModel.BackgroundWorker bkgWorkerMerge;
         private StandardTemplate.TextBoxEx TextBox_Status;
         public System.Windows.Forms.TabPage PictMerge;
-        public StandardTemplate.TextBoxEx pm_TrimingHeight;
+        public StandardTemplate.TextBoxEx pm_TrimmingHeight;
         public System.Windows.Forms.Label label17;
         public System.Windows.Forms.Button pm_MergeExec_Click;
         public System.Windows.Forms.ListBox pm_ListBox_ListUp;
@@ -1409,7 +1409,7 @@
         public System.ComponentModel.BackgroundWorker bkgWorkerOrient;
         private StandardTemplate.TextBoxEx textBox_StartTime;
         private System.Windows.Forms.GroupBox groupBox2;
-        private StandardTemplate.TextBoxEx textBox＿ExpectEndTime;
+        private StandardTemplate.TextBoxEx textBox_ExpectEndTime;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label28;
         public System.Windows.Forms.CheckBox cw_checkBox_AddTimeStamp;

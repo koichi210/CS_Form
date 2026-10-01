@@ -141,7 +141,7 @@ namespace Cheetos
 
                 // トリミング
                 // キャンバス作成(途中で失敗しても画像ファイルがロックされたまま残らないようfinallyで必ず解放する)
-                PicEdit trm = new PicEdit(param.TargetWidth, param.TargetHeight);
+                PictEdit trm = new PictEdit(param.TargetWidth, param.TargetHeight);
                 try
                 {
                     // 切り取り

@@ -100,7 +100,7 @@ namespace Cheetos
         public bool MergeExecute()
         {
             // キャンバス作成
-            PicEdit mrg = new PicEdit(SourceBackUpFullName);
+            PictEdit mrg = new PictEdit(SourceBackUpFullName);
 
             mrg.CreateSourceImg(MergeFileFullName);
             Size sz = mrg.GetCanvasSize();
@@ -165,7 +165,7 @@ namespace Cheetos
             }
 
             // 切断基準となる高さ。書式の確認はバックグラウンドでは聞けないため、開始前にここで1回だけ行う
-            String[] trimHeights = pm_TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            String[] trimHeights = pm_TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             String[] invalidTrimHeights = global::Cheetos.PictMerge.FindInvalidTrimHeights(trimHeights);
             if (invalidTrimHeights.Length > 0)
             {

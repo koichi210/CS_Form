@@ -158,7 +158,7 @@ namespace Cheetos.Tests
                 writer.pm_SourceFolderPath.Text = @"D:\merge";
                 writer.pm_SourceFile1Prefix.Text = "left_";
                 writer.pm_SourceFile2Prefix.Text = "right_";
-                writer.pm_TrimingHeight.Text = "480";
+                writer.pm_TrimmingHeight.Text = "480";
 
                 writer.fc_SourceFolderPath.Text = @"D:\from";
                 writer.fc_DestFolderPath.Text = @"D:\to";
@@ -174,7 +174,7 @@ namespace Cheetos.Tests
                     Assert.AreEqual(@"D:\merge", reader.pm_SourceFolderPath.Text);
                     Assert.AreEqual("left_", reader.pm_SourceFile1Prefix.Text);
                     Assert.AreEqual("right_", reader.pm_SourceFile2Prefix.Text);
-                    Assert.AreEqual("480", reader.pm_TrimingHeight.Text);
+                    Assert.AreEqual("480", reader.pm_TrimmingHeight.Text);
 
                     Assert.AreEqual(@"D:\from", reader.fc_SourceFolderPath.Text);
                     Assert.AreEqual(@"D:\to", reader.fc_DestFolderPath.Text);

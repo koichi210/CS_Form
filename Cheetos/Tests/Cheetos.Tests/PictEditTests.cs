@@ -7,24 +7,24 @@ using Picture;
 namespace Cheetos.Tests
 {
     /// <summary>
-    /// PicEdit（画像の切り貼りをする薄い GDI+ ラッパー）のテスト。
+    /// PictEdit（画像の切り貼りをする薄い GDI+ ラッパー）のテスト。
     ///
     /// Cheetos と PictMerge / PictTrim プロジェクトで実質同じクラスがコピーされている
-    /// （名前空間は同じ Picture、クラス名は PicEdit/Trim で微妙に違う）。まずは Cheetos 版から
+    /// （名前空間は同じ Picture、クラス名は PictEdit/PicEdit/Trim で微妙に違う）。まずは Cheetos 版から
     /// 実際に画像を生成・保存して検証する形で固める。
     ///
     /// internal クラスなので、Cheetos の AssemblyInfo.cs に足した
     /// InternalsVisibleTo("Cheetos.Tests") でテストから見えている。
     /// </summary>
     [TestClass]
-    public class PicEditTests
+    public class PictEditTests
     {
         private string tempDirectory;
 
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "CheetosPicEditTests_" + Guid.NewGuid().ToString("N"));
+            tempDirectory = Path.Combine(Path.GetTempPath(), "CheetosPictEditTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDirectory);
         }
 
@@ -67,7 +67,7 @@ namespace Cheetos.Tests
         [TestMethod]
         public void 幅と高さを指定して作った白紙キャンバスのサイズが一致する()
         {
-            var edit = new PicEdit(10, 20);
+            var edit = new PictEdit(10, 20);
 
             Size size = edit.GetCanvasSize();
 
@@ -80,7 +80,7 @@ namespace Cheetos.Tests
         {
             string path = CreateQuadrantImage("base.bmp", 3);
 
-            var edit = new PicEdit(path);
+            var edit = new PictEdit(path);
 
             Size size = edit.GetCanvasSize();
             Assert.AreEqual(6, size.Width);
@@ -93,7 +93,7 @@ namespace Cheetos.Tests
             const int cell = 4;
             string basePath = CreateQuadrantImage("trim_base.bmp", cell);
 
-            var edit = new PicEdit(cell * 2, cell * 2);
+            var edit = new PictEdit(cell * 2, cell * 2);
 
             // 左上の赤い区画(cell x cell)を、キャンバスの右下へコピーする
             edit.TrimExec(basePath, new Rectangle(0, 0, cell, cell), new Point(cell, cell));
@@ -115,7 +115,7 @@ namespace Cheetos.Tests
             const int cell = 4;
             string basePath = CreateQuadrantImage("trim_same.bmp", cell);
 
-            var edit = new PicEdit(cell * 2, cell * 2);
+            var edit = new PictEdit(cell * 2, cell * 2);
             edit.TrimExec(basePath, new Rectangle(cell, 0, cell, cell)); // 右上(青)をそのままの位置へ
 
             using (Bitmap canvasCopy = new Bitmap(TakeSnapshot(edit, basePath, cell)))
@@ -130,7 +130,7 @@ namespace Cheetos.Tests
             const int cell = 4;
             string sourcePath = CreateQuadrantImage("merge_source.bmp", cell);
 
-            var edit = new PicEdit(cell * 2, cell * 2);
+            var edit = new PictEdit(cell * 2, cell * 2);
             edit.CreateSourceImg(sourcePath);
 
             // 右下の黄色い区画を、キャンバスの左上へ合成する
@@ -150,7 +150,7 @@ namespace Cheetos.Tests
             string basePath = CreateQuadrantImage("save_base.bmp", cell);
             string savePath = Path.Combine(tempDirectory, "saved.bmp");
 
-            var edit = new PicEdit(basePath);
+            var edit = new PictEdit(basePath);
             edit.SaveCanvas(savePath);
 
             using (var saved = new Bitmap(savePath))
@@ -168,19 +168,19 @@ namespace Cheetos.Tests
             // SaveCanvas は保存直後に自身のキャンバスを Dispose して null にしている
             // （ソース中の TODO コメントにある「デストラクタでは想定したタイミングで呼ばれない」対策）。
             // 保存後にもう一度操作しようとすると落ちる、という現状の挙動を記録しておく。
-            var edit = new PicEdit(4, 4);
+            var edit = new PictEdit(4, 4);
             edit.SaveCanvas(Path.Combine(tempDirectory, "onceonly.bmp"));
 
             Assert.ThrowsException<NullReferenceException>(() => edit.GetCanvasSize());
         }
 
         /// <summary>
-        /// PicEdit はキャンバスを外に出す手段（GetCanvasSize 以外）を持たないため、
+        /// PictEdit はキャンバスを外に出す手段（GetCanvasSize 以外）を持たないため、
         /// 一度 SaveCanvas させてから読み直す形でしかテストからピクセルを見られない。
-        /// SaveCanvas は呼ぶと内部状態を破棄してしまうので、都度まっさらな PicEdit を
+        /// SaveCanvas は呼ぶと内部状態を破棄してしまうので、都度まっさらな PictEdit を
         /// 作り直して同じ操作を再現し、保存結果だけを覗き見る。
         /// </summary>
-        private Bitmap TakeSnapshot(PicEdit alreadyEdited, string basePathUnused, int cellUnused)
+        private Bitmap TakeSnapshot(PictEdit alreadyEdited, string basePathUnused, int cellUnused)
         {
             string path = Path.Combine(tempDirectory, "snapshot_" + Guid.NewGuid().ToString("N") + ".bmp");
             alreadyEdited.SaveCanvas(path);

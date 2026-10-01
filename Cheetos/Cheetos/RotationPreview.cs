@@ -9,7 +9,7 @@ namespace Cheetos
         private Button buttonCancel;
         private Button buttonOk;
         private Label label1;
-        private StandardTemplate.TextBoxEx textBox_loadfiepath;
+        private StandardTemplate.TextBoxEx textBox_loadfilepath;
         private Button button_draw;
         private PictureBox pictureBox_Source;
         private PictureBox pictureBox_Dest;
@@ -30,7 +30,7 @@ namespace Cheetos
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOk = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox_loadfiepath = new StandardTemplate.TextBoxEx();
+            this.textBox_loadfilepath = new StandardTemplate.TextBoxEx();
             this.button_draw = new System.Windows.Forms.Button();
             this.pictureBox_Source = new System.Windows.Forms.PictureBox();
             this.pictureBox_Dest = new System.Windows.Forms.PictureBox();
@@ -75,14 +75,14 @@ namespace Cheetos
             this.label1.TabIndex = 0;
             this.label1.Text = "ファイルパス";
             // 
-            // textBox_loadfiepath
+            // textBox_loadfilepath
             // 
-            this.textBox_loadfiepath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_loadfilepath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_loadfiepath.Location = new System.Drawing.Point(77, 12);
-            this.textBox_loadfiepath.Name = "textBox_loadfiepath";
-            this.textBox_loadfiepath.Size = new System.Drawing.Size(355, 19);
-            this.textBox_loadfiepath.TabIndex = 1;
+            this.textBox_loadfilepath.Location = new System.Drawing.Point(77, 12);
+            this.textBox_loadfilepath.Name = "textBox_loadfilepath";
+            this.textBox_loadfilepath.Size = new System.Drawing.Size(355, 19);
+            this.textBox_loadfilepath.TabIndex = 1;
             // 
             // button_draw
             // 
@@ -186,7 +186,7 @@ namespace Cheetos
             this.Controls.Add(this.pictureBox_Source);
             this.Controls.Add(this.button_draw);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox_loadfiepath);
+            this.Controls.Add(this.textBox_loadfilepath);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOk);
             this.MinimumSize = new System.Drawing.Size(550, 200);
@@ -219,7 +219,7 @@ namespace Cheetos
                 pictureBox_Source.Image.Dispose();
                 pictureBox_Source.Image = null;
             }
-            pictureBox_Source.Image = Image.FromFile(textBox_loadfiepath.Text);
+            pictureBox_Source.Image = Image.FromFile(textBox_loadfilepath.Text);
             Draw();
         }
 
@@ -274,7 +274,7 @@ namespace Cheetos
 
         private Boolean AdjustParam()
         {
-            if (!File.Exists(textBox_loadfiepath.Text))
+            if (!File.Exists(textBox_loadfilepath.Text))
             {
                 return false;
             }
@@ -303,7 +303,7 @@ namespace Cheetos
                 return;
             }
 
-            Bitmap img = new Bitmap(textBox_loadfiepath.Text);
+            Bitmap img = new Bitmap(textBox_loadfilepath.Text);
             int max = Math.Max(img.Width, img.Height);
             pictureBox_Dest.Size = new Size(max * 2, max * 2);
             Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);

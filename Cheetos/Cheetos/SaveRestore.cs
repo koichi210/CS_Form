@@ -8,9 +8,8 @@ namespace Cheetos
         public void RegisterItem(Cheetos parent)
         {
             SetElement("Setting");
-            // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
-            // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
-            // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
+            // 第2引数(設定ファイルのキー名)のtypoは修正済み。旧キー名で保存された既存の設定ファイルは
+            // legacyAttrValueで旧キーを読み替えて読み込む([[_TechnicalNote/typo修正リスト.md]])
 
             RegisterCtrl("CaptureWindow", "cw_TextBox_SavePath", parent.cw_TextBox_SavePath);
             RegisterCtrl("CaptureWindow", "cw_TextBox_SaveFilePrefix", parent.cw_TextBox_SaveFilePrefix, legacyAttrValue: "cw_TextBox_SaveFilePrifix");
@@ -46,7 +45,7 @@ namespace Cheetos
             RegisterCtrl("PictMerge", "pm_SourceFolderPath", parent.pm_SourceFolderPath);
             RegisterCtrl("PictMerge", "pm_SourceFile1Prefix", parent.pm_SourceFile1Prefix);
             RegisterCtrl("PictMerge", "pm_SourceFile2Prefix", parent.pm_SourceFile2Prefix);
-            RegisterCtrl("PictMerge", "pm_TrimingHeight", parent.pm_TrimingHeight);
+            RegisterCtrl("PictMerge", "pm_TrimmingHeight", parent.pm_TrimmingHeight);
 
             RegisterCtrl("FileCollect", "fc_SourceFolderPath", parent.fc_SourceFolderPath);
             RegisterCtrl("FileCollect", "fc_DestFolderPath", parent.fc_DestFolderPath);
@@ -66,7 +65,7 @@ namespace Cheetos
             return LoadXmlFile(loadFileName);
         }
 
-        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegistItemで登録済みのコントロールを
+        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegisterItemで登録済みのコントロールを
         // そのまま汎用プロファイル(StcSaveRestore.BuildGenericProfile/ApplyGenericProfile)に
         // 詰め替えるだけで、Cheetos専用のPOCOは作らない(コントロール数が多く、フィールドごとに
         // 手書きするとズレの元になるため)

@@ -85,7 +85,7 @@ namespace Cheetos
         /// <summary>既にデコード済みのBitmapから指定範囲を切り出し、PNGエンコードした場合のバイト数を返す。</summary>
         private static long GetBinSize(Bitmap sourceImg, Rectangle cutParam)
         {
-            PicEdit trm = new PicEdit(cutParam.Width, cutParam.Height);
+            PictEdit trm = new PictEdit(cutParam.Width, cutParam.Height);
 
             // 切り取り
             trm.TrimExec(sourceImg, cutParam, new Point(0, 0));
