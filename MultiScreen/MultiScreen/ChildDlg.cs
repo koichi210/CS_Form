@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace MouseTrainingWithMultiScreen
 {
     public partial class ChildDlg : Form
     {
-        public ChildDlg(String ButtonName)
+        public ChildDlg(String buttonName)
         {
             InitializeComponent();
 
-            ChildDlg_button.Text = ButtonName;
-
-            //this.Size = new Size(200, 200); // ウィンドウのサイズ
+            ChildDlg_button.Text = buttonName;
         }
 
         private void buttonAllPopup_Click(object sender, EventArgs e)
