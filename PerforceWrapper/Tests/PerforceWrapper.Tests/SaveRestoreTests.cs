@@ -138,8 +138,8 @@ namespace PerforceWrapper.Tests
                 writer.textBox_dl_src_tree.Text = "//depot/main";
                 writer.textBox_dl_dest_label_name.Text = "REL_2_0";
                 writer.textBox_dl_dest_tree.Text = "//depot/branch";
-                writer.textBox_ak_label_name.Text = "REL_3_0";
-                writer.textBox_ak_branch_map.Text = "my_branch";
+                writer.textBox_al_label_name.Text = "REL_3_0";
+                writer.textBox_al_branch_map.Text = "my_branch";
                 writer.radioButton_al_merge.Checked = true;
 
                 string path = PathFor("label");
@@ -155,8 +155,8 @@ namespace PerforceWrapper.Tests
                     Assert.AreEqual("//depot/main", reader.textBox_dl_src_tree.Text);
                     Assert.AreEqual("REL_2_0", reader.textBox_dl_dest_label_name.Text);
                     Assert.AreEqual("//depot/branch", reader.textBox_dl_dest_tree.Text);
-                    Assert.AreEqual("REL_3_0", reader.textBox_ak_label_name.Text);
-                    Assert.AreEqual("my_branch", reader.textBox_ak_branch_map.Text);
+                    Assert.AreEqual("REL_3_0", reader.textBox_al_label_name.Text);
+                    Assert.AreEqual("my_branch", reader.textBox_al_branch_map.Text);
                     Assert.IsTrue(reader.radioButton_al_merge.Checked);
                     Assert.IsFalse(reader.radioButton_al_copy.Checked, "既定値の True から書き換わるはず");
                 }

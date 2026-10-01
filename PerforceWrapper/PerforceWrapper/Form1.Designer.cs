@@ -68,12 +68,12 @@
             this.textBox_dl_src_label_name = new StandardTemplate.TextBoxEx();
             this.label10 = new System.Windows.Forms.Label();
             this.tabPage_apply_label = new System.Windows.Forms.TabPage();
-            this.textBox_ak_label_name = new StandardTemplate.TextBoxEx();
+            this.textBox_al_label_name = new StandardTemplate.TextBoxEx();
             this.label15 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.radioButton_al_merge = new System.Windows.Forms.RadioButton();
             this.radioButton_al_copy = new System.Windows.Forms.RadioButton();
-            this.textBox_ak_branch_map = new StandardTemplate.TextBoxEx();
+            this.textBox_al_branch_map = new StandardTemplate.TextBoxEx();
             this.label14 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button_execute = new System.Windows.Forms.Button();
@@ -496,10 +496,10 @@
             // 
             // tabPage_apply_label
             // 
-            this.tabPage_apply_label.Controls.Add(this.textBox_ak_label_name);
+            this.tabPage_apply_label.Controls.Add(this.textBox_al_label_name);
             this.tabPage_apply_label.Controls.Add(this.label15);
             this.tabPage_apply_label.Controls.Add(this.groupBox4);
-            this.tabPage_apply_label.Controls.Add(this.textBox_ak_branch_map);
+            this.tabPage_apply_label.Controls.Add(this.textBox_al_branch_map);
             this.tabPage_apply_label.Controls.Add(this.label14);
             this.tabPage_apply_label.Location = new System.Drawing.Point(4, 22);
             this.tabPage_apply_label.Name = "tabPage_apply_label";
@@ -509,14 +509,14 @@
             this.tabPage_apply_label.Text = "ラベルで反映";
             this.tabPage_apply_label.UseVisualStyleBackColor = true;
             // 
-            // textBox_ak_label_name
+            // textBox_al_label_name
             // 
-            this.textBox_ak_label_name.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_al_label_name.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_ak_label_name.Location = new System.Drawing.Point(16, 24);
-            this.textBox_ak_label_name.Name = "textBox_ak_label_name";
-            this.textBox_ak_label_name.Size = new System.Drawing.Size(167, 19);
-            this.textBox_ak_label_name.TabIndex = 2;
+            this.textBox_al_label_name.Location = new System.Drawing.Point(16, 24);
+            this.textBox_al_label_name.Name = "textBox_al_label_name";
+            this.textBox_al_label_name.Size = new System.Drawing.Size(167, 19);
+            this.textBox_al_label_name.TabIndex = 2;
             // 
             // label15
             // 
@@ -562,14 +562,14 @@
             this.radioButton_al_copy.Text = "コピー";
             this.radioButton_al_copy.UseVisualStyleBackColor = true;
             // 
-            // textBox_ak_branch_map
+            // textBox_al_branch_map
             // 
-            this.textBox_ak_branch_map.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_al_branch_map.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_ak_branch_map.Location = new System.Drawing.Point(16, 65);
-            this.textBox_ak_branch_map.Name = "textBox_ak_branch_map";
-            this.textBox_ak_branch_map.Size = new System.Drawing.Size(167, 19);
-            this.textBox_ak_branch_map.TabIndex = 4;
+            this.textBox_al_branch_map.Location = new System.Drawing.Point(16, 65);
+            this.textBox_al_branch_map.Name = "textBox_al_branch_map";
+            this.textBox_al_branch_map.Size = new System.Drawing.Size(167, 19);
+            this.textBox_al_branch_map.TabIndex = 4;
             // 
             // label14
             // 
@@ -699,12 +699,12 @@
         public StandardTemplate.TextBoxEx textBox_dl_dest_tree;
         public StandardTemplate.TextBoxEx textBox_dl_dest_label_name;
         private System.Windows.Forms.Label label13;
-        public StandardTemplate.TextBoxEx textBox_ak_branch_map;
+        public StandardTemplate.TextBoxEx textBox_al_branch_map;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.GroupBox groupBox4;
         public System.Windows.Forms.RadioButton radioButton_al_merge;
         public System.Windows.Forms.RadioButton radioButton_al_copy;
-        public StandardTemplate.TextBoxEx textBox_ak_label_name;
+        public StandardTemplate.TextBoxEx textBox_al_label_name;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label16;
     }

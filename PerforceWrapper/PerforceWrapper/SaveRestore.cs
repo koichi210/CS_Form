@@ -13,7 +13,7 @@ namespace PerforceWrapper
             RegisterCtrl("Perforce", "comboBox_perforce_server", parent.comboBox_perforce_server);
             RegisterCtrlList("Perforce", "comboBox_perforce_user", parent.comboBox_perforce_user);
             RegisterCtrl("Perforce", "comboBox_perforce_user", parent.comboBox_perforce_user);
-            RegisterSecureCtrl("Perforce", "comboBox_perforce_password", parent.textbox_perforce_password);
+            RegisterSecureCtrl("Perforce", "textbox_perforce_password", parent.textbox_perforce_password);
             RegisterCtrlList("Perforce", "comboBox_perforce_workspace", parent.comboBox_perforce_workspace);
             RegisterCtrl("Perforce", "comboBox_perforce_workspace", parent.comboBox_perforce_workspace);
             RegisterCtrl("Perforce", "comboBox_perforce_charset", parent.comboBox_perforce_charset);
@@ -33,8 +33,8 @@ namespace PerforceWrapper
             RegisterCtrl("Perforce", "textBox_dl_dest_label_name", parent.textBox_dl_dest_label_name);
             RegisterCtrl("Perforce", "textBox_dl_dest_tree", parent.textBox_dl_dest_tree);
 
-            RegisterCtrl("Perforce", "textBox_ak_label_name", parent.textBox_ak_label_name);
-            RegisterCtrl("Perforce", "textBox_ak_branch_map", parent.textBox_ak_branch_map);
+            RegisterCtrl("Perforce", "textBox_al_label_name", parent.textBox_al_label_name);
+            RegisterCtrl("Perforce", "textBox_al_branch_map", parent.textBox_al_branch_map);
             RegisterCtrl("Perforce", "radioButton_al_copy", parent.radioButton_al_copy, "True");
             RegisterCtrl("Perforce", "radioButton_al_merge", parent.radioButton_al_merge, "False");
         }

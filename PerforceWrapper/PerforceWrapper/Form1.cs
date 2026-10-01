@@ -289,7 +289,7 @@ namespace PerforceWrapper
 
         private void ApplyLabelExecute()
         {
-            if (textBox_ak_branch_map.Text == String.Empty)
+            if (textBox_al_branch_map.Text == String.Empty)
             {
                 MessageBox.Show("ブランチマップが指定されていません");
                 return;
@@ -305,8 +305,8 @@ namespace PerforceWrapper
                 operatorType = Perforce.OPERATOR_TYPE.MERGE;
             }
             pf.SetOperatorType(operatorType);
-            pf.SetRevision(textBox_ak_label_name.Text);
-            pf.SetBranchMapName(textBox_ak_branch_map.Text);
+            pf.SetRevision(textBox_al_label_name.Text);
+            pf.SetBranchMapName(textBox_al_branch_map.Text);
             pf.SetTargetTree(textBox_tree_list.Text);
             pf.SetDebugMode(m_IsDebug);
 
