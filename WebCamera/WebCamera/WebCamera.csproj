@@ -16,6 +16,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,6 +27,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -53,6 +55,9 @@
          Microsoft.CodeAnalysis 4.14系を、VS2019同梱の古いRoslynが読み込めないため。
          ExcludeAssets等では抑止できなかった(この形式のプロジェクトでは効かない)。
          ビルド自体は成功し実行にも影響しないため、警告は許容している。 -->
+    <!-- OpenCvSharp4.runtime.win のネイティブDLL(OpenCvSharpExtern.dll)は x64 版しか同梱されない。
+         AnyCPU の exe は既定(Prefer32Bit=true)だと32bitで起動して DLL を読めないため、
+         上の Debug/Release 構成で Prefer32Bit=false にして64bitで起動させている。 -->
     <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" />
     <PackageReference Include="OpenCvSharp4.Extensions" Version="4.13.0.20260627" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260627" />
@@ -65,6 +70,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="SnapshotFile.cs" />
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>
     </Compile>
