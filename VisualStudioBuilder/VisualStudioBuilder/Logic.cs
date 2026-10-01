@@ -19,110 +19,110 @@ namespace VisualStudioBuilder
         private const String ExtSln = ".sln";
         private const String ExtLog = ".log";
 
-        public static String GetFilePathName(String PathName, String FileName, String Ext = "")
+        public static String GetFilePathName(String pathName, String fileName, String ext = "")
         {
-            return PathName.TrimEnd('\\') + '\\' + FileName + Ext;
+            return pathName.TrimEnd('\\') + '\\' + fileName + ext;
         }
 
-        public static String GetSolutionPathName(String PathName, String FileName)
+        public static String GetSolutionPathName(String pathName, String fileName)
         {
-            return GetFilePathName(PathName, FileName);
+            return GetFilePathName(pathName, fileName);
         }
 
-        public static String GetLogPathName(String PathName, String FileName)
+        public static String GetLogPathName(String pathName, String fileName)
         {
-            return GetFilePathName(PathName, FileName.Replace(ExtSln, ExtLog));
+            return GetFilePathName(pathName, fileName.Replace(ExtSln, ExtLog));
         }
 
-        public static String CreateScriptHeader(String VisualStudioExePath, String BuildOption)
+        public static String CreateScriptHeader(String visualStudioExePath, String buildOption)
         {
-            String Script = "";
+            String script = "";
 
-            //Script += @"set DEV_ENV=\""C:\Program Files (x86)\""Microsoft Visual Studio 10.0\""Common7\""IDE\""devenv.exe";
-            Script += @"set DEV_ENV=""" + VisualStudioExePath + @"""" + Environment.NewLine;
+            //script += @"set DEV_ENV=\""C:\Program Files (x86)\""Microsoft Visual Studio 10.0\""Common7\""IDE\""devenv.exe";
+            script += @"set DEV_ENV=""" + visualStudioExePath + @"""" + Environment.NewLine;
 
-            //Script += @"set BUILD_OPT=/rebuild release";
-            Script += "set BUILD_OPT=" + BuildOption + Environment.NewLine;
-            Script += Environment.NewLine;
+            //script += @"set BUILD_OPT=/rebuild release";
+            script += "set BUILD_OPT=" + buildOption + Environment.NewLine;
+            script += Environment.NewLine;
 
-            return Script;
+            return script;
         }
 
-        public static String CreateBuildScript(String BuildEnable, String SolutionName, String ProjectPath, String LogDirectory, Boolean IsExportLog)
+        public static String CreateBuildScript(String buildEnable, String solutionName, String projectPath, String logDirectory, Boolean isExportLog)
         {
             // パラメータチェック
-            if (BuildEnable != StrDataGridBuildListEnable ||
-                SolutionName == String.Empty ||
-                ProjectPath == String.Empty)
+            if (buildEnable != StrDataGridBuildListEnable ||
+                solutionName == String.Empty ||
+                projectPath == String.Empty)
             {
                 return "";
             }
 
-            String SolutionPath = GetSolutionPathName(ProjectPath, SolutionName);
-            String LogName = GetLogPathName(LogDirectory, SolutionName);
+            String solutionPath = GetSolutionPathName(projectPath, solutionName);
+            String logName = GetLogPathName(logDirectory, solutionName);
 
-            String Script = "";
-            if (IsExportLog)
+            String script = "";
+            if (isExportLog)
             {
                 // ファイルが存在したら削除
-                if (File.Exists(LogName))
+                if (File.Exists(logName))
                 {
-                    Script += "del " + LogName + Environment.NewLine;
+                    script += "del " + logName + Environment.NewLine;
                 }
-                Script += @"%DEV_ENV% %BUILD_OPT% /out " + LogName + " " + SolutionPath + Environment.NewLine;
+                script += @"%DEV_ENV% %BUILD_OPT% /out " + logName + " " + solutionPath + Environment.NewLine;
             }
             else
             {
-                Script += @"%DEV_ENV% %BUILD_OPT% " + SolutionPath + Environment.NewLine;
+                script += @"%DEV_ENV% %BUILD_OPT% " + solutionPath + Environment.NewLine;
             }
-            Script += Environment.NewLine;
+            script += Environment.NewLine;
 
-            return Script;
+            return script;
         }
 
         // ビルド結果(ログの一覧)を成功/失敗/上書き失敗に振り分けて、表示用の文字列にする。
         // ログの中身を見る部分だけ呼び出し側から渡してもらうことで、ここはファイルに触らない
         // 純粋な判定処理になり、テストできる形になっている。
-        // IsDetectContent(ログのパス, 探す語) が「そのログにその語が含まれるか」を返す
-        public static String ClassifyBuildResult(String[] LogPathList, String BuildErrorWord,
-                                                 Boolean IsExclude, String IgnoreExecuteFileWord,
-                                                 Func<String, String, Boolean> IsDetectContent)
+        // isDetectContent(ログのパス, 探す語) が「そのログにその語が含まれるか」を返す
+        public static String ClassifyBuildResult(String[] logPathList, String buildErrorWord,
+                                                 Boolean isExclude, String ignoreExecuteFileWord,
+                                                 Func<String, String, Boolean> isDetectContent)
         {
-            String SuccessList = "[ビルド成功]" + Environment.NewLine;
-            String ErrorList = "[ビルド失敗]" + Environment.NewLine;
-            String ExcludeList = "[実行ファイルの上書きに失敗]" + Environment.NewLine;
+            String successList = "[ビルド成功]" + Environment.NewLine;
+            String errorList = "[ビルド失敗]" + Environment.NewLine;
+            String excludeList = "[実行ファイルの上書きに失敗]" + Environment.NewLine;
 
-            for (int i = 0; i < LogPathList.Length; i++)
+            foreach (String logPath in logPathList)
             {
-                Boolean IsSuccess = true;
-                if (IsDetectContent(LogPathList[i], BuildErrorWord))
+                Boolean isSuccess = true;
+                if (isDetectContent(logPath, buildErrorWord))
                 {
                     // ビルド失敗
-                    ErrorList += LogPathList[i] + Environment.NewLine;
-                    IsSuccess = false;
+                    errorList += logPath + Environment.NewLine;
+                    isSuccess = false;
                 }
 
-                if (IsExclude && IsDetectContent(LogPathList[i], IgnoreExecuteFileWord))
+                if (isExclude && isDetectContent(logPath, ignoreExecuteFileWord))
                 {
                     // 上書き不可
-                    ExcludeList += LogPathList[i] + Environment.NewLine;
-                    IsSuccess = false;
+                    excludeList += logPath + Environment.NewLine;
+                    isSuccess = false;
                 }
 
-                if (IsSuccess)
+                if (isSuccess)
                 {
                     // ビルド成功
-                    SuccessList += LogPathList[i] + Environment.NewLine;
+                    successList += logPath + Environment.NewLine;
                 }
             }
 
-            String Result = SuccessList + Environment.NewLine;
-            if (IsExclude)
+            String result = successList + Environment.NewLine;
+            if (isExclude)
             {
-                Result += ExcludeList + Environment.NewLine;
+                result += excludeList + Environment.NewLine;
             }
-            Result += ErrorList + Environment.NewLine;
-            return Result;
+            result += errorList + Environment.NewLine;
+            return result;
         }
     }
 }

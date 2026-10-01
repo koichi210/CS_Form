@@ -1,10 +1,5 @@
 ﻿﻿﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using StandardTemplate;
@@ -62,14 +57,14 @@ namespace VisualStudioBuilder
 
         public class BuildWorkerInfo
         {
-            public String BuildScript;
-            public Boolean IsDetectError;
-            public String DetectBuildErrorWord;
-            public Boolean IsExclude;
-            public String IgnoreExecuteFile;
-            public Boolean IsDeleteDirectory;
-            public String DeleteDirectoryName;
-            public String DetectTargetLogList;
+            public String BuildScript { get; set; }
+            public Boolean IsDetectError { get; set; }
+            public String DetectBuildErrorWord { get; set; }
+            public Boolean IsExclude { get; set; }
+            public String IgnoreExecuteFile { get; set; }
+            public Boolean IsDeleteDirectory { get; set; }
+            public String DeleteDirectoryName { get; set; }
+            public String DetectTargetLogList { get; set; }
         }
 
         public Form1()
@@ -94,8 +89,8 @@ namespace VisualStudioBuilder
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
+            LoadProfile(loadFileName);
         }
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
@@ -134,7 +129,7 @@ namespace VisualStudioBuilder
 
         private String CreateDetectTargetList()
         {
-            String DetectTargetLogList = "";
+            String detectTargetLogList = "";
 
             if (checkBox_DetectBuildError.Checked)
             {
@@ -145,48 +140,46 @@ namespace VisualStudioBuilder
                         continue;
                     }
 
-                    String SolutionName = GetCellData(i, SolutionNameIdx);
-                    DetectTargetLogList += Logic.GetLogPathName(textBox_LogDirectory.Text, SolutionName);
-                    DetectTargetLogList += Environment.NewLine;
+                    String solutionName = GetCellData(i, SolutionNameIdx);
+                    detectTargetLogList += Logic.GetLogPathName(textBox_LogDirectory.Text, solutionName);
+                    detectTargetLogList += Environment.NewLine;
                 }
             }
 
-            return util.TrimEndGarbage(DetectTargetLogList);
+            return util.TrimEndGarbage(detectTargetLogList);
         }
 
         private Boolean CheckSolutionPath()
         {
-            Boolean IsSuccess = true;
-
-            String FileNotFoundList = "";
+            String fileNotFoundList = "";
 
             // ファイルパスチェック
             for (int i = 0; i < dataGridView.RowCount; i++)
             {
-                String SolutionName = GetCellData(i, SolutionNameIdx);
-                String ProjectPath = GetCellData(i, ProjectPathIdx);
-                String SolutionPath = Logic.GetSolutionPathName(ProjectPath, SolutionName);
+                String solutionName = GetCellData(i, SolutionNameIdx);
+                String projectPath = GetCellData(i, ProjectPathIdx);
+                String solutionPath = Logic.GetSolutionPathName(projectPath, solutionName);
 
-                if (!File.Exists(SolutionPath))
+                if (!File.Exists(solutionPath))
                 {
                     // 存在しないパス
-                    FileNotFoundList += "No" + i.ToString() + " " + SolutionName + Environment.NewLine;
+                    fileNotFoundList += "No" + i.ToString() + " " + solutionName + Environment.NewLine;
                 }
             }
-            
-            if (FileNotFoundList != String.Empty)
+
+            if (fileNotFoundList != String.Empty)
             {
-                DialogResult DlgResult = MessageBox.Show(
+                DialogResult dlgResult = MessageBox.Show(
                     "いくつかのソリューションが見つかりませんでした。" +
-                    "処理を継続しますか？" + Environment.NewLine + FileNotFoundList,
+                    "処理を継続しますか？" + Environment.NewLine + fileNotFoundList,
                     "Warning",
                     MessageBoxButtons.YesNo);
-                if (DlgResult == DialogResult.No)
+                if (dlgResult == DialogResult.No)
                 {
-                    IsSuccess = false;
+                    return false;
                 }
             }
-            return IsSuccess;
+            return true;
         }
 
         private void button_Build_Click(object sender, EventArgs e)
@@ -204,7 +197,6 @@ namespace VisualStudioBuilder
             }
 
             // ビルドログを削除
-            StcFileInputOutput fio = new StcFileInputOutput();
             fio.DeleteDirectoryAndFile(textBox_LogDirectory.Text);
 
             // 以前はList<object>へ順番に詰めてDoWork側で位置で取り出していたが、
@@ -228,16 +220,13 @@ namespace VisualStudioBuilder
         {
             // 別スレッドで実行されるため、このメソッドではGUIを操作してはいけない
 
-            // senderの値はbgWorkerの値と同じ
-            BackgroundWorker worker = (BackgroundWorker)sender;
-
             // このメソッドへのパラメータ
             BuildWorkerInfo bwi = (BuildWorkerInfo)e.Argument;
 
             // ビルド実行
-            String BatchFile = fio.CreateTempFile("Bat");
-            fio.CreateFile(BatchFile, bwi.BuildScript);
-            util.ExecutePathWithWait(BatchFile);
+            String batchFile = fio.CreateTempFile("Bat");
+            fio.CreateFile(batchFile, bwi.BuildScript);
+            util.ExecutePathWithWait(batchFile);
 
             // TODO：ビルドリストはバッチで生成しているので、ここでは見えない。
             //       バッチ生成もタスクで実装する？
@@ -255,8 +244,8 @@ namespace VisualStudioBuilder
             // ログファイルの中身を見る部分だけここから渡す
             if (bwi.IsDetectError)
             {
-                String[] TargetArray = util.ChangeStrLinear2Array(bwi.DetectTargetLogList, Environment.NewLine);
-                e.Result = Logic.ClassifyBuildResult(TargetArray, bwi.DetectBuildErrorWord,
+                String[] targetArray = util.ChangeStrLinear2Array(bwi.DetectTargetLogList, Environment.NewLine);
+                e.Result = Logic.ClassifyBuildResult(targetArray, bwi.DetectBuildErrorWord,
                                                      bwi.IsExclude, bwi.IgnoreExecuteFile,
                                                      fio.DetectFileData);
             }
@@ -314,48 +303,43 @@ namespace VisualStudioBuilder
 
         private String CreateAllBuildScript()
         {
-            Boolean IsExportLog = false;
+            Boolean isExportLog = false;
             if (textBox_LogDirectory.Text != String.Empty)
             {
                 fio.EnsureDirectory(textBox_LogDirectory.Text, true);
-                IsExportLog = true;
+                isExportLog = true;
             }
 
             // ヘッダー生成
-            String Script = Logic.CreateScriptHeader(textBox_VisualStudioExePath.Text, textBox_BuildOption.Text);
+            String script = Logic.CreateScriptHeader(textBox_VisualStudioExePath.Text, textBox_BuildOption.Text);
 
             // GridDataからビルド設定コマンド生成
             for (int i = 0; i < dataGridView.RowCount; i++)
             {
-                Script += CreateBuildScript(i, IsExportLog);
+                script += CreateBuildScript(i, isExportLog);
             }
 
-            return Script;
+            return script;
         }
 
-        private String GetCellData(int RowCount, int ColumnCount)
+        private String GetCellData(int rowIndex, int columnIndex)
         {
-            String CellData = "";
-            if (dataGridView.Rows[RowCount].Cells[ColumnCount].Value != null)
+            String cellData = "";
+            if (dataGridView.Rows[rowIndex].Cells[columnIndex].Value != null)
             {
-                CellData = dataGridView.Rows[RowCount].Cells[ColumnCount].Value.ToString();
+                cellData = dataGridView.Rows[rowIndex].Cells[columnIndex].Value.ToString();
             }
 
-            return CellData;
+            return cellData;
         }
 
-        private void SetCellData(int RowCount, int ColumnCount, String CellData = "")
+        private String CreateBuildScript(int rowIndex, Boolean isExportLog)
         {
-            dataGridView.Rows[RowCount].Cells[ColumnCount].Value = CellData;
-        }
+            String buildEnable = GetCellData(rowIndex, BuildEnableIdx);
+            String solutionName = GetCellData(rowIndex, SolutionNameIdx);
+            String projectPath = GetCellData(rowIndex, ProjectPathIdx);
 
-        private String CreateBuildScript(int RowCount, Boolean IsExportLog)
-        {
-            String BuildEnable = GetCellData(RowCount, BuildEnableIdx);
-            String SolutionName = GetCellData(RowCount, SolutionNameIdx);
-            String ProjectPath = GetCellData(RowCount, ProjectPathIdx);
-
-            return Logic.CreateBuildScript(BuildEnable, SolutionName, ProjectPath, textBox_LogDirectory.Text, IsExportLog);
+            return Logic.CreateBuildScript(buildEnable, solutionName, projectPath, textBox_LogDirectory.Text, isExportLog);
         }
 
         private void button_AddRaw_Click(object sender, EventArgs e)
@@ -424,27 +408,14 @@ namespace VisualStudioBuilder
 
         private void UpdateOutputGUI()
         {
-            Boolean DetectErrorEnable = true;
-            Boolean ExcludeEnable = true;
+            Boolean detectErrorEnable = checkBox_DetectBuildError.Checked;
+            Boolean excludeEnable = detectErrorEnable && checkBox_IsExclude.Checked;
 
-            if (checkBox_DetectBuildError.Checked == false)
-            {
-                DetectErrorEnable = false;
-                ExcludeEnable = false;
-            }
-            else
-            {
-                if (checkBox_IsExclude.Checked == false)
-                {
-                    ExcludeEnable = false;
-                }
-            }
-
-            label_DetectBuildErrorWord.Enabled = DetectErrorEnable;
-            textBox_DetectBuildErrorWord.Enabled = DetectErrorEnable;
-            checkBox_IsExclude.Enabled = DetectErrorEnable;
-            label_ExcludeWord.Enabled = ExcludeEnable;
-            textBox_ExcludeWord.Enabled = ExcludeEnable;
+            label_DetectBuildErrorWord.Enabled = detectErrorEnable;
+            textBox_DetectBuildErrorWord.Enabled = detectErrorEnable;
+            checkBox_IsExclude.Enabled = detectErrorEnable;
+            label_ExcludeWord.Enabled = excludeEnable;
+            textBox_ExcludeWord.Enabled = excludeEnable;
         }
 
         private void checkBox_DeleteDirectory_CheckedChanged(object sender, EventArgs e)
@@ -469,18 +440,18 @@ namespace VisualStudioBuilder
                 return;
             }
 
-            String ExecPath = "";
+            String execPath = "";
             switch(e.ColumnIndex)
             {
                 case SolutionNameIdx :
 
-                    ExecPath = Logic.GetSolutionPathName(
+                    execPath = Logic.GetSolutionPathName(
                         GetCellData(e.RowIndex, ProjectPathIdx),
                         GetCellData(e.RowIndex, SolutionNameIdx));
                     break;
 
                 case ProjectPathIdx:
-                    ExecPath = GetCellData(e.RowIndex, ProjectPathIdx);
+                    execPath = GetCellData(e.RowIndex, ProjectPathIdx);
                     break;
                 
                 case BuildEnableIdx:
@@ -489,7 +460,7 @@ namespace VisualStudioBuilder
                     return;
             }
 
-            util.ExecutePath(ExecPath);
+            util.ExecutePath(execPath);
         }
 
         private void button_AddAllSolution_Click(object sender, EventArgs e)
@@ -511,33 +482,32 @@ namespace VisualStudioBuilder
                 return;
             }
 
-            String RootDirectory = dir.DirectoryPath;
-            if (!Directory.Exists(RootDirectory))
+            String rootDirectory = dir.DirectoryPath;
+            if (!Directory.Exists(rootDirectory))
             {
-                MessageBox.Show("ディレクトリパスが存在しません" + Environment.NewLine + RootDirectory);
+                MessageBox.Show("ディレクトリパスが存在しません" + Environment.NewLine + rootDirectory);
                 return;
             }
 
             // ソリューション追加
-            AddAllSolution(RootDirectory);
+            AddAllSolutions(rootDirectory);
         }
 
-        private void AddAllSolution(String RootDirectory)
+        private void AddAllSolutions(String rootDirectory)
         {
             // リスト削除
             dataGridView.Rows.Clear();
 
             // リストアップ
-            String[] SolutionPath;
-            SolutionPath = Directory.GetFiles(RootDirectory, "*" + ExtSln, SearchOption.AllDirectories);
+            String[] solutionPaths = Directory.GetFiles(rootDirectory, "*" + ExtSln, SearchOption.AllDirectories);
 
             // リスト登録
-            dataGridView.Rows.Add(SolutionPath.Length);
-            for (int i = 0; i < SolutionPath.Length; i++)
+            dataGridView.Rows.Add(solutionPaths.Length);
+            for (int i = 0; i < solutionPaths.Length; i++)
             {
                 dataGridView.Rows[i].Cells[BuildEnableIdx].Value = StrDataGridBuildListEnable;
-                dataGridView.Rows[i].Cells[SolutionNameIdx].Value = Path.GetFileName(SolutionPath[i]);
-                dataGridView.Rows[i].Cells[ProjectPathIdx].Value = Path.GetDirectoryName(SolutionPath[i]);
+                dataGridView.Rows[i].Cells[SolutionNameIdx].Value = Path.GetFileName(solutionPaths[i]);
+                dataGridView.Rows[i].Cells[ProjectPathIdx].Value = Path.GetDirectoryName(solutionPaths[i]);
             }
         }
 
@@ -562,8 +532,8 @@ namespace VisualStudioBuilder
             if (dataGridView.Rows[e.RowIndex].Cells[SolutionNameIdx].Value == null)
             {
                 // ソリューション名が設定されていなかったら、自動設定
-                String SolutionName = Path.GetFileName((String)dataGridView.Rows[e.RowIndex].Cells[ProjectPathIdx].Value) + ExtSln;
-                dataGridView.Rows[e.RowIndex].Cells[SolutionNameIdx].Value = SolutionName;
+                String solutionName = Path.GetFileName((String)dataGridView.Rows[e.RowIndex].Cells[ProjectPathIdx].Value) + ExtSln;
+                dataGridView.Rows[e.RowIndex].Cells[SolutionNameIdx].Value = solutionName;
             }
 
             if (dataGridView.Rows[e.RowIndex].Cells[BuildEnableIdx].Value == null)
