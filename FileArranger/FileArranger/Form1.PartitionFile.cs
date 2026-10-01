@@ -24,7 +24,7 @@ namespace FileArranger
             ListupPartitionTargetFiles();
         }
 
-        private void SetupPartitionListViewColumns()
+        private void RecreatePartitionColumnsEvenly()
         {
             pf_listView_Target.Columns.Clear();
 
@@ -72,7 +72,7 @@ namespace FileArranger
 
             // 左端しかAutoResizeしないので、使い勝手悪い。。
             //pf_listView_Target.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-            SetupPartitionListViewColumns();
+            RecreatePartitionColumnsEvenly();
         }
 
         private void pf_listView_Target_SelectedIndexChanged(object sender, EventArgs e)
@@ -92,7 +92,7 @@ namespace FileArranger
 
         private Boolean GetPartitionNameFromListView(ref String srcFolderName, ref String targetFolderName, String srcFileName)
         {
-            int sameIdx = util.FindIndexInSelectedItems(pf_listView_Target, PartitionTargetIdx, srcFileName, pf_textBox_TargetSeparator.Text, true);
+            int sameIdx = util.FindSelectedRowIndex(pf_listView_Target, PartitionTargetIdx, srcFileName, pf_textBox_TargetSeparator.Text, true);
             if (0 <= sameIdx)
             {
                 srcFolderName = pf_listView_Target.Items[sameIdx].SubItems[PartitionMoveSrcIdx].Text;

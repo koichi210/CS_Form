@@ -124,7 +124,7 @@ namespace FileArranger
             UpdateRenameDestNames();
         }
 
-        private void rd_comboBox_MergeWord_TextChanged(object sender, EventArgs e)
+        private void rd_RenameSetting_TextChanged(object sender, EventArgs e)
         {
             UpdateRenameDestNames();
         }
@@ -170,7 +170,7 @@ namespace FileArranger
             }
         }
 
-        private void SetupRenameListViewColumns()
+        private void RecreateRenameColumnsEvenly()
         {
             rd_listView_Target.Columns.Clear();
 

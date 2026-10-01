@@ -8,64 +8,9 @@ namespace FileArranger
     // ファイル移動タブ(mf)の処理(Form1.csから分割。コードは移しただけで中身は変えていない)
     partial class FileArranger
     {
-        private void mf_listBox_Listup_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                mf_button_Move_SubDir_Click(sender, e);
-            }
-            else
-            {
-                util.SelectAll(e);
-            }
-        }
-
         private void mf_textBox_TargetDir_KeyDown(object sender, KeyEventArgs e)
         {
             util.ExecutePath(mf_textBox_TargetDir.Text, e);
-        }
-
-        private void mf_listBox_Listup_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            if (md_listBox_Listup.SelectedItems.Count > 0)
-            {
-                String targetPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItem.ToString();
-                util.ExecutePath(targetPath);
-            }
-        }
-
-        private void mf_button_Move_SubDir_Click(object sender, EventArgs e)
-        {
-            MoveSelectedDirectories(false);
-        }
-
-        private void mf_button_Delete_Click(object sender, EventArgs e)
-        {
-            if (!fio.EnsureDirectory(md_comboBox_TargetDir.Text))
-            {
-                return;
-            }
-
-            if (md_listBox_Listup.SelectedItems.Count == 0)
-            {
-                MessageBox.Show("項目が選択されていません。");
-                return;
-            }
-
-            for (int i = 0; i < md_listBox_Listup.SelectedItems.Count; i++)
-            {
-                String delPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItems[i].ToString();
-                DirectoryInfo delDir = new DirectoryInfo(delPath);
-                delDir.Delete(true);
-            }
-
-            // リストを更新
-            ListupMoveDirectory();
-        }
-
-        private void mf_listBox_Listup_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            md_label_SelectNum.Text = "選択数：" + md_listBox_Listup.SelectedItems.Count.ToString();
         }
 
         private void mf_button_Listup_Click(object sender, EventArgs e)

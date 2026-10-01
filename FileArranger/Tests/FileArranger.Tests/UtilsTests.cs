@@ -178,7 +178,7 @@ namespace FileArranger.Tests
         }
 
         // ------------------------------------------------------------------
-        // FindIndexInSelectedItems
+        // FindSelectedRowIndex
         // ------------------------------------------------------------------
 
         private static ListView NewListViewWithItems(params string[] texts)
@@ -198,48 +198,48 @@ namespace FileArranger.Tests
         }
 
         [TestMethod]
-        public void FindIndexInSelectedItems_選択項目の中から部分一致するものを探す()
+        public void FindSelectedRowIndex_選択項目の中から部分一致するものを探す()
         {
             using (ListView lv = NewListViewWithItems("apple_1.txt", "banana_2.txt", "cherry_3.txt"))
             {
                 lv.Items[0].Selected = true;
                 lv.Items[2].Selected = true;
 
-                int idx = util.FindIndexInSelectedItems(lv, 0, "cherry");
+                int idx = util.FindSelectedRowIndex(lv, 0, "cherry");
 
                 Assert.AreEqual(2, idx);
             }
         }
 
         [TestMethod]
-        public void FindIndexInSelectedItems_選択されていない項目はヒットしない()
+        public void FindSelectedRowIndex_選択されていない項目はヒットしない()
         {
             using (ListView lv = NewListViewWithItems("apple_1.txt", "banana_2.txt"))
             {
                 lv.Items[0].Selected = true;
                 // banana は選択していない
 
-                int idx = util.FindIndexInSelectedItems(lv, 0, "banana");
+                int idx = util.FindSelectedRowIndex(lv, 0, "banana");
 
                 Assert.AreEqual(-1, idx);
             }
         }
 
         [TestMethod]
-        public void FindIndexInSelectedItems_見つからなければマイナス1()
+        public void FindSelectedRowIndex_見つからなければマイナス1()
         {
             using (ListView lv = NewListViewWithItems("apple_1.txt"))
             {
                 lv.Items[0].Selected = true;
 
-                int idx = util.FindIndexInSelectedItems(lv, 0, "not_found");
+                int idx = util.FindSelectedRowIndex(lv, 0, "not_found");
 
                 Assert.AreEqual(-1, idx);
             }
         }
 
         [TestMethod]
-        public void FindIndexInSelectedItems_TrimNameで区切ってから比較する()
+        public void FindSelectedRowIndex_TrimNameで区切ってから比較する()
         {
             // 検索対象の文字列側を区切ってから、リストの項目に部分一致するか見る
             using (ListView lv = NewListViewWithItems("report", "summary"))
@@ -247,7 +247,7 @@ namespace FileArranger.Tests
                 lv.Items[0].Selected = true;
                 lv.Items[1].Selected = true;
 
-                int idx = util.FindIndexInSelectedItems(lv, 0, "report_v2.txt", "_");
+                int idx = util.FindSelectedRowIndex(lv, 0, "report_v2.txt", "_");
 
                 Assert.AreEqual(0, idx);
             }

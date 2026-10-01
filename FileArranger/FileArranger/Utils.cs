@@ -35,7 +35,7 @@ namespace FileArranger
         }
 
         // 選択されているリストビューの項目の中から目的の文字列を含むものを探し、そのIdxを返す(無ければ-1)
-        public int FindIndexInSelectedItems(ListView listView, int subItemIdx, String srcName, String trimName = "", Boolean isReverse = false)
+        public int FindSelectedRowIndex(ListView listView, int subItemIdx, String srcName, String trimName = "", Boolean isReverse = false)
         {
             String searchName = TrimAtSeparator(srcName, trimName, isReverse);
 

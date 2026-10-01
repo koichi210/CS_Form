@@ -50,8 +50,8 @@ namespace FileArranger
             InitializeCommonSettings(Properties.Resources.FileArranger);
 
             //ListView初期設定
-            SetupRenameListViewColumns();
-            SetupPartitionListViewColumns();
+            RecreateRenameColumnsEvenly();
+            RecreatePartitionColumnsEvenly();
 
             sr.RegisterLoadItem(this);
 
@@ -189,7 +189,7 @@ namespace FileArranger
         private void FileArranger_ResizeEnd(object sender, EventArgs e)
         {
             rd_listView_Target.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-            SetupPartitionListViewColumns();
+            RecreatePartitionColumnsEvenly();
         }
 
         private void cmn_textBox_Reference_TextChanged(object sender, EventArgs e)

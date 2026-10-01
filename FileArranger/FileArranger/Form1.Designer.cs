@@ -350,7 +350,7 @@
             this.md_button_Delete.TabIndex = 11;
             this.md_button_Delete.Text = "削除";
             this.md_button_Delete.UseVisualStyleBackColor = true;
-            this.md_button_Delete.Click += new System.EventHandler(this.mf_button_Delete_Click);
+            this.md_button_Delete.Click += new System.EventHandler(this.md_button_Delete_Click);
             // 
             // md_button_MoveSubDir
             // 
@@ -362,7 +362,7 @@
             this.md_button_MoveSubDir.TabIndex = 10;
             this.md_button_MoveSubDir.Text = "サブディレクトリを移動";
             this.md_button_MoveSubDir.UseVisualStyleBackColor = true;
-            this.md_button_MoveSubDir.Click += new System.EventHandler(this.mf_button_Move_SubDir_Click);
+            this.md_button_MoveSubDir.Click += new System.EventHandler(this.md_button_MoveSubDir_Click);
             // 
             // md_listBox_Listup
             // 
@@ -379,9 +379,9 @@
             this.md_listBox_Listup.Size = new System.Drawing.Size(994, 670);
             this.md_listBox_Listup.Sorted = true;
             this.md_listBox_Listup.TabIndex = 6;
-            this.md_listBox_Listup.SelectedIndexChanged += new System.EventHandler(this.mf_listBox_Listup_SelectedIndexChanged);
-            this.md_listBox_Listup.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mf_listBox_Listup_KeyDown);
-            this.md_listBox_Listup.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.mf_listBox_Listup_MouseDoubleClick);
+            this.md_listBox_Listup.SelectedIndexChanged += new System.EventHandler(this.md_listBox_Listup_SelectedIndexChanged);
+            this.md_listBox_Listup.KeyDown += new System.Windows.Forms.KeyEventHandler(this.md_listBox_Listup_KeyDown);
+            this.md_listBox_Listup.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.md_listBox_Listup_MouseDoubleClick);
             // 
             // md_button_Listup
             // 
@@ -472,7 +472,7 @@
             this.rd_comboBox_AddTitlePostWord.Size = new System.Drawing.Size(117, 26);
             this.rd_comboBox_AddTitlePostWord.Sorted = true;
             this.rd_comboBox_AddTitlePostWord.TabIndex = 16;
-            this.rd_comboBox_AddTitlePostWord.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
+            this.rd_comboBox_AddTitlePostWord.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
             this.rd_comboBox_AddTitlePostWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
             // label18
@@ -516,7 +516,7 @@
             this.rd_textBox_SplitWord3.Name = "rd_textBox_SplitWord3";
             this.rd_textBox_SplitWord3.Size = new System.Drawing.Size(104, 25);
             this.rd_textBox_SplitWord3.TabIndex = 8;
-            this.rd_textBox_SplitWord3.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
+            this.rd_textBox_SplitWord3.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
             this.rd_textBox_SplitWord3.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
             // rd_checkBox_FileOpen
@@ -549,7 +549,7 @@
             this.rd_textBox_SearchTitleLength.Name = "rd_textBox_SearchTitleLength";
             this.rd_textBox_SearchTitleLength.Size = new System.Drawing.Size(51, 25);
             this.rd_textBox_SearchTitleLength.TabIndex = 18;
-            this.rd_textBox_SearchTitleLength.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
+            this.rd_textBox_SearchTitleLength.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
             this.rd_textBox_SearchTitleLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
             // label17
@@ -571,7 +571,7 @@
             this.rd_textBox_SearchTitleLine.Name = "rd_textBox_SearchTitleLine";
             this.rd_textBox_SearchTitleLine.Size = new System.Drawing.Size(51, 25);
             this.rd_textBox_SearchTitleLine.TabIndex = 12;
-            this.rd_textBox_SearchTitleLine.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
+            this.rd_textBox_SearchTitleLine.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
             this.rd_textBox_SearchTitleLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
             // rd_label_TotalNum
@@ -597,7 +597,7 @@
             this.rd_comboBox_MergeWord.Sorted = true;
             this.rd_comboBox_MergeWord.TabIndex = 14;
             this.rd_comboBox_MergeWord.DropDown += new System.EventHandler(this.rd_comboBox_MergeWord_DropDown);
-            this.rd_comboBox_MergeWord.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
+            this.rd_comboBox_MergeWord.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
             this.rd_comboBox_MergeWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
             // label10
@@ -630,7 +630,7 @@
             this.rd_textBox_AddTitlePreWord.Name = "rd_textBox_AddTitlePreWord";
             this.rd_textBox_AddTitlePreWord.Size = new System.Drawing.Size(117, 25);
             this.rd_textBox_AddTitlePreWord.TabIndex = 10;
-            this.rd_textBox_AddTitlePreWord.TextChanged += new System.EventHandler(this.rd_comboBox_MergeWord_TextChanged);
+            this.rd_textBox_AddTitlePreWord.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
             this.rd_textBox_AddTitlePreWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
             // 
             // rd_button_RenameDirRestore
