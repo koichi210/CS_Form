@@ -256,7 +256,7 @@ namespace StaticAnalysisViewer
             TextBox_CountLineTotal.Text = Logic.CreateCountNumTotal(DB, array).ToString();
             
             // 「ファイル数の合計」の文字列生成＆表示
-            TextBox_FileNumTotal.Text = array.ColumnNum.ToString();
+            TextBox_FileNumTotal.Text = array.RowNum.ToString();
 
             return true;
         }
@@ -293,11 +293,11 @@ namespace StaticAnalysisViewer
             series.ChartType = SeriesChartType.Pie;
             series["PieStartAngle"] = "270";
 
-            int loopMax = System.Math.Min(topRankingNum, array.ColumnNum);
+            int loopMax = System.Math.Min(topRankingNum, array.RowNum);
             for (int i = 0; i < loopMax; i++)
             {
                 // Rowが短い場合はカラ行
-                if (array.Data[i].Length < DB.GetRowNum())
+                if (array.Data[i].Length < DB.GetColumnNum())
                 {
                     continue;
                 }
@@ -370,7 +370,7 @@ namespace StaticAnalysisViewer
         private List<DataBase_T> DataArray = new List<DataBase_T>();
         private string[] Categories;
         private int CategoryIdx = 0;
-        private int RowMaxNum = 0;      // 行の最大数（制約：一意とする）
+        private int ColumnNum = 0;      // 列数（最初に読んだファイルの1行目の列数。制約：全ファイル同一とする）
 
         // 並べ替えメソッド(値の大きい順。比較できない行は後ろへ)
         private int CompareArray(string[] x, string[] y)
@@ -411,7 +411,7 @@ namespace StaticAnalysisViewer
             DataArray.Clear();
             Categories = null;
             CategoryIdx = 0;
-            RowMaxNum = 0;
+            ColumnNum = 0;
         }
 
         // データ配列生成
@@ -436,14 +436,14 @@ namespace StaticAnalysisViewer
                 entry.Data[i] = rows[idx].Split(',');
             }
 
-            // 列数を設定
-            entry.ColumnNum = length;
+            // 行数を設定
+            entry.RowNum = length;
 
-            // 制約：すべて同一のフォーマットを読むこと。読み込むファイルごとにRowが変わらないこと
-            // 行数の最大値を更新
-            if (RowMaxNum == 0)
+            // 制約：すべて同一のフォーマットを読むこと。読み込むファイルごとに列数が変わらないこと
+            // 列数を記憶(最初の1回だけ)
+            if (ColumnNum == 0)
             {
-                RowMaxNum = entry.Data[0].Length;
+                ColumnNum = entry.Data[0].Length;
             }
 
             DataArray.Add(entry);
@@ -470,7 +470,7 @@ namespace StaticAnalysisViewer
         {
             if (arrayIdx >= 0)
             {
-                for (int i = 0; i < DataArray[arrayIdx].ColumnNum; i++)
+                for (int i = 0; i < DataArray[arrayIdx].RowNum; i++)
                 {
                     if (DataArray[arrayIdx].Data[i].Length > 1 &&
                         DataArray[arrayIdx].Data[i][searchIdx].IndexOf(name) >= 0)
@@ -494,23 +494,23 @@ namespace StaticAnalysisViewer
             return DataArray.Count;
         }
 
-        // 行数取得
-        public int GetRowNum()
+        // 列数取得
+        public int GetColumnNum()
         {
-            return RowMaxNum;
+            return ColumnNum;
         }
 
-        // 列数取得
-        public int GetColumnNum(int arrayIdx)
+        // 行数取得(指定したファイルのデータ行数)
+        public int GetRowNum(int arrayIdx)
         {
-            return DataArray[arrayIdx].ColumnNum;
+            return DataArray[arrayIdx].RowNum;
         }
     }
 
     public struct DataBase_T
     {
         public string Label;    // 表示するラベル名
-        public int ColumnNum;   // 列の最大数
+        public int RowNum;      // データ行数(ヘッダ行を除く)
         public string[][] Data; // データ配列
     }
 }

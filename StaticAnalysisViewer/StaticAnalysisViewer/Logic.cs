@@ -33,10 +33,10 @@ namespace StaticAnalysisViewer
         public static int CreateCountNumTotal(DataBase db, DataBase_T array)
         {
             int countLineTotal = 0;
-            for (int i = 0; i < array.ColumnNum; i++)
+            for (int i = 0; i < array.RowNum; i++)
             {
                 // Rowが短い場合はカラ行
-                if (array.Data[i].Length < db.GetRowNum())
+                if (array.Data[i].Length < db.GetColumnNum())
                 {
                     continue;
                 }
@@ -57,11 +57,11 @@ namespace StaticAnalysisViewer
                                 "MaxCycMod",
                                 "MaxCycStrict");
 
-            int loopMax = System.Math.Min(topRankingNum, array.ColumnNum);
+            int loopMax = System.Math.Min(topRankingNum, array.RowNum);
             for (int i = 0; i < loopMax; i++)
             {
                 // Rowが短い場合はカラ行
-                if (array.Data[i].Length < db.GetRowNum())
+                if (array.Data[i].Length < db.GetColumnNum())
                 {
                     continue;
                 }

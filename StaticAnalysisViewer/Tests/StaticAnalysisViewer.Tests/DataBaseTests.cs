@@ -44,14 +44,14 @@ namespace StaticAnalysisViewer.Tests
         }
 
         [TestMethod]
-        public void GetRowNumは最初のデータ行の列数になる()
+        public void GetColumnNumは最初のデータ行の列数になる()
         {
             var db = new DataBase();
             db.Initialize();
 
             db.CreateArray(SampleCsv, "week1");
 
-            Assert.AreEqual(4, db.GetRowNum(), "FileName,CountLine,CountCode,Cyclomatic の4列");
+            Assert.AreEqual(4, db.GetColumnNum(), "FileName,CountLine,CountCode,Cyclomatic の4列");
         }
 
         [TestMethod]
@@ -121,14 +121,14 @@ namespace StaticAnalysisViewer.Tests
         }
 
         [TestMethod]
-        public void GetColumnNumはCreateArrayしたデータ行数になる()
+        public void GetRowNumはCreateArrayしたデータ行数になる()
         {
             var db = new DataBase();
             db.Initialize();
             db.CreateArray(SampleCsv, "week1");
 
             // ヘッダを除く3行 + 末尾の空行1つ = 4
-            Assert.AreEqual(4, db.GetColumnNum(0));
+            Assert.AreEqual(4, db.GetRowNum(0));
         }
     }
 }
