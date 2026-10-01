@@ -1,22 +1,15 @@
 ﻿﻿﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using StandardTemplate;
-using System.IO;
 
 namespace WeeklyReportFormater
 {
     public partial class Form1 : Form
     {
         private StcUtils util = new StcUtils();
-        private StcFileInputOutput fio = new StcFileInputOutput();
-        
-        private String SaveFileName = "WhoAmI.txt";
+        private StcFileInputOutput fileInputOutput = new StcFileInputOutput();
+
+        private readonly String UserNameFileName = "WhoAmI.txt";
 
         public Form1()
         {
@@ -26,8 +19,7 @@ namespace WeeklyReportFormater
             // カレントディレクトリ移動
             util.SetCurrentDirectory();
 
-            String UserName = fio.LoadFile(SaveFileName);
-            textBox_UserName.Text = UserName;
+            textBox_UserName.Text = fileInputOutput.LoadFile(UserNameFileName);
         }
 
         private void textBox_ThisWeekBefore_KeyDown(object sender, KeyEventArgs e)
@@ -62,41 +54,35 @@ namespace WeeklyReportFormater
 
         private void button_ThisWeekChange_Click(object sender, EventArgs e)
         {
-            textBox_ThisWeekAfter.Clear();
-            if (textBox_ThisWeekBefore.Text == String.Empty)
-            {
-                MessageBox.Show("変換元データが入力されていません");
-                return;
-            }
-
-            textBox_ThisWeekAfter.Text = Logic.FormatThisWeek(textBox_ThisWeekBefore.Text, textBox_UserName.Text);
-            util.SetClipboardText(textBox_ThisWeekAfter.Text);
+            ConvertText(textBox_ThisWeekBefore, textBox_ThisWeekAfter,
+                before => Logic.FormatThisWeek(before, textBox_UserName.Text));
         }
 
         private void button_NextWeekChange_Click(object sender, EventArgs e)
         {
-            textBox_NextWeekAfter.Clear();
-            if (textBox_NextWeekBefore.Text == String.Empty)
-            {
-                MessageBox.Show("変換元データが入力されていません");
-                return;
-            }
-
-            textBox_NextWeekAfter.Text = Logic.FormatNextWeek(textBox_NextWeekBefore.Text, textBox_UserName.Text);
-            util.SetClipboardText(textBox_NextWeekAfter.Text);
+            ConvertText(textBox_NextWeekBefore, textBox_NextWeekAfter,
+                before => Logic.FormatNextWeek(before, textBox_UserName.Text));
         }
 
         private void button_PerforceChange_Click(object sender, EventArgs e)
         {
-            textBox_PerforceAfter.Clear();
-            if (textBox_PerforceBefore.Text == String.Empty)
+            ConvertText(textBox_PerforceBefore, textBox_PerforceAfter, Logic.FormatPerforce);
+        }
+
+        /// <summary>
+        /// 変換元テキストを整形して変換先に表示し、クリップボードにもコピーする（3ボタン共通処理）
+        /// </summary>
+        private void ConvertText(TextBox beforeTextBox, TextBox afterTextBox, Func<String, String> format)
+        {
+            afterTextBox.Clear();
+            if (beforeTextBox.Text == String.Empty)
             {
                 MessageBox.Show("変換元データが入力されていません");
                 return;
             }
 
-            textBox_PerforceAfter.Text = Logic.FormatPerforce(textBox_PerforceBefore.Text);
-            util.SetClipboardText(textBox_PerforceAfter.Text);
+            afterTextBox.Text = format(beforeTextBox.Text);
+            util.SetClipboardText(afterTextBox.Text);
         }
     }
 }

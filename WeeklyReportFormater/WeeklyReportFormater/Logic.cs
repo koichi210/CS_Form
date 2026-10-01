@@ -11,83 +11,83 @@ namespace WeeklyReportFormater
     /// </summary>
     internal static class Logic
     {
-        private const int NextWeekSetNum = 3;
-        private const int PerforceSetNum = 2;
+        private const int NextWeekLinesPerItem = 3;
+        private const int PerforceLinesPerItem = 2;
 
-        public static String FormatThisWeek(String BeforeText, String UserName)
+        public static String FormatThisWeek(String beforeText, String userName)
         {
-            String Result = "";
+            String result = "";
 
-            String[] Line = BeforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < Line.Length; i++)
+            String[] lines = beforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < lines.Length; i++)
             {
-                String NewLine = Line[i];
-                NewLine = NewLine.TrimEnd();
-                NewLine = NewLine.Replace("\t", "");                        // タブ ⇒ スペース
-                NewLine = "\t" + NewLine;                                   // 先頭にタブ挿入
-                NewLine = NewLine.Replace(UserName + " ", "(") + ")";       // ユーザー名削除
-                NewLine = NewLine.Replace(".0)", ")");                      // ストーリーポイントの".0"が邪魔
-                NewLine += Environment.NewLine;                             // 終端に改行挿入
+                String line = lines[i];
+                line = line.TrimEnd();
+                line = line.Replace("\t", "");                        // タブ ⇒ スペース
+                line = "\t" + line;                                   // 先頭にタブ挿入
+                line = line.Replace(userName + " ", "(") + ")";       // ユーザー名削除
+                line = line.Replace(".0)", ")");                      // ストーリーポイントの".0"が邪魔
+                line += Environment.NewLine;                             // 終端に改行挿入
 
-                Result += NewLine;
+                result += line;
             }
 
-            return Result;
+            return result;
         }
 
-        public static String FormatNextWeek(String BeforeText, String UserName)
+        public static String FormatNextWeek(String beforeText, String userName)
         {
-            String Result = "";
+            String result = "";
 
-            String[] Line = BeforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < Line.Length; i++)
+            String[] lines = beforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < lines.Length; i++)
             {
-                String NewLine = Line[i];
-                NewLine = NewLine.TrimEnd();
+                String line = lines[i];
+                line = line.TrimEnd();
 
-                switch (i % NextWeekSetNum)
+                switch (i % NextWeekLinesPerItem)
                 {
                     case 0:
-                        NewLine = "\t" + NewLine;   // 先頭にタブ挿入
+                        line = "\t" + line;   // 先頭にタブ挿入
                         break;
 
                     case 1:
-                        NewLine = " " + NewLine;   // 課題Noと課題名の間にスペース
+                        line = " " + line;   // 課題Noと課題名の間にスペース
                         break;
 
                     case 2:
-                        int NameIdx = NewLine.IndexOf(UserName);   // ユーザー名の先頭
-                        NameIdx += UserName.Length;                // ユーザー名の終端
-                        NewLine = " (" + NewLine.Substring(NameIdx) + ")" + Environment.NewLine;  // ストーリーポイント
+                        int nameIndex = line.IndexOf(userName);   // ユーザー名の先頭
+                        nameIndex += userName.Length;                // ユーザー名の終端
+                        line = " (" + line.Substring(nameIndex) + ")" + Environment.NewLine;  // ストーリーポイント
                         break;
 
                     default:
                         break;
                 }
 
-                Result += NewLine;
+                result += line;
             }
 
-            return Result;
+            return result;
         }
 
-        public static String FormatPerforce(String BeforeText)
+        public static String FormatPerforce(String beforeText)
         {
-            String[] Line = BeforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            String NewLine = "";
-            for (int i = 0; i < Line.Length; i++)
+            String[] lines = beforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            String result = "";
+            for (int i = 0; i < lines.Length; i++)
             {
-                Line[i] = Line[i].TrimStart();
-                Line[i] = Line[i].TrimEnd();
+                lines[i] = lines[i].TrimStart();
+                lines[i] = lines[i].TrimEnd();
 
-                switch (i % PerforceSetNum)
+                switch (i % PerforceLinesPerItem)
                 {
                     case 0:
-                        NewLine += Line[i] + " ";     // ProjectID
+                        result += lines[i] + " ";     // ProjectID
                         break;
 
                     case 1:
-                        NewLine += Line[i];           // Summary
+                        result += lines[i];           // Summary
                         break;
 
                     default:
@@ -95,7 +95,7 @@ namespace WeeklyReportFormater
                 }
             }
 
-            return NewLine;
+            return result;
         }
     }
 }
