@@ -36,6 +36,7 @@ namespace PerforceWrapper
 
         private Boolean SaveProfile(String filePath)
         {
+            sr.AddComboBoxHistory(this);
             return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
         }
 

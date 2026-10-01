@@ -42,21 +42,14 @@ namespace PerforceWrapper
         // LoadProc(string) は StcSaveRestore 側の共通実装をそのまま使う
         // （「空なら何もしない→委譲」という中身が完全に同じだったため）。
 
-        public bool SaveSetting(String saveFileName, Form1 parent)
+        // 保存前に、入力中のテキストをコンボボックスの履歴へ追加する(XML/JSON共通)
+        public void AddComboBoxHistory(Form1 parent)
         {
-            if (saveFileName == String.Empty)
-            {
-                return false;
-            }
-
-            // コンボボックスの更新
             StcUtils util = new StcUtils();
             util.AddComboBoxTextToItems(parent.comboBox_perforce_server);
             util.AddComboBoxTextToItems(parent.comboBox_perforce_user);
             util.AddComboBoxTextToItems(parent.comboBox_perforce_workspace);
             util.AddComboBoxTextToItems(parent.comboBox_perforce_charset);
-
-            return SaveXmlFile(saveFileName);
         }
     }
 }

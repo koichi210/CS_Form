@@ -193,13 +193,16 @@ namespace PerforceWrapper.Tests
         }
 
         [TestMethod]
-        public void SaveSettingはファイル名が空なら何もせず失敗を返す()
+        public void AddComboBoxHistoryは入力中のサーバー名を履歴に追加する()
         {
             using (Form1 form = NewForm())
             {
-                var sr = new SaveRestore();
-                sr.RegisterItem(form);
-                Assert.IsFalse(sr.SaveSetting("", form));
+                var sr = NewSaveRestore(form);
+                form.comboBox_perforce_server.Text = "newserver:1666";
+
+                sr.AddComboBoxHistory(form);
+
+                Assert.IsTrue(form.comboBox_perforce_server.Items.Contains("newserver:1666"));
             }
         }
     }
