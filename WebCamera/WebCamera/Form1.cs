@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;       // Bitmap変換に必要
@@ -14,11 +9,11 @@ namespace WebCamera
 {
     public partial class Form1 : Form
     {
-        Mat frame;
-        VideoCapture capture;
-        Bitmap bmp;
-        Graphics graphic;
-        
+        private Mat frame;
+        private VideoCapture capture;
+        private Bitmap bmp;
+        private Graphics graphic;
+
         public Form1()
         {
             InitializeComponent();
@@ -66,7 +61,7 @@ namespace WebCamera
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker bw = (BackgroundWorker)sender;
+            BackgroundWorker worker = (BackgroundWorker)sender;
 
             while (!backgroundWorker1.CancellationPending)
             {
@@ -82,7 +77,7 @@ namespace WebCamera
                     return;
                 }
 
-                bw.ReportProgress(0);
+                worker.ReportProgress(0);
             }
         }
 
