@@ -3,7 +3,7 @@ using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace PictTriming.Tests
+namespace PictTrimming.Tests
 {
     /// <summary>
     /// Logic（MainWindow.xaml.cs から切り出した、画像トリミングと設定値のXML保存/
@@ -17,7 +17,7 @@ namespace PictTriming.Tests
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "PictTrimingTests_" + Guid.NewGuid().ToString("N"));
+            tempDirectory = Path.Combine(Path.GetTempPath(), "PictTrimmingTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDirectory);
         }
 

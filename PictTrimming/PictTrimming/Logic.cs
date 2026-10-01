@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.IO;
 
-namespace PictTriming
+namespace PictTrimming
 {
     /// <summary>
     /// もともと MainWindow.xaml.cs の Triming(現 Trim) / SaveSetting_Click / LoadSetting に
@@ -50,7 +50,7 @@ namespace PictTriming
         private static readonly String[] SettingKeys = { "SourceFolderPath", "BaseX", "BaseY", "TargetX", "TargetY" };
 
         // XMLの組み立て/読み取りは同じ形式を手書きしていた4プロジェクトで共通だったため
-        // [[_Common/SimpleSettings.cs]]へ集約した。ここにはPictTriming固有の項目名の対応だけ残す
+        // [[_Common/SimpleSettings.cs]]へ集約した。ここにはPictTrimming固有の項目名の対応だけ残す
         public static void SaveSetting(String filePath, String sourceFolderPath, String baseX, String baseY, String targetX, String targetY)
         {
             StandardTemplate.StcSimpleSettings settings = new StandardTemplate.StcSimpleSettings();

@@ -7,8 +7,8 @@
     <ProjectGuid>{7B4E9C2A-5D8F-4A3B-9E6C-1F8D3B7A5C9E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PictTriming.Tests</RootNamespace>
-    <AssemblyName>PictTriming.Tests</AssemblyName>
+    <RootNamespace>PictTrimming.Tests</RootNamespace>
+    <AssemblyName>PictTrimming.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -49,9 +49,9 @@
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\PictTriming\PictTriming.csproj">
+    <ProjectReference Include="..\..\PictTrimming\PictTrimming.csproj">
       <Project>{84ad45ca-d082-4a5d-b33c-4844807dac46}</Project>
-      <Name>PictTriming</Name>
+      <Name>PictTrimming</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
