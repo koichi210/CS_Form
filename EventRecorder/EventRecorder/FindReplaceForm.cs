@@ -48,8 +48,8 @@ namespace EventRecorder
         // 検索結果一覧の1行が、レコード表(targetGrid)のどの行/どの可視列でヒットしたかを覚えておく
         private class HitRowInfo
         {
-            public int TargetRowIndex;
-            public List<int> HitVisibleColumnIndexes;
+            public int TargetRowIndex { get; set; }
+            public List<int> HitVisibleColumnIndexes { get; set; }
         }
 
         // 「次を検索」で最後に見つけたセル位置。次回はこの続き(次のセル)から探す
@@ -194,20 +194,10 @@ namespace EventRecorder
             get { return chkMatchCase.Checked ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase; }
         }
 
-        // gridの表示列(Visible=true)だけを、DisplayIndex順に並べて返す
-        private List<DataGridViewColumn> VisibleColumns()
+        // targetGridの表示列(Visible=true)だけを、DisplayIndex順に並べて返す
+        private List<DataGridViewColumn> GetVisibleColumns()
         {
-            List<DataGridViewColumn> columns = new List<DataGridViewColumn>();
-            foreach (DataGridViewColumn col in targetGrid.Columns)
-            {
-                if (col.Visible)
-                {
-                    columns.Add(col);
-                }
-            }
-
-            columns.Sort((a, b) => a.DisplayIndex.CompareTo(b.DisplayIndex));
-            return columns;
+            return Form1.GetVisibleColumnsInDisplayOrder(targetGrid);
         }
 
         // レコード表(targetGrid)と同じ列構成(行番号+可視列)で検索結果を一覧表示する。
@@ -225,7 +215,7 @@ namespace EventRecorder
             }
 
             StringComparison comparison = Comparison;
-            List<DataGridViewColumn> visibleColumns = VisibleColumns();
+            List<DataGridViewColumn> visibleColumns = GetVisibleColumns();
 
             resultsGrid.Columns.Add("resultRowNo", "行");
             foreach (DataGridViewColumn col in visibleColumns)
@@ -298,12 +288,12 @@ namespace EventRecorder
                 return;
             }
 
-            List<DataGridViewColumn> visibleColumns = VisibleColumns();
+            List<DataGridViewColumn> visibleColumns = GetVisibleColumns();
             int targetColIndex = visibleColumns[info.HitVisibleColumnIndexes[0]].Index;
             JumpToCell(targetGrid, info.TargetRowIndex, targetColIndex);
         }
 
-        internal static void JumpToCell(DataGridView grid, int rowIndex, int columnIndex)
+        private static void JumpToCell(DataGridView grid, int rowIndex, int columnIndex)
         {
             if (rowIndex < 0 || rowIndex >= grid.Rows.Count || columnIndex < 0 || columnIndex >= grid.Columns.Count)
             {

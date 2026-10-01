@@ -1,13 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using StandardTemplate;
 
@@ -45,7 +38,7 @@ namespace EventRecorder
         private int lastEventTick = 0;
 
         // 記録中/再生中にハイライトしている行のインデックス(-1ならハイライト無し)
-        private int highlightedRowIndex = -1;
+        private int highlightedEventRowIndex = -1;
 
         // プレイリスト実行中にハイライトしている行(dataGridView_Playlist側)のインデックス
         private int highlightedPlaylistRowIndex = -1;
@@ -413,7 +406,7 @@ namespace EventRecorder
 
             // EventRecorder.json(アプリの設定ファイル、プロファイルではない)は引っ越し対象から外す
             DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName, IsNonProfileSettingFile));
+                (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName, IsAppSettingsFile));
         }
 
         // 今選択中のモードのグループボックスだけ背景色をハイライトする。
@@ -445,8 +438,8 @@ namespace EventRecorder
 
         // userDataFolder直下にプロファイルと混在して置かれる、アプリ自体の設定ファイル
         // (EventRecorder.json)かどうかを判定する。プロファイル一覧(UpdateProfileListAll)や
-        // 引っ越し(MoveExistingProfiles)で誤って対象にしてしまわないよう、両方から共通で参照する
-        private static Boolean IsNonProfileSettingFile(String filePath)
+        // 引っ越し(DataFolderMenu.MoveProfiles)で誤って対象にしてしまわないよう、両方から共通で参照する
+        private static Boolean IsAppSettingsFile(String filePath)
         {
             String fileName = System.IO.Path.GetFileName(filePath);
             return String.Equals(fileName, AppSettingsFileName, StringComparison.OrdinalIgnoreCase);

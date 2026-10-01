@@ -7,26 +7,26 @@ namespace EventRecorder
     // ※ いずれJSON保存に置き換えたい(やりたいことリスト)
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(Form1 Parent)
+        public void RegistItem(Form1 parent)
         {
             SetElement("Setting");
 
             // 「ループ回数」は単発再生の回数とプレイリストの全体ループを兼ねる共通項目に
             // なったため、textBox_Loop1つだけ登録すればよい(旧: textBox_PlaylistLoopは廃止)
-            RegistCtrl("Record", "textBox_Loop", Parent.textBox_Loop, "1");
-            RegistCtrl("Record", "Cell", "RowCount", Parent.dataGridView_Events);
+            RegistCtrl("Record", "textBox_Loop", parent.textBox_Loop, "1");
+            RegistCtrl("Record", "Cell", "RowCount", parent.dataGridView_Events);
 
             // タブ2のプレイリスト(実行順・チェック状態・行ごとのループ回数)も
             // 同じ設定ファイルに保存する。1つのファイルにマクロとプレイリストの両方を持たせる形
-            RegistCtrl("Playlist", "Cell", "RowCount", Parent.dataGridView_Playlist);
+            RegistCtrl("Playlist", "Cell", "RowCount", parent.dataGridView_Playlist);
 
             // モード切替ラジオボタン・最小化チェックボックスも、記録データ+プレイリストとは
             // 別枠(Option)として同じ設定ファイルに保存する。プレイリスト再生時の各行の
             // ファイル読込(RegistItemForPlayback)では、途中でモードが切り替わって
             // しまわないようこちらは登録しない
-            RegistCtrl("Option", "radioButton_Record", Parent.radioButton_Record, "True");
-            RegistCtrl("Option", "radioButton_Playback", Parent.radioButton_Playback, "False");
-            RegistCtrl("Option", "checkBox_MinimizeOnPlay", Parent.checkBox_MinimizeOnPlay, "False");
+            RegistCtrl("Option", "radioButton_Record", parent.radioButton_Record, "True");
+            RegistCtrl("Option", "radioButton_Playback", parent.radioButton_Playback, "False");
+            RegistCtrl("Option", "checkBox_MinimizeOnPlay", parent.checkBox_MinimizeOnPlay, "False");
         }
 
         // プレイリスト再生時、各行の設定ファイルを1つずつ読み込む専用。
@@ -34,49 +34,49 @@ namespace EventRecorder
         // (RegistItemを使い回すと、各ファイルに保存されている「そのファイルを保存した時点の
         // プレイリストのスナップショット」がLoadXmlFile内部の仕組みで強制的に反映されてしまい、
         // 再生中に今操作中のプレイリストが勝手に上書き/消去される不具合になるため、専用インスタンスで分離する)
-        public void RegistItemForPlayback(Form1 Parent)
+        public void RegistItemForPlayback(Form1 parent)
         {
             SetElement("Setting");
 
-            RegistCtrl("Record", "textBox_Loop", Parent.textBox_Loop, "1");
-            RegistCtrl("Record", "Cell", "RowCount", Parent.dataGridView_Events);
+            RegistCtrl("Record", "textBox_Loop", parent.textBox_Loop, "1");
+            RegistCtrl("Record", "Cell", "RowCount", parent.dataGridView_Events);
         }
 
         // 通常の「設定値読込」等、ファイルの中身(記録データ+プレイリスト)を
         // まるごと反映したい場合はこちら(既定でプレイリストもクリアする)
-        public Boolean LoadProc(String LoadFileName, Form1 Parent)
+        public Boolean LoadProc(String loadFileName, Form1 parent)
         {
-            return LoadProc(LoadFileName, Parent, true);
+            return LoadProc(loadFileName, parent, true);
         }
 
         // clearPlaylist=falseにすると、プレイリスト再生中に各行の設定ファイルを
         // 1つずつ読み込む時のように、記録データ(タブ1)だけ差し替えてプレイリスト自体(タブ2)は
         // 触らずに残せる
-        public Boolean LoadProc(String LoadFileName, Form1 Parent, Boolean clearPlaylist)
+        public Boolean LoadProc(String loadFileName, Form1 parent, Boolean clearPlaylist)
         {
-            if (LoadFileName == String.Empty)
+            if (loadFileName == String.Empty)
             {
                 return false;
             }
 
-            Parent.dataGridView_Events.Rows.Clear();
+            parent.dataGridView_Events.Rows.Clear();
             if (clearPlaylist)
             {
-                Parent.dataGridView_Playlist.Rows.Clear();
+                parent.dataGridView_Playlist.Rows.Clear();
             }
 
-            Boolean result = LoadXmlFile(LoadFileName);
+            Boolean result = LoadXmlFile(loadFileName);
 
             // 旧バージョンで保存された(各行が自分の待機時間を持つ)ファイルを読み込んだ場合は、
             // 待機を独立したWAIT_MS行に切り出す新形式へ変換する(新形式のファイルなら何もしない)
-            Parent.MigrateWaitColumnToRows();
+            parent.MigrateWaitColumnToRows();
 
             // ファイル読込は「ユーザーの編集操作」ではないので、読込前の状態にCtrl+Zで
             // 戻せてしまわないよう、読み込んだ側のUndo/Redo履歴はここでリセットする
-            Parent.dataGridView_Events.ClearUndoHistory();
+            parent.dataGridView_Events.ClearUndoHistory();
             if (clearPlaylist)
             {
-                Parent.dataGridView_Playlist.ClearUndoHistory();
+                parent.dataGridView_Playlist.ClearUndoHistory();
             }
 
             return result;

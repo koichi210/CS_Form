@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StandardTemplate;
@@ -30,7 +25,7 @@ namespace EventRecorder
         private int playlistHighlightGeneration = 0;
 
         // プレイリストの設定ファイル列(col_PlaylistFile)を、comboBox_Profileと同じ内容に揃える。
-        // ファイルシステムへの問い合わせはcomboBox_Profile側(util.UpdateProfileList)だけで行い、
+        // ファイルシステムへの問い合わせはcomboBox_Profile側(UpdateProfileListAll)だけで行い、
         // その結果をそのままコピーするだけにすることで、同じ一覧を二重に取得しないようにしている。
         // comboBox_Profileが更新されるタイミング(起動時・設定値保存時)で必ずこれも呼ぶこと
         private void SyncPlaylistFileItems()
@@ -232,15 +227,7 @@ namespace EventRecorder
             contextMenuPlaylistRowIndex = e.RowIndex;
 
             // 記録グリッドと同様、右クリックしたセル/行がすでに選択済みなら選択状態を維持する
-            Boolean isAlreadySelected = e.RowIndex >= 0 &&
-                ((e.ColumnIndex >= 0 && dataGridView_Playlist.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected)
-                || dataGridView_Playlist.Rows[e.RowIndex].Selected);
-
-            if (e.RowIndex >= 0 && !isAlreadySelected)
-            {
-                dataGridView_Playlist.ClearSelection();
-                dataGridView_Playlist.Rows[e.RowIndex].Selected = true;
-            }
+            SelectRowOnRightClick(dataGridView_Playlist, e);
         }
 
         // *******************************************************************************
@@ -421,9 +408,20 @@ namespace EventRecorder
                     continue;
                 }
 
-                Boolean isEnabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
-                row.Visible = !showOnlyCheckedPlaylistRows || isEnabled;
+                UpdatePlaylistRowVisibility(row);
             }
+        }
+
+        // 実行列(col_PlaylistEnabled)にチェックが入っている行か
+        private Boolean IsPlaylistRowEnabled(DataGridViewRow row)
+        {
+            return Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
+        }
+
+        // 表示フィルタ(showOnlyCheckedPlaylistRows)とその行のチェック状態から、行の表示/非表示を決める
+        private void UpdatePlaylistRowVisibility(DataGridViewRow row)
+        {
+            row.Visible = !showOnlyCheckedPlaylistRows || IsPlaylistRowEnabled(row);
         }
 
         private void menuItem_PlaylistAddRow_Click(object sender, EventArgs e)
@@ -513,9 +511,7 @@ namespace EventRecorder
             if (e.ColumnIndex == col_PlaylistEnabled.Index)
             {
                 // チェックON/OFFが変わったら、表示フィルタが有効な時はその場で表示/非表示を切り替える
-                DataGridViewRow row = dataGridView_Playlist.Rows[e.RowIndex];
-                Boolean isEnabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
-                row.Visible = !showOnlyCheckedPlaylistRows || isEnabled;
+                UpdatePlaylistRowVisibility(dataGridView_Playlist.Rows[e.RowIndex]);
                 return;
             }
 
@@ -580,12 +576,12 @@ namespace EventRecorder
         // プレイリストの1行分(ファイル名+そのファイル専用のループ回数)
         private class PlaylistEntry
         {
-            public String FileName;
-            public int LoopCount;
+            public String FileName { get; set; }
+            public int LoopCount { get; set; }
 
             // dataGridView_Playlist上の元の行インデックス。実行中にその行をハイライトするために使う
             // (チェックが外れている行等は除外されるため、entries内のインデックスとは一致しない)
-            public int RowIndex;
+            public int RowIndex { get; set; }
         }
 
         // プレイリストの各行のうち、チェックが入っていてファイルが選ばれている行だけを、
@@ -600,8 +596,7 @@ namespace EventRecorder
                     continue;
                 }
 
-                Boolean isEnabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false);
-                if (!isEnabled)
+                if (!IsPlaylistRowEnabled(row))
                 {
                     continue;
                 }
@@ -612,11 +607,7 @@ namespace EventRecorder
                     continue;
                 }
 
-                int loopCount = util.GetInteger(Convert.ToString(row.Cells[col_PlaylistLoopCount.Index].Value));
-                if (loopCount <= 0)
-                {
-                    loopCount = 1;
-                }
+                int loopCount = ParseLoopCount(Convert.ToString(row.Cells[col_PlaylistLoopCount.Index].Value));
 
                 entries.Add(new PlaylistEntry() { FileName = fileName, LoopCount = loopCount, RowIndex = row.Index });
             }
@@ -635,11 +626,7 @@ namespace EventRecorder
             }
 
             // 「全体ループ」も単発再生の「ループ回数」とtextBox_Loopを共有している
-            int overallLoopCount = util.GetInteger(textBox_Loop.Text);
-            if (overallLoopCount <= 0)
-            {
-                overallLoopCount = 1;
-            }
+            int overallLoopCount = ParseLoopCount(textBox_Loop.Text);
 
             cursorPositionBeforePlay = Cursor.Position;
 
@@ -650,7 +637,7 @@ namespace EventRecorder
 
             isPlaying = true;
             stopPlayRequested = false;
-            UpdatePlayButtons();
+            UpdatePlayButton();
             UpdateTitle();
             MinimizeIfRequested();
 
@@ -720,10 +707,10 @@ namespace EventRecorder
                 stopPlayRequested = false;
                 this.Invoke((MethodInvoker)(() =>
                 {
-                    UpdatePlayButtons();
+                    UpdatePlayButton();
                     label_PlaylistStatus.Text = "";
                     UpdateTitle();
-                    HighlightPlayingRow(-1);
+                    HighlightEventRow(-1);
                     HighlightPlaylistRow(-1);
                     RestoreIfMinimizedByPlay();
                 }));

@@ -1,13 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using StandardTemplate;
 
@@ -21,8 +14,8 @@ namespace EventRecorder
         // コンボボックスで設定ファイルを選び直したら、そのままそれを読み込む(Cheetosと同じ挙動)
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String LoadFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
-            LoadProfile(LoadFileName);
+            String loadFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
+            LoadProfile(loadFileName);
         }
 
         // *******************************************************************************
@@ -180,7 +173,7 @@ namespace EventRecorder
 
                 profile.Playlist.Add(new PlaylistEntryData
                 {
-                    Enabled = Convert.ToBoolean(row.Cells[col_PlaylistEnabled.Index].Value ?? false),
+                    Enabled = IsPlaylistRowEnabled(row),
                     FileName = Convert.ToString(row.Cells[col_PlaylistFile.Index].Value),
                     LoopCount = Convert.ToString(row.Cells[col_PlaylistLoopCount.Index].Value),
                 });
@@ -221,7 +214,7 @@ namespace EventRecorder
             String[] xmlFiles = System.IO.Directory.GetFiles(userDataFolder, "*.xml", System.IO.SearchOption.AllDirectories);
             // EventRecorder.json(アプリの設定ファイル)はプロファイルではないので除外する
             String[] jsonFiles = System.IO.Directory.GetFiles(userDataFolder, "*.json", System.IO.SearchOption.AllDirectories)
-                .Where(f => !IsNonProfileSettingFile(f))
+                .Where(f => !IsAppSettingsFile(f))
                 .ToArray();
             String[] files = xmlFiles.Concat(jsonFiles).ToArray();
 
@@ -296,15 +289,15 @@ namespace EventRecorder
                 return;
             }
 
-            String SaveFileName = dlg.FileName;
-            if (!SaveProfile(SaveFileName))
+            String saveFileName = dlg.FileName;
+            if (!SaveProfile(saveFileName))
             {
-                MessageBox.Show("設定の保存に失敗したよ" + Environment.NewLine + SaveFileName,
+                MessageBox.Show("設定の保存に失敗したよ" + Environment.NewLine + saveFileName,
                     AppName + " - エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(SaveFileName));
+            UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(saveFileName));
             SyncPlaylistFileItems();
         }
     }

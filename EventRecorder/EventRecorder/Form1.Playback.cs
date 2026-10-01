@@ -1,15 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using StandardTemplate;
 
 namespace EventRecorder
 {
@@ -58,11 +53,7 @@ namespace EventRecorder
                 return;
             }
 
-            int loopCount = util.GetInteger(textBox_Loop.Text);
-            if (loopCount <= 0)
-            {
-                loopCount = 1;
-            }
+            int loopCount = ParseLoopCount(textBox_Loop.Text);
 
             List<String[]> rows = SnapshotRows();
             if (rows.Count == 0)
@@ -81,11 +72,19 @@ namespace EventRecorder
 
             isPlaying = true;
             stopPlayRequested = false;
-            UpdatePlayButtons();
+            UpdatePlayButton();
             UpdateTitle();
             MinimizeIfRequested();
 
             Task.Run(() => PlayLoop(rows, loopCount));
+        }
+
+        // ループ回数の入力値を数値にする。読めない値・0以下は1回として扱う
+        // (単発再生・プレイリストの全体ループ・プレイリストの各行のループ回数で共通)
+        private int ParseLoopCount(String text)
+        {
+            int loopCount = util.GetInteger(text);
+            return loopCount <= 0 ? 1 : loopCount;
         }
 
         // checkBox_MinimizeOnPlayがチェックされていたら、再生開始と同時にウィンドウを最小化する。
@@ -145,9 +144,9 @@ namespace EventRecorder
                 stopPlayRequested = false;
                 this.Invoke((MethodInvoker)(() =>
                 {
-                    UpdatePlayButtons();
+                    UpdatePlayButton();
                     UpdateTitle();
-                    HighlightPlayingRow(-1);
+                    HighlightEventRow(-1);
                     RestoreIfMinimizedByPlay();
                 }));
             }
@@ -174,7 +173,7 @@ namespace EventRecorder
 
                     this.Invoke((MethodInvoker)(() =>
                     {
-                        HighlightPlayingRow(idx);
+                        HighlightEventRow(idx);
                         UpdateTitle();
                     }));
 
@@ -243,9 +242,9 @@ namespace EventRecorder
         }
 
         // 記録中の最新行・単発再生中の実行中行のハイライト(dataGridView_Events側)
-        private void HighlightPlayingRow(int idx)
+        private void HighlightEventRow(int idx)
         {
-            HighlightRow(dataGridView_Events, idx, ref highlightedRowIndex);
+            HighlightRow(dataGridView_Events, idx, ref highlightedEventRowIndex);
         }
 
         // プレイリスト実行中、今どのファイル(行)を再生しているかのハイライト(dataGridView_Playlist側)
@@ -348,19 +347,22 @@ namespace EventRecorder
                     return;
                 }
 
-                int current;
-                int.TryParse(editBox.Text, out current);
-                int next = Math.Max(1, (current <= 0 ? 1 : current) + delta);
-                editBox.Text = next.ToString();
+                editBox.Text = StepLoopCountText(editBox.Text, delta);
                 editBox.SelectionStart = editBox.Text.Length;
                 return;
             }
 
             DataGridViewCell cell = dataGridView_Playlist.CurrentCell;
-            int currentValue;
-            int.TryParse(Convert.ToString(cell.Value), out currentValue);
-            int nextValue = Math.Max(1, (currentValue <= 0 ? 1 : currentValue) + delta);
-            cell.Value = nextValue.ToString();
+            cell.Value = StepLoopCountText(Convert.ToString(cell.Value), delta);
+        }
+
+        // ループ数の文字列をdeltaだけ増減した文字列を返す(読めない値・0以下は1とみなし、結果も1未満にはしない)
+        private static String StepLoopCountText(String text, int delta)
+        {
+            int current;
+            int.TryParse(text, out current);
+            int next = Math.Max(1, (current <= 0 ? 1 : current) + delta);
+            return next.ToString();
         }
 
         // 選択中のセルの中身を空にする(行そのものは削除しない。行削除は右クリックメニューの担当)。
@@ -467,8 +469,9 @@ namespace EventRecorder
             }
         }
 
-        // gridの表示列(Visible=true)だけを、DisplayIndex順に並べて返す
-        private static List<DataGridViewColumn> GetVisibleColumnsInDisplayOrder(DataGridView grid)
+        // gridの表示列(Visible=true)だけを、DisplayIndex順に並べて返す。
+        // 貼り付け(PasteFromClipboard)と検索ダイアログ([[FindReplaceForm.cs]])の両方から使う
+        internal static List<DataGridViewColumn> GetVisibleColumnsInDisplayOrder(DataGridView grid)
         {
             List<DataGridViewColumn> columns = new List<DataGridViewColumn>();
             foreach (DataGridViewColumn col in grid.Columns)
@@ -495,20 +498,25 @@ namespace EventRecorder
             }
 
             contextMenuRowIndex = e.RowIndex;
+            SelectRowOnRightClick(dataGridView_Events, e);
+        }
 
-            // 左クリックで複数行選択済みの状態から右クリックでメニューを開きたいケースがあるため、
-            // 右クリックした行がすでに選択済みならその選択状態を維持する。
-            // 未選択の行を右クリックした場合だけ、その行の単一選択に切り替える。
-            // 既定のRowHeaderSelectモードでは、行ヘッダーではなくセルのドラッグで複数選択すると
-            // Rows[].Selectedはfalseのままになるため、右クリックしたセル自体の選択状態もあわせて見る
+        // 左クリックで複数行選択済みの状態から右クリックでメニューを開きたいケースがあるため、
+        // 右クリックした行がすでに選択済みならその選択状態を維持する。
+        // 未選択の行を右クリックした場合だけ、その行の単一選択に切り替える。
+        // 既定のRowHeaderSelectモードでは、行ヘッダーではなくセルのドラッグで複数選択すると
+        // Rows[].Selectedはfalseのままになるため、右クリックしたセル自体の選択状態もあわせて見る。
+        // 記録グリッド・プレイリストグリッドの両方の右クリックから共通で使う
+        private static void SelectRowOnRightClick(DataGridView grid, DataGridViewCellMouseEventArgs e)
+        {
             Boolean isAlreadySelected = e.RowIndex >= 0 &&
-                ((e.ColumnIndex >= 0 && dataGridView_Events.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected)
-                || dataGridView_Events.Rows[e.RowIndex].Selected);
+                ((e.ColumnIndex >= 0 && grid.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected)
+                || grid.Rows[e.RowIndex].Selected);
 
             if (e.RowIndex >= 0 && !isAlreadySelected)
             {
-                dataGridView_Events.ClearSelection();
-                dataGridView_Events.Rows[e.RowIndex].Selected = true;
+                grid.ClearSelection();
+                grid.Rows[e.RowIndex].Selected = true;
             }
         }
 
@@ -843,9 +851,10 @@ namespace EventRecorder
 
         // Event列を書き換えた直後もDetail列の警告表示(CellFormatting)がすぐ反映されるように、
         // 明示的にDetail列セルを再描画する(別列の値変更ではCellFormattingが自動では呼ばれないため)。
-        // 記録・貼り付け・XML読込・手動編集、どの経路でEvent列がセットされてもここを通るので、
-        // KeyUp行を非表示にする処理もまとめてここでやる。
+        // 記録・貼り付け・XML読込・手動編集、どの経路でEvent列がセットされてもここを通る。
         // さらに、実データ(X/Y/Key、非表示)とDetail列(表示・編集用)を相互に同期させる
+        // (以前はここでKeyUp/SysKeyUpの行を非表示にしていたが、記録内容を目視確認したいという
+        // 要望により、KeyUp/SysKeyUpも他の行と同じく表示するようにした)
         private void dataGridView_Events_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || isSyncingDetailColumn)
@@ -856,7 +865,6 @@ namespace EventRecorder
             if (e.ColumnIndex == col_Type.Index)
             {
                 dataGridView_Events.InvalidateCell(col_Detail.Index, e.RowIndex);
-                UpdateRowVisibility(e.RowIndex);
                 // WAIT_MS行への/からの切り替え等、Event列の変更でDetail列の意味も変わるので再計算する
                 SyncDetailFromHiddenColumns(e.RowIndex);
                 return;
@@ -1012,19 +1020,6 @@ namespace EventRecorder
 
             waitMs = detail.EndsWith("ms") ? detail.Substring(0, detail.Length - 2) : detail;
             return true;
-        }
-
-        // 以前はKeyUp/SysKeyUpの行をテーブルの見た目から隠していたが、記録内容を
-        // 目視確認したいという要望により、KeyUp/SysKeyUpも他の行と同じく表示するようにした
-        private void UpdateRowVisibility(int rowIndex)
-        {
-            if (rowIndex < 0 || rowIndex >= dataGridView_Events.Rows.Count)
-            {
-                return;
-            }
-
-            DataGridViewRow row = dataGridView_Events.Rows[rowIndex];
-            row.Visible = true;
         }
 
         // 記録した1イベント分をSendInputで再現する

@@ -1,15 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using StandardTemplate;
 
 namespace EventRecorder
 {
@@ -57,7 +47,7 @@ namespace EventRecorder
 
         // 単発再生とプレイリスト実行は1つのbutton_Play(表示名「再生」)に統合したので、
         // isPlayingが変わるたびにその表示を同期させるだけでよい
-        private void UpdatePlayButtons()
+        private void UpdatePlayButton()
         {
             button_Play.Text = isPlaying ? "停止" : "再生";
         }
@@ -236,7 +226,7 @@ namespace EventRecorder
             // (単発再生中のハイライトと同じ見た目・仕組みを流用)
             if (lastIdx >= 0)
             {
-                HighlightPlayingRow(lastIdx);
+                HighlightEventRow(lastIdx);
             }
         }
 
