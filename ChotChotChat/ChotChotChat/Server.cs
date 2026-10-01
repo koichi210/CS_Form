@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
@@ -13,46 +11,43 @@ namespace ChotChotChat
     {
         private readonly int port = 8080;
         private readonly int TimeOutMsec = 100000;
-        private bool IsConnect = false;
+        private bool isConnected = false;
         private TcpListener listener;
         private TcpClient client;
 
-        public String Connect(String ClientName)
+        public String Connect(String listenAddress)
         {
-            if (IsConnect)
+            if (isConnected)
             {
                 MessageBox.Show("すでにクライアントと接続済みです");
                 return "";
             }
 
             //ListenするIPアドレス
-            IPAddress ipAdd = IPAddress.Parse(ClientName);
+            IPAddress ipAddress = IPAddress.Parse(listenAddress);
 
             //ホスト名からIPアドレスに変換
             //String host = "localhost";
-            //IPAddress ipAdd = Dns.GetHostEntry(host).AddressList[0];
+            //IPAddress ipAddress = Dns.GetHostEntry(host).AddressList[0];
 
-            listener = new TcpListener(ipAdd, port);
+            listener = new TcpListener(ipAddress, port);
 
             //Listenを開始
             listener.Start();
-            //Parent.label_StatusBar.Text = String.Format("Listenを開始しました({0}:{1})。",
-            //    ((IPEndPoint)listener.LocalEndpoint).Address,
-            //    ((IPEndPoint)listener.LocalEndpoint).Port);
 
             //接続要求があったら受け入れる
             client = listener.AcceptTcpClient();
-            IsConnect = true;
+            isConnected = true;
 
             return  String.Format("クライアント({0}:{1})と接続しました。",
                 ((IPEndPoint)client.Client.RemoteEndPoint).Address,
                 ((IPEndPoint)client.Client.RemoteEndPoint).Port);
         }
 
-        public String Diconnect()
+        public String Disconnect()
         {
-            // 接続待ちの途中で失敗した場合もポートを開放するため、IsConnectに関係なく閉じる
-            IsConnect = false;
+            // 接続待ちの途中で失敗した場合もポートを開放するため、isConnectedに関係なく閉じる
+            isConnected = false;
             if (client != null)
             {
                 client.Close();
@@ -66,10 +61,10 @@ namespace ChotChotChat
             return "クライアントとの接続を閉じました。";
         }
 
-        public void Recv(Form1 Parent)
+        public void Receive(Form1 parent)
         {
             // データ受信
-            System.Text.Encoding enc = System.Text.Encoding.UTF8;
+            Encoding enc = Encoding.UTF8;
 
             //NetworkStreamを取得
             NetworkStream ns = client.GetStream();
@@ -91,7 +86,7 @@ namespace ChotChotChat
                     resSize = ns.Read(resBytes, 0, resBytes.Length);
                     if (resSize == 0)
                     {
-                        IsConnect = false;
+                        isConnected = false;
                         MessageBox.Show("Disconnect Client",
                             "Warning",
                             MessageBoxButtons.OK,
@@ -111,9 +106,9 @@ namespace ChotChotChat
                 ms.Close();
 
                 // ログ画面更新
-                Parent.textBox_Log.Text += resMsg;
+                parent.textBox_Log.Text += resMsg;
 
-                if (IsConnect)
+                if (isConnected)
                 {
                     //クライアントにデータ送信
                     String sendMsg = resMsg.Length.ToString();
@@ -126,28 +121,6 @@ namespace ChotChotChat
 
             //閉じる
             ns.Close();
-        }
-
-        public String Listen()
-        {
-            //IPv4とIPv6の全てのIPアドレスをListen
-            TcpListener listener = new TcpListener(IPAddress.IPv6Any, 2001);
-
-            //IPv6OnlyをOFF
-            listener.Server.SetSocketOption(
-                SocketOptionLevel.IPv6,
-                SocketOptionName.IPv6Only,
-                0);
-
-            //Listenを開始
-            listener.Start();
-
-            //接続要求があったら受け入れる
-            TcpClient client = listener.AcceptTcpClient();
-
-            return String.Format("IPアドレス:{0} ポート番号:{1})。",
-                ((IPEndPoint)client.Client.LocalEndPoint).Address,
-                ((IPEndPoint)client.Client.LocalEndPoint).Port);
         }
     }
 }

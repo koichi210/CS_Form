@@ -7,7 +7,7 @@ namespace ChotChotChat.Tests
     ///
     /// ⚠️ button_Server_Click / button_Client_Click / button_Send_Click は、
     /// 内部のServer/Clientクラスを通じて実際のTCPソケット(ポート8080固定)を
-    /// 開き、Server.Recv/Client.SendはAcceptTcpClient/NetworkStream.Readで
+    /// 開き、Server.Receive/Client.SendはAcceptTcpClient/NetworkStream.Readで
     /// 相手からのデータを実際にブロック待ちする作りになっている。
     /// 相手側を用意しない限りテストがハングし、また接続失敗時や切断検知時には
     /// MessageBox.Showも呼ばれる。安全にテストできないため、これら3つの

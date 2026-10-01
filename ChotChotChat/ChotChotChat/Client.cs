@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
@@ -13,22 +11,22 @@ namespace ChotChotChat
     {
         private readonly int port = 8080;
         private readonly int TimeOutMsec = 100000;
-        private bool IsConnect = false;
+        private bool isConnected = false;
         private TcpClient tcp;
 
-        public bool IsConnected { get { return IsConnect; } }
+        public bool IsConnected { get { return isConnected; } }
 
-        public String Connect(String HostName)
+        public String Connect(String hostName)
         {
-            if (IsConnect)
+            if (isConnected)
             {
                 MessageBox.Show("すでにサーバーと接続済みです");
                 return "";
             }
             
             //TcpClientを作成し、サーバーと接続する
-            tcp = new TcpClient(HostName, port);
-            IsConnect = true;
+            tcp = new TcpClient(hostName, port);
+            isConnected = true;
 
             return String.Format("サーバー({0}:{1})と接続しました({2}:{3})。",
                 ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
@@ -37,17 +35,17 @@ namespace ChotChotChat
                 ((IPEndPoint)tcp.Client.LocalEndPoint).Port);
         }
 
-        public String Diconnect()
+        public String Disconnect()
         {
-            if (IsConnect)
+            if (isConnected)
             {
-                IsConnect = false;
+                isConnected = false;
                 tcp.Close();
             }
             return  "サーバーと切断しました。";
         }
 
-        public void Send(String SendText)
+        public void Send(String sendText)
         {
             //TODO:Try～CatchでサーバーDownを回避
             //NetworkStreamを取得
@@ -59,7 +57,7 @@ namespace ChotChotChat
 
             //データ送信
             Encoding enc = Encoding.UTF8;
-            byte[] sendBytes = enc.GetBytes(SendText + Environment.NewLine);
+            byte[] sendBytes = enc.GetBytes(sendText + Environment.NewLine);
             ns.Write(sendBytes, 0, sendBytes.Length);
 
             //サーバーから送られたデータ受信する
@@ -84,8 +82,6 @@ namespace ChotChotChat
                 ms.Write(resBytes, 0, resSize);
             } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
 
-            //受信したデータを文字列に変換
-            String resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
             ms.Close();
 
             //閉じる
