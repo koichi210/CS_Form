@@ -75,7 +75,7 @@
             this.radioButton_Decode.Size = new System.Drawing.Size(59, 16);
             this.radioButton_Decode.TabIndex = 4;
             this.radioButton_Decode.TabStop = true;
-            this.radioButton_Decode.Text = "複合化";
+            this.radioButton_Decode.Text = "復号化";
             this.radioButton_Decode.UseVisualStyleBackColor = true;
             // 
             // label2
