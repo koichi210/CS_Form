@@ -1,7 +1,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace WeeklyReportFormater.Tests
+namespace WeeklyReportFormatter.Tests
 {
     /// <summary>
     /// Logic（Form1.cs から切り出した、週報テキストの整形ロジック）のテスト。

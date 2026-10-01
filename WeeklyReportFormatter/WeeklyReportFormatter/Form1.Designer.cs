@@ -1,4 +1,4 @@
-﻿namespace WeeklyReportFormater
+﻿namespace WeeklyReportFormatter
 {
     partial class Form1
     {

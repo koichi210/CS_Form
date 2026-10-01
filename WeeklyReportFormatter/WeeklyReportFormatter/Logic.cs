@@ -1,6 +1,6 @@
 using System;
 
-namespace WeeklyReportFormater
+namespace WeeklyReportFormatter
 {
     /// <summary>
     /// もともと Form1.cs の button_ThisWeekChange_Click / button_NextWeekChange_Click /
