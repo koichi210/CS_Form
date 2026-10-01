@@ -1,11 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 
 namespace othello
@@ -143,6 +137,14 @@ namespace othello
 
             gm.Initialize();
             isTimedOut = false;
+            ResetRemainingTime();
+        }
+
+        /// <summary>
+        /// 黒・白の残り時間を持ち時間の設定値に戻す(持ち時間「なし」なら0)。
+        /// </summary>
+        private void ResetRemainingTime()
+        {
             blackTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
             whiteTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
         }
@@ -177,12 +179,12 @@ namespace othello
 
         private void button_ReStart_Click(object sender, EventArgs e)
         {
-            DialogResult DlgResult = MessageBox.Show(
+            DialogResult dialogResult = MessageBox.Show(
                 "初期画面にもどります。よろしいですか？",
                 "Warning",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
-            if (DlgResult == DialogResult.Yes)
+            if (dialogResult == DialogResult.Yes)
             {
                 ResetGame();
                 RedrawBoard();
@@ -399,8 +401,7 @@ namespace othello
 
                 bool ok = Kihu.TryReplay(text, gm, out string errorMessage);
                 isTimedOut = false;
-                blackTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
-                whiteTimeMs = timeLimitSeconds < 0 ? 0 : timeLimitSeconds * 1000;
+                ResetRemainingTime();
 
                 RedrawBoard();
 
@@ -594,7 +595,7 @@ namespace othello
         /// </summary>
         private void UpdateStatusLabel()
         {
-            gm.CountStone(out int blackCount, out int whiteCount);
+            gm.CountStones(out int blackCount, out int whiteCount);
 
             if (isTimedOut)
             {

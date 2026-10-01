@@ -49,7 +49,7 @@ namespace othello.Tests
             bool result = gm.TryPut(0, 0);
 
             Assert.IsFalse(result);
-            Assert.AreEqual(StoneColor.Unknown, gm.Table[0, 0]);
+            Assert.AreEqual(StoneColor.Empty, gm.Table[0, 0]);
             Assert.AreEqual(StoneColor.Black, gm.CurrentTurn); // 手番は変わらない
         }
 
@@ -65,12 +65,12 @@ namespace othello.Tests
         }
 
         [TestMethod]
-        public void CountStoneは初期状態で黒2白2を返す()
+        public void CountStonesは初期状態で黒2白2を返す()
         {
             var gm = new GameMaster();
             gm.Initialize();
 
-            gm.CountStone(out int black, out int white);
+            gm.CountStones(out int black, out int white);
 
             Assert.AreEqual(2, black);
             Assert.AreEqual(2, white);
@@ -124,7 +124,7 @@ namespace othello.Tests
             bool result = gm.Undo();
 
             Assert.IsTrue(result);
-            Assert.AreEqual(StoneColor.Unknown, gm.Table[3, 2]); // 打った石が消える
+            Assert.AreEqual(StoneColor.Empty, gm.Table[3, 2]); // 打った石が消える
             Assert.AreEqual(StoneColor.White, gm.Table[3, 3]); // ひっくり返しも元に戻る
             Assert.AreEqual(StoneColor.Black, gm.CurrentTurn); // 手番も戻る
             Assert.AreEqual(0, gm.TurnCount);

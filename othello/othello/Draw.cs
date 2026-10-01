@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -10,7 +7,6 @@ namespace othello
     class Draw
     {
         private readonly int CellMax = 8;
-        //private readonly int EdgeOffset = 3;
         private readonly int EdgeOffset = 0;
         private readonly Color LineColor = Color.Black;
         private readonly int LineWidth = 2;
@@ -21,19 +17,14 @@ namespace othello
         {
         }
 
-        public Draw(PictureBox pict_box)
+        public Draw(PictureBox pictureBox)
         {
-            SetDrawArea(pict_box);
+            SetDrawArea(pictureBox);
         }
 
-        //~Draw()
-        //{
-        //    DeleteCanvas();
-        //}
-
-        public void SetDrawArea(PictureBox pict_box)
+        public void SetDrawArea(PictureBox pictureBox)
         {
-            pb = pict_box;
+            pb = pictureBox;
             CreateCanvas();
         }
 
@@ -107,18 +98,18 @@ namespace othello
             for (int i = 0; i <= CellMax; i++)
             {
                 int x = EdgeOffset + (width * i / CellMax);
-                Point MovePt = new Point(x, EdgeOffset);
-                Point LinePt = new Point(x, pb.Height - EdgeOffset);
-                WriteLine(MovePt, LinePt, LineColor, LineWidth);
+                Point startPoint = new Point(x, EdgeOffset);
+                Point endPoint = new Point(x, pb.Height - EdgeOffset);
+                DrawLine(startPoint, endPoint, LineColor, LineWidth);
             }
 
             // 横線
             for (int i = 0; i <= CellMax; i++)
             {
                 int y = EdgeOffset + (height * i / CellMax);
-                Point MovePt = new Point(EdgeOffset, y);
-                Point LinePt = new Point(pb.Width - EdgeOffset, y);
-                WriteLine(MovePt, LinePt, LineColor, LineWidth);
+                Point startPoint = new Point(EdgeOffset, y);
+                Point endPoint = new Point(pb.Width - EdgeOffset, y);
+                DrawLine(startPoint, endPoint, LineColor, LineWidth);
             }
         }
 
@@ -198,11 +189,11 @@ namespace othello
         }
 
         /// <summary>
-        /// マス目座標(cellX, cellY)に石を描画する。colorがUnknownなら何もしない。
+        /// マス目座標(cellX, cellY)に石を描画する。colorがEmptyなら何もしない。
         /// </summary>
         public void DrawStone(int cellX, int cellY, StoneColor color)
         {
-            if (color == StoneColor.Unknown || pb.Image == null)
+            if (color == StoneColor.Empty || pb.Image == null)
             {
                 return;
             }
@@ -227,24 +218,24 @@ namespace othello
             pb.Invalidate();
         }
 
-        public void FillBackground(Brush color)
+        public void FillBackground(Brush brush)
         {
             Rectangle rect = new Rectangle(0, 0, pb.Width, pb.Height);
 
             using (Graphics g = Graphics.FromImage(GetCanvas()))
             {
-                g.FillRectangle(color, rect);
+                g.FillRectangle(brush, rect);
             }
 
             pb.Invalidate();
         }
 
-        public void WriteLine(Point MovePt, Point LinePt, Color clr, int LineWidth)
+        public void DrawLine(Point startPoint, Point endPoint, Color color, int width)
         {
             using (Graphics g = Graphics.FromImage(GetCanvas()))
-            using (Pen pen = new Pen(clr, LineWidth))
+            using (Pen pen = new Pen(color, width))
             {
-                g.DrawLine(pen, MovePt, LinePt);
+                g.DrawLine(pen, startPoint, endPoint);
             }
 
             pb.Invalidate();

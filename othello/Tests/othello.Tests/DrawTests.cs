@@ -66,7 +66,7 @@ namespace othello.Tests
         }
 
         [TestMethod]
-        public void WriteLineは指定した色で線を引く()
+        public void DrawLineは指定した色で線を引く()
         {
             using (var pb = CreatePictureBox())
             {
@@ -74,7 +74,7 @@ namespace othello.Tests
                 draw.SetDrawArea(pb);
                 draw.FillBackground(Brushes.White);
 
-                draw.WriteLine(new Point(0, 40), new Point(80, 40), Color.Blue, 2);
+                draw.DrawLine(new Point(0, 40), new Point(80, 40), Color.Blue, 2);
 
                 using (var bmp = new Bitmap(pb.Image))
                 {

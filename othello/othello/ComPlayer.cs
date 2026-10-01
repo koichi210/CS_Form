@@ -174,7 +174,7 @@ namespace othello
                         continue;
                     }
 
-                    if (gm.Table[ny, nx] == StoneColor.Unknown)
+                    if (gm.Table[ny, nx] == StoneColor.Empty)
                     {
                         count++;
                     }
@@ -196,7 +196,7 @@ namespace othello
             Point? corner = null;
             Point? star = null;
             Point? nextStar = null;
-            Point? stealCorner = null;
+            Point? giveCorner = null;
 
             foreach (Point p in sortedCandidates)
             {
@@ -209,9 +209,9 @@ namespace othello
                 }
                 else if (WouldLetEnemyTakeCorner(gm, color, p))
                 {
-                    if (stealCorner == null)
+                    if (giveCorner == null)
                     {
-                        stealCorner = p;
+                        giveCorner = p;
                     }
                 }
                 else if (IsStar(p))
@@ -221,7 +221,7 @@ namespace othello
                         star = p;
                     }
                 }
-                else if (IsStarNear(p))
+                else if (IsNextStar(p))
                 {
                     if (nextStar == null)
                     {
@@ -253,9 +253,9 @@ namespace othello
             {
                 return nextStar.Value;
             }
-            if (stealCorner != null)
+            if (giveCorner != null)
             {
-                return stealCorner.Value;
+                return giveCorner.Value;
             }
 
             // 候補が1つ以上あれば必ずどれかに分類されるので、通常ここには来ない
@@ -274,12 +274,12 @@ namespace othello
             return (p.X == 1 || p.X == max - 1) && (p.Y == 1 || p.Y == max - 1);
         }
 
-        private static bool IsStarNear(Point p)
+        private static bool IsNextStar(Point p)
         {
             int max = GameMaster.BoardSize - 1;
-            bool edgeXcornerY = (p.X == 0 || p.X == max) && (p.Y == 1 || p.Y == max - 1);
-            bool cornerXedgeY = (p.X == 1 || p.X == max - 1) && (p.Y == 0 || p.Y == max);
-            return edgeXcornerY || cornerXedgeY;
+            bool onLeftOrRightEdge = (p.X == 0 || p.X == max) && (p.Y == 1 || p.Y == max - 1);
+            bool onTopOrBottomEdge = (p.X == 1 || p.X == max - 1) && (p.Y == 0 || p.Y == max);
+            return onLeftOrRightEdge || onTopOrBottomEdge;
         }
 
         /// <summary>
@@ -294,8 +294,7 @@ namespace othello
                 return false;
             }
 
-            StoneColor enemy = color == StoneColor.Black ? StoneColor.White : StoneColor.Black;
-            bool[,] enemyMoves = sim.GetValidMoves(enemy);
+            bool[,] enemyMoves = sim.GetValidMoves(GameMaster.GetEnemyColor(color));
             int max = GameMaster.BoardSize - 1;
 
             return enemyMoves[0, 0] || enemyMoves[0, max] || enemyMoves[max, 0] || enemyMoves[max, max];
