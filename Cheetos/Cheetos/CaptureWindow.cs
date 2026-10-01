@@ -79,7 +79,7 @@ namespace Cheetos
                         cw.Initialize();
 
                         // マウス移動後にもとの位置へ戻すか
-                        cw.RestoreMousePosition(false);
+                        cw.SetRestoreMousePosition(false);
 
                         // 実行前のSleep
                         cw.SetSleepTimeMsec(cw_TextBox_Sleep.Text);

@@ -29,7 +29,7 @@ namespace CaptureWindow
 
             // 以前のMouseProc()と同じ「指定座標をクリックしてから元の位置に戻す」動作にする設定
             captWindow.SetMouseMove(true);
-            captWindow.RestoreMousePosition(true);
+            captWindow.SetRestoreMousePosition(true);
             // CURRENT_SCREENキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
             captWindow.TargetWindow = this;
             captWindow.SetCaptureCase(true);

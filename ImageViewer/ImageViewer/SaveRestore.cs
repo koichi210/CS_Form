@@ -5,11 +5,11 @@ namespace ImageViewer
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(ImageViewer parent)
+        public void RegisterItem(ImageViewer parent)
         {
             // コントロールを列挙
-            RegistCtrl("Parent", "textBox_FolderPath", parent.textBox_FolderPath);
-            RegistCtrl("Parent", "textBox_Extension", parent.textBox_Extension);
+            RegisterCtrl("Parent", "textBox_FolderPath", parent.textBox_FolderPath);
+            RegisterCtrl("Parent", "textBox_Extension", parent.textBox_Extension);
         }
     }
 }

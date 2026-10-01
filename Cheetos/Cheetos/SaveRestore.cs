@@ -5,52 +5,52 @@ namespace Cheetos
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(Cheetos parent)
+        public void RegisterItem(Cheetos parent)
         {
             SetElement("Setting");
             // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
             // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
             // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
 
-            RegistCtrl("CaptureWindow", "cw_TextBox_SavePath", parent.cw_TextBox_SavePath);
-            RegistCtrl("CaptureWindow", "cw_TextBox_SaveFilePrefix", parent.cw_TextBox_SaveFilePrefix, LegacyAttrValue: "cw_TextBox_SaveFilePrifix");
-            RegistCtrl("CaptureWindow", "cw_checkBox_AddTimeStamp", parent.cw_checkBox_AddTimeStamp, LegacyAttrValue: "cw_checkBox_AddTimeStump");
-            RegistCtrl("CaptureWindow", "cw_Radio_FullScreen", parent.cw_Radio_FullScreen,"True");
-            RegistCtrl("CaptureWindow", "cw_Radio_CurrentScreen", parent.cw_Radio_CurrentScreen);
-            RegistCtrl("CaptureWindow", "cw_Radio_CurrentWindow", parent.cw_Radio_CurrentWindow);
-            RegistCtrl("CaptureWindow", "cw_TextBox_Sleep", parent.cw_TextBox_Sleep,"2000");
-            RegistCtrl("CaptureWindow", "cw_TextBox_Loop", parent.cw_TextBox_Loop,"2");
-            RegistCtrl("DataGrid", "Cell", "RowCount", parent.cw_dataGridView);
+            RegisterCtrl("CaptureWindow", "cw_TextBox_SavePath", parent.cw_TextBox_SavePath);
+            RegisterCtrl("CaptureWindow", "cw_TextBox_SaveFilePrefix", parent.cw_TextBox_SaveFilePrefix, legacyAttrValue: "cw_TextBox_SaveFilePrifix");
+            RegisterCtrl("CaptureWindow", "cw_checkBox_AddTimeStamp", parent.cw_checkBox_AddTimeStamp, legacyAttrValue: "cw_checkBox_AddTimeStump");
+            RegisterCtrl("CaptureWindow", "cw_Radio_FullScreen", parent.cw_Radio_FullScreen,"True");
+            RegisterCtrl("CaptureWindow", "cw_Radio_CurrentScreen", parent.cw_Radio_CurrentScreen);
+            RegisterCtrl("CaptureWindow", "cw_Radio_CurrentWindow", parent.cw_Radio_CurrentWindow);
+            RegisterCtrl("CaptureWindow", "cw_TextBox_Sleep", parent.cw_TextBox_Sleep,"2000");
+            RegisterCtrl("CaptureWindow", "cw_TextBox_Loop", parent.cw_TextBox_Loop,"2");
+            RegisterCtrl("DataGrid", "Cell", "RowCount", parent.cw_dataGridView);
 
-            RegistCtrl("PictTrim", "pt_SourceFolderPath", parent.pt_SourceFolderPath);
-            RegistCtrl("PictTrim", "pt_BaseX", parent.pt_BaseX);
-            RegistCtrl("PictTrim", "pt_BaseY", parent.pt_BaseY);
-            RegistCtrl("PictTrim", "pt_Radio_SelectPointOfEnd", parent.pt_Radio_SelectPointOfEnd);
-            RegistCtrl("PictTrim", "pt_Radio_SelectSizeOfEnd", parent.pt_Radio_SelectSizeOfEnd);
-            RegistCtrl("PictTrim", "pt_TargetX", parent.pt_TargetX);
-            RegistCtrl("PictTrim", "pt_TargetY", parent.pt_TargetY);
+            RegisterCtrl("PictTrim", "pt_SourceFolderPath", parent.pt_SourceFolderPath);
+            RegisterCtrl("PictTrim", "pt_BaseX", parent.pt_BaseX);
+            RegisterCtrl("PictTrim", "pt_BaseY", parent.pt_BaseY);
+            RegisterCtrl("PictTrim", "pt_Radio_SelectPointOfEnd", parent.pt_Radio_SelectPointOfEnd);
+            RegisterCtrl("PictTrim", "pt_Radio_SelectSizeOfEnd", parent.pt_Radio_SelectSizeOfEnd);
+            RegisterCtrl("PictTrim", "pt_TargetX", parent.pt_TargetX);
+            RegisterCtrl("PictTrim", "pt_TargetY", parent.pt_TargetY);
 
-            RegistCtrl("Rotation", "pr_SourceFolderPath", parent.pr_SourceFolderPath);
-            RegistCtrl("Rotation", "pr_BaseX", parent.pr_BaseX);
-            RegistCtrl("Rotation", "pr_BaseY", parent.pr_BaseY);
-            RegistCtrl("Rotation", "pr_Angle", parent.pr_Angle);
+            RegisterCtrl("Rotation", "pr_SourceFolderPath", parent.pr_SourceFolderPath);
+            RegisterCtrl("Rotation", "pr_BaseX", parent.pr_BaseX);
+            RegisterCtrl("Rotation", "pr_BaseY", parent.pr_BaseY);
+            RegisterCtrl("Rotation", "pr_Angle", parent.pr_Angle);
 
-            RegistCtrl("DistOrient", "do_SourceFolderPath", parent.do_SourceFolderPath);
-            RegistCtrl("DistOrient", "do_DestPortFolderPath", parent.do_DestPortFolderPath);
-            RegistCtrl("DistOrient", "do_DestLandFolderPath", parent.do_DestLandFolderPath);
-            RegistCtrl("DistOrient", "do_TargetFileName", parent.do_TargetFileName);
-            RegistCtrl("DistOrient", "do_WhiteLength", parent.do_WhiteLength);
-            RegistCtrl("DistOrient", "do_WhiteCoef", parent.do_WhiteCoef, "30");
-            RegistCtrl("DistOrient", "do_SampleFilePath", parent.do_SampleFilePath);
+            RegisterCtrl("DistOrient", "do_SourceFolderPath", parent.do_SourceFolderPath);
+            RegisterCtrl("DistOrient", "do_DestPortFolderPath", parent.do_DestPortFolderPath);
+            RegisterCtrl("DistOrient", "do_DestLandFolderPath", parent.do_DestLandFolderPath);
+            RegisterCtrl("DistOrient", "do_TargetFileName", parent.do_TargetFileName);
+            RegisterCtrl("DistOrient", "do_WhiteLength", parent.do_WhiteLength);
+            RegisterCtrl("DistOrient", "do_WhiteCoef", parent.do_WhiteCoef, "30");
+            RegisterCtrl("DistOrient", "do_SampleFilePath", parent.do_SampleFilePath);
 
-            RegistCtrl("PictMerge", "pm_SourceFolderPath", parent.pm_SourceFolderPath);
-            RegistCtrl("PictMerge", "pm_SourceFile1Prefix", parent.pm_SourceFile1Prefix);
-            RegistCtrl("PictMerge", "pm_SourceFile2Prefix", parent.pm_SourceFile2Prefix);
-            RegistCtrl("PictMerge", "pm_TrimingHeight", parent.pm_TrimingHeight);
+            RegisterCtrl("PictMerge", "pm_SourceFolderPath", parent.pm_SourceFolderPath);
+            RegisterCtrl("PictMerge", "pm_SourceFile1Prefix", parent.pm_SourceFile1Prefix);
+            RegisterCtrl("PictMerge", "pm_SourceFile2Prefix", parent.pm_SourceFile2Prefix);
+            RegisterCtrl("PictMerge", "pm_TrimingHeight", parent.pm_TrimingHeight);
 
-            RegistCtrl("FileCollect", "fc_SourceFolderPath", parent.fc_SourceFolderPath);
-            RegistCtrl("FileCollect", "fc_DestFolderPath", parent.fc_DestFolderPath);
-            RegistCtrl("FileCollect", "fc_TargetFileName", parent.fc_TargetFileName);
+            RegisterCtrl("FileCollect", "fc_SourceFolderPath", parent.fc_SourceFolderPath);
+            RegisterCtrl("FileCollect", "fc_DestFolderPath", parent.fc_DestFolderPath);
+            RegisterCtrl("FileCollect", "fc_TargetFileName", parent.fc_TargetFileName);
         }
 
         public bool LoadProc(String loadFileName, Cheetos parent)

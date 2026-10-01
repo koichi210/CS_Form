@@ -46,7 +46,7 @@ namespace FileArranger.Tests
         private static SaveRestore NewSaveRestore(global::FileArranger.FileArranger form)
         {
             var sr = new SaveRestore();
-            sr.RegistLoadItem(form);
+            sr.RegisterLoadItem(form);
             return sr;
         }
 
@@ -218,7 +218,7 @@ namespace FileArranger.Tests
                 writer.ReferenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
 
                 var sr = new SaveRestore();
-                sr.RegistLoadItem(writer);
+                sr.RegisterLoadItem(writer);
 
                 string path = PathFor("reference");
                 Assert.IsTrue(sr.SaveSetting(path, writer));
@@ -226,7 +226,7 @@ namespace FileArranger.Tests
                 using (global::FileArranger.FileArranger reader = NewForm())
                 {
                     var readerSr = new SaveRestore();
-                    readerSr.RegistLoadItem(reader);
+                    readerSr.RegisterLoadItem(reader);
 
                     Assert.IsTrue(readerSr.LoadProc(path, reader));
                     CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.ReferenceCandidateFolders);
@@ -242,7 +242,7 @@ namespace FileArranger.Tests
                 writer.ReferenceCandidateFolders = new string[0];
                 string path = PathFor("clearlist");
                 var sr = new SaveRestore();
-                sr.RegistLoadItem(writer);
+                sr.RegisterLoadItem(writer);
                 sr.SaveSetting(path, writer);
 
                 using (global::FileArranger.FileArranger reader = NewForm())
@@ -252,7 +252,7 @@ namespace FileArranger.Tests
                     reader.pf_listView_Target.Items.Add("残っててはいけない項目");
 
                     var readerSr = new SaveRestore();
-                    readerSr.RegistLoadItem(reader);
+                    readerSr.RegisterLoadItem(reader);
                     readerSr.LoadProc(path, reader);
 
                     Assert.AreEqual(0, reader.sf_listBox_Target.Items.Count);
@@ -285,7 +285,7 @@ namespace FileArranger.Tests
                 writer.ReferenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
 
                 SaveRestore sr = new SaveRestore();
-                sr.RegistLoadItem(writer);
+                sr.RegisterLoadItem(writer);
 
                 string path = Path.Combine(tempDirectory, "common.json");
                 Assert.IsTrue(sr.SaveJsonFile(path, writer), "JSON保存に成功するはず");
@@ -293,7 +293,7 @@ namespace FileArranger.Tests
                 using (global::FileArranger.FileArranger reader = NewForm())
                 {
                     SaveRestore readerSr = new SaveRestore();
-                    readerSr.RegistLoadItem(reader);
+                    readerSr.RegisterLoadItem(reader);
 
                     Assert.IsTrue(readerSr.LoadJsonFile(path, reader), "JSON読み込みに成功するはず");
 
@@ -311,7 +311,7 @@ namespace FileArranger.Tests
             using (global::FileArranger.FileArranger form = NewForm())
             {
                 SaveRestore sr = new SaveRestore();
-                sr.RegistLoadItem(form);
+                sr.RegisterLoadItem(form);
                 Assert.IsFalse(sr.LoadJsonFile(Path.Combine(tempDirectory, "nothing.json"), form));
             }
         }

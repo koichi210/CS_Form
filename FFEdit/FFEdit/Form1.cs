@@ -53,7 +53,7 @@ namespace FFEdit
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.FFEdit);
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
             JsonSaveRestore.LoadWithMigration(sr,
                 Path.Combine(userDataFolder, SettingFileName),
                 Path.Combine(userDataFolder, LegacySettingFileName),

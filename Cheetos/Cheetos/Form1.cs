@@ -78,12 +78,12 @@ namespace Cheetos
             cw.TargetWindow = this;
 
             // デバッグログに時間を表示
-            debugLog.SetWriteTime(true);
+            debugLog.UseTimeInLog = true;
 
             // DataGridViewの初期設定
             InitializeDataGridView();
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
 
             // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
             // ([[_Common/JsonSaveRestore.cs]])
@@ -254,8 +254,8 @@ namespace Cheetos
 
         private void label_DebugMode_DoubleClick(object sender, EventArgs e)
         {
-            debugLog.SetDebugMode(!debugLog.GetDebugMode());
-            MessageBox.Show("DebugMode=" + debugLog.GetDebugMode().ToString());
+            debugLog.IsDebugMode = !debugLog.IsDebugMode;
+            MessageBox.Show("DebugMode=" + debugLog.IsDebugMode.ToString());
         }
 
         public void SetStartTime()

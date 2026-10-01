@@ -8,7 +8,7 @@ namespace PerforceWrapper.Tests
     /// PerforceWrapper.SaveRestore（StcSaveRestore を継承した設定保存クラス）のテスト。
     ///
     /// Cheetos / FFEdit と同じ方式で、実際の Form1 を生成して確認する。ここでは
-    /// これまで扱っていなかった RegistSecureCtrl（パスワードの暗号化保存）も対象になる。
+    /// これまで扱っていなかった RegisterSecureCtrl（パスワードの暗号化保存）も対象になる。
     /// </summary>
     [TestClass]
     public class SaveRestoreTests
@@ -43,7 +43,7 @@ namespace PerforceWrapper.Tests
         private static SaveRestore NewSaveRestore(Form1 form)
         {
             var sr = new SaveRestore();
-            sr.RegistItem(form);
+            sr.RegisterItem(form);
             return sr;
         }
 
@@ -198,7 +198,7 @@ namespace PerforceWrapper.Tests
             using (Form1 form = NewForm())
             {
                 var sr = new SaveRestore();
-                sr.RegistItem(form);
+                sr.RegisterItem(form);
                 Assert.IsFalse(sr.SaveSetting("", form));
             }
         }

@@ -49,14 +49,14 @@ namespace ImageViewer.Tests
                 writer.textBox_Extension.Text = "*.jpg";
 
                 var sr = new SaveRestore();
-                sr.RegistItem(writer);
+                sr.RegisterItem(writer);
                 string path = Path.Combine(tempDirectory, "setting.xml");
                 Assert.IsTrue(sr.SaveXmlFile(path));
 
                 using (global::ImageViewer.ImageViewer reader = NewForm())
                 {
                     var readerSr = new SaveRestore();
-                    readerSr.RegistItem(reader);
+                    readerSr.RegisterItem(reader);
                     Assert.IsTrue(readerSr.LoadXmlFile(path));
 
                     Assert.AreEqual(@"D:\photos", reader.textBox_FolderPath.Text);

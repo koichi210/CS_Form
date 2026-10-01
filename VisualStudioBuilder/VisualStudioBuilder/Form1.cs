@@ -76,7 +76,7 @@ namespace VisualStudioBuilder
             // DataGridViewの初期設定
             InitializeDataGridView();
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, DefaultSettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,

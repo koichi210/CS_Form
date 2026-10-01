@@ -51,14 +51,14 @@ namespace Mailer.Tests
                 writer.textBox_MailBody.Text = "本文です";
 
                 var sr = new SaveRestore();
-                sr.RegistItem(writer);
+                sr.RegisterItem(writer);
                 string path = Path.Combine(tempDirectory, "setting.xml");
                 Assert.IsTrue(sr.SaveSetting(path));
 
                 using (Form1 reader = NewForm())
                 {
                     var readerSr = new SaveRestore();
-                    readerSr.RegistItem(reader);
+                    readerSr.RegisterItem(reader);
                     Assert.IsTrue(readerSr.LoadProc(path));
 
                     Assert.AreEqual(@"C:\chrome.exe", reader.textBox_BrowserPath.Text);
@@ -77,7 +77,7 @@ namespace Mailer.Tests
             using (Form1 form = NewForm())
             {
                 var sr = new SaveRestore();
-                sr.RegistItem(form);
+                sr.RegisterItem(form);
 
                 Assert.IsFalse(sr.LoadProc(Path.Combine(tempDirectory, "nothing.xml")));
             }

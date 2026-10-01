@@ -7,15 +7,15 @@ namespace Cheetos.Tests
     /// <summary>
     /// Cheetos.SaveRestore（StcSaveRestore を継承した設定保存クラス）のテスト。
     ///
-    /// SaveRestore.RegistItem は実際の Cheetos フォームの 31 個のコントロールを
+    /// SaveRestore.RegisterItem は実際の Cheetos フォームの 31 個のコントロールを
     /// 決め打ちの属性名で登録する。ここでは Cheetos フォームを実際に生成して、
     /// 「保存して読み直すと値が戻る」という結果で確認する。
-    /// 個々の項目をモックで代替せず実物の Form を使うのは、RegistItem 内の
+    /// 個々の項目をモックで代替せず実物の Form を使うのは、RegisterItem 内の
     /// タイプミスや属性名の重複（コピペ跡が残りやすい箇所）を検出したいため。
     ///
-    /// Cheetos のコンストラクタ自身も内部で SaveRestore を1つ持って RegistItem / LoadProc を
+    /// Cheetos のコンストラクタ自身も内部で SaveRestore を1つ持って RegisterItem / LoadProc を
     /// 呼んでいるが、それとは別に、テストごとに新しい SaveRestore を作って同じフォームへ
-    /// RegistItem しなおしている。StcSaveRestore.SaveXmlFile / LoadXmlFile は public なので
+    /// RegisterItem しなおしている。StcSaveRestore.SaveXmlFile / LoadXmlFile は public なので
     /// Cheetos クラス自体には手を加えていない。
     /// </summary>
     [TestClass]
@@ -56,7 +56,7 @@ namespace Cheetos.Tests
         private static SaveRestore NewSaveRestore(Cheetos form)
         {
             var sr = new SaveRestore();
-            sr.RegistItem(form);
+            sr.RegisterItem(form);
             return sr;
         }
 
@@ -218,10 +218,10 @@ namespace Cheetos.Tests
         {
             using (Cheetos writer = NewForm())
             {
-                // 注意: RegistCtrl(DataGridView版) は登録した瞬間に RowCount を 1 へ強制する
-                // （StandardTemplateClass.cs の RegistCtrl 実装）。実運用では RegistItem は
+                // 注意: RegisterCtrl(DataGridView版) は登録した瞬間に RowCount を 1 へ強制する
+                // （StandardTemplateClass.cs の RegisterCtrl 実装）。実運用では RegisterItem は
                 // フォームのコンストラクタで一度だけ呼ばれ、そのあとユーザーが行数を増やすので
-                // 問題にならない。テストでも RegistItem のあとに行数を設定する。
+                // 問題にならない。テストでも RegisterItem のあとに行数を設定する。
                 SaveRestore sr = NewSaveRestore(writer);
                 writer.cw_dataGridView.RowCount = 3;
 
@@ -337,7 +337,7 @@ namespace Cheetos.Tests
                 using (Cheetos reader = NewForm())
                 {
                     var sr = new SaveRestore();
-                    sr.RegistItem(reader);
+                    sr.RegisterItem(reader);
                     reader.do_WhiteCoef.Text = "1";
 
                     Assert.IsTrue(sr.LoadProc(path, reader));

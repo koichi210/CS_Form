@@ -188,8 +188,8 @@ namespace EventRecorder
 
             this.FormClosing += Form1_FormClosing;
 
-            sr.RegistItem(this);
-            playbackLoader.RegistItemForPlayback(this);
+            sr.RegisterItem(this);
+            playbackLoader.RegisterItemForPlayback(this);
 
             // userDataFolder(exe直下ではない)配下のプロファイル一覧をコンボボックスに表示する。
             // 「デフォルトで読み込むプロファイル」という特別な予約ファイル名は用意しておらず、

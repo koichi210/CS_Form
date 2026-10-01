@@ -46,7 +46,7 @@ namespace TrimFileData
 
             InitializeCommonSettings(Properties.Resources.TrimFileData);
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,

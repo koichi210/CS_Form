@@ -53,7 +53,7 @@ namespace FileArranger
             SetupRenameListViewColumns();
             SetupPartitionListViewColumns();
 
-            sr.RegistLoadItem(this);
+            sr.RegisterLoadItem(this);
 
             // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
             // ([[_Common/JsonSaveRestore.cs]])

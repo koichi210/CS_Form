@@ -8,45 +8,45 @@ namespace FileArranger
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistLoadItem(FileArranger parent)
+        public void RegisterLoadItem(FileArranger parent)
         {
             SetElement("Setting");
             // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
             // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
             // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
 
-            RegistCtrl("Common", "cmn_textBox_Reference", parent.cmn_textBox_Reference);
-            RegistCtrl("Common", "cmn_textBox_AddList", parent.cmn_textBox_AddList);
-            RegistCtrl("Common", "cmn_textBox_AddListSuffix", parent.cmn_textBox_AddListSuffix);
+            RegisterCtrl("Common", "cmn_textBox_Reference", parent.cmn_textBox_Reference);
+            RegisterCtrl("Common", "cmn_textBox_AddList", parent.cmn_textBox_AddList);
+            RegisterCtrl("Common", "cmn_textBox_AddListSuffix", parent.cmn_textBox_AddListSuffix);
             
-            RegistCtrl("MoveDir", "md_textBox_SourceDir", parent.md_textBox_SourceDir);
-            RegistCtrlList("MoveDir", "md_comboBox_TargetDir", parent.md_comboBox_TargetDir);
-            RegistCtrl("MoveDir", "md_comboBox_TargetDir", parent.md_comboBox_TargetDir);
+            RegisterCtrl("MoveDir", "md_textBox_SourceDir", parent.md_textBox_SourceDir);
+            RegisterCtrlList("MoveDir", "md_comboBox_TargetDir", parent.md_comboBox_TargetDir);
+            RegisterCtrl("MoveDir", "md_comboBox_TargetDir", parent.md_comboBox_TargetDir);
 
            
-            RegistCtrlList("MoveDir", "rd_comboBox_RenameDir", parent.rd_comboBox_RenameDir);
-            RegistCtrl("MoveDir", "rd_comboBox_RenameDir", parent.rd_comboBox_RenameDir);
-            RegistCtrl("RenameDir", "rd_textBox_ExistItemDir", parent.rd_textBox_ExistItemDir);
-            RegistCtrl("RenameDir", "rd_comboBox_MergeWord", parent.rd_comboBox_MergeWord);
-            RegistCtrl("RenameDir", "rd_checkBox_FileOpen", parent.rd_checkBox_FileOpen);
-            RegistCtrl("RenameDir", "rd_textBox_SplitWord3", parent.rd_textBox_SplitWord3);
-            RegistCtrl("RenameDir", "rd_textBox_AddTitlePreWord", parent.rd_textBox_AddTitlePreWord);
-            RegistCtrl("RenameDir", "rd_textBox_SearchTitleLine", parent.rd_textBox_SearchTitleLine);
-            RegistCtrl("RenameDir", "rd_textBox_SearchTitleLength", parent.rd_textBox_SearchTitleLength);
-            RegistCtrlList("RenameDir", "rd_comboBox_AddTitlePostWord", parent.rd_comboBox_AddTitlePostWord);
-            RegistCtrl("RenameDir", "rd_comboBox_AddTitlePostWord", parent.rd_comboBox_AddTitlePostWord);
+            RegisterCtrlList("MoveDir", "rd_comboBox_RenameDir", parent.rd_comboBox_RenameDir);
+            RegisterCtrl("MoveDir", "rd_comboBox_RenameDir", parent.rd_comboBox_RenameDir);
+            RegisterCtrl("RenameDir", "rd_textBox_ExistItemDir", parent.rd_textBox_ExistItemDir);
+            RegisterCtrl("RenameDir", "rd_comboBox_MergeWord", parent.rd_comboBox_MergeWord);
+            RegisterCtrl("RenameDir", "rd_checkBox_FileOpen", parent.rd_checkBox_FileOpen);
+            RegisterCtrl("RenameDir", "rd_textBox_SplitWord3", parent.rd_textBox_SplitWord3);
+            RegisterCtrl("RenameDir", "rd_textBox_AddTitlePreWord", parent.rd_textBox_AddTitlePreWord);
+            RegisterCtrl("RenameDir", "rd_textBox_SearchTitleLine", parent.rd_textBox_SearchTitleLine);
+            RegisterCtrl("RenameDir", "rd_textBox_SearchTitleLength", parent.rd_textBox_SearchTitleLength);
+            RegisterCtrlList("RenameDir", "rd_comboBox_AddTitlePostWord", parent.rd_comboBox_AddTitlePostWord);
+            RegisterCtrl("RenameDir", "rd_comboBox_AddTitlePostWord", parent.rd_comboBox_AddTitlePostWord);
 
-            RegistCtrl("SortFileName", "sf_textBox_TargetFile", parent.sf_textBox_TargetFile);
+            RegisterCtrl("SortFileName", "sf_textBox_TargetFile", parent.sf_textBox_TargetFile);
 
-            RegistCtrl("MoveFile", "mf_textBox_SourceDir", parent.mf_textBox_SourceDir);
-            RegistCtrl("MoveFile", "mf_textBox_TargetDir", parent.mf_textBox_TargetDir);
+            RegisterCtrl("MoveFile", "mf_textBox_SourceDir", parent.mf_textBox_SourceDir);
+            RegisterCtrl("MoveFile", "mf_textBox_TargetDir", parent.mf_textBox_TargetDir);
 
-            RegistCtrl("PartitionFile", "pf_textBox_TargetFile", parent.pf_textBox_TargetFile);
-            RegistCtrl("PartitionFile", "pf_textBox_ReferenceFile", parent.pf_textBox_ReferenceFile, LegacyAttrValue: "pf_textBox_RefrenceFile");
-            RegistCtrl("PartitionFile", "pf_textBox_TargetSeparator", parent.pf_textBox_TargetSeparator, LegacyAttrValue: "pf_textBox_TargetSeprator");
-            RegistCtrl("PartitionFile", "pf_textBox_SearchTitleLine", parent.pf_textBox_SearchTitleLine);
-            RegistCtrl("PartitionFile", "pf_textBox_SearchTitleLength", parent.pf_textBox_SearchTitleLength);
-            RegistCtrl("PartitionFile", "pf_checkBox_CreateNewDir", parent.pf_checkBox_CreateNewDir);
+            RegisterCtrl("PartitionFile", "pf_textBox_TargetFile", parent.pf_textBox_TargetFile);
+            RegisterCtrl("PartitionFile", "pf_textBox_ReferenceFile", parent.pf_textBox_ReferenceFile, legacyAttrValue: "pf_textBox_RefrenceFile");
+            RegisterCtrl("PartitionFile", "pf_textBox_TargetSeparator", parent.pf_textBox_TargetSeparator, legacyAttrValue: "pf_textBox_TargetSeprator");
+            RegisterCtrl("PartitionFile", "pf_textBox_SearchTitleLine", parent.pf_textBox_SearchTitleLine);
+            RegisterCtrl("PartitionFile", "pf_textBox_SearchTitleLength", parent.pf_textBox_SearchTitleLength);
+            RegisterCtrl("PartitionFile", "pf_checkBox_CreateNewDir", parent.pf_checkBox_CreateNewDir);
         }
 
         public Boolean LoadProc(String loadFileName, FileArranger parent)
@@ -75,9 +75,9 @@ namespace FileArranger
         private static void ModifyComboBoxLists(FileArranger parent)
         {
             StcUtils util = new StcUtils();         // ツール系
-            util.ModifyCombBoxList(parent.md_comboBox_TargetDir);
-            util.ModifyCombBoxList(parent.rd_comboBox_RenameDir);
-            util.ModifyCombBoxList(parent.rd_comboBox_AddTitlePostWord);
+            util.AddComboBoxTextToItems(parent.md_comboBox_TargetDir);
+            util.AddComboBoxTextToItems(parent.rd_comboBox_RenameDir);
+            util.AddComboBoxTextToItems(parent.rd_comboBox_AddTitlePostWord);
         }
 
         // 読み込み後の後処理(XML/JSON共通)。コンボボックスを更新し、リストをリセットする

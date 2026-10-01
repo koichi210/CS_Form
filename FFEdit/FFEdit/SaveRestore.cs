@@ -5,15 +5,15 @@ namespace FFEdit
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(Form1 parent)
+        public void RegisterItem(Form1 parent)
         {
             SetElement("Setting");
 
             // コントロールを列挙
-            RegistCtrlList("comboBox_TargetDir", "Value_", parent.comboBox_TargetDir);
-            RegistCtrlList("comboBox_String1", "Value_", parent.comboBox_String1);
-            RegistCtrlList("comboBox_String2", "Value_", parent.comboBox_String2);
-            RegistCtrl("textBox_Target_Extension", "Value", parent.textBox_Target_Extension, "*");
+            RegisterCtrlList("comboBox_TargetDir", "Value_", parent.comboBox_TargetDir);
+            RegisterCtrlList("comboBox_String1", "Value_", parent.comboBox_String1);
+            RegisterCtrlList("comboBox_String2", "Value_", parent.comboBox_String2);
+            RegisterCtrl("textBox_Target_Extension", "Value", parent.textBox_Target_Extension, "*");
         }
 
         public bool LoadProc(String loadFileName, Form1 parent)
@@ -45,9 +45,9 @@ namespace FFEdit
         public void UpdateComboHistory(Form1 parent)
         {
             StcUtils util = new StcUtils();
-            util.ModifyCombBoxList(parent.comboBox_TargetDir);
-            util.ModifyCombBoxList(parent.comboBox_String1);
-            util.ModifyCombBoxList(parent.comboBox_String2);
+            util.AddComboBoxTextToItems(parent.comboBox_TargetDir);
+            util.AddComboBoxTextToItems(parent.comboBox_String1);
+            util.AddComboBoxTextToItems(parent.comboBox_String2);
         }
     }
 }

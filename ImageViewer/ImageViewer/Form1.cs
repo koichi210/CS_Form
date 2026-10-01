@@ -54,7 +54,7 @@ namespace ImageViewer
 
             InitializeCommonSettings(Properties.Resources.ImageViewer);
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, DefaultSaveName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,

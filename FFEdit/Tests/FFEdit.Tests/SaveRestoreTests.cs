@@ -7,7 +7,7 @@ namespace FFEdit.Tests
     /// <summary>
     /// FFEdit.SaveRestore（StcSaveRestore を継承した設定保存クラス）のテスト。
     ///
-    /// Cheetos と同じ方式で、実際の Form1 を生成して確認する。FFEdit の RegistItem は
+    /// Cheetos と同じ方式で、実際の Form1 を生成して確認する。FFEdit の RegisterItem は
     /// コンボボックスの入力履歴3つとテキストボックス1つだけとシンプル。
     /// </summary>
     [TestClass]
@@ -43,7 +43,7 @@ namespace FFEdit.Tests
         private static SaveRestore NewSaveRestore(Form1 form)
         {
             var sr = new SaveRestore();
-            sr.RegistItem(form);
+            sr.RegisterItem(form);
             return sr;
         }
 
@@ -131,7 +131,7 @@ namespace FFEdit.Tests
         {
             using (Form1 writer = NewForm())
             {
-                // RegistCtrl の既定値は "*"。何も設定せず保存・読み込みしても既定値のまま
+                // RegisterCtrl の既定値は "*"。何も設定せず保存・読み込みしても既定値のまま
                 string path = PathFor("default_ext");
                 NewSaveRestore(writer).SaveXmlFile(path);
 
@@ -158,7 +158,7 @@ namespace FFEdit.Tests
         [TestMethod]
         public void SaveSettingは今入力中の文字列を履歴に追加してから重複を整理する()
         {
-            // ModifyCombBoxList は Items を無条件に整理するわけではない。
+            // AddComboBoxTextToItems は Items を無条件に整理するわけではない。
             // ComboCtrl.Text（今まさに入力/選択されている値）が空ならそのまま何もせず戻り、
             // 空でなければ Text を Items に追加したうえで重複を取り除く、という動き。
             // つまり「既存の Items に重複があっても、Text が空なら整理されない」。
@@ -169,7 +169,7 @@ namespace FFEdit.Tests
 
                 string path = PathFor("dedup");
                 var sr = new SaveRestore();
-                sr.RegistItem(writer);
+                sr.RegisterItem(writer);
                 Assert.IsTrue(sr.SaveSetting(path, writer));
 
                 using (Form1 reader = NewForm())
@@ -191,14 +191,14 @@ namespace FFEdit.Tests
 
                 string path = PathFor("no_text");
                 var sr = new SaveRestore();
-                sr.RegistItem(writer);
+                sr.RegisterItem(writer);
                 sr.SaveSetting(path, writer);
 
                 using (Form1 reader = NewForm())
                 {
                     NewSaveRestore(reader).LoadXmlFile(path);
                     Assert.AreEqual(2, reader.comboBox_String1.Items.Count,
-                        "Text が空だと ModifyCombBoxList は即 return するので重複はそのまま残る");
+                        "Text が空だと AddComboBoxTextToItems は即 return するので重複はそのまま残る");
                 }
             }
         }

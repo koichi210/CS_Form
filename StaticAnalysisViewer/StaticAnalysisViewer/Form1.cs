@@ -54,7 +54,7 @@ namespace StaticAnalysisViewer
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.StaticAnalysisViewer);
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,

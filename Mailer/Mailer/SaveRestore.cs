@@ -4,16 +4,16 @@ namespace Mailer
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(Form1 parent)
+        public void RegisterItem(Form1 parent)
         {
             SetElement("Setting");
 
-            RegistCtrl("Common", "textBox_BrowserPath", parent.textBox_BrowserPath);
-            RegistCtrl("Common", "textBox_MailTo", parent.textBox_MailTo);
-            RegistCtrl("Common", "textBox_MailCc", parent.textBox_MailCc);
-            RegistCtrl("Common", "textBox_MailBcc", parent.textBox_MailBcc);
-            RegistCtrl("Common", "textBox_MailSubject", parent.textBox_MailSubject);
-            RegistCtrl("Common", "textBox_MailBody", parent.textBox_MailBody);
+            RegisterCtrl("Common", "textBox_BrowserPath", parent.textBox_BrowserPath);
+            RegisterCtrl("Common", "textBox_MailTo", parent.textBox_MailTo);
+            RegisterCtrl("Common", "textBox_MailCc", parent.textBox_MailCc);
+            RegisterCtrl("Common", "textBox_MailBcc", parent.textBox_MailBcc);
+            RegisterCtrl("Common", "textBox_MailSubject", parent.textBox_MailSubject);
+            RegisterCtrl("Common", "textBox_MailBody", parent.textBox_MailBody);
         }
 
         // 以前ここにあった LoadProc(string, Form1)/SaveSetting(string, Form1) は、

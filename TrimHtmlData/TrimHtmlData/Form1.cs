@@ -48,7 +48,7 @@ namespace TrimHtmlData
 
             InitializeCommonSettings(Properties.Resources.TrimHtmlData);
 
-            sr.RegistItem(this);
+            sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
@@ -112,7 +112,7 @@ namespace TrimHtmlData
             }
 
             StcDebug dbg = new StcDebug();
-            dbg.SetDebugMode(IsDebug);
+            dbg.IsDebugMode = IsDebug;
 
             String[] urls = textBox_SourceList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             foreach (String url in urls)

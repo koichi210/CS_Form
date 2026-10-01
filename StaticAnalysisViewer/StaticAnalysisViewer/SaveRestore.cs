@@ -6,13 +6,13 @@ namespace StaticAnalysisViewer
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(Form1 parent)
+        public void RegisterItem(Form1 parent)
         {
             SetElement("Setting");
 
             // コントロールを列挙
-            RegistCtrl("Environment", "TextBox_LoadDataList", parent.TextBox_LoadDataList);
-            RegistCtrl("Environment", "TextBox_TopRankingNum", parent.TextBox_TopRankingNum, "10");
+            RegisterCtrl("Environment", "TextBox_LoadDataList", parent.TextBox_LoadDataList);
+            RegisterCtrl("Environment", "TextBox_TopRankingNum", parent.TextBox_TopRankingNum, "10");
         }
 
         public bool LoadProc(String loadFileName, Form1 parent)
