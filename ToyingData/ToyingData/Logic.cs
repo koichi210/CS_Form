@@ -9,54 +9,54 @@ namespace ToyingData
     /// もともと Form1.cs に private メソッドとして埋め込まれていた、全角→半角変換の
     /// ロジックを、テストできる形に切り出したもの。
     ///
-    /// GetRegesStr は4つのチェックボックスの状態を直接参照していたのを、bool引数に
+    /// TryGetRegexPattern(旧 GetRegesStr) は4つのチェックボックスの状態を直接参照していたのを、bool引数に
     /// 置き換えた。MessageBox を出す判断（対象が1つも選ばれていない）は Form1 側に残し、
     /// ここには含めていない。
     /// </summary>
     internal static class Logic
     {
         /// <summary>選ばれた変換対象から、正規表現の文字クラスを組み立てる。1つも選ばれていなければfalse。</summary>
-        public static Boolean GetRegesStr(Boolean number, Boolean alphaLarge, Boolean alphaSmall, Boolean space, out String RegesStr)
+        public static Boolean TryGetRegexPattern(Boolean number, Boolean alphaLarge, Boolean alphaSmall, Boolean space, out String regexPattern)
         {
-            Boolean IsSuccess = false;
+            Boolean isSuccess = false;
 
-            RegesStr = "[";
+            regexPattern = "[";
             if (number)
             {
-                RegesStr += "０-９";
-                IsSuccess = true;
+                regexPattern += "０-９";
+                isSuccess = true;
             }
 
             if (alphaLarge)
             {
-                RegesStr += "Ａ-Ｚ";
-                IsSuccess = true;
+                regexPattern += "Ａ-Ｚ";
+                isSuccess = true;
             }
 
             if (alphaSmall)
             {
-                RegesStr += "ａ-ｚ";
-                IsSuccess = true;
+                regexPattern += "ａ-ｚ";
+                isSuccess = true;
             }
 
             if (space)
             {
-                RegesStr += "　";
-                IsSuccess = true;
+                regexPattern += "　";
+                isSuccess = true;
             }
-            RegesStr += "]";
+            regexPattern += "]";
 
-            return IsSuccess;
+            return isSuccess;
         }
 
         /// <summary>指定した正規表現の文字クラスに一致する文字を、全角→半角へ変換する。</summary>
-        public static String[] ApplyWide2Narrow(String[] StrArray, String RegesStr)
+        public static String[] ApplyWide2Narrow(String[] lines, String regexPattern)
         {
-            Regex re = new Regex(RegesStr);
-            return StrArray.Select(str => re.Replace(str, myReplacer)).ToArray();
+            Regex re = new Regex(regexPattern);
+            return lines.Select(str => re.Replace(str, ToNarrow)).ToArray();
         }
 
-        private static String myReplacer(Match m)
+        private static String ToNarrow(Match m)
         {
             // Memo: 参照設定に「Microsoft.VisualBasic」が必要
             return Strings.StrConv(m.Value, VbStrConv.Narrow);

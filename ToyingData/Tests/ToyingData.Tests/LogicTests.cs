@@ -9,28 +9,28 @@ namespace ToyingData.Tests
     public class LogicTests
     {
         [TestMethod]
-        public void GetRegesStr_何も選ばれていなければfalse()
+        public void TryGetRegexPattern_何も選ばれていなければfalse()
         {
             string dummy;
-            bool result = Logic.GetRegesStr(false, false, false, false, out dummy);
+            bool result = Logic.TryGetRegexPattern(false, false, false, false, out dummy);
 
             Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public void GetRegesStr_数字のみ選ぶとその範囲だけ含む()
+        public void TryGetRegexPattern_数字のみ選ぶとその範囲だけ含む()
         {
             string result;
-            Logic.GetRegesStr(true, false, false, false, out result);
+            Logic.TryGetRegexPattern(true, false, false, false, out result);
 
             Assert.AreEqual("[０-９]", result);
         }
 
         [TestMethod]
-        public void GetRegesStr_複数選ぶと結合される()
+        public void TryGetRegexPattern_複数選ぶと結合される()
         {
             string result;
-            bool success = Logic.GetRegesStr(true, true, false, true, out result);
+            bool success = Logic.TryGetRegexPattern(true, true, false, true, out result);
 
             Assert.IsTrue(success);
             Assert.AreEqual("[０-９Ａ-Ｚ　]", result);
@@ -39,10 +39,10 @@ namespace ToyingData.Tests
         [TestMethod]
         public void ApplyWide2Narrow_全角数字を半角にする()
         {
-            string regesStr;
-            Logic.GetRegesStr(true, false, false, false, out regesStr);
+            string regexPattern;
+            Logic.TryGetRegexPattern(true, false, false, false, out regexPattern);
 
-            string[] result = Logic.ApplyWide2Narrow(new[] { "１２３", "abc" }, regesStr);
+            string[] result = Logic.ApplyWide2Narrow(new[] { "１２３", "abc" }, regexPattern);
 
             Assert.AreEqual("123", result[0]);
             Assert.AreEqual("abc", result[1], "対象外の文字はそのまま");
@@ -51,10 +51,10 @@ namespace ToyingData.Tests
         [TestMethod]
         public void ApplyWide2Narrow_対象文字が無ければ変化しない()
         {
-            string regesStr;
-            Logic.GetRegesStr(true, false, false, false, out regesStr);
+            string regexPattern;
+            Logic.TryGetRegexPattern(true, false, false, false, out regexPattern);
 
-            string[] result = Logic.ApplyWide2Narrow(new[] { "あいう" }, regesStr);
+            string[] result = Logic.ApplyWide2Narrow(new[] { "あいう" }, regexPattern);
 
             Assert.AreEqual("あいう", result[0]);
         }

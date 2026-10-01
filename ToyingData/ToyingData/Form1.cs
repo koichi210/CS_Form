@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using StandardTemplate;
 
@@ -42,51 +36,51 @@ namespace ToyingData
 
         private void button_Execute_Click(object sender, EventArgs e)
         {
-            String[] SourceArray = util.ChangeStrLinear2Array(textBox_Source.Text, Environment.NewLine);
-            String DestLinear = "";
+            String[] sourceLines = util.ChangeStrLinear2Array(textBox_Source.Text, Environment.NewLine);
+            String destText = "";
             if (radioButton_DeleteDuplicate.Checked)
             {
-                DestLinear = FunctionDeleteDuplicate(SourceArray);
+                destText = DeleteDuplicateLines(sourceLines);
             }
             else if (radioButton_ChangeWide2Narrow.Checked)
             {
-                DestLinear = FunctionChangeWide2Narrow(SourceArray);
+                destText = ChangeWide2NarrowLines(sourceLines);
             }
-            textBox_Dest.Text = DestLinear;
+            textBox_Dest.Text = destText;
 
-            if (DestLinear != String.Empty)
+            if (destText != String.Empty)
             {
                 util.SetClipboardText(textBox_Dest.Text);
             }
         }
 
-        private String FunctionDeleteDuplicate(String[] SourceArray)
+        private String DeleteDuplicateLines(String[] sourceLines)
         {
-            String[] DestArray = util.TrimDuplication(SourceArray);
-            return util.ChangeStrArray2Linear(DestArray, Environment.NewLine);
+            String[] destLines = util.TrimDuplication(sourceLines);
+            return util.ChangeStrArray2Linear(destLines, Environment.NewLine);
         }
 
-        private String FunctionChangeWide2Narrow(String[] SourceArray)
+        private String ChangeWide2NarrowLines(String[] sourceLines)
         {
-            String[] DestArray = ChangeWide2Narrow(SourceArray);
-            return util.ChangeStrArray2Linear(DestArray, Environment.NewLine);
+            String[] destLines = ChangeWide2Narrow(sourceLines);
+            return util.ChangeStrArray2Linear(destLines, Environment.NewLine);
         }
 
-        private String[] ChangeWide2Narrow(String[] StrArray)
+        private String[] ChangeWide2Narrow(String[] lines)
         {
-            String RegesStr = "";
-            if (!Logic.GetRegesStr(
+            String regexPattern;
+            if (!Logic.TryGetRegexPattern(
                 checkBox_Wide2Narrow_Number.Checked,
                 checkBox_Wide2Narrow_Alpha_Large.Checked,
                 checkBox_Wide2Narrow_Alpha_Small.Checked,
                 checkBox_Wide2Narrow_Space.Checked,
-                out RegesStr))
+                out regexPattern))
             {
                 MessageBox.Show("変換対象が選ばれませんでした");
                 return null;
             }
 
-            return Logic.ApplyWide2Narrow(StrArray, RegesStr);
+            return Logic.ApplyWide2Narrow(lines, regexPattern);
         }
     }
 }
