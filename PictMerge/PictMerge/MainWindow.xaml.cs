@@ -20,7 +20,7 @@ namespace PictMerge
 #if DEBUG 
             PictWidth.Text = "200";
             PictHeight.Text = "200";
-            TrimingHeight.Text = "50" + Environment.NewLine + "100" + Environment.NewLine + "150";
+            TrimmingHeight.Text = "50" + Environment.NewLine + "100" + Environment.NewLine + "150";
             SourceFolderPath.Text = @"D:\tmp\cheetos\Test3\Color";
 #endif
             SourceFile1Prefix.Text = "_1.";
@@ -100,7 +100,7 @@ namespace PictMerge
         private void MergeSelectedFiles()
         {
             // 切断基準となる高さ
-            string[] trimHeights = TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] trimHeights = TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
@@ -158,7 +158,7 @@ namespace PictMerge
             settings.Set("SourceFile2Prefix", SourceFile2Prefix.Text);
             settings.Set("PictWidth", PictWidth.Text);
             settings.Set("PictHeight", PictHeight.Text);
-            settings.Set("TrimingHeight", TrimingHeight.Text);
+            settings.Set("TrimmingHeight", TrimmingHeight.Text);
             settings.SaveJson(SettingFile);
 
             MessageBox.Show("設定値を保存しました♪");
@@ -178,7 +178,7 @@ namespace PictMerge
             SourceFile2Prefix.Text = settings.Get("SourceFile2Prefix", SourceFile2Prefix.Text);
             PictWidth.Text = settings.Get("PictWidth", PictWidth.Text);
             PictHeight.Text = settings.Get("PictHeight", PictHeight.Text);
-            TrimingHeight.Text = settings.Get("TrimingHeight", TrimingHeight.Text);
+            TrimmingHeight.Text = settings.Get("TrimmingHeight", TrimmingHeight.Text);
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)

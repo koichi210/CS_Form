@@ -14,7 +14,7 @@
         <Label Content="画像のサイズ(高さ)" Height="28" HorizontalAlignment="Left" Margin="21,137,0,0" Name="label7" VerticalAlignment="Top" />
         <TextBox Height="24" HorizontalAlignment="Left" Margin="134,137,0,0" Name="DestHeight" VerticalAlignment="Top" Width="68" TabIndex="6" />
         <Label Content="切断基準となる高さ" Height="28" HorizontalAlignment="Left" Margin="13,168,0,0" Name="label3" VerticalAlignment="Top" Width="125" />
-        <TextBox Height="161" AcceptsReturn="True" HorizontalAlignment="Left" Margin="135,170,0,0" Name="TrimingHeight" VerticalAlignment="Top" Width="67" TabIndex="7" />
+        <TextBox Height="161" AcceptsReturn="True" HorizontalAlignment="Left" Margin="135,170,0,0" Name="TrimmingHeight" VerticalAlignment="Top" Width="67" TabIndex="7" />
         <Button Content="リストアップ" HorizontalAlignment="Left" Margin="383,12,0,0" Name="Button_Listup" Width="84" Height="23" VerticalAlignment="Top" Click="ListUp_Click" TabIndex="2" />
         <ListBox Height="277" HorizontalAlignment="Left" Margin="209,54,0,0" Name="ListBox_ListUp" VerticalAlignment="Top" Width="258" SelectionMode="Extended" TabIndex="8" />
         <Button Content="結合" Height="23" HorizontalAlignment="Left" Margin="383,337,0,0" Name="MergeExec" VerticalAlignment="Top" Width="84" Click="MergeExec_Click" TabIndex="9" />

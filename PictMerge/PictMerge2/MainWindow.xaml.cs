@@ -20,7 +20,7 @@ namespace PictMerge
 #if DEBUG 
             DestWidth.Text = "200";
             DestHeight.Text = "200";
-            TrimingHeight.Text = "50,100" + Environment.NewLine + "150,200";
+            TrimmingHeight.Text = "50,100" + Environment.NewLine + "150,200";
             SourceFolderPath.Text = @"D:\tmp\cheetos\Test3\Color";
 #endif
             SourceFile1Prefix.Text = "_1.";
@@ -100,7 +100,7 @@ namespace PictMerge
         private void MergeSelectedFiles()
         {
             // 切断基準となる高さ
-            string[] trimHeights = TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] trimHeights = TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
@@ -158,7 +158,7 @@ namespace PictMerge
             settings.Set("SourceFile2Prefix", SourceFile2Prefix.Text);
             settings.Set("DestWidth", DestWidth.Text);
             settings.Set("DestHeight", DestHeight.Text);
-            settings.Set("TrimingHeight", TrimingHeight.Text);
+            settings.Set("TrimmingHeight", TrimmingHeight.Text);
             settings.SaveJson(SettingFile);
 
             MessageBox.Show("設定値を保存しました♪");
@@ -178,7 +178,7 @@ namespace PictMerge
             SourceFile2Prefix.Text = settings.Get("SourceFile2Prefix", SourceFile2Prefix.Text);
             DestWidth.Text = settings.Get("DestWidth", DestWidth.Text);
             DestHeight.Text = settings.Get("DestHeight", DestHeight.Text);
-            TrimingHeight.Text = settings.Get("TrimingHeight", TrimingHeight.Text);
+            TrimmingHeight.Text = settings.Get("TrimmingHeight", TrimmingHeight.Text);
         }
 
         private void CutExec_Click(object sender, RoutedEventArgs e)
@@ -214,7 +214,7 @@ namespace PictMerge
         {
             String sourcePictName = @"D:\tmp\cheetos\Test3\Color\Sample_1.png";
             String mergePictName = @"D:\tmp\cheetos\Test3\Color\Sample_2.png";
-            String targetPictName = @"D:\tmp\cheetos\Test3\Color\Sample_Merege.png";
+            String targetPictName = @"D:\tmp\cheetos\Test3\Color\Sample_Merge.png";
 
             int cutX = 0;
             int cutWidth = int.Parse(DestWidth.Text);
@@ -224,7 +224,7 @@ namespace PictMerge
             PicEdit merger = new PicEdit(sourcePictName);
 
             // 切断基準となる高さ（1行に「開始,終了」）
-            string[] trimRanges = TrimingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] trimRanges = TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
             // マージ
             merger.CreateSourceImg(mergePictName);
