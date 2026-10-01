@@ -275,7 +275,7 @@ namespace FileArranger.Tests
         public void JSON保存で共通タブの入力値と参照候補フォルダが保存して読み直すと戻る()
         {
             // データ保存先変更機能([[EventRecorder/Form1.cs]]と同じ考え方)で追加したJSON経路。
-            // ReferenceCandidateFoldersはRegistCtrlを介さない専用の配列なので、
+            // ReferenceCandidateFoldersはRegisterCtrlを介さない専用の配列なので、
             // SaveJsonFile/LoadJsonFileが専用に面倒を見ていることを確認する
             using (global::FileArranger.FileArranger writer = NewForm())
             {

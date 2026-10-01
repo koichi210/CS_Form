@@ -155,7 +155,7 @@ namespace FileArranger
 
                 if (!isSuccess)
                 {
-                    // ListViewに無ければCombBoxから検索
+                    // ListViewに無ければComboBoxから検索
                     isSuccess = GetPartitionNameFromComboBox(ref srcFolderName, ref targetFolderName, srcFileName);
                 }
 
@@ -163,7 +163,7 @@ namespace FileArranger
                 {
                     if (pf_checkBox_CreateNewDir.Checked)
                     {
-                        // CombBoxにもなかったら新規作成
+                        // ComboBoxにもなかったら新規作成
                         CreatePartitionName(ref srcFolderName, ref targetFolderName, srcFileName);
                     }
                 }

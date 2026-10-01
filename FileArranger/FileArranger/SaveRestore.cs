@@ -11,9 +11,8 @@ namespace FileArranger
         public void RegisterLoadItem(FileArranger parent)
         {
             SetElement("Setting");
-            // 第2引数(設定ファイルのキー名)にtypoが残っているものがあるが、ここを直すと
-            // 既存の設定ファイルの値が読めなくなるため、コントロール名だけを修正してある。
-            // キー名はXML->JSON移行時に旧キーの読み替えと一緒に直す([[_TechnicalNote/typo修正リスト.md]])
+            // 第2引数(設定ファイルのキー名)のtypoは修正済み。旧キー名で保存された既存の設定ファイルは
+            // legacyAttrValueで旧キーを読み替えて読み込む([[_TechnicalNote/typo修正リスト.md]])
 
             RegisterCtrl("Common", "cmn_textBox_Reference", parent.cmn_textBox_Reference);
             RegisterCtrl("Common", "cmn_textBox_AddList", parent.cmn_textBox_AddList);
@@ -93,9 +92,9 @@ namespace FileArranger
             parent.pf_listView_Target.Items.Clear();
         }
 
-        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegistLoadItemで登録済みのコントロールは
+        // JSON保存/読込([[_Common/JsonFileStorage.cs]])。RegisterLoadItemで登録済みのコントロールは
         // 汎用プロファイル(StcSaveRestore.BuildGenericProfile/ApplyGenericProfile)に詰め替えるだけで
-        // 済むが、ReferenceCandidateFoldersだけはRegistCtrlを介さない専用の配列なので、
+        // 済むが、ReferenceCandidateFoldersだけはRegisterCtrlを介さない専用の配列なので、
         // "ReferenceCandidate|Value_"というキーで同じprofileに相乗りさせる
         public Boolean SaveJsonFile(String filePath, FileArranger parent)
         {

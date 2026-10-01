@@ -1158,7 +1158,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pf_textBox_ReferenceFile.Location = new System.Drawing.Point(180, 82);
             this.pf_textBox_ReferenceFile.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.pf_textBox_ReferenceFile.Name = "pf_textBox_RefrenceFile";
+            this.pf_textBox_ReferenceFile.Name = "pf_textBox_ReferenceFile";
             this.pf_textBox_ReferenceFile.ReadOnly = true;
             this.pf_textBox_ReferenceFile.Size = new System.Drawing.Size(731, 25);
             this.pf_textBox_ReferenceFile.TabIndex = 7;
@@ -1201,7 +1201,7 @@
             this.pf_textBox_TargetSeparator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pf_textBox_TargetSeparator.Location = new System.Drawing.Point(838, 50);
             this.pf_textBox_TargetSeparator.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
-            this.pf_textBox_TargetSeparator.Name = "pf_textBox_TargetSeprator";
+            this.pf_textBox_TargetSeparator.Name = "pf_textBox_TargetSeparator";
             this.pf_textBox_TargetSeparator.Size = new System.Drawing.Size(72, 25);
             this.pf_textBox_TargetSeparator.TabIndex = 4;
             // 
