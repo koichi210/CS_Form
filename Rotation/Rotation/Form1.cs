@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Rotation
@@ -18,14 +12,6 @@ namespace Rotation
             InitializeComponent();
         }
 
-        private Boolean Draw(Boolean IsSave = false)
-        {
-            //DrawPicturebox(IsSave);
-            return DrawPicturebox2(IsSave);
-            //DrawPanel(IsSave);
-            //DrawPanel2(IsSave);
-        }
-
         private void button_ClickDraw(object sender, EventArgs e)
         {
             if (pictureBox_Source.Image != null)
@@ -34,12 +20,12 @@ namespace Rotation
                 pictureBox_Source.Image = null;
             }
             pictureBox_Source.Image = Image.FromFile(textBox_loadfiepath.Text);
-            Draw();
+            DrawPictureBox();
         }
 
         private void button_ClickSave(object sender, EventArgs e)
         {
-            if (!Draw(true))
+            if (!DrawPictureBox(true))
             {
                 MessageBox.Show("画像ファイルのパス・角度・原点の値を確認してください");
             }
@@ -48,66 +34,23 @@ namespace Rotation
         private void textBox_angle_KeyDown(object sender, KeyEventArgs e)
         {
             textBox_angle.Text = Logic.UpdateValue(textBox_angle.Text, e.KeyCode);
-            Draw();
+            DrawPictureBox();
         }
 
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
             textBox_OriginX.Text = Logic.UpdateValue(textBox_OriginX.Text, e.KeyCode);
-            Draw();
+            DrawPictureBox();
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
             textBox_OriginY.Text = Logic.UpdateValue(textBox_OriginY.Text, e.KeyCode);
-            Draw();
-        }
-
-        private void DrawPicturebox(Boolean IsSave = false)
-        {
-            Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
-            Bitmap img = new Bitmap(textBox_loadfiepath.Text);
-
-            //ラジアン単位に変換
-            int angle = Int32.Parse(textBox_angle.Text.ToString());
-            double d = angle / (180 / Math.PI);
-
-            //新しい座標位置を計算する
-            float x = float.Parse(textBox_OriginX.Text.ToString());
-            float y = float.Parse(textBox_OriginY.Text.ToString());
-            float x1 = x + img.Width * (float)Math.Cos(d);
-            float y1 = y + img.Width * (float)Math.Sin(d);
-            float x2 = x - img.Height * (float)Math.Sin(d);
-            float y2 = y + img.Height * (float)Math.Cos(d);
-
-            //PointF配列を作成
-            PointF[] destinationPoints =
-            {
-                new PointF(x, y),
-                new PointF(x1, y1),
-                new PointF(x2, y2)
-            };
-
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                //画像を表示
-                g.DrawImage(img, destinationPoints);
-
-                g.Dispose();
-                img.Dispose();
-            }
-
-            //pictureBoxに表示
-            pictureBox_Dest.Image = canvas;
-
-            if (IsSave)
-            {
-                canvas.Save(textBox_savefiepath.Text);
-            }
+            DrawPictureBox();
         }
 
         // キー入力のたびに呼ばれるため、入力途中の値や画像未指定では例外にせず、描画せずにfalseを返す
-        private Boolean DrawPicturebox2(Boolean IsSave = false)
+        private Boolean DrawPictureBox(Boolean isSave = false)
         {
             int angle;
             float x;
@@ -155,121 +98,11 @@ namespace Rotation
             }
             pictureBox_Dest.Image = canvas;
 
-            if (IsSave)
+            if (isSave)
             {
                 canvas.Save(textBox_savefiepath.Text);
             }
             return true;
-        }
-
-        private void DrawPanel(Boolean IsSave = false)
-        {
-            Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
-            Bitmap img = new Bitmap(textBox_loadfiepath.Text);
-
-            //PictureBoxオブジェクトの作成
-            PictureBox pictureBox1 = new PictureBox();
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Location = new Point(0, 0);
-            pictureBox1.Size = new Size(img.Width*2, img.Height*2);
-            // pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
-
-            //ラジアン単位に変換
-            int angle = Int32.Parse(textBox_angle.Text.ToString());
-            double d = angle / (180 / Math.PI);
-
-            //新しい座標位置を計算する
-            float x = float.Parse(textBox_OriginX.Text.ToString());
-            float y = float.Parse(textBox_OriginY.Text.ToString());
-            float x1 = x + img.Width * (float)Math.Cos(d);
-            float y1 = y + img.Width * (float)Math.Sin(d);
-            float x2 = x - img.Height * (float)Math.Sin(d);
-            float y2 = y + img.Height * (float)Math.Cos(d);
-
-            //PointF配列を作成
-            PointF[] destinationPoints =
-            {
-                new PointF(x, y),
-                new PointF(x1, y1),
-                new PointF(x2, y2)
-            };
-
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                //画像を表示
-                g.DrawImage(img, destinationPoints);
-
-                g.Dispose();
-                img.Dispose();
-            }
-
-            //pictureBoxに表示
-            pictureBox1.Image = canvas;
-
-            //pictureBoxをpanelに表示
-            panel_Dest.Controls.Add(pictureBox1);
-
-            if (IsSave)
-            {
-                //pictureBox1.Image.Save(textBox_savefiepath.Text, System.Drawing.Imaging.ImageFormat.Png);
-                canvas.Save(textBox_savefiepath.Text, System.Drawing.Imaging.ImageFormat.Png);
-            }
-        }
-
-        private void DrawPanel2(Boolean IsSave = false)
-        {
-            Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
-            Bitmap img = new Bitmap(textBox_loadfiepath.Text);
-
-            int max = img.Width;
-            if (img.Width < img.Height)
-            {
-                max = Height;
-            }
-
-            pictureBox_Dest.Size = new Size(max * 2, max * 2);
-            // pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
-
-            //ラジアン単位に変換
-            int angle = Int32.Parse(textBox_angle.Text.ToString());
-            double d = angle / (180 / Math.PI);
-
-            //新しい座標位置を計算
-            float x = float.Parse(textBox_OriginX.Text.ToString());
-            float y = float.Parse(textBox_OriginY.Text.ToString());
-            float x1 = x + img.Width * (float)Math.Cos(d);
-            float y1 = y + img.Width * (float)Math.Sin(d);
-            float x2 = x - img.Height * (float)Math.Sin(d);
-            float y2 = y + img.Height * (float)Math.Cos(d);
-
-            //PointF配列を作成
-            PointF[] destinationPoints =
-            {
-                new PointF(x, y),
-                new PointF(x1, y1),
-                new PointF(x2, y2)
-            };
-
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                //画像を表示
-                g.DrawImage(img, destinationPoints);
-
-                g.Dispose();
-                img.Dispose();
-            }
-
-            //pictureBoxに表示
-            pictureBox_Dest.Image = canvas;
-
-            //pictureBoxをpanelに表示
-            panel_Dest.Controls.Add(pictureBox_Dest);
-
-            if (IsSave)
-            {
-                //pictureBox1.Image.Save(textBox_savefiepath.Text, System.Drawing.Imaging.ImageFormat.Png);
-                canvas.Save(textBox_savefiepath.Text, System.Drawing.Imaging.ImageFormat.Png);
-            }
         }
     }
 }
