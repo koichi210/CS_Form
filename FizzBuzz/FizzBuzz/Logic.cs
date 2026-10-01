@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace FizzBuzz
 {
@@ -9,37 +10,37 @@ namespace FizzBuzz
     /// </summary>
     internal static class Logic
     {
-        public static String FizzBuzz(int Number)
+        public static String FizzBuzz(int number)
         {
-            String Result = "";
+            StringBuilder result = new StringBuilder();
 
-            for (int i = 1; i <= Number; i++)
+            for (int i = 1; i <= number; i++)
             {
-                Result += i.ToString() + " : ";
+                result.Append(i).Append(" : ");
 
-                String Add = "";
+                String label = "";
                 if (i % 3 == 0)
                 {
-                    Add += "Fizz";
+                    label += "Fizz";
                 }
                 if (i % 5 == 0)
                 {
-                    Add += "Buzz";
+                    label += "Buzz";
                 }
                 if (i % 7 == 0)
                 {
-                    Add += "Woof";
+                    label += "Woof";
                 }
 
-                if (Add == String.Empty)
+                if (label == String.Empty)
                 {
-                    Add = i.ToString();
+                    label = i.ToString();
                 }
 
-                Result += Add + Environment.NewLine;
+                result.Append(label).Append(Environment.NewLine);
             }
 
-            return Result;
+            return result.ToString();
         }
     }
 }
