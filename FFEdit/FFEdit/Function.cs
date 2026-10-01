@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace FFEdit
@@ -15,10 +13,10 @@ namespace FFEdit
             Move,
         }
 
-        public String _base_dir = "";
-        public String _target_dir = "";
-        public List<String> _file_list;
-        public FunctionType _function_type;
+        public String BaseDir { get; set; } = "";
+        public String DestDir { get; set; } = "";
+        public List<String> FileList { get; set; }
+        public FunctionType Type { get; set; }
 
         private FileMng fm = new FileMng();
 
@@ -29,65 +27,62 @@ namespace FFEdit
 
         public String Execute()
         {
-            String ErrorList = "";
+            String errorList = "";
 
-            for (int i = 0; i < _file_list.Count; i++)
+            for (int i = 0; i < FileList.Count; i++)
             {
-                String SrcName = _base_dir + '\\' + _file_list[i];
-                String DestName = "";
-                switch (_function_type)
+                String srcName = BaseDir + '\\' + FileList[i];
+                String destName = "";
+                switch (Type)
                 {
                     case FunctionType.DelEmptyDir:
-                        fm.DeleteBlankDir(SrcName);
+                        fm.DeleteBlankDir(srcName);
                         break;
 
                     case FunctionType.Move:
-                        DestName = _target_dir + '\\' + Path.GetFileName(_file_list[i]);
-                        if (SrcName == DestName)
+                        destName = DestDir + '\\' + Path.GetFileName(FileList[i]);
+                        if (srcName == destName)
                         {
                             // 同一だったら処理しない
                             continue;
                         }
 
-                        Directory.CreateDirectory(_target_dir);
-                        if (fm.Move(SrcName, DestName))
+                        Directory.CreateDirectory(DestDir);
+                        if (fm.Move(srcName, destName))
                         {
                             // 復元用に設定を覚えておく
-                            fm.SetRestoreList(SrcName, DestName);
+                            fm.SetRestoreList(srcName, destName);
                         }
                         else
                         {
-                            ErrorList += "Src=" + SrcName + Environment.NewLine;
-                            ErrorList += "Dst=" + DestName + Environment.NewLine;
-                            ErrorList += Environment.NewLine;
+                            errorList += "Src=" + srcName + Environment.NewLine;
+                            errorList += "Dst=" + destName + Environment.NewLine;
+                            errorList += Environment.NewLine;
                         }
                         break;
 
                     case FunctionType.Copy:
-                        DestName = _target_dir + '\\' + Path.GetFileName(_file_list[i]);
-                        if (SrcName == DestName)
+                        destName = DestDir + '\\' + Path.GetFileName(FileList[i]);
+                        if (srcName == destName)
                         {
                             // 同一だったら処理しない
                             continue;
                         }
 
-                        Directory.CreateDirectory(_target_dir);
-                        if (fm.Copy(SrcName, DestName))
+                        Directory.CreateDirectory(DestDir);
+                        // コピーのときは処理を覚えない
+                        if (!fm.Copy(srcName, destName))
                         {
-                            // コピーのときは処理を覚えない
-                        }
-                        else
-                        {
-                            ErrorList += "Src=" + SrcName + Environment.NewLine;
-                            ErrorList += "Dst=" + DestName + Environment.NewLine;
-                            ErrorList += Environment.NewLine;
+                            errorList += "Src=" + srcName + Environment.NewLine;
+                            errorList += "Dst=" + destName + Environment.NewLine;
+                            errorList += Environment.NewLine;
                         }
                         break;
                 }
             }
             fm.IncrementRegistNumber();
 
-            return ErrorList;
+            return errorList;
         }
     }
 }

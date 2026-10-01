@@ -48,16 +48,16 @@ namespace FFEdit.Tests
             DateTime originalCreate = before.CreationTime;
 
             var target = new DateTime(2020, 1, 2, 3, 4, 5);
-            var stump = new TimeStamp
+            var stamp = new TimeStamp
             {
-                _base_dir = tempDirectory,
-                _file_list = new List<string> { "a.txt" },
-                _base_tick_time = target.Ticks,
-                _update_tick_time = 0,
-                _target_time_last_write = true,
+                BaseDir = tempDirectory,
+                FileList = new List<string> { "a.txt" },
+                BaseTicks = target.Ticks,
+                IntervalTicks = 0,
+                UpdateLastWriteTime = true,
             };
 
-            stump.Execute();
+            stamp.Execute();
 
             var after = new FileInfo(path);
             Assert.AreEqual(target, after.LastWriteTime);
@@ -70,17 +70,17 @@ namespace FFEdit.Tests
             string path = CreateFile("a.txt");
 
             var target = new DateTime(2019, 5, 6, 7, 8, 9);
-            var stump = new TimeStamp
+            var stamp = new TimeStamp
             {
-                _base_dir = tempDirectory,
-                _file_list = new List<string> { "a.txt" },
-                _base_tick_time = target.Ticks,
-                _target_time_create = true,
-                _target_time_last_write = true,
-                _target_time_access = true,
+                BaseDir = tempDirectory,
+                FileList = new List<string> { "a.txt" },
+                BaseTicks = target.Ticks,
+                UpdateCreationTime = true,
+                UpdateLastWriteTime = true,
+                UpdateLastAccessTime = true,
             };
 
-            stump.Execute();
+            stamp.Execute();
 
             var after = new FileInfo(path);
             Assert.AreEqual(target, after.CreationTime);
@@ -98,16 +98,16 @@ namespace FFEdit.Tests
             var baseTime = new DateTime(2021, 1, 1);
             var oneDay = TimeSpan.FromDays(1).Ticks;
 
-            var stump = new TimeStamp
+            var stamp = new TimeStamp
             {
-                _base_dir = tempDirectory,
-                _file_list = new List<string> { "a.txt", "b.txt", "c.txt" },
-                _base_tick_time = baseTime.Ticks,
-                _update_tick_time = oneDay,
-                _target_time_last_write = true,
+                BaseDir = tempDirectory,
+                FileList = new List<string> { "a.txt", "b.txt", "c.txt" },
+                BaseTicks = baseTime.Ticks,
+                IntervalTicks = oneDay,
+                UpdateLastWriteTime = true,
             };
 
-            stump.Execute();
+            stamp.Execute();
 
             Assert.AreEqual(baseTime, new FileInfo(Path.Combine(tempDirectory, "a.txt")).LastWriteTime);
             Assert.AreEqual(baseTime.AddDays(1), new FileInfo(Path.Combine(tempDirectory, "b.txt")).LastWriteTime);
@@ -121,14 +121,14 @@ namespace FFEdit.Tests
             var before = new FileInfo(path);
             DateTime originalWrite = before.LastWriteTime;
 
-            var stump = new TimeStamp
+            var stamp = new TimeStamp
             {
-                _base_dir = tempDirectory,
-                _file_list = new List<string> { "a.txt" },
-                _base_tick_time = new DateTime(2020, 1, 1).Ticks,
+                BaseDir = tempDirectory,
+                FileList = new List<string> { "a.txt" },
+                BaseTicks = new DateTime(2020, 1, 1).Ticks,
             };
 
-            stump.Execute();
+            stamp.Execute();
 
             Assert.AreEqual(originalWrite, new FileInfo(path).LastWriteTime);
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
-using System.Runtime.InteropServices;
 using StandardTemplate;
 
 namespace FFEdit
@@ -12,20 +11,12 @@ namespace FFEdit
         private readonly String SettingFileName = @"FFEdit.json";
 
         // 設定ファイルはJSONが基本。旧XML(FFEdit.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
-        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
-        // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
+        // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])
         private const String LegacySettingFileName = @"FFEdit.xml";
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
 
         private static Boolean IsJsonFile(String filePath)
         {
             return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
-        }
-
-        // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
-        private Boolean LoadProfile(String filePath)
-        {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath, this);
         }
 
         // internal: テストから保存ボタンと同じ経路で保存を確かめるため
@@ -40,18 +31,14 @@ namespace FFEdit
             return JsonSaveRestore.Save(sr, filePath);
         }
 
-        private readonly String[] IncrCycleArray = { "無し", "秒", "分", "時間", "日" };
-        private readonly String[] DigitArray = { "自動", "1桁", "2桁", "3桁", "4桁", "5桁", "6桁" };
+        private readonly String[] TimeSpanItems = { "無し", "秒", "分", "時間", "日" };
+        private readonly String[] DigitItems = { "自動", "1桁", "2桁", "3桁", "4桁", "5桁", "6桁" };
         private const int TabIdxChangeName = 0;
         private const int TabIdxTimeStamp = 1;
-        private const int TabIdxFuntion = 2;
-
-        private FileMng fm = new FileMng();
+        private const int TabIdxFunction = 2;
 
         private Rename rename = new Rename();
-        private Function fs = new Function();
-
-        private StcFileInputOutput fio = new StcFileInputOutput();
+        private Function function = new Function();
 
         // 設定ファイル(FFEdit.xml)の置き場。exe直下(bin/Debug、bin/Release)は
         // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
@@ -74,17 +61,17 @@ namespace FFEdit
 
             // 桁の選択肢を生成
             comboBox_ChangeNumber_Digit.Items.Clear();
-            for (int i = 0; i < DigitArray.Length; i++)
+            for (int i = 0; i < DigitItems.Length; i++)
             {
-                comboBox_ChangeNumber_Digit.Items.Add(DigitArray[i]);
+                comboBox_ChangeNumber_Digit.Items.Add(DigitItems[i]);
             }
             comboBox_ChangeNumber_Digit.SelectedIndex = 0;
 
-            // 桁の選択肢を生成
+            // 加算間隔の選択肢を生成
             comboBox_TimeSpan.Items.Clear();
-            for (int i = 0; i < IncrCycleArray.Length; i++)
+            for (int i = 0; i < TimeSpanItems.Length; i++)
             {
-                comboBox_TimeSpan.Items.Add(IncrCycleArray[i]);
+                comboBox_TimeSpan.Items.Add(TimeSpanItems[i]);
             }
             comboBox_TimeSpan.SelectedIndex = 1;
         }
@@ -113,22 +100,22 @@ namespace FFEdit
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                DialogResult DlgResult = MessageBox.Show(
+                DialogResult dlgResult = MessageBox.Show(
                     "削除しますか？",
                     "情報",
                     MessageBoxButtons.YesNo);
-                if (DlgResult == DialogResult.No)
+                if (dlgResult == DialogResult.No)
                 {
                     return ;
                 }
 
-                String TargetName = util.GetSelectName(listBox, comboBox_TargetDir.Text);
+                String targetName = util.GetSelectName(listBox, comboBox_TargetDir.Text);
 
                 StcFileInputOutput fio = new StcFileInputOutput();
-                String[] TargetArray = TargetName.Split(new[] {Environment.NewLine},StringSplitOptions.RemoveEmptyEntries);
-                for ( int i= 0; i < TargetArray.Length; i++)
+                String[] targetArray = targetName.Split(new[] {Environment.NewLine},StringSplitOptions.RemoveEmptyEntries);
+                for ( int i= 0; i < targetArray.Length; i++)
                 {
-                    fio.DeleteDirectoryAndFile(TargetArray[i]);
+                    fio.DeleteDirectoryAndFile(targetArray[i]);
                 }
                 UpdateListBox();
             }
@@ -152,25 +139,25 @@ namespace FFEdit
 
         private void button_Execute_Click(object sender, EventArgs e)
         {
-            String ErrorList = "";
+            String errorList = "";
             switch (tabControl.SelectedIndex)
             {
                 case TabIdxChangeName:
-                    ErrorList = ChangeName();
+                    errorList = ChangeName();
                     break;
 
                 case TabIdxTimeStamp:
                     ChangeTimeStamp();
                     break;
 
-                case TabIdxFuntion:
-                    ErrorList = ChangeOtherFunction();
+                case TabIdxFunction:
+                    errorList = ChangeOtherFunction();
                     break;
             }
 
-            if (ErrorList != String.Empty)
+            if (errorList != String.Empty)
             {
-                using (ErrorMsg dlg = new ErrorMsg(ErrorList))
+                using (ErrorMsg dlg = new ErrorMsg(errorList))
                 {
                     dlg.ShowDialog();
                 }
@@ -180,18 +167,18 @@ namespace FFEdit
 
         private void button_Restore_Click(object sender, EventArgs e)
         {
-            Boolean IsSuccess = true;
+            Boolean isSuccess = true;
             switch (tabControl.SelectedIndex)
             {
                 case TabIdxChangeName:
-                    IsSuccess = rename.Restore();
+                    isSuccess = rename.Restore();
                     break;
-                case TabIdxFuntion:
-                    IsSuccess = fs.Restore();
+                case TabIdxFunction:
+                    isSuccess = function.Restore();
                     break;
             }
 
-            if (!IsSuccess)
+            if (!isSuccess)
             {
                 MessageBox.Show("これ以上復元できません");
                 return;
@@ -318,14 +305,14 @@ namespace FFEdit
                 return;
             }
 
-            int TrimLength; // ファイルリストを生成するときに、基準となるディレクトリパスは削除する
+            int trimLength; // ファイルリストを生成するときに、基準となるディレクトリパスは削除する
             if (comboBox_TargetDir.Text.Length > 3)
             {
                 // C:\ よりも長い場合は、終端の\を削除。ドライブレターの次の\は残す
                 comboBox_TargetDir.Text = comboBox_TargetDir.Text.TrimEnd('\\');
 
                 // 「+1」はフォルダ区切り文字
-                TrimLength = comboBox_TargetDir.Text.Length + 1;
+                trimLength = comboBox_TargetDir.Text.Length + 1;
             }
             else
             {
@@ -337,7 +324,7 @@ namespace FFEdit
                 {
                     comboBox_TargetDir.Text += @"\";
                 }
-                TrimLength = comboBox_TargetDir.Text.Length;
+                trimLength = comboBox_TargetDir.Text.Length;
             }
 
             if (!Directory.Exists(comboBox_TargetDir.Text))
@@ -352,20 +339,20 @@ namespace FFEdit
                 opt = SearchOption.AllDirectories;
             }
 
-            String SearchPattern = "*";
+            String searchPattern = "*";
             if (textBox_Target_Extension.Text != String.Empty)
             {
-                SearchPattern = textBox_Target_Extension.Text;
+                searchPattern = textBox_Target_Extension.Text;
             }
 
             String[] elements;
             if (radioButton_Target_File.Checked)
             {
-                elements = Directory.GetFiles(comboBox_TargetDir.Text, SearchPattern, opt);
+                elements = Directory.GetFiles(comboBox_TargetDir.Text, searchPattern, opt);
             }
             else
             {
-                elements = Directory.GetDirectories(comboBox_TargetDir.Text, SearchPattern, opt);
+                elements = Directory.GetDirectories(comboBox_TargetDir.Text, searchPattern, opt);
             }
 
             // 標準のstring比較だと"HOGE_2"より"HOGE_10"が先に来てしまうため、
@@ -375,49 +362,44 @@ namespace FFEdit
             listBox.Items.Clear();
             for (int i = 0; i < elements.Length; i++)
             {
-                listBox.Items.Add(elements[i].Substring(TrimLength));
+                listBox.Items.Add(elements[i].Substring(trimLength));
             }
             UpdateStatusBar();
         }
 
         private List<String> GetFileList()
         {
-            var FileList = new List<String>();
+            var fileList = new List<String>();
 
-            int TargetNum = GetListTargetNum();
-            for (int i = 0; i < TargetNum; i++)
+            int targetCount = GetTargetCount();
+            for (int i = 0; i < targetCount; i++)
             {
-                FileList.Add(GetTargetName(i));
+                fileList.Add(GetTargetName(i));
             }
-            return FileList;
+            return fileList;
         }
 
         private String GetTargetName(int idx)
         {
-            String TargetName = "";
             if (checkBox_Target_SelectFile.Checked)
             {
-                TargetName = listBox.SelectedItems[idx].ToString();
+                return listBox.SelectedItems[idx].ToString();
             }
-            else
-            {
-                TargetName = listBox.Items[idx].ToString();
-            }
-            return TargetName;
+            return listBox.Items[idx].ToString();
         }
 
         private String ChangeName()
         {
-            rename._base_dir = comboBox_TargetDir.Text.TrimEnd('\\');
-            rename._file_list = GetFileList();
-            rename._change_type = GetChangedNameType();
+            rename.BaseDir = comboBox_TargetDir.Text.TrimEnd('\\');
+            rename.FileList = GetFileList();
+            rename.Type = GetChangeType();
 
-            rename._param1 = comboBox_String1.Text;
-            rename._param2 = comboBox_String2.Text;
+            rename.Param1 = comboBox_String1.Text;
+            rename.Param2 = comboBox_String2.Text;
 
-            rename._first_number = int.Parse(textBox_ChangeNumber_FirstVal.Text);
-            rename._keep_org_name = checkBox_ChangeNumber_OrgName.Checked;
-            rename._pad_number = GetPaddingNum();
+            rename.FirstNumber = int.Parse(textBox_ChangeNumber_FirstVal.Text);
+            rename.KeepOriginalName = checkBox_ChangeNumber_OrgName.Checked;
+            rename.PadDigits = GetPadDigits();
 
             return rename.Execute();
         }
@@ -434,77 +416,55 @@ namespace FFEdit
                 dateTimePicker_Time.Value.Minute,
                 dateTimePicker_Time.Value.Second,
                 0);
-            ts._base_tick_time = dt.Ticks;
-            ts._update_tick_time = GetTickTime(comboBox_TimeSpan.SelectedIndex);
+            ts.BaseTicks = dt.Ticks;
+            ts.IntervalTicks = GetIntervalTicks(comboBox_TimeSpan.SelectedIndex);
 
-            ts._base_dir = comboBox_TargetDir.Text.TrimEnd('\\');
-            ts._file_list = GetFileList();
+            ts.BaseDir = comboBox_TargetDir.Text.TrimEnd('\\');
+            ts.FileList = GetFileList();
 
-            ts._target_time_create = checkBox_CreationTime.Checked;
-            ts._target_time_last_write = checkBox_LastWriteTime.Checked;
-            ts._target_time_access = checkBox_LastAccessTime.Checked;
+            ts.UpdateCreationTime = checkBox_CreationTime.Checked;
+            ts.UpdateLastWriteTime = checkBox_LastWriteTime.Checked;
+            ts.UpdateLastAccessTime = checkBox_LastAccessTime.Checked;
 
             ts.Execute();
         }
 
-        private int GetPaddingNum()
+        private int GetPadDigits()
         {
-            int Padding = 0;
-
             if (comboBox_ChangeNumber_Digit.SelectedIndex > 0)
             {
                 // 自動桁数じゃない場合
-                Padding = comboBox_ChangeNumber_Digit.SelectedIndex;
-            }
-            else
-            {
-                // [自動桁数]の場合
-                if (checkBox_Target_SelectFile.Checked)
-                {
-                    Padding = listBox.SelectedItems.Count.ToString().Length;
-                }
-                else
-                {
-                    Padding = listBox.Items.Count.ToString().Length;
-                }
+                return comboBox_ChangeNumber_Digit.SelectedIndex;
             }
 
-            return Padding;
+            // [自動桁数]の場合
+            return GetTargetCount().ToString().Length;
         }
 
-        private long GetTickTime(int TimeSpanIdx)
+        private long GetIntervalTicks(int timeSpanIdx)
         {
-            long tick = 0;
-
             // 加算時間
-            TimeSpan Span = TimeSpan.Zero;
-            switch (TimeSpanIdx)
+            switch (timeSpanIdx)
             {
-                case 0:     // [無し]
-                default:
-                    break;
-
                 case 1:     // [秒]
-                    tick = TimeSpan.TicksPerSecond;
-                    break;
+                    return TimeSpan.TicksPerSecond;
 
                 case 2:     // [分]
-                    tick = TimeSpan.TicksPerMinute;
-                    break;
+                    return TimeSpan.TicksPerMinute;
 
                 case 3:     // [時間]
-                    tick = TimeSpan.TicksPerHour;
-                    break;
+                    return TimeSpan.TicksPerHour;
 
                 case 4:     // [日]
-                    tick = TimeSpan.TicksPerDay;
-                    break;
-            }
+                    return TimeSpan.TicksPerDay;
 
-            return tick;
+                case 0:     // [無し]
+                default:
+                    return 0;
+            }
         }
 
-        private Rename.ChangeType GetChangedNameType()
+        private Rename.ChangeType GetChangeType()
         {
             if (radioButton_ChangeNumber.Checked)
             {
@@ -530,109 +490,78 @@ namespace FFEdit
             {
                 return Rename.ChangeType.OnlyExt;
             }
-            //else if (radioButton_ChangeAddDirName.Checked)
-            {
-                return Rename.ChangeType.AddDirName;
-            }
+            // radioButton_ChangeAddDirName
+            return Rename.ChangeType.AddDirName;
         }
+
         private void SetNameChangeControlLabel()
         {
-            String TextVal1 = "";
-            String TextVal2 = "";
+            String label1 = "";
+            String label2 = "";
 
-            // 状態取得
-            if (radioButton_ChangeNumber.Checked)
+            // 状態取得(連番・フォルダ名付与のときはラベル無し)
+            if (radioButton_ChangeDelNum.Checked)
             {
-            }
-            else if (radioButton_ChangeDelNum.Checked)
-            {
-                TextVal1 = "先頭から";
-                TextVal2 = "後方から";
+                label1 = "先頭から";
+                label2 = "後方から";
             }
             else if (radioButton_ChangeAdd.Checked)
             {
-                TextVal1 = "先頭に追加";
-                TextVal2 = "後方に追加";
+                label1 = "先頭に追加";
+                label2 = "後方に追加";
             }
             else if (radioButton_ChangeDelete.Checked)
             {
-                TextVal1 = "削除文字";
+                label1 = "削除文字";
             }
             else if (radioButton_ChangeReplace.Checked)
             {
-                TextVal1 = "置換前";
-                TextVal2 = "置換後";
+                label1 = "置換前";
+                label2 = "置換後";
             }
             else if (radioButton_ChangeExt.Checked)
             {
-                TextVal1 = "拡張子";
-            }
-            else if (radioButton_ChangeAddDirName.Checked)
-            {
-                // 何も無し
+                label1 = "拡張子";
             }
 
-            label_String1.Text = TextVal1;
-            label_String2.Text = TextVal2;
+            label_String1.Text = label1;
+            label_String2.Text = label2;
         }
 
         private void UpdateNameChangeControl(object sender, EventArgs e)
         {
-            bool IsChangeNumber = radioButton_ChangeNumber.Checked;
+            bool isChangeNumber = radioButton_ChangeNumber.Checked;
             SetNameChangeControlLabel();
 
             // TextBoxの表示
-            {
-                comboBox_String1.Enabled = true;
-                if (label_String1.Text == String.Empty)
-                {
-                    comboBox_String1.Enabled = false;
-                }
-
-                comboBox_String2.Enabled = true;
-                if (label_String2.Text == String.Empty)
-                {
-                    comboBox_String2.Enabled = false;
-                }
-            }
+            comboBox_String1.Enabled = (label_String1.Text != String.Empty);
+            comboBox_String2.Enabled = (label_String2.Text != String.Empty);
 
             // ChangeNumber用の設定
-            {
-                label_ChangeNumber_FirstVal.Enabled = IsChangeNumber;
-                textBox_ChangeNumber_FirstVal.Enabled = IsChangeNumber;
+            label_ChangeNumber_FirstVal.Enabled = isChangeNumber;
+            textBox_ChangeNumber_FirstVal.Enabled = isChangeNumber;
 
-                comboBox_ChangeNumber_Digit.Enabled = IsChangeNumber;
-                checkBox_ChangeNumber_OrgName.Enabled = IsChangeNumber;
-            }
+            comboBox_ChangeNumber_Digit.Enabled = isChangeNumber;
+            checkBox_ChangeNumber_OrgName.Enabled = isChangeNumber;
         }
 
         private void UpdateFunctionControl(object sender, EventArgs e)
         {
-            Boolean IsOperationEn = true;
-            if (radioButton_Delete_BlankDir.Checked)
-            {
-                IsOperationEn = false;
-            }
-            checkBox_Operation_AnyDir.Enabled = IsOperationEn;
+            Boolean isOperationEnabled = !radioButton_Delete_BlankDir.Checked;
+            checkBox_Operation_AnyDir.Enabled = isOperationEnabled;
 
-            Boolean IsAnyDirEn = false;
-            if ( IsOperationEn && checkBox_Operation_AnyDir.Checked)
-            {
-                IsAnyDirEn = true;
-            }
-            textBox_Function_Any_Directory.Enabled = IsAnyDirEn;
+            textBox_Function_Any_Directory.Enabled = isOperationEnabled && checkBox_Operation_AnyDir.Checked;
         }
 
         private String GetDestDirOtherFunction()
         {
-            String DestDirName = comboBox_TargetDir.Text;
             if (!radioButton_Delete_BlankDir.Checked &&
                 checkBox_Operation_AnyDir.Checked)
             {
-                DestDirName = textBox_Function_Any_Directory.Text;
+                return textBox_Function_Any_Directory.Text;
             }
 
-            return DestDirName;
+            return comboBox_TargetDir.Text;
         }
 
         private Function.FunctionType GetFunctionType()
@@ -645,35 +574,28 @@ namespace FFEdit
             {
                 return Function.FunctionType.Move;
             }
-            //else if (radioButton_Copy_Target.Checked)
-            {
-                return Function.FunctionType.Copy;
-            }
+            // radioButton_Copy_Target
+            return Function.FunctionType.Copy;
         }
 
         private String ChangeOtherFunction()
         {
-            fs._base_dir = comboBox_TargetDir.Text.TrimEnd('\\');
-            fs._target_dir = GetDestDirOtherFunction().TrimEnd('\\');
+            function.BaseDir = comboBox_TargetDir.Text.TrimEnd('\\');
+            function.DestDir = GetDestDirOtherFunction().TrimEnd('\\');
 
-            fs._file_list = GetFileList();
-            fs._function_type = GetFunctionType();
+            function.FileList = GetFileList();
+            function.Type = GetFunctionType();
 
-            return fs.Execute();
+            return function.Execute();
         }
 
-        private int GetListTargetNum()
+        private int GetTargetCount()
         {
-            int TargetNum = 0;
             if (checkBox_Target_SelectFile.Checked)
             {
-                TargetNum = listBox.SelectedItems.Count;
+                return listBox.SelectedItems.Count;
             }
-            else
-            {
-                TargetNum = listBox.Items.Count;
-            }
-            return TargetNum;
+            return listBox.Items.Count;
         }
     }
 }

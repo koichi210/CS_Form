@@ -1,59 +1,53 @@
-﻿﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.Windows.Forms;
+﻿using System;
 using StandardTemplate;
 
 namespace FFEdit
 {
     class SaveRestore : StcSaveRestore
     {
-        public void RegistItem(Form1 Parent)
+        public void RegistItem(Form1 parent)
         {
             SetElement("Setting");
 
             // コントロールを列挙
-            RegistCtrlList("comboBox_TargetDir", "Value_", Parent.comboBox_TargetDir);
-            RegistCtrlList("comboBox_String1", "Value_", Parent.comboBox_String1);
-            RegistCtrlList("comboBox_String2", "Value_", Parent.comboBox_String2);
-            RegistCtrl("textBox_Target_Extension", "Value", Parent.textBox_Target_Extension, "*");
+            RegistCtrlList("comboBox_TargetDir", "Value_", parent.comboBox_TargetDir);
+            RegistCtrlList("comboBox_String1", "Value_", parent.comboBox_String1);
+            RegistCtrlList("comboBox_String2", "Value_", parent.comboBox_String2);
+            RegistCtrl("textBox_Target_Extension", "Value", parent.textBox_Target_Extension, "*");
         }
 
-        public bool LoadProc(String LoadFileName, Form1 Parent)
+        public bool LoadProc(String loadFileName, Form1 parent)
         {
-            if (LoadFileName == String.Empty)
+            if (loadFileName == String.Empty)
             {
                 return false;
             }
 
             // Default設定
-            Parent.textBox_Target_Extension.Text = "*";
+            parent.textBox_Target_Extension.Text = "*";
 
-            return LoadXmlFile(LoadFileName);
+            return LoadXmlFile(loadFileName);
         }
 
-        public bool SaveSetting(String SaveFileName, Form1 Parent)
+        public bool SaveSetting(String saveFileName, Form1 parent)
         {
-            if (SaveFileName == String.Empty)
+            if (saveFileName == String.Empty)
             {
                 return false;
             }
 
-            UpdateComboHistory(Parent);
+            UpdateComboHistory(parent);
 
-            return SaveXmlFile(SaveFileName);
+            return SaveXmlFile(saveFileName);
         }
 
         // 入力中の文字をコンボボックスの履歴に足す。XML/JSONどちらで保存する場合も保存前に呼ぶこと
-        public void UpdateComboHistory(Form1 Parent)
+        public void UpdateComboHistory(Form1 parent)
         {
             StcUtils util = new StcUtils();
-            util.ModifyCombBoxList(Parent.comboBox_TargetDir);
-            util.ModifyCombBoxList(Parent.comboBox_String1);
-            util.ModifyCombBoxList(Parent.comboBox_String2);
+            util.ModifyCombBoxList(parent.comboBox_TargetDir);
+            util.ModifyCombBoxList(parent.comboBox_String1);
+            util.ModifyCombBoxList(parent.comboBox_String2);
         }
     }
 }
