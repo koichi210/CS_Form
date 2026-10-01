@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using System.IO;
@@ -31,40 +25,39 @@ namespace XmlReadWrite
                 return;
             }
 
-            XmlTextWriter write = null;
+            XmlTextWriter writer = null;
 
             try
             {
-                write = new XmlTextWriter(textBox_FileName.Text, null);
-                write.WriteStartElement("x", "root", "urn:1");
-                write.WriteStartElement("Setting");
+                writer = new XmlTextWriter(textBox_FileName.Text, null);
+                writer.WriteStartElement("x", "root", "urn:1");
+                writer.WriteStartElement("Setting");
 
-                write.WriteStartElement("set");
-                write.WriteAttributeString("Param", "FileName");
-                write.WriteString(textBox_FileName.Text);
-                write.WriteEndElement();
+                writer.WriteStartElement("set");
+                writer.WriteAttributeString("Param", "FileName");
+                writer.WriteString(textBox_FileName.Text);
+                writer.WriteEndElement();
 
-                write.WriteStartElement("set");
-                write.WriteAttributeString("Param", "Param1");
-                write.WriteString(textBox_Param1.Text);
-                write.WriteEndElement();
+                writer.WriteStartElement("set");
+                writer.WriteAttributeString("Param", "Param1");
+                writer.WriteString(textBox_Param1.Text);
+                writer.WriteEndElement();
 
-                //write.WriteElementString("space", "hoge");
-                //write.WriteElementString("FileName", textBox_FileName.Text);
-                //write.WriteElementString("Param1", textBox_Param1.Text);
-                //write.WriteElementString("Param2", textBox_Param2.Text);
-                //write.WriteElementString("Param3", textBox_Param3.Text);
-                //write.WriteElementString("Param4", textBox_Param4.Text);
-                write.WriteEndElement();
-                write.WriteEndElement();
-                write.Close();
+                //writer.WriteElementString("space", "hoge");
+                //writer.WriteElementString("FileName", textBox_FileName.Text);
+                //writer.WriteElementString("Param1", textBox_Param1.Text);
+                //writer.WriteElementString("Param2", textBox_Param2.Text);
+                //writer.WriteElementString("Param3", textBox_Param3.Text);
+                //writer.WriteElementString("Param4", textBox_Param4.Text);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
             }
 
             finally
             {
-                if (write != null)
+                if (writer != null)
                 {
-                    write.Close();
+                    writer.Close();
                 }
             }
         }
