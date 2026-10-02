@@ -162,6 +162,22 @@ namespace EventRecorder
         // タブ1の単発再生・タブ2のプレイリスト再生の両方から共通で使う
         private void PlayRows(List<String[]> rows, int loopCount)
         {
+            try
+            {
+                PlayRowsCore(rows, loopCount);
+            }
+            finally
+            {
+                // 中断された場合、Downのままのキー/マウスボタンを全部Upに戻す
+                if (stopPlayRequested)
+                {
+                    ReleaseAllPressedInputs();
+                }
+            }
+        }
+
+        private void PlayRowsCore(List<String[]> rows, int loopCount)
+        {
             for (int i = 0; i < loopCount && !stopPlayRequested; i++)
             {
                 playbackInnerLoopNo = i + 1;
@@ -1040,6 +1056,7 @@ namespace EventRecorder
                 int iy = util.GetInteger(y);
                 InputSimulation.InputSimulator.AddMouseInput(ref inputs, flags, 0, true, ix, iy);
                 InputSimulation.InputSimulator.SendInput(inputs);
+                TrackPressedMouseButton(mouseStroke);
                 return;
             }
 
@@ -1049,6 +1066,76 @@ namespace EventRecorder
                 && Enum.TryParse<Keys>(key, out keyCode))
             {
                 InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, keyStroke, keyCode);
+                InputSimulation.InputSimulator.SendInput(inputs);
+                TrackPressedKey(keyStroke, keyCode);
+            }
+        }
+
+        // 再生中にDownしたまま(まだUpしていない)のキー/マウスボタン。再生スレッドからしか触らない。
+        // 途中で再生を中断すると、Downだけ送って止まったキー/ボタンが押しっぱなしになってしまうため、
+        // 中断時にReleaseAllPressedInputsでまとめてUpに戻す
+        private readonly HashSet<Keys> playbackPressedKeys = new HashSet<Keys>();
+        private readonly HashSet<InputSimulation.InputSimulator.MouseStroke> pressedMouseUpStrokes
+            = new HashSet<InputSimulation.InputSimulator.MouseStroke>();
+
+        private void TrackPressedKey(InputSimulation.InputSimulator.KeyboardStroke stroke, Keys keyCode)
+        {
+            if (stroke == InputSimulation.InputSimulator.KeyboardStroke.KEY_DOWN)
+            {
+                playbackPressedKeys.Add(keyCode);
+            }
+            else
+            {
+                playbackPressedKeys.Remove(keyCode);
+            }
+        }
+
+        // ボタンごとに「Down→対応するUp」の組で管理する。Downなら解除用のUpを登録、Upなら登録を外す
+        private void TrackPressedMouseButton(InputSimulation.InputSimulator.MouseStroke stroke)
+        {
+            switch (stroke)
+            {
+                case InputSimulation.InputSimulator.MouseStroke.LEFT_DOWN:
+                    pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
+                    break;
+                case InputSimulation.InputSimulator.MouseStroke.LEFT_UP:
+                    pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
+                    break;
+                case InputSimulation.InputSimulator.MouseStroke.RIGHT_DOWN:
+                    pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.RIGHT_UP);
+                    break;
+                case InputSimulation.InputSimulator.MouseStroke.RIGHT_UP:
+                    pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.RIGHT_UP);
+                    break;
+                case InputSimulation.InputSimulator.MouseStroke.MIDDLE_DOWN:
+                    pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP);
+                    break;
+                case InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP:
+                    pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP);
+                    break;
+            }
+        }
+
+        // Downのままになっているキー/マウスボタンを全部Upに戻す(カーソルは動かさない)
+        private void ReleaseAllPressedInputs()
+        {
+            List<InputSimulation.InputSimulator.Input> inputs = new List<InputSimulation.InputSimulator.Input>();
+
+            foreach (InputSimulation.InputSimulator.MouseStroke upStroke in pressedMouseUpStrokes)
+            {
+                InputSimulation.InputSimulator.AddMouseInput(ref inputs, upStroke, 0, false, 0, 0);
+            }
+
+            foreach (Keys keyCode in playbackPressedKeys)
+            {
+                InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, InputSimulation.InputSimulator.KeyboardStroke.KEY_UP, keyCode);
+            }
+
+            pressedMouseUpStrokes.Clear();
+            playbackPressedKeys.Clear();
+
+            if (inputs.Count > 0)
+            {
                 InputSimulation.InputSimulator.SendInput(inputs);
             }
         }
