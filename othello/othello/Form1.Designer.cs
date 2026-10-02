@@ -36,6 +36,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuItem_Game = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Start = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_Stop = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Undo = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_Redo = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -130,6 +131,7 @@
             //
             this.menuItem_Game.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_Start,
+            this.menuItem_Stop,
             this.menuItem_Undo,
             this.menuItem_Redo,
             this.toolStripSeparator1,
@@ -147,6 +149,13 @@
             this.menuItem_Start.Size = new System.Drawing.Size(180, 22);
             this.menuItem_Start.Text = "開始(&S)";
             this.menuItem_Start.Click += new System.EventHandler(this.menuItem_Start_Click);
+            //
+            // menuItem_Stop
+            //
+            this.menuItem_Stop.Name = "menuItem_Stop";
+            this.menuItem_Stop.Size = new System.Drawing.Size(180, 22);
+            this.menuItem_Stop.Text = "停止(&P)";
+            this.menuItem_Stop.Click += new System.EventHandler(this.menuItem_Stop_Click);
             //
             // menuItem_Undo
             //
@@ -401,6 +410,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Game;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Start;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_Stop;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Undo;
         private System.Windows.Forms.ToolStripMenuItem menuItem_Redo;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;

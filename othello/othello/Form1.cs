@@ -18,6 +18,20 @@ namespace othello
             ComCom,
         }
 
+        /// <summary>
+        /// 対局の進行状態。C++版 GAME_INIT/GAME_PLAY/GAME_STOP/GAME_END 相当。
+        /// 持ち時間のカウントダウンとCOMの自動着手は Play の間だけ動く。
+        /// </summary>
+        private enum GameState
+        {
+            Init,
+            Play,
+            Stop,
+            End,
+        }
+
+        private GameState gameState = GameState.Init;
+
         private BoardRenderer renderer = new BoardRenderer();
         private GameMaster gm = new GameMaster();
         private PlayMode playMode = PlayMode.PlayerPlayer;
@@ -137,7 +151,9 @@ namespace othello
 
             gm.Initialize();
             isTimedOut = false;
+            gameState = GameState.Init;
             ResetRemainingTime();
+            UpdateMenuState();
         }
 
         /// <summary>
@@ -159,6 +175,7 @@ namespace othello
             if (gm.Undo())
             {
                 isTimedOut = false;
+                gameState = GameState.Stop;
                 RedrawBoard();
             }
         }
@@ -173,6 +190,7 @@ namespace othello
             if (gm.Redo())
             {
                 isTimedOut = false;
+                gameState = GameState.Stop;
                 RedrawBoard();
             }
         }
@@ -192,11 +210,37 @@ namespace othello
         }
 
         /// <summary>
-        /// メニュー「ゲーム」→「開始」。確認なしで新規対局を始める。
+        /// メニュー「ゲーム」→「開始」。開始前・停止中なら(再)開し、終局後なら新規対局を始める。
+        /// C++版 OnMenuitemStart/StartProc 相当。
         /// </summary>
         private void menuItem_Start_Click(object sender, EventArgs e)
         {
-            ResetGame();
+            if (gameState == GameState.Play)
+            {
+                return;
+            }
+
+            if (gameState == GameState.End)
+            {
+                ResetGame();
+            }
+
+            gameState = GameState.Play;
+            RedrawBoard();
+        }
+
+        /// <summary>
+        /// メニュー「ゲーム」→「停止」。持ち時間のカウントダウンとCOMの着手を止める。
+        /// 再開は「開始」。C++版 OnMenuitemStop 相当。
+        /// </summary>
+        private void menuItem_Stop_Click(object sender, EventArgs e)
+        {
+            if (gameState != GameState.Play)
+            {
+                return;
+            }
+
+            gameState = GameState.Stop;
             RedrawBoard();
         }
 
@@ -401,6 +445,7 @@ namespace othello
 
                 bool ok = Kihu.TryReplay(text, gm, out string errorMessage);
                 isTimedOut = false;
+                gameState = GameState.Init;
                 ResetRemainingTime();
 
                 RedrawBoard();
@@ -435,7 +480,7 @@ namespace othello
         /// </summary>
         private void MaybeTriggerComMove()
         {
-            if (!gm.IsGameEnd && IsComTurn(gm.CurrentTurn))
+            if (gameState == GameState.Play && !gm.IsGameEnd && IsComTurn(gm.CurrentTurn))
             {
                 comMoveTimer.Start();
             }
@@ -445,7 +490,7 @@ namespace othello
         {
             comMoveTimer.Stop();
 
-            if (isTimedOut || gm.IsGameEnd || !IsComTurn(gm.CurrentTurn))
+            if (gameState != GameState.Play || isTimedOut || gm.IsGameEnd || !IsComTurn(gm.CurrentTurn))
             {
                 return;
             }
@@ -512,8 +557,20 @@ namespace othello
                 return;
             }
 
+            if (gameState == GameState.Stop)
+            {
+                MessageBox.Show("「ゲーム」→「開始」を押してね", "停止中", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             if (gm.TryPut(x, y))
             {
+                // 開始前に最初の手を打ったら、そのまま対局開始(C++版 GAME_INIT 時の挙動)
+                if (gameState == GameState.Init)
+                {
+                    gameState = GameState.Play;
+                }
+
                 RedrawBoard();
             }
         }
@@ -554,6 +611,11 @@ namespace othello
         /// </summary>
         private void RedrawBoard()
         {
+            if (isTimedOut || gm.IsGameEnd)
+            {
+                gameState = GameState.End;
+            }
+
             bool showNotice = !isTimedOut && !gm.IsGameEnd && !IsComTurn(gm.CurrentTurn);
             bool[,] validMoves = showNotice ? gm.GetValidMoves(gm.CurrentTurn) : null;
             renderer.DrawField(gm.Table, validMoves);
@@ -563,7 +625,9 @@ namespace othello
             menuItem_Undo.Enabled = gm.CanUndo;
             menuItem_Redo.Enabled = gm.CanRedo;
 
-            if (!isTimedOut && !gm.IsGameEnd && timeLimitSeconds >= 0)
+            UpdateMenuState();
+
+            if (gameState == GameState.Play && timeLimitSeconds >= 0)
             {
                 countdownTimer.Start();
             }
@@ -573,6 +637,17 @@ namespace othello
             }
 
             MaybeTriggerComMove();
+        }
+
+        /// <summary>
+        /// 対局の進行状態に合わせて、開始/停止/持ち時間メニューの有効無効を切り替える。
+        /// 持ち時間は対局中(進行中・停止中)は変更できない(C++版 Constraints 相当)。
+        /// </summary>
+        private void UpdateMenuState()
+        {
+            menuItem_Start.Enabled = gameState != GameState.Play;
+            menuItem_Stop.Enabled = gameState == GameState.Play;
+            menuItem_TimeLimit.Enabled = gameState == GameState.Init || gameState == GameState.End;
         }
 
         /// <summary>
@@ -626,7 +701,8 @@ namespace othello
             else
             {
                 string turnName = gm.CurrentTurn == StoneColor.Black ? "黒" : "白";
-                label_Status.Text = string.Format("{0}の番 (黒:{1} 白:{2})", turnName, blackCount, whiteCount);
+                string stopped = gameState == GameState.Stop ? " [停止中]" : "";
+                label_Status.Text = string.Format("{0}の番 (黒:{1} 白:{2}){3}", turnName, blackCount, whiteCount, stopped);
             }
         }
     }
