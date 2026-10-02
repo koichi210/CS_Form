@@ -43,6 +43,7 @@ namespace ImageViewer
         public Form1()
         {
             InitializeComponent();
+            InitializePlaceholders();
             textBox_FolderPath.Text = @"C:\tmp";
             textBox_Extension.Text = @"*.png";  // TODO：動画も先頭フレームを表示するようにして対応したい。
 
@@ -60,6 +61,14 @@ namespace ImageViewer
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadXmlFile(path));
             util.UpdateProfileList(comboBox_Profile, ProfileExtensions, DefaultSaveName, userDataFolder);
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // 対象外の欄は無し(2つとも手入力する欄)
+        private void InitializePlaceholders()
+        {
+            textBox_FolderPath.PlaceholderText = @"例: C:\tmp";
+            textBox_Extension.PlaceholderText = "例: *.png";
         }
 
         // *******************************************************************************

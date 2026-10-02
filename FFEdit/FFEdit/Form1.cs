@@ -53,6 +53,8 @@ namespace FFEdit
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.FFEdit);
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
             JsonSaveRestore.LoadWithMigration(sr,
                 Path.Combine(userDataFolder, SettingFileName),
@@ -74,6 +76,16 @@ namespace FFEdit
                 comboBox_TimeSpan.Items.Add(TimeSpanItems[i]);
             }
             comboBox_TimeSpan.SelectedIndex = 1;
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnlyの欄(textBox_StatusBar、総数/選択数の表示欄)と、
+        // エラー画面(ErrorMsg)のMultiline+ReadOnlyのメッセージ欄は対象外
+        private void InitializePlaceholders()
+        {
+            textBox_Target_Extension.PlaceholderText = "例: *.jpg";
+            textBox_ChangeNumber_FirstVal.PlaceholderText = "例: 1";
+            textBox_Function_Any_Directory.PlaceholderText = @"例: C:\Work";
         }
 
         private void comboBox_TargetDir_KeyDown(object sender, KeyEventArgs e)

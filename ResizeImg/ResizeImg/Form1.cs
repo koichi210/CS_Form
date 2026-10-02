@@ -9,6 +9,7 @@ namespace ResizeImg
         public Form1()
         {
             InitializeComponent();
+            InitializePlaceholders();
             // デバッグ用
             textBox1.Text = @"sample.jpg";
             textBox2.Text = @"0";
@@ -17,6 +18,23 @@ namespace ResizeImg
             textBox5.Text = @"300";
             textBox7.Text = @"592";
             textBox8.Text = @"312";
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnly・Multilineの欄は無いので全欄が対象
+        // (textBox6(フォルダパス)は現状コードから参照されていないが、入力欄なので付けておく)
+        private void InitializePlaceholders()
+        {
+            textBox1.PlaceholderText = "例: sample.jpg";
+            textBox6.PlaceholderText = @"例: C:\Work";
+
+            textBox2.PlaceholderText = "例: 0";
+            textBox3.PlaceholderText = "例: 0";
+            textBox4.PlaceholderText = "例: 200";
+            textBox5.PlaceholderText = "例: 300";
+
+            textBox7.PlaceholderText = "例: 592";
+            textBox8.PlaceholderText = "例: 312";
         }
 
         private void button1_Click(object sender, EventArgs e)

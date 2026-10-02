@@ -53,6 +53,8 @@ namespace FileArranger
             RecreateRenameColumnsEvenly();
             RecreatePartitionColumnsEvenly();
 
+            InitializePlaceholders();
+
             sr.RegisterLoadItem(this);
 
             // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
@@ -62,6 +64,32 @@ namespace FileArranger
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
 
             UpdateProfileListAll("");
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnlyの欄(rd_textBox_ExistItemDir・pf_textBox_ReferenceFile、リファレンスフォルダから自動で入る)と、
+        // Multilineの欄(cmn_textBox_AddList、Windowsの仕様で表示されない)、進捗表示のprogressTextは対象外
+        private void InitializePlaceholders()
+        {
+            cmn_textBox_Reference.PlaceholderText = @"例: C:\Work\Reference";
+            cmn_textBox_AddListSuffix.PlaceholderText = "例: _new";
+
+            md_textBox_SourceDir.PlaceholderText = @"例: C:\Work\Source";
+
+            rd_textBox_SplitWord3.PlaceholderText = "例: _";
+            rd_textBox_AddTitlePreWord.PlaceholderText = "例: vol";
+            rd_textBox_SearchTitleLine.PlaceholderText = "例: 3";
+            rd_textBox_SearchTitleLength.PlaceholderText = "例: 2";
+
+            sf_textBox_TargetFile.PlaceholderText = @"例: C:\Work\Files";
+
+            mf_textBox_SourceDir.PlaceholderText = @"例: C:\Work\Source";
+            mf_textBox_TargetDir.PlaceholderText = @"例: C:\Work\Dest";
+
+            pf_textBox_TargetFile.PlaceholderText = @"例: C:\Work\Files";
+            pf_textBox_TargetSeparator.PlaceholderText = "例: _";
+            pf_textBox_SearchTitleLine.PlaceholderText = "例: 3";
+            pf_textBox_SearchTitleLength.PlaceholderText = "例: 2";
         }
 
         // *******************************************************************************

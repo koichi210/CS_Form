@@ -51,12 +51,33 @@ namespace PerforceWrapper
 
             InitializeCommonSettings(Properties.Resources.PerforceWrapper);
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
             util.UpdateProfileList(comboBox_profile, ProfileExtensions, "", userDataFolder);
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // Multilineの欄(textBox_tree_list、Windowsの仕様で表示されない)と、
+        // パスワード欄(textbox_perforce_password、入力例を出す意味が無い)は対象外
+        private void InitializePlaceholders()
+        {
+            textBox_so_changelist.PlaceholderText = "例: 12345";
+
+            textBox_sl_label_name.PlaceholderText = "例: REL_1_0";
+            textBox_sl_base_changelist.PlaceholderText = "例: 12345";
+
+            textBox_dl_src_label_name.PlaceholderText = "例: REL_1_0";
+            textBox_dl_src_tree.PlaceholderText = "例: //depot/main/...";
+            textBox_dl_dest_label_name.PlaceholderText = "例: REL_1_1";
+            textBox_dl_dest_tree.PlaceholderText = "例: //depot/release/...";
+
+            textBox_al_label_name.PlaceholderText = "例: REL_1_0";
+            textBox_al_branch_map.PlaceholderText = "例: main_to_release";
         }
 
         // *******************************************************************************

@@ -12,6 +12,16 @@ namespace ToyingFile
         {
             InitializeComponent();
             this.Icon = Properties.Resources.ToyingFile;
+
+            InitializePlaceholders();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // Multilineの欄(textBox_DeleteString、Windowsの仕様で表示されない)は対象外
+        private void InitializePlaceholders()
+        {
+            textBox_Directory.PlaceholderText = @"例: C:\Work";
+            textBox_File.PlaceholderText = "例: *.txt";
         }
 
         private void textBox_Directory_KeyDown(object sender, KeyEventArgs e)

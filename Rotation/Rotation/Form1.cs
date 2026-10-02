@@ -10,6 +10,20 @@ namespace Rotation
         public Form1()
         {
             InitializeComponent();
+
+            InitializePlaceholders();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnly・Multilineの欄は無いので全欄が対象
+        private void InitializePlaceholders()
+        {
+            textBox_loadfilepath.PlaceholderText = @"例: C:\Work\input.png";
+            textBox_savefilepath.PlaceholderText = @"例: C:\Work\output.png";
+
+            textBox_angle.PlaceholderText = "例: 90";
+            textBox_OriginX.PlaceholderText = "例: 0";
+            textBox_OriginY.PlaceholderText = "例: 0";
         }
 
         private void button_ClickDraw(object sender, EventArgs e)

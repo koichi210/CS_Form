@@ -16,10 +16,20 @@ namespace WeeklyReportFormatter
             InitializeComponent();
             this.Icon = Properties.Resources.WeeklyReportFormatter;
 
+            InitializePlaceholders();
+
             // カレントディレクトリ移動
             util.SetCurrentDirectory();
 
             textBox_UserName.Text = fileInputOutput.LoadFile(UserNameFileName);
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // 変換元・変換先の欄(textBox_ThisWeek*/NextWeek*/Perforce*)はすべてMultilineで
+        // Windowsの仕様で表示されないため対象外
+        private void InitializePlaceholders()
+        {
+            textBox_UserName.PlaceholderText = "例: Taro Yamada";
         }
 
         private void textBox_ThisWeekBefore_KeyDown(object sender, KeyEventArgs e)

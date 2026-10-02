@@ -10,11 +10,24 @@ namespace XmlReadWrite
         public Form1()
         {
             InitializeComponent();
+            InitializePlaceholders();
             textBox_FileName.Text = @"Sample.xml";
             textBox_Param1.Text = @"Hello World";
             textBox_Param2.Text = "123";
             textBox_Param3.Text = @"c:\tmp";
             textBox_Param4.Text = "テスト";
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnly・Multilineの欄は無いので全欄が対象
+        // (Param1～4は読込4ボタンでXMLの値が書き戻されるが、書込用の入力欄でもあるので付けておく)
+        private void InitializePlaceholders()
+        {
+            textBox_FileName.PlaceholderText = "例: Sample.xml";
+            textBox_Param1.PlaceholderText = "例: Hello World";
+            textBox_Param2.PlaceholderText = "例: 123";
+            textBox_Param3.PlaceholderText = @"例: C:\Work";
+            textBox_Param4.PlaceholderText = "例: テスト";
         }
 
         private void button_write_Click(object sender, EventArgs e)

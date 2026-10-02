@@ -150,6 +150,8 @@ namespace EventRecorder
         {
             InitializeComponent();
 
+            InitializePlaceholders();
+
             // ウィンドウサイズ+splitContainer_Mainの境界線位置+ホットキーを、前回終了時の
             // 状態(EventRecorder.json、無ければ既定値のまま)で復元する
             LoadAppSettings();
@@ -233,6 +235,14 @@ namespace EventRecorder
             // 各グループボックス内のコントロールを触ったら、同じ名前(Record/Playback)の
             // ラジオボタンへ自動でモードを切り替える
             SetupGroupBoxRadioSync();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // キーバインド設定画面(HotkeySettingsForm)の欄は、押したキーを読み取って表示する
+        // ReadOnlyの欄なので対象外
+        private void InitializePlaceholders()
+        {
+            textBox_Loop.PlaceholderText = "例: 1";
         }
 
         // グループボックス自体(枠・余白部分)や、グループボックス内のコントロールをクリックしたら、

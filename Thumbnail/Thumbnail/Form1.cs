@@ -10,7 +10,15 @@ namespace Thumbnail
         public Form1()
         {
             InitializeComponent();
+            InitializePlaceholders();
             textBox_FilePath.Text = @"D:\sample.png";
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnly・Multilineの欄は無いので全欄が対象
+        private void InitializePlaceholders()
+        {
+            textBox_FilePath.PlaceholderText = @"例: C:\Work\sample.png";
         }
 
         private void button_Exe_Click(object sender, EventArgs e)

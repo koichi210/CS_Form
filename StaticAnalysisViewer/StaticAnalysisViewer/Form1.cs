@@ -54,12 +54,22 @@ namespace StaticAnalysisViewer
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.StaticAnalysisViewer);
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path, this));
             util.UpdateProfileList(comboBox_Profile, ProfileExtensions, "", userDataFolder);
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // Multilineの欄(TextBox_LoadDataList・TextBox_Ranking、Windowsの仕様で表示されない)と、
+        // ReadOnlyの集計結果欄(TextBox_CountLineTotal・TextBox_FileNumTotal)は対象外
+        private void InitializePlaceholders()
+        {
+            TextBox_TopRankingNum.PlaceholderText = "例: 10";
         }
 
         // *******************************************************************************

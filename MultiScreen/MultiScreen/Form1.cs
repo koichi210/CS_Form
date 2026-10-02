@@ -13,6 +13,8 @@ namespace MultiScreen
         {
             InitializeComponent();
 
+            InitializePlaceholders();
+
             // ダイアログ生成数のDefault値を設定
             textBox_DlgNum.Text = DefaultDlgNum.ToString();
             textBox_ButtonName.Text = "Click Me!!";
@@ -20,6 +22,14 @@ namespace MultiScreen
             // モニタの解像度取得
             ScreenWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
             ScreenHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // 対象外の欄は無し(2つとも手入力する欄)
+        private void InitializePlaceholders()
+        {
+            textBox_DlgNum.PlaceholderText = "例: 10";
+            textBox_ButtonName.PlaceholderText = "例: Click Me!!";
         }
 
         private void buttonAllPopup_Click(object sender, EventArgs e)

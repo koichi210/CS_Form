@@ -46,12 +46,23 @@ namespace TrimFileData
 
             InitializeCommonSettings(Properties.Resources.TrimFileData);
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
             util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFileName, userDataFolder);
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // Multilineの欄(textBox_SearchWordList、Windowsの仕様で表示されない)と、
+        // 検索結果の出力欄(textBox_SearchResultList、Multilineでもある)は対象外
+        private void InitializePlaceholders()
+        {
+            textBox_ReferencePath.PlaceholderText = @"例: C:\Work\reference.txt";
+            textBox_SearchCommonWord.PlaceholderText = "例: error";
         }
 
         // *******************************************************************************

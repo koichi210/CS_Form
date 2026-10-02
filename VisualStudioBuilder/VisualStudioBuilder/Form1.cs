@@ -76,6 +76,8 @@ namespace VisualStudioBuilder
             // DataGridViewの初期設定
             InitializeDataGridView();
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, DefaultSettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
@@ -85,6 +87,19 @@ namespace VisualStudioBuilder
             UpdateOutputGUI();
             util.UpdateProfileList(comboBox_Profile, ProfileExtensions, DefaultSettingFileName, userDataFolder);
 
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnly・Multilineの欄は無いので全欄が対象
+        // (既定値は[[SaveRestore.cs]]のRegisterCtrlに合わせた)
+        private void InitializePlaceholders()
+        {
+            textBox_VisualStudioExePath.PlaceholderText = @"例: C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe";
+            textBox_BuildOption.PlaceholderText = "例: /rebuild release";
+            textBox_DeleteDirectoryName.PlaceholderText = "例: obj";
+            textBox_LogDirectory.PlaceholderText = @"例: C:\Work\BuildLog";
+            textBox_DetectBuildErrorWord.PlaceholderText = "例: error";
+            textBox_ExcludeWord.PlaceholderText = "例: LNK1168";
         }
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)

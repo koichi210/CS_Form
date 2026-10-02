@@ -9,6 +9,15 @@ namespace WebBrowser
         {
             InitializeComponent();
             this.Icon = Properties.Resources.WebBrowser;
+
+            InitializePlaceholders();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnly・Multilineの欄は無いので全欄が対象
+        private void InitializePlaceholders()
+        {
+            textBox_Url.PlaceholderText = "例: https://example.com";
         }
 
         private void button_Go_Click(object sender, EventArgs e)

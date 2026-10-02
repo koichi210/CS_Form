@@ -56,12 +56,28 @@ namespace Mailer
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.Mailer);
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
             String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
                 path => sr.LoadProc(path));
             util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, "", userDataFolder);
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // Multilineの欄(textBox_MailBody、Windowsの仕様で表示されない)は対象外
+        private void InitializePlaceholders()
+        {
+            textBox_BrowserPath.PlaceholderText = @"例: C:\Program Files\Google\Chrome\Application\chrome.exe";
+            textBox_MailTo.PlaceholderText = "例: user@example.com";
+            textBox_MailCc.PlaceholderText = "例: cc@example.com";
+            textBox_MailBcc.PlaceholderText = "例: bcc@example.com";
+            textBox_MailSubject.PlaceholderText = "例: 日報 %%today%%";
+
+            textBox_CreateNum.PlaceholderText = "例: 5";
+            textBox_IntervalMsec.PlaceholderText = "例: 5000";
         }
 
         // *******************************************************************************

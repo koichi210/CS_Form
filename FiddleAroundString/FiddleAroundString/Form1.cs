@@ -60,6 +60,21 @@ namespace FiddleAroundString
         public Form1()
         {
             InitializeComponent();
+
+            InitializePlaceholders();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // Multilineの欄(検索ワード・検索結果・変更前/変更後データ・取得元/取得値の一覧、
+        // Windowsの仕様で表示されない)は対象外
+        private void InitializePlaceholders()
+        {
+            textBox_ReferencePath.PlaceholderText = @"例: C:\Work\reference.txt";
+            textBox_SearchCommonWord.PlaceholderText = "例: TODO";
+
+            textBox_SearchWord.PlaceholderText = "例: <title>";
+            textBox_DelimiterWord.PlaceholderText = "例: </title>";
+            textBox_TrimLineNum.PlaceholderText = "例: 1";
         }
 
         private void button_Execute_Click(object sender, EventArgs e)

@@ -50,6 +50,15 @@ namespace Class_List
         public Form1()
         {
             InitializeComponent();
+
+            InitializePlaceholders();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // 対象外の欄は無し(回数の入力欄1つだけ)
+        private void InitializePlaceholders()
+        {
+            textBox_num.PlaceholderText = "例: 3";
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)

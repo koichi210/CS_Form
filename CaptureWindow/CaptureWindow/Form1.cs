@@ -21,6 +21,8 @@ namespace CaptureWindow
         {
             InitializeComponent();
 
+            InitializePlaceholders();
+
             TextBox_SavePath.Text = @"c:\tmp";
             Radio_FullScreen.Checked = true;
             TextBox_MouseX.Text = @"500";
@@ -35,6 +37,16 @@ namespace CaptureWindow
             captWindow.SetCaptureCase(true);
 
             LoadSetting();
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnlyの欄(TextBox_MousePoint、マウス座標の表示欄)は対象外
+        private void InitializePlaceholders()
+        {
+            TextBox_SavePath.PlaceholderText = @"例: C:\tmp";
+            TextBox_MouseX.PlaceholderText = "例: 500";
+            TextBox_MouseY.PlaceholderText = "例: 500";
+            TextBox_Sleep.PlaceholderText = "例: 3";
         }
 
         private void Button_Capture_Click(object sender, EventArgs e)
