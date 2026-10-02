@@ -85,16 +85,25 @@ namespace Class_List
 
         private void buttonRestore_Click(object sender, EventArgs e)
         {
+            RemoveLastGroup();
+            ResultDump();
+        }
+
+        // 直前に追加した1グループ分の要素を削除する(Restoreボタンの本体ロジック)。
+        // ループは末尾からインデックス0まで見る必要がある(先頭グループだけで追加した直後に
+        // Restoreすると、i > 0ではインデックス0が除外されて何も消えないバグがあったため、
+        // i >= 0 にして0番目も対象に含める。RemoveAtで前方から削除するのでインデックスが
+        // ずれないよう、ループは後ろから前へ進める
+        private void RemoveLastGroup()
+        {
             UpdateIdx(INDEX_COUNTER.DECREMENT);
-            for (int i = AllList.Count - 1; i > 0; i--)
+            for (int i = AllList.Count - 1; i >= 0; i--)
             {
                 if (!RemoveIfLastGroup(AllList, i))
                 {
                     break;
                 }
             }
-
-            ResultDump();
         }
 
         private void AddList(List<Table> list, int num)

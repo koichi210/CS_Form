@@ -61,6 +61,8 @@
     <Compile Include="TimeStampTests.cs" />
     <Compile Include="SaveRestoreTests.cs" />
     <Compile Include="FileMngTests.cs" />
+    <Compile Include="FormReflection.cs" />
+    <Compile Include="Form1Tests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

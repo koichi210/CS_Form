@@ -99,5 +99,24 @@ namespace Class_List.Tests
                 Assert.AreEqual(1, list.Count);
             }
         }
+
+        // 回帰テスト: Restoreボタンのループが`i > 0`だった頃は、最初に追加した
+        // (かつ唯一の)グループ0の要素がインデックス0のまま残ってしまい、
+        // Restoreしても何も消えないバグがあった。AllListはprivateなので
+        // FormReflectionで直接積んでから、本体ロジックのRemoveLastGroupを呼び出す
+        [TestMethod]
+        public void RemoveLastGroupは最初の1グループだけでも全要素を削除する()
+        {
+            using (var form = new Form1())
+            {
+                var allList = (List<Form1.Table>)FormReflection.GetField(form, "AllList");
+                allList.Add(new Form1.Table(0, "Source0", "Destination0"));
+                allList.Add(new Form1.Table(0, "Source1", "Destination1"));
+
+                FormReflection.InvokeMethod(form, "RemoveLastGroup");
+
+                Assert.AreEqual(0, allList.Count);
+            }
+        }
     }
 }
