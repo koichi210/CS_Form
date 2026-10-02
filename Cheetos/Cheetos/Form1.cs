@@ -83,6 +83,8 @@ namespace Cheetos
             // DataGridViewの初期設定
             InitializeDataGridView();
 
+            InitializePlaceholders();
+
             sr.RegisterItem(this);
 
             // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
@@ -92,6 +94,37 @@ namespace Cheetos
             JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
 
             UpdateProfileListAll("");
+        }
+
+        // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
+        // ReadOnlyの欄(フォルダ選択ボタンで入る欄・ステータス欄)と、
+        // Multilineの欄(pm_TrimmingHeight、Windowsの仕様で表示されない)は対象外
+        private void InitializePlaceholders()
+        {
+            cw_TextBox_SavePath.PlaceholderText = @"例: C:\Capture";
+            cw_TextBox_SaveFilePrefix.PlaceholderText = "例: capture_";
+            cw_TextBox_Sleep.PlaceholderText = "例: 2000";
+            cw_TextBox_Loop.PlaceholderText = "例: 2";
+
+            pt_BaseX.PlaceholderText = "例: 0";
+            pt_BaseY.PlaceholderText = "例: 0";
+            pt_TargetX.PlaceholderText = "例: 1920";
+            pt_TargetY.PlaceholderText = "例: 1080";
+
+            pr_BaseX.PlaceholderText = "例: 0";
+            pr_BaseY.PlaceholderText = "例: 0";
+            pr_Angle.PlaceholderText = "例: 90";
+
+            do_TargetFileName.PlaceholderText = "例: *.jpg";
+            do_WhiteLength.PlaceholderText = "例: 10";
+            do_WhiteCoef.PlaceholderText = "例: 30";
+            do_SampleFilePath.PlaceholderText = @"例: C:\Sample\001.jpg";
+
+            pm_SourceFile1Prefix.PlaceholderText = "例: _1";
+            pm_SourceFile2Prefix.PlaceholderText = "例: _2";
+
+            fc_TargetFileName.PlaceholderText = "例: *.png";
+            fc_DestFolderPath.PlaceholderText = @"例: C:\Collect";
         }
 
         // *******************************************************************************
