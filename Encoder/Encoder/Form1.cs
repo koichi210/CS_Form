@@ -12,8 +12,20 @@ namespace Encoder
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
             this.Icon = Properties.Resources.Encoder;
             radioButton_Utf8ToSjis.Checked = true;
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(DropBox, "ファイルをドロップすると選んだ向きで変換する。UTF-8 ⇒ Sjisでは同じフォルダに「元の名前_sjis.拡張子」で保存し、同名のファイルは上書きする。フォルダは対象外");
+            toolTip.SetToolTip(radioButton_SjisToUtf8, "未実装。この向きを選んでファイルをドロップしても変換しない");
         }
 
         private void Execute(String inputPathName)

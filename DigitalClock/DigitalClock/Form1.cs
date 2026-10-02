@@ -11,11 +11,22 @@ namespace DigitalClock
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
 
             // アイコン設定
             this.Icon = Properties.Resources.DigitalClock;
 
             UpdateTime();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(label_time, "時刻の部分を左ドラッグするとウィンドウを移動できる");
         }
 
         // user.configが壊れていると設定へのアクセスで例外になるため、位置の復元・保存は諦めて動作を優先する

@@ -11,6 +11,18 @@ namespace ProgressBar
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(button_StartSingleThread, "画面と同じスレッドで処理するため、完了まで(約5秒)画面が操作できなくなる");
+            toolTip.SetToolTip(button_StopSingleThread, "処理中は画面が止まっているため押しても効かず、途中で停止できない(比較用)");
         }
 
         private void button_Start_Click(object sender, EventArgs e)

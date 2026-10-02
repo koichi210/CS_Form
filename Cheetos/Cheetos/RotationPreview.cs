@@ -201,15 +201,30 @@ namespace Cheetos
         public RotationPreview()
         {
             InitializeComponent();
+            InitializeToolTips();
         }
 
         public RotationPreview(String originX, String originY, String angle)
         {
             InitializeComponent();
+            InitializeToolTips();
 
             textBox_OriginX.Text = originX;
             textBox_OriginY.Text = originY;
             textBox_angle.Text = angle;
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_loadfilepath, "プレビューに使う画像ファイルのフルパス。loadで読み込む");
+            toolTip.SetToolTip(textBox_OriginX, "回転後の画像で、元画像の左上隅を置くX座標(px)。この点を中心に回転する。↑↓キーで1ずつ増減できる");
+            toolTip.SetToolTip(textBox_OriginY, "回転後の画像で、元画像の左上隅を置くY座標(px)。この点を中心に回転する。↑↓キーで1ずつ増減できる");
+            toolTip.SetToolTip(textBox_angle, "回転角度(度、整数)。正の値で時計回り。↑↓キーで1ずつ増減できる");
         }
 
         private void button_ClickDraw(object sender, EventArgs e)

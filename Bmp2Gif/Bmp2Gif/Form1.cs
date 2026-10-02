@@ -10,6 +10,7 @@ namespace Bmp2Gif
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             textBox_SrcBmp.Text = @"C:\tmp\Sample_3.bmp";
             textBox_DstGif.Text = @"C:\tmp\Sample_3.gif";
@@ -21,6 +22,17 @@ namespace Bmp2Gif
         {
             textBox_SrcBmp.PlaceholderText = @"例: C:\tmp\Sample_3.bmp";
             textBox_DstGif.PlaceholderText = @"例: C:\tmp\Sample_3.gif";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_DstGif, "保存先のGIFファイルのパス。同名のファイルがあれば上書きする");
+            toolTip.SetToolTip(checkBoxAddComment, "変換した画像の左上に「gifに変換」と書いた帯を描き込む");
         }
 
         private void button_Change_Click(object sender, EventArgs e)

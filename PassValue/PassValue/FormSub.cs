@@ -15,6 +15,17 @@ namespace PassValue
         public FormSub()
         {
             InitializeComponent();
+            InitializeToolTips();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(buttonSetting, "入力した文字を親画面へ返す値として確定する。押さずにOKすると親画面の表示は空になる");
         }
 
         private void button_Click_Setting(object sender, EventArgs e)

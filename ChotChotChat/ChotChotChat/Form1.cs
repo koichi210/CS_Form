@@ -11,6 +11,19 @@ namespace ChotChotChat
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(button_Server, "このPC(127.0.0.1)のポート8080で接続を待ち、メッセージを1件受信したら切断する。待っている間は画面を操作できない");
+            toolTip.SetToolTip(button_Client, "このPC(127.0.0.1)のポート8080で待っているサーバーに接続する");
+            toolTip.SetToolTip(button_Send, "メッセージを送信し、サーバーの応答を受け取ったら切断する。次に送る前にclientで接続し直す必要がある");
         }
 
         private void button_Server_Click(object sender, EventArgs e)

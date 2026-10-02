@@ -14,6 +14,7 @@ namespace ToyingFile
             this.Icon = Properties.Resources.ToyingFile;
 
             InitializePlaceholders();
+            InitializeToolTips();
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -22,6 +23,19 @@ namespace ToyingFile
         {
             textBox_Directory.PlaceholderText = @"例: C:\Work";
             textBox_File.PlaceholderText = "例: *.txt";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_File, "対象にするファイル名のパターン(*や?のワイルドカード可)。空欄なら全ファイル");
+            toolTip.SetToolTip(textBox_DeleteString, "削除する文字列。1行に1つずつ書く(空行は無視)");
+            toolTip.SetToolTip(checkBox_DeleteLine, "指定文字を含む行を行ごと空行にする(行は詰めない)。改行がCRLFでないファイルは全体が1行として扱われる");
+            toolTip.SetToolTip(button_Execute, "対象ファイルをShift_JISとして読み込み、結果で直接上書きする。バックアップは作らない");
         }
 
         private void textBox_Directory_KeyDown(object sender, KeyEventArgs e)

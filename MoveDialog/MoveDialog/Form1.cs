@@ -11,6 +11,7 @@ namespace MoveDialog
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
 
             // 子ウィンドウの「幅・高さ」の設定上限は画面サイズとする
             trackBarWindowWidth.Maximum = Screen.PrimaryScreen.Bounds.Width;
@@ -18,6 +19,19 @@ namespace MoveDialog
 
             // 子ウィンドウ表示
             child.Show();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(buttonMoveDirectionCenter, "子ウィンドウをプライマリ画面の中央に移動する");
+            toolTip.SetToolTip(trackBarMoveDistance, "矢印ボタン1回で子ウィンドウを動かす量(ピクセル)。画面端を超える分は端で止まる");
+            toolTip.SetToolTip(trackBarWindowWidth, "子ウィンドウの幅(ピクセル)。上限はプライマリ画面の幅");
+            toolTip.SetToolTip(trackBarWindowHeight, "子ウィンドウの高さ(ピクセル)。上限はプライマリ画面の高さ");
         }
 
         private void updatePosition(object sender, EventArgs e)

@@ -10,6 +10,7 @@ namespace Encryption
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             textBox_Table.Text = "8 1 4 7 2 3 9 5 6 0";
             textBox_Key.Text = "257";
@@ -30,6 +31,18 @@ namespace Encryption
         {
             textBox_Table.PlaceholderText = "例: 8 1 4 7 2 3 9 5 6 0";
             textBox_Key.PlaceholderText = "例: 257";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_Table, "数字0〜9それぞれの置き換え先を、0の分から順に半角スペース区切りで10個並べる");
+            toolTip.SetToolTip(textBox_Key, "変換する数字(整数)。1桁ずつ暗号テーブルで置き換える");
+            toolTip.SetToolTip(radioButton_Decode, "暗号テーブルを逆向きに使い、暗号化した数字を元に戻す");
         }
 
         private void button_Execute_Click(object sender, EventArgs e)

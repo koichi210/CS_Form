@@ -49,6 +49,7 @@ namespace TrimHtmlData
             InitializeCommonSettings(Properties.Resources.TrimHtmlData);
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
@@ -66,6 +67,21 @@ namespace TrimHtmlData
         {
             textBox_SearchWord.PlaceholderText = "例: <title>";
             textBox_TrimLineNum.PlaceholderText = "例: 1";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_SourceList, "HTMLを取得するページのURL。1行に1つずつ書く(空行は無視)");
+            toolTip.SetToolTip(textBox_SearchWord, "この文字列を含む行を探す。行内のどこにあってもヒットする");
+            toolTip.SetToolTip(textBox_TrimLineNum, "ヒットした行から数えて取り出す行数(ヒット行を含む)。空欄・0は1行として扱う");
+            toolTip.SetToolTip(checkBox_FirstWordOnly, "各URLで最初にヒットした箇所だけを取り出す");
+            toolTip.SetToolTip(button_Execute, "各URLのHTMLを取得して該当行を取り出し、結果をクリップボードにもコピーする");
+            toolTip.SetToolTip(comboBox_LoadSetting, "選ぶと保存済みの設定を読み込み、各欄の内容が置き換わる");
         }
 
         // *******************************************************************************

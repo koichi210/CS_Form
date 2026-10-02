@@ -54,6 +54,7 @@ namespace FileArranger
             RecreatePartitionColumnsEvenly();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterLoadItem(this);
 
@@ -90,6 +91,68 @@ namespace FileArranger
             pf_textBox_TargetSeparator.PlaceholderText = "例: _";
             pf_textBox_SearchTitleLine.PlaceholderText = "例: 3";
             pf_textBox_SearchTitleLength.PlaceholderText = "例: 2";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            const String historyTip = "設定値保存の時に、今の値がプルダウンの履歴に追加される。Enterでフォルダを開く";
+            const String restoreTip = "押すたびに1回分さかのぼる(アプリを閉じると戻せない)";
+
+            // 共通
+            toolTip.SetToolTip(SaveSetting, "現在の設定をファイルに保存する(Ctrl+Sでも可)。プロファイル選択中なら、まずそのファイルへ上書きするか確認する");
+            toolTip.SetToolTip(comboBox_LoadSetting, "選ぶとその設定ファイルを読み込む");
+
+            // Common
+            toolTip.SetToolTip(cmn_textBox_Reference, "振り分け・リネームの候補になるフォルダが並んでいる親フォルダ。入力するとRenameDir/PartitionFileタブのフォルダ格納先にも同じパスが入る");
+            toolTip.SetToolTip(cmn_textBox_AddList, "リファレンスフォルダにまだ無いフォルダ名を1行に1つ書く。リストアップ時に候補へ加える(既存フォルダのパスに含まれる名前は除く)。フォルダはここでは作られない");
+            toolTip.SetToolTip(cmn_textBox_AddListSuffix, "新規追加リストの各名前の末尾に付ける文字列。PartitionFileでフォルダを新規作成する時の名前にも付く");
+            const String referenceListupTip = "リファレンスフォルダ直下のフォルダと新規追加リストを候補として読み込み、RenameDirの結合文字・PartitionFileの移動後名称のプルダウンを更新する";
+            toolTip.SetToolTip(cmn_button_Listup, referenceListupTip);
+            toolTip.SetToolTip(rd_button_Listup_Item, referenceListupTip);
+            toolTip.SetToolTip(pf_button_Listup_Reference, referenceListupTip);
+
+            // MoveDir
+            toolTip.SetToolTip(md_listBox_Listup, "格納元以下(サブフォルダも含む)で、直下にファイルがあるフォルダの一覧。Ctrl+Aで全選択、Enterでサブディレクトリを移動、ダブルクリックでフォルダを開く");
+            toolTip.SetToolTip(md_comboBox_TargetDir, "移動先のフォルダ。" + historyTip);
+            toolTip.SetToolTip(md_button_MoveTopDir, "選択したフォルダを、格納元直下の最上位フォルダごと格納先へ移動する。格納先に同名フォルダがあれば、名前の末尾に「_Cnt番号_日時」を付ける");
+            toolTip.SetToolTip(md_button_MoveSubDir, "選択したフォルダそのものを格納先の直下へ移動する(途中の階層は持っていかない)。格納先に同名フォルダがあれば、名前の末尾に「_Cnt番号_日時」を付ける");
+            toolTip.SetToolTip(md_button_Delete, "選択したフォルダを中身ごと削除する。確認は出ず、ごみ箱にも入らない");
+
+            // RenameDir
+            toolTip.SetToolTip(rd_comboBox_RenameDir, "リネームするフォルダが並んでいる親フォルダ(直下のフォルダが対象)。" + historyTip);
+            toolTip.SetToolTip(rd_textBox_ExistItemDir, "Commonのリファレンスフォルダと連動する欄。結合文字の候補は、候補フォルダのパスからこの部分を除いた名前になる。左のラベルをダブルクリックすると直接編集できる。Enterでフォルダを開く");
+            toolTip.SetToolTip(rd_label_ExistItemDir, "ダブルクリックで右の欄の直接編集を切り替える");
+            toolTip.SetToolTip(rd_listView_Target, "選択したフォルダの変更後の名前が[変更後]に表示される。Ctrl+Enterでリネーム実行、Ctrl+Cでフォルダ名をコピー、ダブルクリックでフォルダを開く");
+            toolTip.SetToolTip(rd_comboBox_MergeWord, "変更後の名前の先頭部分。プルダウンには、リファレンスのフォルダ名(最後の区切り文字より前)のうち入力中の文字を含むものが出る");
+            toolTip.SetToolTip(rd_textBox_SplitWord3, "結合文字の候補を作る時、リファレンスのフォルダ名をこの文字の最後の出現位置で切る");
+            toolTip.SetToolTip(rd_textBox_SearchTitleLine, "元のフォルダ名から番号を探し始める位置を、名前の末尾から数えた文字数で指定する。空欄なら先頭から(全角数字は半角とみなす)");
+            toolTip.SetToolTip(rd_textBox_SearchTitleLength, "探し始めた位置から何文字を番号として読むか(中の数字だけを使う)。空欄なら末尾まで。数字が無ければ1になる");
+            toolTip.SetToolTip(rd_comboBox_AddTitlePostWord, "番号の後ろに付ける文字列。設定値保存の時に、今の値がプルダウンの履歴に追加される");
+            toolTip.SetToolTip(rd_checkBox_FileOpen, "オンの時、一覧をダブルクリックするとフォルダではなく、中の先頭ファイル(サブフォルダも含めて最初に見つかったもの)を開く");
+            toolTip.SetToolTip(rd_button_RenameDir, "選択したフォルダを「結合文字+番号前に追加+番号(2桁以上にゼロ埋め)+番号後に追加」にリネームする。同名があれば末尾に「_Cnt番号_日時」を付ける。各入力欄でCtrl+Enterでも実行");
+            toolTip.SetToolTip(rd_button_RenameDirRestore, "直前のリネームを元に戻す。" + restoreTip);
+
+            // SortFileName
+            toolTip.SetToolTip(sf_listBox_Target, "格納元直下のフォルダの一覧。Ctrl+Aで全選択、Enterでソート実行");
+            toolTip.SetToolTip(sf_button_Sort, "選択したフォルダ内のファイル(サブフォルダ内は対象外)を、000、001…の3桁の連番名にリネームする(拡張子はそのまま)");
+            toolTip.SetToolTip(sf_button_SortRestore, "直前のソートを元の名前に戻す。" + restoreTip);
+
+            // PartitionFile
+            toolTip.SetToolTip(pf_textBox_ReferenceFile, "振り分け先のフォルダが並んでいる親フォルダ(Commonのリファレンスフォルダと連動)。左のラベルをダブルクリックすると直接編集できる。Enterでフォルダを開く");
+            toolTip.SetToolTip(pf_label_ReferenceFile, "ダブルクリックで右の欄の直接編集を切り替える");
+            toolTip.SetToolTip(pf_textBox_TargetSeparator, "ファイル名をこの文字の最後の出現位置で切り、その前の部分を名前に含むフォルダを振り分け先の候補から探す");
+            toolTip.SetToolTip(pf_textBox_SearchTitleLine, "振り分け先のフォルダ名から番号を探し始める位置を、名前の末尾から数えた文字数で指定する。空欄なら先頭から。Ctrl+Enterでファイル移動");
+            toolTip.SetToolTip(pf_textBox_SearchTitleLength, "探し始めた位置から何文字を番号として読むか(中の数字だけを使う)。空欄なら末尾まで。Ctrl+Enterでファイル移動");
+            toolTip.SetToolTip(pf_checkBox_CreateNewDir, "オンの時、候補に一致するフォルダが無いファイルには、ファイル名(区切り文字より前)+新規追加Suffixを元にした新しいフォルダ名を移動後名称に入れる。切り替えると一覧を読み直す");
+            toolTip.SetToolTip(pf_listView_Target, "選択したファイルに移動前/移動後名称が自動で入る(移動後はフォルダ名の番号に、同じ名前で選択中のファイル数を足したもの)。Enterでファイル移動、Deleteで移動後名称を空に、ダブルクリックで移動前フォルダを開く");
+            toolTip.SetToolTip(pf_comboBox_MoveDestDirName, "キー入力すると、選択中の全行の移動後名称をこの値にする。Ctrl+Enterでファイル移動");
+            toolTip.SetToolTip(pf_button_ClearSelect, "全行の移動前/移動後名称を空にする(一覧の選択状態はそのまま)");
+            toolTip.SetToolTip(pf_button_CreateFolderAndMoveFile, "選択した行のうち移動後名称がある行について、移動前名称のフォルダを移動後名称にリネーム(無ければ新規作成)してから、ファイルをそこへ移動する。同名ファイルがあればスキップする");
         }
 
         // *******************************************************************************

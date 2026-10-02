@@ -55,6 +55,7 @@ namespace StaticAnalysisViewer
             InitializeCommonSettings(Properties.Resources.StaticAnalysisViewer);
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
@@ -70,6 +71,22 @@ namespace StaticAnalysisViewer
         private void InitializePlaceholders()
         {
             TextBox_TopRankingNum.PlaceholderText = "例: 10";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(TextBox_LoadDataList, "集計CSVのパスを1行に1つ、古い週から順に書く。各CSVの1行目は見出し行。表示名は各ファイルの親フォルダ名になる");
+            toolTip.SetToolTip(Button_LoadData, "一覧のCSVを全て読み込み直し、最後のファイルのランキングを表示する");
+            toolTip.SetToolTip(Combo_SortCategory, "並び替えに使う列(CSVの見出し)。値の大きい順に並べる");
+            toolTip.SetToolTip(Button_Sort, "選んだ列で全データを並べ替える。画面の表示は「表示」ボタンで更新する");
+            toolTip.SetToolTip(Combo_RankingWeekly, "表示するデータ。1つ前に読み込んだファイルを前週として順位の変動を出す");
+            toolTip.SetToolTip(TextBox_TopRankingNum, "ランキングとグラフに出す上位の件数(数字のみ)。Enterキーで表示を更新する");
+            toolTip.SetToolTip(TextBox_Ranking, "LastWeek列: ↑↓－は前週からの順位変動と前週の順位、New!は前週のデータに無いファイル");
         }
 
         // *******************************************************************************

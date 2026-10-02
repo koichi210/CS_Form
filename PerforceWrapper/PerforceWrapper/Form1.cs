@@ -52,6 +52,7 @@ namespace PerforceWrapper
             InitializeCommonSettings(Properties.Resources.PerforceWrapper);
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
@@ -78,6 +79,38 @@ namespace PerforceWrapper
 
             textBox_al_label_name.PlaceholderText = "例: REL_1_0";
             textBox_al_branch_map.PlaceholderText = "例: main_to_release";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(comboBox_profile, "保存済みのプロファイル。選ぶとその内容を読み込む");
+            toolTip.SetToolTip(comboBox_perforce_server, "P4PORTに設定する値。空欄ならPC側の既定設定を使う");
+            toolTip.SetToolTip(comboBox_perforce_user, "P4USERに設定する値。空欄ならPC側の既定設定を使う");
+            toolTip.SetToolTip(comboBox_perforce_workspace, "P4CLIENTに設定する値。空欄ならPC側の既定設定を使う");
+            toolTip.SetToolTip(comboBox_perforce_charset, "P4CHARSETに設定する値。空欄ならPC側の既定設定を使う");
+            toolTip.SetToolTip(textbox_perforce_password, "ユーザーとパスワードが両方入っていると、実行前にp4 loginする。空欄ならログインしない");
+            toolTip.SetToolTip(textBox_tree_list, "対象のパス。1行に1つ書く。末尾に「...」が無ければ付けて配下全体を対象にする。「ラベルで比較」では使わない");
+
+            toolTip.SetToolTip(radioButton_so_menu_checkout, "ツリー配下を編集用に開く(p4 edit)");
+            toolTip.SetToolTip(radioButton_so_menu_restore, "ツリー配下の未サブミットの変更を破棄する(p4 revert)");
+            toolTip.SetToolTip(radioButton_so_menu_delete, "ツリー配下のファイルを削除としてマークする(p4 delete)。サブミットはしない");
+            toolTip.SetToolTip(radioButton_so_menu_get_latest, "ツリー配下をワークスペースに取得する(p4 sync)");
+            toolTip.SetToolTip(textBox_so_changelist, "取得するチェンジリスト番号。空欄なら最新(#head)を取得する");
+
+            toolTip.SetToolTip(textBox_sl_base_changelist, "ラベルを付けるチェンジリスト番号(p4 tag)。空欄なら最新(#head)に付ける");
+
+            toolTip.SetToolTip(textBox_dl_src_tree, "比較するパス。末尾に「...」が無ければ付けて配下全体を比較する");
+            toolTip.SetToolTip(textBox_dl_dest_tree, "比較するパス。末尾に「...」が無ければ付けて配下全体を比較する");
+
+            toolTip.SetToolTip(textBox_al_label_name, "反映元として使うラベル。空欄なら最新(#head)を反映する");
+            toolTip.SetToolTip(textBox_al_branch_map, "反映に使うブランチマップ名(-bに渡す)");
+            toolTip.SetToolTip(radioButton_al_copy, "反映先を反映元と同じ内容にする(p4 copy)");
+            toolTip.SetToolTip(radioButton_al_merge, "反映元の変更を統合する(p4 integrate)。resolveは別途行う");
         }
 
         // *******************************************************************************

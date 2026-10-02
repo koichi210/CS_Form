@@ -54,6 +54,7 @@ namespace FFEdit
             InitializeCommonSettings(Properties.Resources.FFEdit);
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             JsonSaveRestore.LoadWithMigration(sr,
@@ -86,6 +87,42 @@ namespace FFEdit
             textBox_Target_Extension.PlaceholderText = "例: *.jpg";
             textBox_ChangeNumber_FirstVal.PlaceholderText = "例: 1";
             textBox_Function_Any_Directory.PlaceholderText = @"例: C:\Work";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(comboBox_TargetDir, "処理対象のフォルダ。Enterキーでこのフォルダを開く");
+            toolTip.SetToolTip(textBox_Target_Extension, "一覧に出す名前の絞り込み(ワイルドカード可)。空欄なら全件。Enterキーで一覧を更新する");
+            toolTip.SetToolTip(checkBox_Target_SelectFile, "オンなら一覧で選択した項目だけを処理する。オフなら一覧の全項目が対象");
+            toolTip.SetToolTip(listBox, "Ctrl+A: 全選択、Ctrl+C: 表示名をコピー、Ctrl+Shift+C: フルパスでコピー、Delete: 選択項目を削除(ごみ箱を経由せず元に戻せない)");
+            toolTip.SetToolTip(button_Execute, "表示中のタブ(名称変換/タイムスタンプ/機能)の処理を対象項目に実行する");
+            toolTip.SetToolTip(button_Restore, "名称変換・移動の直前の実行を1回分ずつ元に戻す。タイムスタンプ変更・コピー・空フォルダ削除は戻せない。履歴はアプリ終了で消える");
+            toolTip.SetToolTip(button_SaveSetting, "現在の入力内容を設定ファイルに保存する(Ctrl+Sでも可)");
+
+            toolTip.SetToolTip(radioButton_ChangeNumber, "名前を「連番+拡張子」に変える。番号は一覧の並び順で振る");
+            toolTip.SetToolTip(comboBox_ChangeNumber_Digit, "連番を0埋めする桁数。自動は対象件数の桁数に合わせる");
+            toolTip.SetToolTip(checkBox_ChangeNumber_OrgName, "連番の後ろに元の名前(拡張子を除く)を続ける");
+            toolTip.SetToolTip(radioButton_ChangeDelNum, "名前の先頭から、または拡張子の手前から、指定した文字数を削除する");
+            toolTip.SetToolTip(radioButton_ChangeAdd, "先頭欄の文字を名前の頭に、後方欄の文字を拡張子の手前に追加する");
+            toolTip.SetToolTip(radioButton_ChangeDelete, "指定した文字列を名前から全て取り除く。拡張子部分も対象になる");
+            toolTip.SetToolTip(radioButton_ChangeReplace, "置換前の文字列を全て置換後の文字列に置き換える。拡張子部分も対象になる");
+            toolTip.SetToolTip(radioButton_ChangeExt, "拡張子を指定した文字に変える。「.」は付けずに入力する");
+            toolTip.SetToolTip(radioButton_ChangeAddDirName, "対象フォルダからの相対パスの「\\」を「_」に置き換えた名前にする(例: sub\\a.txt → sub_a.txt)。置き場所は変わらない");
+
+            toolTip.SetToolTip(dateTimePicker_Days, "1件目に設定する日付");
+            toolTip.SetToolTip(dateTimePicker_Time, "1件目に設定する時刻");
+            toolTip.SetToolTip(comboBox_TimeSpan, "2件目以降は1件ごとにこの単位で1ずつ日時を進める。無しなら全件同じ日時");
+
+            toolTip.SetToolTip(radioButton_Copy_Target, "対象ファイルをコピーする。コピー先に同名ファイルがあると失敗する。フォルダのコピーは未対応");
+            toolTip.SetToolTip(radioButton_Move_Target, "対象を移動する。サブフォルダ内の項目も移動先の直下にまとめて置く");
+            toolTip.SetToolTip(radioButton_Delete_BlankDir, "一覧の各フォルダの配下にある空のサブフォルダを削除する。元に戻せない");
+            toolTip.SetToolTip(checkBox_Operation_AnyDir, "オンなら移動/コピー先を入力欄のフォルダにする。オフなら対象フォルダ直下");
+            toolTip.SetToolTip(textBox_Function_Any_Directory, "移動/コピー先のフォルダ。存在しなければ作成する");
         }
 
         private void comboBox_TargetDir_KeyDown(object sender, KeyEventArgs e)

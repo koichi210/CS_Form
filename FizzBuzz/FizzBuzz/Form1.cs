@@ -15,6 +15,7 @@ namespace FizzBuzz
         {
             InitializeComponent();
             InitializePlaceholders();
+            InitializeToolTips();
             textBox_Number.Text = "100";
         }
 
@@ -23,6 +24,16 @@ namespace FizzBuzz
         private void InitializePlaceholders()
         {
             textBox_Number.PlaceholderText = "例: 100";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_Number, "1からこの数までを判定する。3の倍数はFizz、5の倍数はBuzz、7の倍数はWoofになり、重なる場合はつなげて表示する");
         }
 
         private void button_execute_Click(object sender, EventArgs e)

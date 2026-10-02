@@ -77,6 +77,7 @@ namespace VisualStudioBuilder
             InitializeDataGridView();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, DefaultSettingFileName);
@@ -100,6 +101,32 @@ namespace VisualStudioBuilder
             textBox_LogDirectory.PlaceholderText = @"例: C:\Work\BuildLog";
             textBox_DetectBuildErrorWord.PlaceholderText = "例: error";
             textBox_ExcludeWord.PlaceholderText = "例: LNK1168";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている。
+        // グリッドの列はInitializeDataGridViewで作るので、その後に呼ぶこと
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(comboBox_Profile, "保存済みのプロファイル。選ぶとその内容を読み込む");
+            toolTip.SetToolTip(textBox_VisualStudioExePath, "ビルドに使うdevenv.exeのパス");
+            toolTip.SetToolTip(textBox_BuildOption, "devenvにそのまま渡す引数(ビルドの種類と構成名)");
+            toolTip.SetToolTip(button_Build, "ビルド欄が○のソリューションを順にビルドする。開始時にログ出力先フォルダを中身ごと削除する");
+            toolTip.SetToolTip(checkBox_DeleteDirectory, "未実装。オンにしてもディレクトリは削除されない");
+
+            toolTip.SetToolTip(textBox_LogDirectory, "ソリューションごとのビルドログ(ソリューション名.log)の出力先。ビルド開始時に中身ごと削除して作り直す。空欄ならログを出さない。Enterキーでフォルダを開く");
+            toolTip.SetToolTip(checkBox_DetectBuildError, "ビルド後に各ログを検知ワードで調べ、成功/失敗の一覧を表示する");
+            toolTip.SetToolTip(textBox_DetectBuildErrorWord, "この文字列を含むログをビルド失敗と判定する");
+            toolTip.SetToolTip(checkBox_IsExclude, "オンなら下の検知ワードを含むログを成功扱いにせず、「実行ファイルの上書きに失敗」として別枠で表示する");
+            toolTip.SetToolTip(textBox_ExcludeWord, "この文字列を含むログを、実行中のexeを差し替えられなかったものとして別枠に分ける");
+
+            toolTip.SetToolTip(button_AddAllSolution, "指定フォルダ配下(サブフォルダ含む)の.slnを全て登録する。今の一覧は消える");
+            dataGridView.Columns[BuildEnableIdx].ToolTipText = "○の行だけビルドする";
+            dataGridView.Columns[SolutionNameIdx].ToolTipText = "ソリューションファイル名(.sln込み)。ダブルクリックで開く。空欄のままパスを入れると「フォルダ名.sln」が入る";
+            dataGridView.Columns[ProjectPathIdx].ToolTipText = "ソリューションファイルがあるフォルダ。ダブルクリックでフォルダを開く";
         }
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)

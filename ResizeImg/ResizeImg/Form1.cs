@@ -10,6 +10,7 @@ namespace ResizeImg
         {
             InitializeComponent();
             InitializePlaceholders();
+            InitializeToolTips();
             // デバッグ用
             textBox1.Text = @"sample.jpg";
             textBox2.Text = @"0";
@@ -35,6 +36,27 @@ namespace ResizeImg
 
             textBox7.PlaceholderText = "例: 592";
             textBox8.PlaceholderText = "例: 312";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox1, "読み込む画像ファイルのパス。フォルダを含まない場合はカレントディレクトリから探す");
+            toolTip.SetToolTip(textBox6, "現在の処理では使われない。読み込み先はファイル名欄だけで決まる");
+
+            toolTip.SetToolTip(textBox2, "切り取る範囲の左上のX座標(ピクセル)");
+            toolTip.SetToolTip(textBox3, "切り取る範囲の左上のY座標(ピクセル)");
+            toolTip.SetToolTip(textBox4, "切り取る範囲の幅(ピクセル)");
+            toolTip.SetToolTip(textBox5, "切り取る範囲の高さ(ピクセル)");
+
+            toolTip.SetToolTip(textBox7, "トリミング前プレビューに出す範囲(ピクセル)。幅と高さの大きい方を一辺とする正方形を左上から表示する");
+            toolTip.SetToolTip(textBox8, "トリミング前プレビューに出す範囲(ピクセル)。幅と高さの大きい方を一辺とする正方形を左上から表示する");
+
+            toolTip.SetToolTip(button1, "切り取った画像を、ファイル名の「.」を「_new.」に置き換えた名前で保存する(例: sample.jpg → sample_new.jpg)。同名ファイルは上書きする");
         }
 
         private void button1_Click(object sender, EventArgs e)

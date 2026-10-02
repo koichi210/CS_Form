@@ -98,6 +98,18 @@ namespace EventRecorder
             this.Controls.Add(btnOk);
 
             this.AcceptButton = btnOk;
+
+            InitializeToolTips();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(txtEventName, "Event列の名前(例: LEFT_DOWN、KEY_DOWN)。大文字/小文字は区別しない。直前がWAIT_MS行でない行は変更されない");
         }
 
         private void BtnOk_Click(object sender, EventArgs e)

@@ -60,6 +60,7 @@ namespace othello
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
 
             // 初期デザインのサイズを下限にする(C++版のWIN_MIN_SIZE相当)。
             // これより小さくはリサイズできないようにし、盤面が0サイズになる事態を防ぐ。
@@ -78,6 +79,37 @@ namespace othello
 
             renderer.SetDrawArea(pictureBoxField);
             RedrawBoard();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(button_ReStart, "確認のうえ初期局面に戻す。対戦モード・COMレベル・持ち時間の設定はそのまま");
+
+            menuStrip1.ShowItemToolTips = true;
+
+            menuItem_Start.ToolTipText = "開始前・停止中なら対局を(再)開する。終局後なら新しい対局を始める";
+            menuItem_Stop.ToolTipText = "持ち時間のカウントダウンとCOMの着手を止める。再開は「開始」";
+            menuItem_Undo.ToolTipText = "1手戻して停止状態にする。続けるには「開始」";
+            menuItem_Redo.ToolTipText = "戻した手を1手やり直して停止状態にする。続けるには「開始」";
+
+            menuItem_PP.ToolTipText = "選ぶと新しい対局になる";
+            menuItem_PC.ToolTipText = "人が黒(先手)、COMが白。選ぶと新しい対局になる";
+            menuItem_CP.ToolTipText = "COMが黒(先手)、人が白。選ぶと新しい対局になる";
+            menuItem_CC.ToolTipText = "選ぶと新しい対局になる";
+
+            menuItem_ComLevel1.ToolTipText = "盤の中心に近い手を優先する";
+            menuItem_ComLevel2.ToolTipText = "序盤は中心寄り、中盤は返す石が少ない手、終盤は多い手を優先する";
+            menuItem_ComLevel3.ToolTipText = "打った後に周りの空きマスが少ない(開放度が低い)手を優先する";
+
+            menuItem_TimeLimit.ToolTipText = "黒白それぞれの1局全体の持ち時間。先に0になった側の負け。対局中(開始〜終局)は変更できず、選び直すと新しい対局になる";
+
+            menuItem_KihuSave.ToolTipText = "ここまでの手順を「手数 : 列.行 色」形式(例: 1 : C.4 黒)のテキストで保存する";
+            menuItem_KihuLoad.ToolTipText = "棋譜テキストを最初から再生した局面にする。置けない手があればそこで打ち切る";
         }
 
         [StructLayout(LayoutKind.Sequential)]

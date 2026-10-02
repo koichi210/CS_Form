@@ -22,6 +22,7 @@ namespace CaptureWindow
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             TextBox_SavePath.Text = @"c:\tmp";
             Radio_FullScreen.Checked = true;
@@ -47,6 +48,23 @@ namespace CaptureWindow
             TextBox_MouseX.PlaceholderText = "例: 500";
             TextBox_MouseY.PlaceholderText = "例: 500";
             TextBox_Sleep.PlaceholderText = "例: 3";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(Button_Capture, "画面を撮って「保存フォルダ\\日時_1.png」に保存する。X・Yが両方入っていればその座標を左クリックし、Sleep時間待ってから2枚目(_2.png)を撮る");
+            toolTip.SetToolTip(TextBox_SavePath, "画像の保存先フォルダ。無ければ確認のうえ作成する");
+            toolTip.SetToolTip(TextBox_MouseX, "クリックする画面上のX座標(ピクセル)。X・Yどちらかが空欄ならクリックせず1枚だけ撮る");
+            toolTip.SetToolTip(TextBox_MouseY, "クリックする画面上のY座標(ピクセル)。X・Yどちらかが空欄ならクリックせず1枚だけ撮る");
+            toolTip.SetToolTip(TextBox_Sleep, "クリックしてから2枚目を撮るまでの待ち時間(整数の秒)。空欄なら待たない");
+            toolTip.SetToolTip(Radio_FullScreen, "画面全体を撮る(Ctrl+PrintScreen相当)");
+            toolTip.SetToolTip(Radio_CurrentScreen, "このツールのウィンドウがあるモニタ1枚だけを撮る");
+            toolTip.SetToolTip(Radio_CurrentWindow, "その時点でアクティブなウィンドウを撮る(Alt+PrintScreen相当)");
         }
 
         private void Button_Capture_Click(object sender, EventArgs e)

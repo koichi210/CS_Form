@@ -57,6 +57,7 @@ namespace Mailer
             InitializeCommonSettings(Properties.Resources.Mailer);
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
@@ -78,6 +79,25 @@ namespace Mailer
 
             textBox_CreateNum.PlaceholderText = "例: 5";
             textBox_IntervalMsec.PlaceholderText = "例: 5000";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_BrowserPath, "Gmailの作成画面を開くブラウザのexe。PATHが通っていればファイル名だけでも可。Enterキーで起動する");
+            toolTip.SetToolTip(textBox_MailSubject, "%%today%% %%tomorrow%% %%weekend%%(今週の金曜)は実行日、%%usersday%% %%dayofweek%%は起点日の日付・曜日に置き換わる。大文字で書くと年付きの日付/曜日の正式名になる");
+            toolTip.SetToolTip(textBox_MailBody, "件名の置換記号(%%today%%等)は本文では置き換わらない");
+            toolTip.SetToolTip(button_OpenBrowse, "入力内容を埋めたGmailの新規作成画面をブラウザで開く。送信まではしない");
+            toolTip.SetToolTip(comboBox_LoadSetting, "保存済みのプロファイル。選ぶとその内容を読み込む");
+            toolTip.SetToolTip(dateTimePicker_Calendar, "%%usersday%%と%%dayofweek%%の基準日。一括表示では1通目がこの日で、以降1日ずつ進む");
+            toolTip.SetToolTip(textBox_CreateNum, "一括表示で開く通数(=日数)");
+            toolTip.SetToolTip(textBox_IntervalMsec, "一括表示で1通開くごとに待つ時間。待っている間は画面を操作できない");
+            toolTip.SetToolTip(check_BoxReverse, "オンなら一括表示を日付の遅い順に開く");
+            toolTip.SetToolTip(button_OpenBrowse_OneWeek, "起点日から生成数の日数分、日付をずらした作成画面を順に開く");
         }
 
         // *******************************************************************************

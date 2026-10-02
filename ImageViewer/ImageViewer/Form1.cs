@@ -44,6 +44,7 @@ namespace ImageViewer
         {
             InitializeComponent();
             InitializePlaceholders();
+            InitializeToolTips();
             textBox_FolderPath.Text = @"C:\tmp";
             textBox_Extension.Text = @"*.png";  // TODO：動画も先頭フレームを表示するようにして対応したい。
 
@@ -69,6 +70,21 @@ namespace ImageViewer
         {
             textBox_FolderPath.PlaceholderText = @"例: C:\tmp";
             textBox_Extension.PlaceholderText = "例: *.png";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_FolderPath, "画像を探すフォルダ。Enterキーでそのフォルダを開く");
+            toolTip.SetToolTip(textBox_Extension, "表示するファイルの絞り込み条件。ワイルドカード(*や?)を使ったパターンを1つだけ指定する");
+            toolTip.SetToolTip(hScrollBar_Scaling, "サムネイルの一辺の大きさ(ピクセル)。動かし終えると、フォルダが有効なら先頭の1枚だけで表示し直す");
+            toolTip.SetToolTip(listView_Image, "サムネイルをダブルクリックすると、その画像を関連付けられたアプリで開く");
+            toolTip.SetToolTip(comboBox_Profile, "保存済みの設定ファイル。選ぶとフォルダパスとファイル拡張子を読み込む");
+            toolTip.SetToolTip(button_SampleView, "条件に合うファイルのうち先頭の1枚だけを表示する");
         }
 
         // *******************************************************************************

@@ -47,6 +47,7 @@ namespace TrimFileData
             InitializeCommonSettings(Properties.Resources.TrimFileData);
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
@@ -63,6 +64,21 @@ namespace TrimFileData
         {
             textBox_ReferencePath.PlaceholderText = @"例: C:\Work\reference.txt";
             textBox_SearchCommonWord.PlaceholderText = "例: error";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_ReferencePath, "検索対象のテキストファイル(Shift_JISとして読み込む)。Enterキーで関連付けられたアプリで開く");
+            toolTip.SetToolTip(textBox_SearchCommonWord, "指定するとこの文字列を含む行だけを検索対象にする。空欄なら全行が対象");
+            toolTip.SetToolTip(textBox_SearchWordList, "1行が1グループ。行内をスペースで区切った各ワードを含む行を抽出し、行ごとに「◆」見出しを付けて出力する");
+            toolTip.SetToolTip(checkBox_FirstWordOnly, "各ワードについて、最初に見つかった1行だけを抽出する");
+            toolTip.SetToolTip(button_Execute, "検索結果を検索結果欄に出し、クリップボードにもコピーする");
+            toolTip.SetToolTip(comboBox_LoadSetting, "選ぶと保存済みの設定を読み込み、各欄の内容が置き換わる");
         }
 
         // *******************************************************************************

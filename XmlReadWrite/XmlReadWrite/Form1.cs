@@ -11,6 +11,7 @@ namespace XmlReadWrite
         {
             InitializeComponent();
             InitializePlaceholders();
+            InitializeToolTips();
             textBox_FileName.Text = @"Sample.xml";
             textBox_Param1.Text = @"Hello World";
             textBox_Param2.Text = "123";
@@ -28,6 +29,21 @@ namespace XmlReadWrite
             textBox_Param2.PlaceholderText = "例: 123";
             textBox_Param3.PlaceholderText = @"例: C:\Work";
             textBox_Param4.PlaceholderText = "例: テスト";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(button_write, "既存のXMLファイルを、ファイル名とParam1だけの内容で上書きする。ファイルが無いと書き込まない");
+            toolTip.SetToolTip(button_write2, "既存のXMLファイルを、ファイル名とParam1～4の内容で上書きする。ファイルが無いと書き込まない");
+            toolTip.SetToolTip(button_read1, "XMLの全ノードをコンソール出力に書き出す。画面には何も表示しない");
+            toolTip.SetToolTip(button_read2, "要素名とFileName要素の値をコンソール出力に書き出す。画面には何も表示しない");
+            toolTip.SetToolTip(button_read3, "各要素の属性をコンソール出力に書き出す。画面には何も表示しない");
+            toolTip.SetToolTip(button_read4, "Write2で書いた形式のXMLを読み、Param1～4の欄に値を反映する");
         }
 
         private void button_write_Click(object sender, EventArgs e)

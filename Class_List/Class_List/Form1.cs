@@ -52,6 +52,7 @@ namespace Class_List
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -59,6 +60,16 @@ namespace Class_List
         private void InitializePlaceholders()
         {
             textBox_num.PlaceholderText = "例: 3";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_num, "Addを1回押した時にリストへ追加する要素の数(整数)。まとめて1つのグループになる");
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)

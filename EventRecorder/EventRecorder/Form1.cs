@@ -151,6 +151,7 @@ namespace EventRecorder
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             // ウィンドウサイズ+splitContainer_Mainの境界線位置+ホットキーを、前回終了時の
             // 状態(EventRecorder.json、無ければ既定値のまま)で復元する
@@ -243,6 +244,39 @@ namespace EventRecorder
         private void InitializePlaceholders()
         {
             textBox_Loop.PlaceholderText = "例: 1";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている。
+        // ホットキーはLoadAppSettings(この後)やキーバインド設定画面で変わりうるため、
+        // 実際のキー名ではなく既定値として書いている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            const String hotkeySettingTip = "キーはウィンドウ左上のアイコンのメニュー「キーバインドを設定」で変更できる";
+
+            toolTip.SetToolTip(radioButton_Record, "再生ボタン(ホットキー)で、左の記録データを再生するモード");
+            toolTip.SetToolTip(radioButton_Playback, "再生ボタン(ホットキー)で、右のプレイリストを上から順に再生するモード");
+            toolTip.SetToolTip(button_Record, "記録の開始/停止。既存の行の後ろに追記する。ホットキー(既定F1)でも切り替えられ、ボタンで止めるとそのクリックも記録される。" + hotkeySettingTip);
+            toolTip.SetToolTip(button_Play, "レコードモードなら記録データ、プレイバックモードならプレイリストを再生する。再生中に押すと停止。ホットキー(既定は変換キー)でも開始/停止できる。" + hotkeySettingTip);
+            toolTip.SetToolTip(textBox_Loop, "レコードモード: 記録データを繰り返す回数。プレイバックモード: プレイリスト全体を繰り返す回数(各ファイルの回数は表のループ数)。空欄・0以下は1回。↑↓キーで増減できる");
+            toolTip.SetToolTip(checkBox_MinimizeOnPlay, "再生開始時にこのウィンドウを最小化し、終了したら元に戻す。オンの間は最小化中にタスクバーから消え、通知領域のアイコン(ダブルクリックで復元)になる");
+            toolTip.SetToolTip(comboBox_Profile, "選ぶとそのファイル(記録データ・ループ数・プレイリスト・モード等)を読み込み、今の表の内容を置き換える");
+            toolTip.SetToolTip(button_ProfileSave, "記録データ・ループ数・プレイリスト・モード等をまとめて1つのファイルに保存する(Ctrl+Sでも可)。プルダウンで選択中なら、まずそのファイルへ上書きするか確認する");
+
+            col_Type.ToolTipText = "操作の種類(LEFT_DOWN、KEY_DOWN等)。WAIT_MSは待機するだけの行";
+            col_Detail.ToolTipText = "マウスは「X:123 Y:456」(画面座標)、キーは「Key:A」、WAIT_MS行は待機時間(ミリ秒)。直接編集できる";
+            col_Remarks.ToolTipText = "自由に書けるメモ。記録・再生には使わない";
+
+            col_PlaylistEnabled.ToolTipText = "チェックした行だけ再生する";
+            col_PlaylistFile.ToolTipText = "再生するファイル(プロファイル一覧と同じもの)。見つからないファイルはピンクで表示する。行はドラッグで並び替えできる";
+            col_PlaylistLoopCount.ToolTipText = "このファイルを続けて再生する回数。ファイル自身に保存されたループ数より優先する(ファイルを選んだ時に初期値として入る)。↑↓キーで増減できる";
+
+            menuItem_DeleteRow.ToolTipText = "KEY_DOWN/SYSKEY_DOWNの行を消すと、対応するKEY_UP/SYSKEY_UPの行も一緒に消える";
+            menuItem_BulkChangeEventWait.ToolTipText = "指定したイベントの直前にあるWAIT_MS行の待機時間をまとめて変更する";
+            menuItem_PlaylistRefresh.ToolTipText = "プロファイル一覧にあってプレイリストに無いファイルを末尾に追加する(既存の行はそのまま残す)";
         }
 
         // グループボックス自体(枠・余白部分)や、グループボックス内のコントロールをクリックしたら、

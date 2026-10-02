@@ -10,7 +10,21 @@ namespace ToyingData
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
             this.Icon = Properties.Resources.ToyingData;
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_Source, "1行を1件として処理する。ファイルをドロップすると、そのファイルのパスが入る(中身ではない)");
+            toolTip.SetToolTip(radioButton_DeleteDuplicate, "同じ内容の行を、最初の1行だけ残して削除する");
+            toolTip.SetToolTip(radioButton_ChangeWide2Narrow, "下のチェックで選んだ種類の全角文字だけを半角にする");
+            toolTip.SetToolTip(button_Execute, "選んだメニューで変換し、結果をクリップボードにもコピーする。空行は取り除かれる");
         }
 
         private void textBox_Source_KeyDown(object sender, KeyEventArgs e)

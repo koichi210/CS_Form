@@ -12,6 +12,7 @@ namespace Rotation
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -24,6 +25,19 @@ namespace Rotation
             textBox_angle.PlaceholderText = "例: 90";
             textBox_OriginX.PlaceholderText = "例: 0";
             textBox_OriginY.PlaceholderText = "例: 0";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_angle, "回転角度(度、整数)。正の値で時計回り。↑/↓キーで1ずつ増減してプレビューを更新する");
+            toolTip.SetToolTip(textBox_OriginX, "回転後の画像の左上角を置くX座標(ピクセル)。↑/↓キーで1ずつ増減してプレビューを更新する");
+            toolTip.SetToolTip(textBox_OriginY, "回転後の画像の左上角を置くY座標(ピクセル)。↑/↓キーで1ずつ増減してプレビューを更新する");
+            toolTip.SetToolTip(button_Save, "回転結果を保存ファイルパスに書き出す。拡張子に関係なくPNG形式で保存し、同名ファイルは上書きする");
         }
 
         private void button_ClickDraw(object sender, EventArgs e)

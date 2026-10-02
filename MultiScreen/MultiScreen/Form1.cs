@@ -14,6 +14,7 @@ namespace MultiScreen
             InitializeComponent();
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             // ダイアログ生成数のDefault値を設定
             textBox_DlgNum.Text = DefaultDlgNum.ToString();
@@ -30,6 +31,19 @@ namespace MultiScreen
         {
             textBox_DlgNum.PlaceholderText = "例: 10";
             textBox_ButtonName.PlaceholderText = "例: Click Me!!";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_DlgNum, "表示するダイアログの数。モニタが複数あれば1つずつ順番に振り分け、ランダムな位置に表示する");
+            toolTip.SetToolTip(textBox_ButtonName, "各ダイアログのボタンに表示する文字。そのボタンを押すとダイアログが閉じる");
+            toolTip.SetToolTip(buttonAllPopup, "指定数のダイアログをモードレスでまとめて表示する");
+            toolTip.SetToolTip(buttonSequencePopup, "ダイアログをモーダルで1つずつ表示する。閉じると次が表示される");
         }
 
         private void buttonAllPopup_Click(object sender, EventArgs e)

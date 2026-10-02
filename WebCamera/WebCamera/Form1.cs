@@ -39,7 +39,19 @@ namespace WebCamera
         public Form1()
         {
             InitializeComponent();
+            InitializeToolTips();
             UpdateButtons();
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(button_StartStop, "PCの1台目のカメラの映像表示を開始/停止する");
+            toolTip.SetToolTip(button_Snapshot, "押した瞬間に表示中の映像をPNGで保存する。停止後も最後に表示した映像を保存できる");
         }
 
         private void button_StartStop_Click(object sender, EventArgs e)

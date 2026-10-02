@@ -17,6 +17,7 @@ namespace WeeklyReportFormatter
             this.Icon = Properties.Resources.WeeklyReportFormatter;
 
             InitializePlaceholders();
+            InitializeToolTips();
 
             // カレントディレクトリ移動
             util.SetCurrentDirectory();
@@ -30,6 +31,22 @@ namespace WeeklyReportFormatter
         private void InitializePlaceholders()
         {
             textBox_UserName.PlaceholderText = "例: Taro Yamada";
+        }
+
+        // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
+        // 意味・単位・書式・注意点が分かりにくい所にだけ付けている
+        private void InitializeToolTips()
+        {
+            ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
+            this.Disposed += (s, e) => toolTip.Dispose();
+
+            toolTip.SetToolTip(textBox_UserName, "整形時に取り除く自分の名前。起動時にexeと同じフォルダのWhoAmI.txtから読み込む(画面で変えても保存はされない)");
+            toolTip.SetToolTip(textBox_ThisWeekBefore, "1行で1件として扱う。各行の「名前+スペース」より後ろを括弧で囲み、先頭にタブを付ける");
+            toolTip.SetToolTip(textBox_NextWeekBefore, "3行で1件として扱う(課題No、課題名、名前とストーリーポイントの行)。空行は無視");
+            toolTip.SetToolTip(textBox_PerforceBefore, "2行で1件として扱う(ProjectID、Summary)。全件を改行なしで1行につなげる");
+            toolTip.SetToolTip(button_ThisWeekChange, "整形結果を右の欄に出し、クリップボードにもコピーする");
+            toolTip.SetToolTip(button_NextWeekChange, "整形結果を右の欄に出し、クリップボードにもコピーする");
+            toolTip.SetToolTip(button_PerforceChange, "整形結果を右の欄に出し、クリップボードにもコピーする");
         }
 
         private void textBox_ThisWeekBefore_KeyDown(object sender, KeyEventArgs e)
