@@ -40,8 +40,8 @@ namespace EventRecorder
             this.contextMenuStrip_Grid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem_DeleteRow = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuItem_BulkChangeMouseUpWaitSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.menuItem_BulkChangeMouseUpWait = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem_BulkChangeEventWaitSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.menuItem_BulkChangeEventWait = new System.Windows.Forms.ToolStripMenuItem();
             this.button_Record = new System.Windows.Forms.Button();
             this.button_Clear = new System.Windows.Forms.Button();
             this.label_Loop = new System.Windows.Forms.Label();
@@ -172,8 +172,8 @@ namespace EventRecorder
             this.contextMenuStrip_Grid.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuItem_AddRow,
             this.menuItem_DeleteRow,
-            this.menuItem_BulkChangeMouseUpWaitSeparator,
-            this.menuItem_BulkChangeMouseUpWait});
+            this.menuItem_BulkChangeEventWaitSeparator,
+            this.menuItem_BulkChangeEventWait});
             this.contextMenuStrip_Grid.Name = "contextMenuStrip_Grid";
             this.contextMenuStrip_Grid.Size = new System.Drawing.Size(121, 48);
             this.contextMenuStrip_Grid.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Grid_Opening);
@@ -192,16 +192,16 @@ namespace EventRecorder
             this.menuItem_DeleteRow.Text = "行の削除(&D)";
             this.menuItem_DeleteRow.Click += new System.EventHandler(this.menuItem_DeleteRow_Click);
             //
-            // menuItem_BulkChangeMouseUpWaitSeparator
+            // menuItem_BulkChangeEventWaitSeparator
             //
-            this.menuItem_BulkChangeMouseUpWaitSeparator.Name = "menuItem_BulkChangeMouseUpWaitSeparator";
+            this.menuItem_BulkChangeEventWaitSeparator.Name = "menuItem_BulkChangeEventWaitSeparator";
             //
-            // menuItem_BulkChangeMouseUpWait
+            // menuItem_BulkChangeEventWait
             //
-            this.menuItem_BulkChangeMouseUpWait.Name = "menuItem_BulkChangeMouseUpWait";
-            this.menuItem_BulkChangeMouseUpWait.Size = new System.Drawing.Size(120, 22);
-            this.menuItem_BulkChangeMouseUpWait.Text = "MOUSE_UP時間を一括変更(&W)...";
-            this.menuItem_BulkChangeMouseUpWait.Click += new System.EventHandler(this.menuItem_BulkChangeMouseUpWait_Click);
+            this.menuItem_BulkChangeEventWait.Name = "menuItem_BulkChangeEventWait";
+            this.menuItem_BulkChangeEventWait.Size = new System.Drawing.Size(120, 22);
+            this.menuItem_BulkChangeEventWait.Text = "WAIT時間を一括変更(&W)...";
+            this.menuItem_BulkChangeEventWait.Click += new System.EventHandler(this.menuItem_BulkChangeEventWait_Click);
             //
             // button_Record
             // 
@@ -617,8 +617,8 @@ namespace EventRecorder
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Grid;
         private System.Windows.Forms.ToolStripMenuItem menuItem_AddRow;
         private System.Windows.Forms.ToolStripMenuItem menuItem_DeleteRow;
-        private System.Windows.Forms.ToolStripSeparator menuItem_BulkChangeMouseUpWaitSeparator;
-        private System.Windows.Forms.ToolStripMenuItem menuItem_BulkChangeMouseUpWait;
+        private System.Windows.Forms.ToolStripSeparator menuItem_BulkChangeEventWaitSeparator;
+        private System.Windows.Forms.ToolStripMenuItem menuItem_BulkChangeEventWait;
         private System.Windows.Forms.SplitContainer splitContainer_Main;
         private System.Windows.Forms.GroupBox groupBox_Playback;
         private System.Windows.Forms.GroupBox groupBox_Record;

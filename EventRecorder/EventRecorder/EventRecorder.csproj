@@ -106,7 +106,7 @@
     <Compile Include="FindReplaceForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MouseUpWaitBulkChangeForm.cs">
+    <Compile Include="EventWaitBulkChangeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -181,4 +181,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-</Project>
+</Project>

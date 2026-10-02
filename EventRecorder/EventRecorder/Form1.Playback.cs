@@ -555,11 +555,22 @@ namespace EventRecorder
             dataGridView_Events.Rows.Insert(insertAt, 1);
         }
 
-        // LEFT_UP、RIGHT_UPの各行について、直前がWAIT_MS行ならその待機時間をまとめて指定値に変更する。
+        // 指定したイベント名(ダイアログの初期値は右クリックした行のイベント名)の各行について、
+        // 直前がWAIT_MS行ならその待機時間をまとめて指定値に変更する。
         // 直前がWAIT_MS行でない(=待機無しで連続している)行はSKIPする
-        private void menuItem_BulkChangeMouseUpWait_Click(object sender, EventArgs e)
+        private void menuItem_BulkChangeEventWait_Click(object sender, EventArgs e)
         {
-            using (MouseUpWaitBulkChangeForm form = new MouseUpWaitBulkChangeForm())
+            String initialEventName = String.Empty;
+            if (contextMenuRowIndex >= 0 && contextMenuRowIndex < dataGridView_Events.Rows.Count)
+            {
+                String clickedType = Convert.ToString(dataGridView_Events.Rows[contextMenuRowIndex].Cells[col_Type.Index].Value);
+                if (!IsWaitEventType(clickedType))
+                {
+                    initialEventName = clickedType;
+                }
+            }
+
+            using (EventWaitBulkChangeForm form = new EventWaitBulkChangeForm(initialEventName))
             {
                 if (form.ShowDialog(this) != DialogResult.OK)
                 {
@@ -567,8 +578,7 @@ namespace EventRecorder
                 }
 
                 String waitText = form.WaitMs.ToString();
-                String leftUpType = GlobalHook.MouseHook.Stroke.LEFT_UP.ToString();
-                String rightUpType = GlobalHook.MouseHook.Stroke.RIGHT_UP.ToString();
+                String targetType = form.EventName;
 
                 dataGridView_Events.BeginUndoBatch();
                 try
@@ -582,7 +592,7 @@ namespace EventRecorder
                         }
 
                         String type = Convert.ToString(row.Cells[col_Type.Index].Value);
-                        if (type != leftUpType && type != rightUpType)
+                        if (type != targetType)
                         {
                             continue;
                         }
