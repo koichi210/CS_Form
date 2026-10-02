@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StandardTemplate;
 
 namespace FileArranger.Tests
 {
@@ -131,6 +133,54 @@ namespace FileArranger.Tests
             bool result = util.AvoidFileNameConflict(ref path, 1);
 
             Assert.IsFalse(result);
+        }
+
+        // ------------------------------------------------------------------
+        // MoveFileタブの移動処理（Form1.MoveFile.cs bgWorkerMove_DoWork と同じ手順）
+        //
+        // バグ: 元のコードはAvoidFolderNameConflict（Directory.Existsしか見ない）を使っていたため、
+        // 移動先に「同名のファイル」があるケースを重複として検知できず、
+        // StcFileInputOutput.MoveDirectory内のDirectory.Moveが失敗して「Move処理に失敗しました」の
+        // メッセージボックスが出て移動自体が失敗していた。
+        // File.Exists/Directory.Exists両方を見るAvoidFileNameConflictに差し替えて、
+        // MoveDirタブと同じ"_CntN_日時"を付けるリネームで衝突を回避するように修正した。
+        // ------------------------------------------------------------------
+
+        [TestMethod]
+        public void MoveFile_移動先に同名ファイルがあればリネームして両方残す()
+        {
+            string sourceDir = Path.Combine(tempDirectory, "src");
+            string targetDir = Path.Combine(tempDirectory, "dst");
+            Directory.CreateDirectory(sourceDir);
+            Directory.CreateDirectory(targetDir);
+
+            string fileName = "dup.txt";
+            string sourcePath = Path.Combine(sourceDir, fileName);
+            string originalTargetFilePath = Path.Combine(targetDir, fileName);
+            File.WriteAllText(sourcePath, "source content");
+            File.WriteAllText(originalTargetFilePath, "dest content");
+
+            string targetPath = originalTargetFilePath;
+
+            // bgWorkerMove_DoWork と同じ手順(重複回避→移動)
+            util.AvoidFileNameConflict(ref targetPath, 0);
+            var fio = new StcFileInputOutput();
+            fio.MoveDirectory(sourcePath, targetPath);
+
+            // 移動元からは無くなっている
+            Assert.IsFalse(File.Exists(sourcePath));
+
+            // 移動先には「元からあったファイル」と「リネームされた移動後のファイル」の両方が残る
+            string[] filesInTarget = Directory.GetFiles(targetDir);
+            Assert.AreEqual(2, filesInTarget.Length, "同名ファイルが失われず両方残っているはず");
+
+            Assert.IsTrue(File.Exists(originalTargetFilePath));
+            Assert.AreEqual("dest content", File.ReadAllText(originalTargetFilePath));
+
+            string movedPath = filesInTarget.First(f => f != originalTargetFilePath);
+            Assert.AreNotEqual(originalTargetFilePath, movedPath);
+            StringAssert.Contains(movedPath, "_Cnt0_");
+            Assert.AreEqual("source content", File.ReadAllText(movedPath));
         }
 
         // ------------------------------------------------------------------
