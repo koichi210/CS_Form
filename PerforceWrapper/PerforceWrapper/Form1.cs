@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
 using StandardTemplate;
@@ -180,11 +181,19 @@ namespace PerforceWrapper
             // このメソッドへのパラメータ
             String batchFile = (String)e.Argument;
 
-            // コマンド実行
-            util.ExecuteProcess(batchFile);
-
-            // パスワードが含まれるのでファイルを削除する
-            //File.Delete(batchFile);
+            try
+            {
+                // コマンド実行(バッチ完了後にパスワード入りファイルを安全に削除するため、終了を待つ)
+                Process hProcess = util.ExecuteProcess(batchFile);
+                hProcess.WaitForExit();
+                hProcess.Close();
+                hProcess.Dispose();
+            }
+            finally
+            {
+                // パスワードが含まれるので、プロセス実行後は失敗時も含め必ず削除する
+                File.Delete(batchFile);
+            }
 
             // このメソッドからの戻り値
             e.Result = "SUCCESS";
