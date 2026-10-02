@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using StandardTemplate;
 
 namespace EventRecorder
@@ -23,6 +25,14 @@ namespace EventRecorder
         private volatile Boolean isRecording = false;
         private volatile Boolean isPlaying = false;
         private volatile Boolean stopPlayRequested = false;
+
+        // 実行中の再生スレッド(単発再生/プレイリスト実行のTask.Run)。終了時に停止を伝えた後、
+        // 本当に止まるまで待つために持っておく(止まる前にフォームを破棄すると、再生スレッドが
+        // 閉店後の店内で動き回る=破棄済みのフォームを触ったり入力を送り続けたりしてしまう)
+        private Task playbackTask;
+
+        // 終了処理(Form1_FormClosing)に入ったらtrue。以後は記録/再生を新しく始めない
+        private Boolean isExiting = false;
 
         // タイトルバーに表示する再生中のループ進捗。「全体ループ」はプレイリストの
         // 全体周回(単発再生では常に1/1)、「ループ」はPlayRows呼び出し1回あたりの
@@ -190,6 +200,11 @@ namespace EventRecorder
             GlobalHook.KeyboardHook.Start();
 
             this.FormClosing += Form1_FormClosing;
+
+            // 画面ロック・サインイン(セッション切替)の通知。SystemEventsは静的イベントなので、
+            // フォームが破棄された後に呼ばれないよう、閉じた時に必ず解除する
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+            this.FormClosed += (s, e) => SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
 
             sr.RegisterItem(this);
             playbackLoader.RegisterItemForPlayback(this);
@@ -464,14 +479,133 @@ namespace EventRecorder
             groupBox_Record.BackColor = radioButton_Record.Checked ? ModeHighlightColor : SystemColors.Control;
         }
 
+        // 閉じるボタン・トレイの「終了」だけでなく、Windowsのシャットダウン/再起動/サインアウト
+        // (CloseReason.WindowsShutDown)の時もここを通る。
+        // 以前は記録/再生を止めずにフォームを閉じていたため、再生スレッドがフォーム破棄後も
+        // 入力を送り続けたり、破棄済みのフォームへInvokeしたりしていた。
+        // 「店じまい」の順番: ①ホットキーを受け付けない ②記録を止める ③再生に停止を伝えて止まるまで待つ
+        // ④設定を保存 ⑤タイマー・フックを片付ける
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (isExiting)
+            {
+                // 下の「再生の停止待ち」の最中(メッセージ処理を回している間)に閉じる操作がもう一度来た場合。
+                // 1回目の終了処理がまだ途中なので、2回目は受け流して1回目に任せる
+                e.Cancel = true;
+                return;
+            }
+            isExiting = true;
+
+            // ①止めている最中にホットキーで記録/再生が再開されないよう、先にキーボードフックを外す
+            GlobalHook.KeyboardHook.Stop();
+
+            // ②記録中なら、溜まっている行を表へ反映してから止める(マウスフックもここで外れる)
+            if (isRecording)
+            {
+                ToggleRecording();
+            }
+
+            // ③再生中なら停止を伝え、再生スレッドが後片付け(押しっぱなしのキーを離す等)を終えるまで待つ
+            if (isPlaying)
+            {
+                stopPlayRequested = true;
+                Task task = playbackTask;
+                if (task != null)
+                {
+                    SessionGuard.WaitWhilePumping(() => task.IsCompleted, Application.DoEvents, SessionGuard.ExitWaitTimeoutMs);
+                }
+            }
+
+            // ④
             SaveAppSettings();
 
+            // ⑤
             gridFlushTimer.Stop();
             mousePosTimer.Stop();
             GlobalHook.MouseHook.Stop();
             GlobalHook.KeyboardHook.Stop();
+        }
+
+        // *******************************************************************************
+        // 画面ロック・サインイン(セッション切替)
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (isExiting || IsDisposed || !IsHandleCreated)
+            {
+                return;
+            }
+
+            // 通常はUIスレッドで通知されるが、念のため別スレッドから来た場合はUIスレッドへ回す
+            if (InvokeRequired)
+            {
+                SessionSwitchReason reason = e.Reason;
+                BeginInvoke((MethodInvoker)(() => HandleSessionChange(SessionGuard.Classify(reason))));
+                return;
+            }
+
+            HandleSessionChange(SessionGuard.Classify(e.Reason));
+        }
+
+        private void HandleSessionChange(SessionChange change)
+        {
+            if (isExiting || IsDisposed)
+            {
+                return;
+            }
+
+            switch (change)
+            {
+                case SessionChange.Suspend:
+                    SuspendForSessionLock();
+                    break;
+                case SessionChange.Resume:
+                    ResumeAfterSessionUnlock();
+                    break;
+            }
+        }
+
+        // 画面ロック等でこのセッションの画面から離れる時、記録/再生を止める。
+        // ・再生: ロック中のSendInputはロック画面に届かず空振りする上、ロック解除した瞬間に
+        //   途中の行から勝手に再開してしまうため、ここで停止する(押しっぱなしのキーは再生スレッドが離す)
+        // ・記録: ロック中は入力がフックに来ず、ロック操作(Win+L等)のKeyUpも取りこぼして
+        //   「押しっぱなし」扱いのキーが残るため、ここで記録を終える(記録済みの行はそのまま残る)
+        private void SuspendForSessionLock()
+        {
+            if (isRecording)
+            {
+                ToggleRecording();
+            }
+
+            if (isPlaying)
+            {
+                stopPlayRequested = true;
+            }
+
+            pressedHotkeys.Clear();
+        }
+
+        // ロック解除・サインインでこのセッションの画面に戻ってきた時の立て直し。
+        // ・ロック直前に押したホットキーのKeyUpを取りこぼしていると、次の1回が「リピート」扱いで無視されるため押下状態を消す
+        // ・低レベルキーボードフックは、コールバックが一定時間内に戻らないとWindowsに黙って外される
+        //   (ロック解除直後は画面の再描画などでUIスレッドが詰まりやすい)。外れたかどうかは知る手段が無いので、
+        //   張り直してホットキーが効かなくなるのを防ぐ
+        private void ResumeAfterSessionUnlock()
+        {
+            pressedHotkeys.Clear();
+
+            try
+            {
+                GlobalHook.KeyboardHook.Stop();
+                GlobalHook.KeyboardHook.ClearEvent();
+                GlobalHook.KeyboardHook.AddEvent(OnKeyboardEvent);
+                GlobalHook.KeyboardHook.Start();
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // 張り直しに失敗してもエラー表示はしない(ロック解除のたびにダイアログが出るのを避ける)。
+                // ホットキーは効かなくなるが、ボタン操作は使えるし、次のロック解除でもう一度張り直しを試みる
+            }
         }
 
         // アプリ本体の設定(ウィンドウサイズ+splitContainer_Mainの境界線位置+ホットキー)を

@@ -94,6 +94,7 @@
     <Compile Include="EventRowMapper.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="HotkeyDefaults.cs" />
+    <Compile Include="SessionGuard.cs" />
     <Compile Include="HotkeySettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

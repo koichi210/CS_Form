@@ -30,7 +30,8 @@ namespace EventRecorder
                 return;
             }
 
-            if (isRecording)
+            // 終了処理中は新しく再生を始めない
+            if (isRecording || isExiting)
             {
                 return;
             }
@@ -76,7 +77,7 @@ namespace EventRecorder
             UpdateTitle();
             MinimizeIfRequested();
 
-            Task.Run(() => PlayLoop(rows, loopCount));
+            playbackTask = Task.Run(() => PlayLoop(rows, loopCount));
         }
 
         // ループ回数の入力値を数値にする。読めない値・0以下は1回として扱う
@@ -142,20 +143,57 @@ namespace EventRecorder
                 // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)
                 isPlaying = false;
                 stopPlayRequested = false;
-                this.Invoke((MethodInvoker)(() =>
+                InvokeOnUi(() =>
                 {
                     UpdatePlayButton();
                     UpdateTitle();
                     HighlightEventRow(-1);
                     RestoreIfMinimizedByPlay();
-                }));
+                });
             }
         }
 
         // 再生スレッド(Task.Run)内の例外はどこにも通知されずに消えるため、UIスレッドへ投げ直して共通のエラー通知に乗せる
         private void ReportPlaybackError(Exception ex)
         {
-            BeginInvoke((MethodInvoker)(() => { throw new InvalidOperationException("再生中にエラーが発生したよ", ex); }));
+            if (IsDisposed || !IsHandleCreated)
+            {
+                return;
+            }
+
+            try
+            {
+                BeginInvoke((MethodInvoker)(() => { throw new InvalidOperationException("再生中にエラーが発生したよ", ex); }));
+            }
+            catch (InvalidOperationException)
+            {
+                // フォームが閉じた後(終了処理と入れ違い)は知らせる先が無いので諦める
+            }
+        }
+
+        // 再生スレッドからUIスレッドの処理を呼ぶ。シャットダウン等でフォームが先に破棄されていた場合は、
+        // 例外にせず何もしないで、再生そのものも止める(画面が無いのに入力だけ送り続けないように)。
+        // action自体が投げた例外はそのまま呼び出し元へ伝える
+        private void InvokeOnUi(MethodInvoker action)
+        {
+            if (IsDisposed || !IsHandleCreated)
+            {
+                stopPlayRequested = true;
+                return;
+            }
+
+            try
+            {
+                this.Invoke(action);
+            }
+            catch (ObjectDisposedException)
+            {
+                stopPlayRequested = true;
+            }
+            catch (InvalidOperationException) when (IsDisposed || !IsHandleCreated)
+            {
+                stopPlayRequested = true;
+            }
         }
 
         // rowsをloopCount回再生する処理そのもの(前後の状態管理は呼び出し元の責務)。
@@ -187,11 +225,16 @@ namespace EventRecorder
                 {
                     String[] r = rows[idx];
 
-                    this.Invoke((MethodInvoker)(() =>
+                    InvokeOnUi(() =>
                     {
                         HighlightEventRow(idx);
                         UpdateTitle();
-                    }));
+                    });
+
+                    if (stopPlayRequested)
+                    {
+                        return;
+                    }
 
                     int wait = util.GetInteger(r[4]);
                     if (wait > 0)

@@ -641,7 +641,7 @@ namespace EventRecorder
             UpdateTitle();
             MinimizeIfRequested();
 
-            Task.Run(() => PlaylistPlayLoop(entries, overallLoopCount));
+            playbackTask = Task.Run(() => PlaylistPlayLoop(entries, overallLoopCount));
         }
 
         // プレイリスト全体をoverallLoopCount回繰り返す。各周回の中で、
@@ -661,7 +661,7 @@ namespace EventRecorder
                         int fileNo = i + 1;
                         List<String[]> rows = null;
 
-                        this.Invoke((MethodInvoker)(() =>
+                        InvokeOnUi(() =>
                         {
                             label_PlaylistStatus.Text = "実行中(全体" + loopDisplayNo + "/" + overallLoopCount + "): "
                                 + entry.FileName + " (" + fileNo + "/" + entries.Count + ")";
@@ -683,7 +683,7 @@ namespace EventRecorder
                             }
 
                             rows = SnapshotRows();
-                        }));
+                        });
 
                         if (rows != null && rows.Count > 0)
                         {
@@ -705,7 +705,7 @@ namespace EventRecorder
                 // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)
                 isPlaying = false;
                 stopPlayRequested = false;
-                this.Invoke((MethodInvoker)(() =>
+                InvokeOnUi(() =>
                 {
                     UpdatePlayButton();
                     label_PlaylistStatus.Text = "";
@@ -713,7 +713,7 @@ namespace EventRecorder
                     HighlightEventRow(-1);
                     HighlightPlaylistRow(-1);
                     RestoreIfMinimizedByPlay();
-                }));
+                });
             }
         }
     }
