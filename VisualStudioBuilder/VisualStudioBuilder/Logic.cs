@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 
 namespace VisualStudioBuilder
 {
@@ -123,6 +124,37 @@ namespace VisualStudioBuilder
             }
             result += errorList + Environment.NewLine;
             return result;
+        }
+
+        // rootPath以下(サブフォルダ含む)から、名前がdirectoryNameと一致するフォルダを
+        // 探して削除する。ビルド後にobj等の中間フォルダを掃除するための処理。
+        // 深い方から削除しないと、親フォルダを先に消した後に子フォルダへ辿り着けず
+        // 「既に無い」例外になる場合があるため、パスの長さの降順(深い=長い)で処理する。
+        // 1つのフォルダが他プロセスにロックされていても、他のフォルダの削除や
+        // ビルド全体が止まらないよう、フォルダ単位でtry/catchする
+        public static void DeleteDirectoriesByName(String rootPath, String directoryName)
+        {
+            if (String.IsNullOrEmpty(directoryName) || !Directory.Exists(rootPath))
+            {
+                return;
+            }
+
+            String[] targetDirs = Directory.GetDirectories(rootPath, directoryName, SearchOption.AllDirectories);
+            foreach (String targetDir in targetDirs.OrderByDescending(dir => dir.Length))
+            {
+                try
+                {
+                    if (Directory.Exists(targetDir))
+                    {
+                        Directory.Delete(targetDir, true);
+                    }
+                }
+                catch (Exception)
+                {
+                    // ロックされている等で削除できないフォルダが1つあっても、
+                    // 他のフォルダの削除やビルド完了処理を止めない
+                }
+            }
         }
     }
 }

@@ -156,5 +156,64 @@ namespace VisualStudioBuilder.Tests
             StringAssert.Contains(result, "[ビルド成功]");
             StringAssert.Contains(result, "[ビルド失敗]");
         }
+
+        // --- DeleteDirectoriesByName(ビルド後の任意ディレクトリ削除) ---------------------
+        // checkBox_DeleteDirectoryをオンにしても削除されない不具合(未実装)の再発防止。
+        // 名前が一致するフォルダだけ、深い階層・浅い階層どちらにあっても再帰的に消えること、
+        // 一致しないフォルダは残ることを確認する
+
+        [TestMethod]
+        public void DeleteDirectoriesByNameは名前が一致するフォルダだけを階層を問わず削除する()
+        {
+            // ルート直下のobj、サブフォルダ配下のobj(入れ子)、関係ないbinフォルダを用意
+            string objAtRoot = Path.Combine(tempDirectory, "obj");
+            string keepBin = Path.Combine(tempDirectory, "bin");
+            string nested = Path.Combine(tempDirectory, "SubProject");
+            string objNested = Path.Combine(nested, "obj");
+            string objNestedChild = Path.Combine(objNested, "Debug");
+            Directory.CreateDirectory(objAtRoot);
+            Directory.CreateDirectory(keepBin);
+            Directory.CreateDirectory(objNestedChild);
+            File.WriteAllText(Path.Combine(objAtRoot, "dummy.txt"), "dummy");
+            File.WriteAllText(Path.Combine(objNestedChild, "dummy.txt"), "dummy");
+
+            Logic.DeleteDirectoriesByName(tempDirectory, "obj");
+
+            Assert.IsFalse(Directory.Exists(objAtRoot), "ルート直下のobjは削除される");
+            Assert.IsFalse(Directory.Exists(objNested), "入れ子になったobjも削除される(子フォルダobj\\Debugごと)");
+            Assert.IsTrue(Directory.Exists(keepBin), "名前が一致しないbinは残る");
+            Assert.IsTrue(Directory.Exists(nested), "obj自体ではない親フォルダ(SubProject)は残る");
+        }
+
+        [TestMethod]
+        public void DeleteDirectoriesByNameはディレクトリ名が空なら何もしない()
+        {
+            string objAtRoot = Path.Combine(tempDirectory, "obj");
+            Directory.CreateDirectory(objAtRoot);
+
+            Logic.DeleteDirectoriesByName(tempDirectory, "");
+
+            Assert.IsTrue(Directory.Exists(objAtRoot), "ディレクトリ名が空の場合は何も削除しない");
+        }
+
+        [TestMethod]
+        public void DeleteDirectoriesByNameはルートが存在しなくても例外を投げない()
+        {
+            string missingRoot = Path.Combine(tempDirectory, "NotExist");
+
+            Logic.DeleteDirectoriesByName(missingRoot, "obj");
+            // ここまで到達すれば例外が起きていないのでOK
+        }
+
+        [TestMethod]
+        public void DeleteDirectoriesByNameは一致するフォルダが無ければ何もしない()
+        {
+            string keepBin = Path.Combine(tempDirectory, "bin");
+            Directory.CreateDirectory(keepBin);
+
+            Logic.DeleteDirectoriesByName(tempDirectory, "obj");
+
+            Assert.IsTrue(Directory.Exists(keepBin));
+        }
     }
 }

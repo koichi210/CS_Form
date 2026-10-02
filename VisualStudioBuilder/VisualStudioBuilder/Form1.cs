@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
@@ -64,6 +65,7 @@ namespace VisualStudioBuilder
             public String IgnoreExecuteFile { get; set; }
             public Boolean IsDeleteDirectory { get; set; }
             public String DeleteDirectoryName { get; set; }
+            public String[] ProjectPathList { get; set; }
             public String DetectTargetLogList { get; set; }
         }
 
@@ -78,6 +80,11 @@ namespace VisualStudioBuilder
 
             InitializePlaceholders();
             InitializeToolTips();
+
+            // Designer.cs側でEnabled=falseになっている(未実装だった頃の名残)。
+            // 削除処理を実装したので有効化する。Designer.csは自動生成で上書きされるため
+            // ここで切り替える
+            checkBox_DeleteDirectory.Enabled = true;
 
             sr.RegisterItem(this);
             String defaultJsonPath = Path.Combine(userDataFolder, DefaultSettingFileName);
@@ -115,7 +122,7 @@ namespace VisualStudioBuilder
             toolTip.SetToolTip(textBox_VisualStudioExePath, "ビルドに使うdevenv.exeのパス");
             toolTip.SetToolTip(textBox_BuildOption, "devenvにそのまま渡す引数(ビルドの種類と構成名)");
             toolTip.SetToolTip(button_Build, "ビルド欄が○のソリューションを順にビルドする。開始時にログ出力先フォルダを中身ごと削除する");
-            toolTip.SetToolTip(checkBox_DeleteDirectory, "未実装。オンにしてもディレクトリは削除されない");
+            toolTip.SetToolTip(checkBox_DeleteDirectory, "オンならビルド完了後、ビルド対象の各プロジェクトフォルダ以下(サブフォルダ含む)から下の欄の名前と一致するフォルダを探して削除する");
 
             toolTip.SetToolTip(textBox_LogDirectory, "ソリューションごとのビルドログ(ソリューション名.log)の出力先。ビルド開始時に中身ごと削除して作り直す。空欄ならログを出さない。Enterキーでフォルダを開く");
             toolTip.SetToolTip(checkBox_DetectBuildError, "ビルド後に各ログを検知ワードで調べ、成功/失敗の一覧を表示する");
@@ -191,6 +198,29 @@ namespace VisualStudioBuilder
             return util.TrimEndGarbage(detectTargetLogList);
         }
 
+        // ビルド対象(○)のプロジェクトフォルダ一覧。ビルド後のディレクトリ削除で、
+        // どのソリューションの配下を掃除するかに使う
+        private String[] CreateEnabledProjectPathList()
+        {
+            List<String> projectPathList = new List<String>();
+
+            for (int i = 0; i < dataGridView.RowCount; i++)
+            {
+                if (GetCellData(i, BuildEnableIdx) != StrDataGridBuildListEnable)
+                {
+                    continue;
+                }
+
+                String projectPath = GetCellData(i, ProjectPathIdx);
+                if (projectPath != String.Empty)
+                {
+                    projectPathList.Add(projectPath);
+                }
+            }
+
+            return projectPathList.ToArray();
+        }
+
         private Boolean CheckSolutionPath()
         {
             String fileNotFoundList = "";
@@ -252,6 +282,7 @@ namespace VisualStudioBuilder
                 IgnoreExecuteFile = textBox_ExcludeWord.Text,
                 IsDeleteDirectory = checkBox_DeleteDirectory.Checked,
                 DeleteDirectoryName = textBox_DeleteDirectoryName.Text,
+                ProjectPathList = CreateEnabledProjectPathList(),
                 DetectTargetLogList = CreateDetectTargetList(),
             };
 
@@ -270,17 +301,17 @@ namespace VisualStudioBuilder
             fio.CreateFile(batchFile, bwi.BuildScript);
             util.ExecutePathWithWait(batchFile);
 
-            // TODO：ビルドリストはバッチで生成しているので、ここでは見えない。
-            //       バッチ生成もタスクで実装する？
-            // ディレクトリ削除
-            //if (bwi.IsDeleteDirectory)
-            //{
-                //for (int i = 0; i < ファイルリスト; i++)
-                //{
-                    //StcFileInputOutput fio = new StcFileInputOutput();
-                    //fio.DeleteDirectoryAndFile(ファイルリスト + bwi.DeleteDirectoryName);
-                //}
-            //}
+            // ディレクトリ削除。ビルド全体(全ソリューション)が終わった後に、
+            // ビルド対象だった各ソリューションのプロジェクトフォルダ以下を再帰的に探して消す
+            // (objフォルダ等、ビルド中はまだ使われているため各ソリューションのビルド直後ではなく
+            // 全ビルド完了後にまとめて行う)。判定・削除処理自体はLogic側(テスト可能)に置く
+            if (bwi.IsDeleteDirectory && bwi.DeleteDirectoryName != String.Empty)
+            {
+                foreach (String projectPath in bwi.ProjectPathList)
+                {
+                    Logic.DeleteDirectoriesByName(projectPath, bwi.DeleteDirectoryName);
+                }
+            }
 
             // ビルドエラー検出。振り分けの判定はLogic側(テスト可能)に置き、
             // ログファイルの中身を見る部分だけここから渡す
