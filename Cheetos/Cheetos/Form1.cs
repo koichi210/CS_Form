@@ -151,7 +151,7 @@ namespace Cheetos
             toolTip.SetToolTip(cw_Radio_FullScreen, "Ctrl+PrintScreenで画面全体を撮る");
             toolTip.SetToolTip(cw_Radio_CurrentScreen, "このウィンドウが表示されているモニタ1枚だけを撮る");
             toolTip.SetToolTip(cw_Radio_CurrentWindow, "Alt+PrintScreenで、撮影時点でアクティブなウィンドウを撮る");
-            toolTip.SetToolTip(cw_Button_Capture, "グリッドの各行を上から順に実行(マウス操作→Sleep→キャプチャ)し、それを繰り返し数だけ行う。終了後はマウスカーソルを押した時の位置へ戻す");
+            toolTip.SetToolTip(cw_Button_Capture, "グリッドの各行を上から順に実行(マウス操作→Sleep→キャプチャ)し、それを繰り返し数だけ行う。終了後はマウスカーソルを押した時の位置へ戻す。処理中に押すと中断");
             toolTip.SetToolTip(cw_Button_AddLine, "選択中の行の下に1行挿入する(MouseAction=Move、Capture=×)");
             toolTip.SetToolTip(cw_TextBox_Status, "このタブ上でマウスを動かすと、現在のマウス座標(画面座標)を表示する");
             cw_dataGridView.Columns[GetDataGridColumnIdx(GridHeaderSleepStr)].ToolTipText = "マウス操作の後、キャプチャ前に待つ時間(ミリ秒、1秒単位に切り上げ)。空欄なら直前に使った待ち時間を引き継ぐ";
@@ -192,7 +192,7 @@ namespace Cheetos
             toolTip.SetToolTip(do_TargetFileName, "振り分けるファイルの検索パターン(*や?が使える)。移動元フォルダの直下だけが対象");
             toolTip.SetToolTip(do_WhiteLength, "白フチかどうかを調べる、画像の左右両端の帯の幅(px)。画像の幅より大きい場合は画像の幅になる");
             toolTip.SetToolTip(do_WhiteCoef, "白と見なすしきい値の係数(既定30)。しきい値=帯の幅×画像の高さ÷係数で、大きいほど白と判定されにくく横に振り分けられやすい");
-            toolTip.SetToolTip(do_Distribute, "左右両端の帯をPNGにした時のサイズが両方ともしきい値以下(白フチあり)なら縦、そうでなければ横の移動先へファイルを移動する");
+            toolTip.SetToolTip(do_Distribute, "左右両端の帯をPNGにした時のサイズが両方ともしきい値以下(白フチあり)なら縦、そうでなければ横の移動先へファイルを移動する。処理中に押すと中断");
             toolTip.SetToolTip(do_SampleFilePath, "長さ/係数を試すための画像ファイルのパス");
             toolTip.SetToolTip(do_GetSampleParam, "サンプル画像を今の長さ/係数で判定し、結果・しきい値・左右の帯のサイズを表示する(ファイルは移動しない)");
 
