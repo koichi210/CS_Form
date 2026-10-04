@@ -138,6 +138,16 @@ namespace EventRecorder
         private void RestoreFromTray()
         {
             this.WindowState = FormWindowState.Normal;
+            BringWindowToFront();
+        }
+
+        // 再生中は再生対象のアプリが前面(フォアグラウンド)にいるため、WindowStateを戻すだけだと
+        // Windowsのフォアグラウンドロックにより対象アプリの裏に隠れたままになり、戻ったことに気付けない。
+        // 一瞬だけ最前面にしてZオーダーの先頭へ持ってきてから、アクティブにする
+        private void BringWindowToFront()
+        {
+            this.TopMost = true;
+            this.TopMost = false;
             this.Activate();
         }
 
