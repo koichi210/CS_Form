@@ -43,20 +43,7 @@ namespace FileArranger
         /// </summary>
         public Boolean Restore()
         {
-            if (!_processMemory.DecrementSerialNumber())
-            {
-                return false;
-            }
-
-            while (_processMemory.HasRestoreItem())
-            {
-                String srcName = "";
-                String destName = "";
-                _processMemory.PopRestoreItem(ref srcName, ref destName);
-                File.Move(destName, srcName);
-            }
-
-            return true;
+            return _processMemory.RestoreLastBatch(File.Move);
         }
     }
 }

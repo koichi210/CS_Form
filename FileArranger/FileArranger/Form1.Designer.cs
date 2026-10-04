@@ -205,7 +205,7 @@
             this.cmn_textBox_AddList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.cmn_textBox_AddList.Size = new System.Drawing.Size(826, 700);
             this.cmn_textBox_AddList.TabIndex = 5;
-            this.cmn_textBox_AddList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmn_textBox_AddList_KeyDown);
+            this.cmn_textBox_AddList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SelectAll_KeyDown);
             // 
             // label6
             // 
@@ -293,7 +293,7 @@
             this.md_comboBox_TargetDir.Name = "md_comboBox_TargetDir";
             this.md_comboBox_TargetDir.Size = new System.Drawing.Size(847, 26);
             this.md_comboBox_TargetDir.TabIndex = 5;
-            this.md_comboBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.md_comboBox_TargetDir_KeyDown);
+            this.md_comboBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // md_button_MoveTopDir
             // 
@@ -404,7 +404,7 @@
             this.md_textBox_SourceDir.Name = "md_textBox_SourceDir";
             this.md_textBox_SourceDir.Size = new System.Drawing.Size(734, 25);
             this.md_textBox_SourceDir.TabIndex = 2;
-            this.md_textBox_SourceDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.md_textBox_SourceDir_KeyDown);
+            this.md_textBox_SourceDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // label2
             // 
@@ -473,7 +473,7 @@
             this.rd_comboBox_AddTitlePostWord.Sorted = true;
             this.rd_comboBox_AddTitlePostWord.TabIndex = 16;
             this.rd_comboBox_AddTitlePostWord.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
-            this.rd_comboBox_AddTitlePostWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
+            this.rd_comboBox_AddTitlePostWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_RenameInput_KeyDown);
             // 
             // label18
             // 
@@ -517,7 +517,7 @@
             this.rd_textBox_SplitWord3.Size = new System.Drawing.Size(104, 25);
             this.rd_textBox_SplitWord3.TabIndex = 8;
             this.rd_textBox_SplitWord3.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
-            this.rd_textBox_SplitWord3.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
+            this.rd_textBox_SplitWord3.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_RenameInput_KeyDown);
             // 
             // rd_checkBox_FileOpen
             // 
@@ -550,7 +550,7 @@
             this.rd_textBox_SearchTitleLength.Size = new System.Drawing.Size(51, 25);
             this.rd_textBox_SearchTitleLength.TabIndex = 18;
             this.rd_textBox_SearchTitleLength.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
-            this.rd_textBox_SearchTitleLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
+            this.rd_textBox_SearchTitleLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_RenameInput_KeyDown);
             // 
             // label17
             // 
@@ -572,7 +572,7 @@
             this.rd_textBox_SearchTitleLine.Size = new System.Drawing.Size(51, 25);
             this.rd_textBox_SearchTitleLine.TabIndex = 12;
             this.rd_textBox_SearchTitleLine.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
-            this.rd_textBox_SearchTitleLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
+            this.rd_textBox_SearchTitleLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_RenameInput_KeyDown);
             // 
             // rd_label_TotalNum
             // 
@@ -598,7 +598,7 @@
             this.rd_comboBox_MergeWord.TabIndex = 14;
             this.rd_comboBox_MergeWord.DropDown += new System.EventHandler(this.rd_comboBox_MergeWord_DropDown);
             this.rd_comboBox_MergeWord.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
-            this.rd_comboBox_MergeWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
+            this.rd_comboBox_MergeWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_RenameInput_KeyDown);
             // 
             // label10
             // 
@@ -631,7 +631,7 @@
             this.rd_textBox_AddTitlePreWord.Size = new System.Drawing.Size(117, 25);
             this.rd_textBox_AddTitlePreWord.TabIndex = 10;
             this.rd_textBox_AddTitlePreWord.TextChanged += new System.EventHandler(this.rd_RenameSetting_TextChanged);
-            this.rd_textBox_AddTitlePreWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_MergeWord_KeyDown);
+            this.rd_textBox_AddTitlePreWord.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_RenameInput_KeyDown);
             // 
             // rd_button_RenameDirRestore
             // 
@@ -689,7 +689,7 @@
             this.rd_textBox_ExistItemDir.ReadOnly = true;
             this.rd_textBox_ExistItemDir.Size = new System.Drawing.Size(734, 25);
             this.rd_textBox_ExistItemDir.TabIndex = 5;
-            this.rd_textBox_ExistItemDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_textBox_ExistItemDir_KeyDown);
+            this.rd_textBox_ExistItemDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // rd_label_ExistItemDir
             // 
@@ -857,7 +857,7 @@
             this.sf_textBox_TargetFile.Name = "sf_textBox_TargetFile";
             this.sf_textBox_TargetFile.Size = new System.Drawing.Size(734, 25);
             this.sf_textBox_TargetFile.TabIndex = 2;
-            this.sf_textBox_TargetFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.sf_textBox_TargetFile_KeyDown);
+            this.sf_textBox_TargetFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // label16
             // 
@@ -917,7 +917,7 @@
             this.mf_listBox_Target.Sorted = true;
             this.mf_listBox_Target.TabIndex = 6;
             this.mf_listBox_Target.SelectedIndexChanged += new System.EventHandler(this.mf_listBox_Target_SelectedIndexChanged);
-            this.mf_listBox_Target.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mf_listBox_Target_KeyDown);
+            this.mf_listBox_Target.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SelectAll_KeyDown);
             // 
             // label26
             // 
@@ -938,7 +938,7 @@
             this.mf_textBox_TargetDir.Name = "mf_textBox_TargetDir";
             this.mf_textBox_TargetDir.Size = new System.Drawing.Size(847, 25);
             this.mf_textBox_TargetDir.TabIndex = 5;
-            this.mf_textBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mf_textBox_TargetDir_KeyDown);
+            this.mf_textBox_TargetDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // mf_label_SelectNum
             // 
@@ -993,7 +993,7 @@
             this.mf_textBox_SourceDir.Name = "mf_textBox_SourceDir";
             this.mf_textBox_SourceDir.Size = new System.Drawing.Size(734, 25);
             this.mf_textBox_SourceDir.TabIndex = 2;
-            this.mf_textBox_SourceDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mf_textBox_SourceDir_KeyDown);
+            this.mf_textBox_SourceDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // mf_button_MoveFile
             // 
@@ -1103,7 +1103,7 @@
             this.pf_textBox_SearchTitleLength.Name = "pf_textBox_SearchTitleLength";
             this.pf_textBox_SearchTitleLength.Size = new System.Drawing.Size(77, 25);
             this.pf_textBox_SearchTitleLength.TabIndex = 16;
-            this.pf_textBox_SearchTitleLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_SearchTitleLine_KeyDown);
+            this.pf_textBox_SearchTitleLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_PartitionInput_KeyDown);
             // 
             // pf_button_Listup_Reference
             // 
@@ -1150,7 +1150,7 @@
             this.pf_textBox_SearchTitleLine.Name = "pf_textBox_SearchTitleLine";
             this.pf_textBox_SearchTitleLine.Size = new System.Drawing.Size(77, 25);
             this.pf_textBox_SearchTitleLine.TabIndex = 12;
-            this.pf_textBox_SearchTitleLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_SearchTitleLine_KeyDown);
+            this.pf_textBox_SearchTitleLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_PartitionInput_KeyDown);
             // 
             // pf_textBox_ReferenceFile
             // 
@@ -1162,7 +1162,7 @@
             this.pf_textBox_ReferenceFile.ReadOnly = true;
             this.pf_textBox_ReferenceFile.Size = new System.Drawing.Size(731, 25);
             this.pf_textBox_ReferenceFile.TabIndex = 7;
-            this.pf_textBox_ReferenceFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_ReferenceFile_KeyDown);
+            this.pf_textBox_ReferenceFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // pf_label_ReferenceFile
             // 
@@ -1265,7 +1265,7 @@
             this.pf_textBox_TargetFile.Name = "pf_textBox_TargetFile";
             this.pf_textBox_TargetFile.Size = new System.Drawing.Size(516, 25);
             this.pf_textBox_TargetFile.TabIndex = 2;
-            this.pf_textBox_TargetFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pf_textBox_TargetFile_KeyDown);
+            this.pf_textBox_TargetFile.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // label5
             // 
@@ -1306,7 +1306,7 @@
             // 
             this.bgWorkerMove.WorkerReportsProgress = true;
             this.bgWorkerMove.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerMove_DoWork);
-            this.bgWorkerMove.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorkerMove_ProgressChanged);
+            this.bgWorkerMove.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorker_ProgressChanged);
             this.bgWorkerMove.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorkerMove_RunWorkerCompleted);
             // 
             // progressBar
@@ -1332,7 +1332,7 @@
             // 
             this.bgPartition.WorkerReportsProgress = true;
             this.bgPartition.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgPartition_DoWork);
-            this.bgPartition.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgPartition_ProgressChanged);
+            this.bgPartition.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorker_ProgressChanged);
             this.bgPartition.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgPartition_RunWorkerCompleted);
             // 
             // rd_comboBox_RenameDir
@@ -1344,7 +1344,7 @@
             this.rd_comboBox_RenameDir.Name = "rd_comboBox_RenameDir";
             this.rd_comboBox_RenameDir.Size = new System.Drawing.Size(734, 26);
             this.rd_comboBox_RenameDir.TabIndex = 2;
-            this.rd_comboBox_RenameDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rd_comboBox_RenameDir_KeyDown);
+            this.rd_comboBox_RenameDir.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathInput_KeyDown);
             // 
             // FileArranger
             // 

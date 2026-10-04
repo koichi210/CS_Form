@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
@@ -44,10 +45,17 @@ namespace FileArranger
         private readonly StcProcessMemory _renameDirMemory = new StcProcessMemory();    // フォルダ名変更(rdタブ)の復元用
         private readonly FileSorter _sorter = new FileSorter();
 
+        // 一覧の選択変更時の再計算(Ctrl+A等で連続して飛ぶSelectedIndexChangedを1回にまとめる)
+        private readonly CoalescedAction _renameSelectionUpdate;
+        private readonly CoalescedAction _partitionSelectionUpdate;
+
         public FileArranger()
         {
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.FileArranger);
+
+            _renameSelectionUpdate = new CoalescedAction(this, RefreshRenameDestNames);
+            _partitionSelectionUpdate = new CoalescedAction(this, RefreshPartitionMoveNames);
 
             //ListView初期設定
             RecreateRenameColumnsEvenly();
@@ -205,9 +213,37 @@ namespace FileArranger
             _util.SetComboBoxText(comboBox_LoadSetting, defaultProfileName);
         }
 
-        private void cmn_textBox_AddList_KeyDown(object sender, KeyEventArgs e)
+        // *******************************************************************************
+        // 各タブで共通の処理
+
+        // パス入力欄でEnterを押したら、入力中のパスを開く(各タブのフォルダ入力欄で共通のハンドラ)
+        private void PathInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            _util.ExecutePath(((Control)sender).Text, e);
+        }
+
+        // Ctrl+Aで全選択(複数行テキスト・リストボックスで共通のハンドラ)
+        private void SelectAll_KeyDown(object sender, KeyEventArgs e)
         {
             _util.SelectAll(e);
+        }
+
+        private static Boolean IsCtrlEnter(KeyEventArgs e)
+        {
+            return e.Control && e.KeyCode == Keys.Enter;
+        }
+
+        // リストボックスのキー操作: Enterで実行、Ctrl+Aで全選択(md/sfタブで共通)
+        private void HandleListBoxKeyDown(KeyEventArgs e, Action executeOnEnter)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                executeOnEnter();
+            }
+            else
+            {
+                _util.SelectAll(e);
+            }
         }
 
         // リストアップ前のフォルダ確認。各タブで同じ確認をしていたためまとめた
@@ -228,9 +264,10 @@ namespace FileArranger
 
         // フルパスから基準フォルダの分を取り除いて、表示用の名前にする
         // (区切り文字の1文字分を足す処理が各タブに散らばっていたためまとめた)
+        // (基準フォルダの末尾に「\」が付いていると名前の先頭1文字まで削れていたため、末尾の区切りは除いて数える)
         private static String GetDisplayName(String fullPath, String baseFolderPath)
         {
-            return fullPath.Remove(0, baseFolderPath.Length + 1);
+            return fullPath.Remove(0, baseFolderPath.TrimEnd('\\', '/').Length + 1);
         }
 
         // パス一覧を表示用の名前にしてListBoxへ並べ直す(各タブのリストアップで共通)
@@ -245,19 +282,44 @@ namespace FileArranger
         // パス一覧を表示用の名前にしてListViewへ並べ直す。1列目に名前を入れ、残りの列は空欄にする
         private static void FillListView(ListView listView, String[] paths, String baseFolderPath, int columnCount)
         {
+            ListViewItem[] items = paths
+                .Select(path => new ListViewItem(new[] { GetDisplayName(path, baseFolderPath) }
+                    .Concat(Enumerable.Repeat("", columnCount - 1))
+                    .ToArray()))
+                .ToArray();
+
             listView.BeginUpdate();
             listView.Items.Clear();
-            foreach (String path in paths)
-            {
-                String[] item = new String[columnCount];
-                item[0] = GetDisplayName(path, baseFolderPath);
-                for (int i = 1; i < columnCount; i++)
-                {
-                    item[i] = "";
-                }
-                listView.Items.Add(new ListViewItem(item));
-            }
+            listView.Items.AddRange(items);
             listView.EndUpdate();
+        }
+
+        // リストアップ処理の共通部分。フォルダを確認し、getPathsで集めたパスを一覧に並べて件数を表示する。
+        // フォルダが無効ならnullを返す(countNameは「ファイル数」「フォルダ数」等の件数ラベルの見出し)
+        private static String[] ListupInto(ListBox listBox, Label totalLabel, String countName,
+            String folderPath, Func<String, String[]> getPaths)
+        {
+            return Listup(folderPath, getPaths, paths => FillListBox(listBox, paths, folderPath), totalLabel, countName, true);
+        }
+
+        private static String[] ListupInto(ListView listView, int columnCount, Label totalLabel, String countName,
+            String folderPath, Func<String, String[]> getPaths, Boolean showErrorPopup = true)
+        {
+            return Listup(folderPath, getPaths, paths => FillListView(listView, paths, folderPath, columnCount), totalLabel, countName, showErrorPopup);
+        }
+
+        private static String[] Listup(String folderPath, Func<String, String[]> getPaths, Action<String[]> fill,
+            Label totalLabel, String countName, Boolean showErrorPopup)
+        {
+            if (!IsValidFolderPath(folderPath, showErrorPopup))
+            {
+                return null;
+            }
+
+            String[] paths = getPaths(folderPath);
+            fill(paths);
+            totalLabel.Text = countName + "：" + paths.Length;
+            return paths;
         }
 
         // ListViewの列を作り直し、幅を均等に割り振る
@@ -304,11 +366,31 @@ namespace FileArranger
             progressBar.Value = 0;
         }
 
-        // BackgroundWorkerの進捗表示(mf/pfタブで共通)
-        private void ShowProgress(int doneCount)
+        // BackgroundWorkerの進捗表示(mf/pfタブで共通のハンドラ。ProgressPercentageには完了件数を入れている)
+        private void bgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            int doneCount = e.ProgressPercentage;
             progressText.Text = doneCount + "/" + progressBar.Maximum + " 完了";
             progressBar.Value = doneCount;
+        }
+
+        // BackgroundWorker完了時のキャンセル/エラー表示(mf/pfタブで共通)。正常に終わっていればtrue
+        private static Boolean IsWorkerCompletedNormally(RunWorkerCompletedEventArgs e, String errorMessage)
+        {
+            if (e.Cancelled)
+            {
+                // この場合はe.Resultにはアクセスできない
+                MessageBox.Show("キャンセルされました");
+                return false;
+            }
+
+            if (e.Error != null)
+            {
+                MessageBox.Show(errorMessage + Environment.NewLine + e.Error.Message);
+                return false;
+            }
+
+            return true;
         }
 
         private void SaveSetting_Click(object sender, EventArgs e)
@@ -382,7 +464,7 @@ namespace FileArranger
             {
                 String[] addReferenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 Logic.DeleteDuplicate(ReferenceCandidateFolders, ref addReferenceList, rd_textBox_SplitWord3.Text);
-                addReferenceList = addReferenceList.Select(str => cmn_textBox_Reference.Text + @"\" + str + cmn_textBox_AddListSuffix.Text).ToArray();
+                addReferenceList = addReferenceList.Select(str => Path.Combine(cmn_textBox_Reference.Text, str + cmn_textBox_AddListSuffix.Text)).ToArray();
 
                 ReferenceCandidateFolders = ReferenceCandidateFolders.Concat(addReferenceList).ToArray();
             }

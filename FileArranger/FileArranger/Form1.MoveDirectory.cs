@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
@@ -8,16 +9,6 @@ namespace FileArranger
     // フォルダ移動タブ(md)の処理(Form1.csから分割)
     partial class FileArranger
     {
-        private void md_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
-        {
-            _util.ExecutePath(md_textBox_SourceDir.Text, e);
-        }
-
-        private void md_comboBox_TargetDir_KeyDown(object sender, KeyEventArgs e)
-        {
-            _util.ExecutePath(md_comboBox_TargetDir.Text, e);
-        }
-
         private void md_button_Listup_Click(object sender, EventArgs e)
         {
             ListupMoveDirectory();
@@ -28,30 +19,27 @@ namespace FileArranger
             MoveSelectedDirectories(true);
         }
 
+        private void md_button_MoveSubDir_Click(object sender, EventArgs e)
+        {
+            MoveSelectedDirectories(false);
+        }
+
         private void md_listBox_Listup_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-                md_button_MoveSubDir_Click(sender, e);
-            }
-            else
-            {
-                _util.SelectAll(e);
-            }
+            HandleListBoxKeyDown(e, () => MoveSelectedDirectories(false));
         }
 
         private void md_listBox_Listup_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (md_listBox_Listup.SelectedItems.Count > 0)
             {
-                String targetPath = md_textBox_SourceDir.Text + @"\" + md_listBox_Listup.SelectedItem.ToString();
-                _util.ExecutePath(targetPath);
+                _util.ExecutePath(Path.Combine(md_textBox_SourceDir.Text, md_listBox_Listup.SelectedItem.ToString()));
             }
         }
 
-        private void md_button_MoveSubDir_Click(object sender, EventArgs e)
+        private void md_listBox_Listup_SelectedIndexChanged(object sender, EventArgs e)
         {
-            MoveSelectedDirectories(false);
+            md_label_SelectNum.Text = FormatSelectedCount(md_listBox_Listup.SelectedItems.Count);
         }
 
         // 削除/移動の前提チェック(格納先フォルダの確保と選択有無)
@@ -68,19 +56,13 @@ namespace FileArranger
                 return;
             }
 
-            foreach (object selectedItem in md_listBox_Listup.SelectedItems)
+            foreach (String selectedName in Utils.GetSelectedNames(md_listBox_Listup))
             {
-                String delPath = md_textBox_SourceDir.Text + @"\" + selectedItem.ToString();
-                Directory.Delete(delPath, true);
+                Directory.Delete(Path.Combine(md_textBox_SourceDir.Text, selectedName), true);
             }
 
             // リストを更新
             ListupMoveDirectory();
-        }
-
-        private void md_listBox_Listup_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            md_label_SelectNum.Text = FormatSelectedCount(md_listBox_Listup.SelectedItems.Count);
         }
 
         private void MoveSelectedDirectories(Boolean isMoveTopDir)
@@ -90,24 +72,16 @@ namespace FileArranger
                 return;
             }
 
-            for (int i = 0; i < md_listBox_Listup.SelectedItems.Count; i++)
+            List<String> selectedNames = Utils.GetSelectedNames(md_listBox_Listup);
+            for (int i = 0; i < selectedNames.Count; i++)
             {
-                String selectedName = md_listBox_Listup.SelectedItems[i].ToString();
-                String sourceTargetName;
-                String destTargetName;
-                if (isMoveTopDir)
-                {
-                    sourceTargetName = _fio.GetFirstPathName(selectedName);
-                    destTargetName = sourceTargetName;
-                }
-                else
-                {
-                    sourceTargetName = selectedName;
-                    destTargetName = _fio.GetLastPathName(selectedName);
-                }
+                // 最上位フォルダごと移動する時は、格納元直下のフォルダ名をそのまま移動先でも使う。
+                // 選択したフォルダだけ移動する時は、途中の階層を持っていかず末尾のフォルダ名だけにする
+                String sourceTargetName = isMoveTopDir ? _fio.GetFirstPathName(selectedNames[i]) : selectedNames[i];
+                String destTargetName = isMoveTopDir ? sourceTargetName : _fio.GetLastPathName(selectedNames[i]);
 
-                String sourcePath = md_textBox_SourceDir.Text + @"\" + sourceTargetName;
-                String destPath = md_comboBox_TargetDir.Text + @"\" + destTargetName;
+                String sourcePath = Path.Combine(md_textBox_SourceDir.Text, sourceTargetName);
+                String destPath = Path.Combine(md_comboBox_TargetDir.Text, destTargetName);
 
                 // Top階層ごと移動した場合などで、すでにDirectoryが存在しないケースをcare
                 if (!Directory.Exists(sourcePath))
@@ -127,11 +101,6 @@ namespace FileArranger
 
         private void ListupMoveDirectory(Boolean keepScrollPosition = false)
         {
-            if (!IsValidFolderPath(md_textBox_SourceDir.Text))
-            {
-                return;
-            }
-
             // フォルダパスの末尾に'\\'があったら削除
             md_textBox_SourceDir.Text = md_textBox_SourceDir.Text.TrimEnd('\\', '/');
 
@@ -140,13 +109,15 @@ namespace FileArranger
             // フォルダ直下にファイルが1つでもあればリストアップ。
             // EnumerateFilesは遅延列挙なので、最初の1件が見つかった時点でAny()が打ち切ってくれる
             // (フォルダ内の全件を毎回列挙しなくて済む)。
-            String[] directories = Directory.GetDirectories(md_textBox_SourceDir.Text, "*", SearchOption.AllDirectories)
-                .Where(directory => Directory.EnumerateFiles(directory).Any())
-                .ToArray();
-            FillListBox(md_listBox_Listup, directories, md_textBox_SourceDir.Text);
+            String[] directories = ListupInto(md_listBox_Listup, md_label_TotalNum, "フォルダ数", md_textBox_SourceDir.Text,
+                folder => Directory.EnumerateDirectories(folder, "*", SearchOption.AllDirectories)
+                    .Where(directory => Directory.EnumerateFiles(directory).Any())
+                    .ToArray());
 
-            md_listBox_Listup.TopIndex = topIndex;
-            md_label_TotalNum.Text = "フォルダ数：" + directories.Length.ToString();
+            if (directories != null)
+            {
+                md_listBox_Listup.TopIndex = topIndex;
+            }
         }
 
         public void UpdateMoveDestDirComboBox()

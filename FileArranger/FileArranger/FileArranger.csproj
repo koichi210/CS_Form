@@ -86,6 +86,8 @@
     <Compile Include="WorkerParams.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="FileSorter.cs" />
+    <Compile Include="CoalescedAction.cs" />
+    <Compile Include="ProcessMemoryExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>
