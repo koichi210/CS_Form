@@ -42,17 +42,5 @@ namespace TabControl.Tests
                 Assert.IsNotNull(form);
             }
         }
-
-        [TestMethod]
-        public void 空実装のハンドラは例外なく呼び出せる()
-        {
-            using (var form = new Form1())
-            {
-                FormReflection.InvokeHandler(form, "tabPage1_Click", form);
-                FormReflection.InvokeHandler(form, "tabPage2_Click", form);
-                FormReflection.InvokeHandler(form, "tabPage3_Click", form);
-                FormReflection.InvokeHandler(form, "button3_Click", form);
-            }
-        }
     }
 }

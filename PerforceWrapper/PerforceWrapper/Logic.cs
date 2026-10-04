@@ -4,73 +4,54 @@ namespace PerforceWrapper
     /// もともと Form1.cs に private メソッドとして埋め込まれていた、UIの状態を
     /// ドメインの値へ変換するだけの判定ロジックを、テストできる形に切り出したもの。
     ///
-    /// コードは元のファイルにあったものをそのまま移しただけで、判定の中身は
-    /// 書き換えていない。ラジオボタンやタブの選択状態を直接参照する代わりに、
+    /// ラジオボタンやタブの選択状態を直接参照する代わりに、
     /// 呼び出し側でその値(bool/int)を渡す形にした。
     /// </summary>
     internal static class Logic
     {
-        /// <summary>Form1 の private だった TAB_ID をそのまま移設したもの。</summary>
-        internal enum TAB_ID
+        /// <summary>タブの種類(タブコントロールの並び順と同じ)。</summary>
+        internal enum TabId
         {
-            BASE_OPERATION,
-            SET_LABEL,
-            DIFF_LABEL,
-            APPLY_LABEL,
+            BaseOperation,
+            SetLabel,
+            DiffLabel,
+            ApplyLabel,
         }
 
         /// <summary>選択されているラジオボタンから、実行するPerforce操作の種類を判定する。</summary>
-        public static Perforce.OPERATOR_TYPE GetOperatorType(
+        public static Perforce.OperatorType GetOperatorType(
             bool checkoutChecked, bool restoreChecked, bool deleteChecked, bool getLatestChecked)
         {
-            Perforce.OPERATOR_TYPE operatorType = Perforce.OPERATOR_TYPE.SYNC;
+            // 「最新を取得」と何も選ばれていない場合はどちらもSync
             if (checkoutChecked)
             {
-                operatorType = Perforce.OPERATOR_TYPE.EDIT;
+                return Perforce.OperatorType.Edit;
             }
-            else if (restoreChecked)
+            if (restoreChecked)
             {
-                operatorType = Perforce.OPERATOR_TYPE.REVERT;
+                return Perforce.OperatorType.Revert;
             }
-            else if (deleteChecked)
+            if (deleteChecked)
             {
-                operatorType = Perforce.OPERATOR_TYPE.DELETE;
+                return Perforce.OperatorType.Delete;
             }
-            else if (getLatestChecked)
-            {
-                operatorType = Perforce.OPERATOR_TYPE.SYNC;
-            }
-
-            return operatorType;
+            return Perforce.OperatorType.Sync;
         }
 
-        /// <summary>タブコントロールの選択インデックスから、現在のタブIDを判定する。</summary>
-        public static TAB_ID GetCurrentTabId(int selectedTabIndex)
+        /// <summary>タブコントロールの選択インデックスから、現在のタブIDを判定する(範囲外はBaseOperation)。</summary>
+        public static TabId GetCurrentTabId(int selectedTabIndex)
         {
-            TAB_ID tabId = TAB_ID.BASE_OPERATION;
             switch (selectedTabIndex)
             {
-                case 0:
-                    tabId = TAB_ID.BASE_OPERATION;
-                    break;
-
                 case 1:
-                    tabId = TAB_ID.SET_LABEL;
-                    break;
-
+                    return TabId.SetLabel;
                 case 2:
-                    tabId = TAB_ID.DIFF_LABEL;
-                    break;
-
+                    return TabId.DiffLabel;
                 case 3:
-                    tabId = TAB_ID.APPLY_LABEL;
-                    break;
-
+                    return TabId.ApplyLabel;
                 default:
-                    break;
+                    return TabId.BaseOperation;
             }
-
-            return tabId;
         }
     }
 }

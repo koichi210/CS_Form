@@ -8,6 +8,17 @@ namespace FileArranger
 {
     class SaveRestore : StcSaveRestore
     {
+        // ReferenceCandidateFoldersの保存キー(XMLの属性名 / 要素の属性値の接頭辞)
+        private const String _referenceCandidateAttrName = "ReferenceCandidate";
+        private const String _referenceCandidateAttrValue = "Value_";
+        // typo修正前の旧キー。旧キーで保存された既存の設定ファイルも読めるよう、新キーで見つからなければこちらを読む
+        private const String _legacyReferenceCandidateAttrName = "RefrenceCandidate";
+
+        private static String MakeJsonListKey(String attrName)
+        {
+            return attrName + "|" + _referenceCandidateAttrValue;
+        }
+
         public void RegisterLoadItem(FileArranger parent)
         {
             SetElement("Setting");
@@ -53,7 +64,12 @@ namespace FileArranger
             Boolean isSuccess = LoadXmlFile(loadFileName);
             if (isSuccess)
             {
-                parent.ReferenceCandidateFolders = LoadXmlFileList(loadFileName, "ReferenceCandidate", "Value_");
+                String[] folders = LoadXmlFileList(loadFileName, _referenceCandidateAttrName, _referenceCandidateAttrValue);
+                if (folders.Length == 0)
+                {
+                    folders = LoadXmlFileList(loadFileName, _legacyReferenceCandidateAttrName, _referenceCandidateAttrValue);
+                }
+                parent.ReferenceCandidateFolders = folders;
                 RefreshAfterLoad(parent);
             }
 
@@ -66,14 +82,14 @@ namespace FileArranger
 
             XmlDocument document = OpenSaveXmlFile();
             SaveXmlFile(document);
-            SaveXmlParamAll("ReferenceCandidate", "Value_", parent.ReferenceCandidateFolders);
+            SaveXmlParamAll(_referenceCandidateAttrName, _referenceCandidateAttrValue, parent.ReferenceCandidateFolders);
             return CloseSaveXmlFile(saveFileName);
         }
 
         // 保存前に、履歴を持つコンボボックスのリストを整える(XML/JSON共通)
         private static void ModifyComboBoxLists(FileArranger parent)
         {
-            StcUtils util = new StcUtils();         // ツール系
+            StcUtils util = new StcUtils();
             util.AddComboBoxTextToItems(parent.md_comboBox_TargetDir);
             util.AddComboBoxTextToItems(parent.rd_comboBox_RenameDir);
             util.AddComboBoxTextToItems(parent.rd_comboBox_AddTitlePostWord);
@@ -103,7 +119,7 @@ namespace FileArranger
                 ModifyComboBoxLists(parent);
 
                 GenericProfile profile = BuildGenericProfile();
-                profile.Lists["ReferenceCandidate|Value_"] = (parent.ReferenceCandidateFolders ?? new String[0]).ToList();
+                profile.Lists[MakeJsonListKey(_referenceCandidateAttrName)] = (parent.ReferenceCandidateFolders ?? new String[0]).ToList();
 
                 JsonFileStorage.Save(filePath, profile);
                 return true;
@@ -125,9 +141,9 @@ namespace FileArranger
             ApplyGenericProfile(profile);
 
             List<String> refFolders;
-            parent.ReferenceCandidateFolders = profile.Lists.TryGetValue("ReferenceCandidate|Value_", out refFolders)
-                ? refFolders.ToArray()
-                : new String[0];
+            Boolean hasFolders = profile.Lists.TryGetValue(MakeJsonListKey(_referenceCandidateAttrName), out refFolders)
+                || profile.Lists.TryGetValue(MakeJsonListKey(_legacyReferenceCandidateAttrName), out refFolders);
+            parent.ReferenceCandidateFolders = hasFolders ? refFolders.ToArray() : new String[0];
 
             // コンボボックス更新・リストリセット(LoadProcと同じ後処理)
             RefreshAfterLoad(parent);

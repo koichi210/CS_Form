@@ -1,96 +1,99 @@
 ﻿using System;
+using System.Text;
 using StandardTemplate;
 
 namespace PerforceWrapper
 {
     class Perforce
     {
-        public enum OPERATOR_TYPE
+        public enum OperatorType
         {
-            EDIT,
-            REVERT,
-            DELETE,
-            SYNC,
-            SET_LABEL,
-            DIFF,
-            COPY,
-            MERGE,
+            Edit,
+            Revert,
+            Delete,
+            Sync,
+            SetLabel,
+            Diff,
+            Copy,
+            Merge,
         }
 
-        Boolean m_IsDebug = false;
-        String m_ServerName = "";
-        String m_Workspace = "";
-        String m_UserName = "";
-        String m_UserPass = "";
-        String m_UserPassFile = "";
-        String m_Charset = "";
-        String m_TargetTree = "";
-        String m_Revision = "";
-        String m_LabelName = "";
-        String m_BranchMapName = "";
-        OPERATOR_TYPE m_OperatorType = OPERATOR_TYPE.SYNC;
+        private Boolean _isDebug = false;
+        private String _serverName = "";
+        private String _workspace = "";
+        private String _userName = "";
+        private String _userPass = "";
+        private String _userPassFile = "";
+        private String _charset = "";
+        private String _targetTree = "";
+        private String _revision = "";
+        private String _labelName = "";
+        private String _branchMapName = "";
+        private OperatorType _operatorType = OperatorType.Sync;
 
-        public void SetDebugMode( Boolean isDebug )
+        public void SetDebugMode(Boolean isDebug)
         {
-            m_IsDebug = isDebug;
+            _isDebug = isDebug;
         }
+
         public void SetServerName(String serverName)
         {
-            m_ServerName = serverName;
+            _serverName = serverName;
         }
 
         public void SetWorkspace(String workspace)
         {
-            m_Workspace = workspace;
+            _workspace = workspace;
         }
 
         public void SetUserName(String userName)
         {
-            m_UserName = userName;
+            _userName = userName;
         }
 
         public void SetUserPass(String userPass)
         {
-            m_UserPass = userPass;
+            _userPass = userPass;
         }
 
         public void SetCharset(String charset)
         {
-            m_Charset = charset;
+            _charset = charset;
         }
 
-        public void SetOperatorType(OPERATOR_TYPE operatorType)
+        public void SetOperatorType(OperatorType operatorType)
         {
-            m_OperatorType = operatorType;
+            _operatorType = operatorType;
         }
 
         public void SetRevision(String revision)
         {
-            m_Revision = revision;
+            _revision = revision;
         }
 
         public void SetLabelName(String labelName)
         {
-            m_LabelName = labelName;
+            _labelName = labelName;
         }
 
         public void SetBranchMapName(String branchMapName)
         {
-            m_BranchMapName = branchMapName;
+            _branchMapName = branchMapName;
         }
 
         public void SetTargetTree(String targetTree)
         {
-            m_TargetTree = targetTree;
+            _targetTree = targetTree;
         }
 
         public String CreateCommandUseTree()
         {
-            String command = CreateEnvCommand();
+            var command = new StringBuilder(CreateEnvCommand());
             String operatorCommand = GetOperatorCommand();
+            String revision = GetRevision();
 
             // 指定ツリーすべてに対してコマンド生成
-            String[] trees = m_TargetTree.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            String[] trees = _targetTree.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             foreach (String tree in trees)
             {
                 if (tree == String.Empty)
@@ -98,144 +101,110 @@ namespace PerforceWrapper
                     continue;
                 }
 
-                command += operatorCommand + AppendTreeSymbol(tree);
-                command += GetRevision() + Environment.NewLine;
+                command.Append(operatorCommand).Append(AppendTreeSymbol(tree));
+                command.Append(revision).Append(Environment.NewLine);
             }
-            command += CreatePostCommand();
+            command.Append(CreatePostCommand());
 
-            return command;
+            return command.ToString();
         }
 
         private String GetRevision()
         {
-            if (m_Revision != String.Empty)
-            {
-                return "@" + m_Revision;
-            }
-
-            return "#head";
+            return _revision != String.Empty ? "@" + _revision : "#head";
         }
 
         public String CreateCommandDefined(String definedCommand)
         {
-            String command = CreateEnvCommand();
-            command += GetOperatorCommand() + definedCommand + Environment.NewLine;
-            command += CreatePostCommand();
-            return command;
+            return CreateEnvCommand()
+                + GetOperatorCommand() + definedCommand + Environment.NewLine
+                + CreatePostCommand();
         }
 
-        public String GetLabelDesignationPathName(String pathName, String labelName )
+        public String GetLabelDesignationPathName(String pathName, String labelName)
         {
             return AppendTreeSymbol(pathName) + "@" + labelName;
         }
 
-        private String AppendTreeSymbol(String filePath)
+        private static String AppendTreeSymbol(String filePath)
         {
-            const String DirSpec = "...";
-            if (filePath.EndsWith(DirSpec))
-            {
-                return filePath;
-            }
-
-            return filePath + DirSpec;
+            const String dirSpec = "...";
+            return filePath.EndsWith(dirSpec) ? filePath : filePath + dirSpec;
         }
 
         private String GetOperatorCommand()
         {
-            String operatorCommand = "p4 ";
-
             // Operationごとにコマンド切替
-            switch(m_OperatorType)
+            switch (_operatorType)
             {
-            case  OPERATOR_TYPE.EDIT:
-                operatorCommand += "edit ";
-                break;
-
-            case  OPERATOR_TYPE.REVERT:
-                operatorCommand += "revert ";
-                break;
-
-            case  OPERATOR_TYPE.DELETE:
-                operatorCommand += "delete ";
-                break;
-
-            case  OPERATOR_TYPE.SYNC:
-                operatorCommand += "sync ";
-                break;
-
-            case OPERATOR_TYPE.SET_LABEL:
-                operatorCommand += "tag -l " + m_LabelName + " ";
-                break;
-
-            case OPERATOR_TYPE.DIFF:
-                operatorCommand += "diff2 -qt ";
-                break;
-
-            case OPERATOR_TYPE.COPY:
-                operatorCommand += "copy -b " + m_BranchMapName + " -s ";
-                break;
-
-            case OPERATOR_TYPE.MERGE:
-                operatorCommand += "integrate -b " + m_BranchMapName + " -s ";
-                break;
+                case OperatorType.Edit:
+                    return "p4 edit ";
+                case OperatorType.Revert:
+                    return "p4 revert ";
+                case OperatorType.Delete:
+                    return "p4 delete ";
+                case OperatorType.Sync:
+                    return "p4 sync ";
+                case OperatorType.SetLabel:
+                    return "p4 tag -l " + _labelName + " ";
+                case OperatorType.Diff:
+                    return "p4 diff2 -qt ";
+                case OperatorType.Copy:
+                    return "p4 copy -b " + _branchMapName + " -s ";
+                case OperatorType.Merge:
+                    return "p4 integrate -b " + _branchMapName + " -s ";
+                default:
+                    return "p4 ";
             }
-
-            return operatorCommand;
         }
 
         private String CreateEnvCommand()
         {
-            String command = "";
+            var command = new StringBuilder();
 
-            if (m_ServerName != String.Empty)
-            {
-                command += "set P4PORT=" + m_ServerName + Environment.NewLine;
-            }
-
-            if (m_Workspace != String.Empty)
-            {
-                command += "set P4CLIENT=" + m_Workspace + Environment.NewLine;
-            }
-
-            if (m_Charset != String.Empty)
-            {
-                command += "set P4CHARSET=" + m_Charset + Environment.NewLine;
-            }
-
-            if (m_UserName != String.Empty)
-            {
-                command += "set P4USER=" + m_UserName + Environment.NewLine;
-            }
+            AppendSetCommand(command, "P4PORT", _serverName);
+            AppendSetCommand(command, "P4CLIENT", _workspace);
+            AppendSetCommand(command, "P4CHARSET", _charset);
+            AppendSetCommand(command, "P4USER", _userName);
 
             // Perforceログイン設定
-            if (m_UserName != String.Empty && m_UserPass != String.Empty)
+            if (_userName != String.Empty && _userPass != String.Empty)
             {
-                command += "cat " + CreatePasswordFile(m_UserPass) + " | ";
-                command += "p4 -u " + m_UserName + " login -a" + Environment.NewLine;
+                command.Append("cat ").Append(CreatePasswordFile(_userPass)).Append(" | ");
+                command.Append("p4 -u ").Append(_userName).Append(" login -a").Append(Environment.NewLine);
             }
 
-            return command;
+            return command.ToString();
+        }
+
+        // 値が空でなければ「set 変数名=値」の行を追加する(空ならPC側の既定設定を使う)
+        private static void AppendSetCommand(StringBuilder command, String variableName, String value)
+        {
+            if (value != String.Empty)
+            {
+                command.Append("set ").Append(variableName).Append('=').Append(value).Append(Environment.NewLine);
+            }
         }
 
         private String CreatePasswordFile(String password)
         {
             StcFileInputOutput fio = new StcFileInputOutput();
-            m_UserPassFile = fio.CreateTempFile();
-            fio.CreateFile(m_UserPassFile, password);
+            _userPassFile = fio.CreateTempFile();
+            fio.CreateFile(_userPassFile, password);
 
-            return m_UserPassFile;
+            return _userPassFile;
         }
 
         private String CreatePostCommand()
         {
             String command = "";
 
-            if (m_UserPassFile != String.Empty)
+            if (_userPassFile != String.Empty)
             {
-                command += "del " + m_UserPassFile + Environment.NewLine;
+                command += "del " + _userPassFile + Environment.NewLine;
             }
 
-            if (m_IsDebug)
+            if (_isDebug)
             {
                 command += "PAUSE" + Environment.NewLine;
             }

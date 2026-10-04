@@ -12,9 +12,7 @@ namespace ProgressBar
                 return;
             }
 
-            progressBar_MultiThreadBkgWork.Maximum = ProgressBarMax;
-            progressBar_MultiThreadBkgWork.Minimum = ProgressBarMin;
-            progressBar_MultiThreadBkgWork.Value = 0;
+            ResetProgressBar(progressBar_MultiThreadBkgWork);
 
             backgroundWorker_BkgWorker.RunWorkerAsync();   // ⇒DoWork()
         }

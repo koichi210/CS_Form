@@ -10,7 +10,7 @@ namespace PictTrimming
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly String SettingFileName = @"PictTrim.json";
+        private const String _settingFileName = @"PictTrim.json";
 
         public MainWindow()
         {
@@ -38,16 +38,30 @@ namespace PictTrimming
                 targetHeight = int.Parse(TargetY.Text);
             }
 
+            if (ListBox_ListUp.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
+            // 原点はファイルごとに変わらないので、ループの前に1回だけ読み取る
+            int baseX = int.Parse(BaseX.Text);
+            int baseY = int.Parse(BaseY.Text);
+
+            // バックアップ先(org)が無いとFile.Copyが失敗するため、先に作っておく
+            String backupFolderPath = SourceFolderPath.Text + @"\" + @"org";
+            Directory.CreateDirectory(backupFolderPath);
+
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
-                String filePath         = SourceFolderPath.Text + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
-                String backupFilePath   = SourceFolderPath.Text + @"\" + @"org" + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
+                String fileName = ListBox_ListUp.SelectedItems[i].ToString();
+                String filePath = SourceFolderPath.Text + @"\" + fileName;
+                String backupFilePath = backupFolderPath + @"\" + fileName;
 
                 // オリジナルファイルをバックアップ
                 File.Copy(filePath, backupFilePath, true);
 
                 // トリミング
-                Logic.Trim(filePath, backupFilePath, int.Parse(BaseX.Text), int.Parse(BaseY.Text), targetWidth, targetHeight);
+                Logic.Trim(filePath, backupFilePath, baseX, baseY, targetWidth, targetHeight);
             }
         }
 
@@ -76,39 +90,25 @@ namespace PictTrimming
 
         private void SaveSetting_Click(object sender, RoutedEventArgs e)
         {
-            Logic.SaveSetting(SettingFileName, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
+            Logic.SaveSetting(_settingFileName, SourceFolderPath.Text, BaseX.Text, BaseY.Text, TargetX.Text, TargetY.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            Logic.Settings settings = Logic.LoadSetting(SettingFileName);
+            Logic.Settings settings = Logic.LoadSetting(_settingFileName);
             if (settings == null)
             {
                 return;
             }
 
-            if (settings.SourceFolderPath != null)
-            {
-                SourceFolderPath.Text = settings.SourceFolderPath;
-            }
-            if (settings.BaseX != null)
-            {
-                BaseX.Text = settings.BaseX;
-            }
-            if (settings.BaseY != null)
-            {
-                BaseY.Text = settings.BaseY;
-            }
-            if (settings.TargetX != null)
-            {
-                TargetX.Text = settings.TargetX;
-            }
-            if (settings.TargetY != null)
-            {
-                TargetY.Text = settings.TargetY;
-            }
+            // 保存されていない項目(null)は今の値のまま
+            SourceFolderPath.Text = settings.SourceFolderPath ?? SourceFolderPath.Text;
+            BaseX.Text = settings.BaseX ?? BaseX.Text;
+            BaseY.Text = settings.BaseY ?? BaseY.Text;
+            TargetX.Text = settings.TargetX ?? TargetX.Text;
+            TargetY.Text = settings.TargetY ?? TargetY.Text;
         }
 
         private void SourceFolderPath_KeyDown(object sender, KeyEventArgs e)

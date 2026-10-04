@@ -12,11 +12,12 @@ namespace PassValue
 
         private void button_Click_PopupWindow(object sender, EventArgs e)
         {
-            FormSub formSub = new FormSub();
-            DialogResult result = formSub.ShowDialog();
-            if (result == DialogResult.OK)
+            using (FormSub formSub = new FormSub())
             {
-                label1.Text = formSub.Value;
+                if (formSub.ShowDialog() == DialogResult.OK)
+                {
+                    label1.Text = formSub.Value;
+                }
             }
         }
     }

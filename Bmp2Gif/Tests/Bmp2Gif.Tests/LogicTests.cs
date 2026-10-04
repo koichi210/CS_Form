@@ -12,13 +12,13 @@ namespace Bmp2Gif.Tests
     [TestClass]
     public class LogicTests
     {
-        private string tempDirectory;
+        private string _tempDirectory;
 
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "Bmp2GifTests_" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(tempDirectory);
+            _tempDirectory = Path.Combine(Path.GetTempPath(), "Bmp2GifTests_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(_tempDirectory);
         }
 
         [TestCleanup]
@@ -26,7 +26,7 @@ namespace Bmp2Gif.Tests
         {
             try
             {
-                if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, true);
+                if (Directory.Exists(_tempDirectory)) Directory.Delete(_tempDirectory, true);
             }
             catch (IOException)
             {
@@ -36,7 +36,7 @@ namespace Bmp2Gif.Tests
 
         private string CreateSampleBmp(int width, int height)
         {
-            string bmpPath = Path.Combine(tempDirectory, "sample.bmp");
+            string bmpPath = Path.Combine(_tempDirectory, "sample.bmp");
             using (var bmp = new Bitmap(width, height))
             {
                 using (var g = Graphics.FromImage(bmp))
@@ -52,7 +52,7 @@ namespace Bmp2Gif.Tests
         public void コメントなしでBmpをGif形式に変換する()
         {
             string srcPath = CreateSampleBmp(20, 20);
-            string dstPath = Path.Combine(tempDirectory, "result.gif");
+            string dstPath = Path.Combine(_tempDirectory, "result.gif");
 
             Logic.ConvertBmpToGif(srcPath, dstPath, addComment: false);
 
@@ -69,7 +69,7 @@ namespace Bmp2Gif.Tests
         public void コメントありでもGif形式に変換できる()
         {
             string srcPath = CreateSampleBmp(400, 100);
-            string dstPath = Path.Combine(tempDirectory, "result_comment.gif");
+            string dstPath = Path.Combine(_tempDirectory, "result_comment.gif");
 
             Logic.ConvertBmpToGif(srcPath, dstPath, addComment: true);
 
@@ -86,7 +86,7 @@ namespace Bmp2Gif.Tests
         public void コメントありは元画像の左上に矩形と文字を焼き込む()
         {
             string srcPath = CreateSampleBmp(400, 100);
-            string dstPath = Path.Combine(tempDirectory, "result_pixel.gif");
+            string dstPath = Path.Combine(_tempDirectory, "result_pixel.gif");
 
             Logic.ConvertBmpToGif(srcPath, dstPath, addComment: true);
 

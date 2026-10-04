@@ -15,27 +15,25 @@ namespace PictTrimming
     {
         public static void Trim(String targetFilePath, String sourceFilePath, int baseX, int baseY, int targetWidth, int targetHeight)
         {
-            //描画先とするImageオブジェクトを作成
-            Bitmap canvas = new Bitmap(targetWidth, targetHeight);
-
-            //画像ファイルのImageオブジェクトを作成
-            Bitmap img = new Bitmap(sourceFilePath);
-
             //切り取る部分の範囲を決定
             Rectangle srcRect = new Rectangle(baseX, baseY, targetWidth, targetHeight);
 
             //描画する部分の範囲を決定
             Rectangle destRect = new Rectangle(0, 0, targetWidth, targetHeight);
 
-            //ImageオブジェクトのGraphicsオブジェクトを作成
-            using (Graphics g = Graphics.FromImage(canvas))
+            // 途中で例外になっても画像が解放される(ファイルのロックが残らない)ようusingで囲む
+            //描画先とするImageオブジェクトを作成
+            using (Bitmap canvas = new Bitmap(targetWidth, targetHeight))
             {
-                g.DrawImage(img, destRect, srcRect, GraphicsUnit.Pixel);
-            }
-            img.Dispose();
+                //画像ファイルのImageオブジェクトを作成
+                using (Bitmap img = new Bitmap(sourceFilePath))
+                using (Graphics g = Graphics.FromImage(canvas))
+                {
+                    g.DrawImage(img, destRect, srcRect, GraphicsUnit.Pixel);
+                }
 
-            canvas.Save(targetFilePath);
-            canvas.Dispose();
+                canvas.Save(targetFilePath);
+            }
         }
 
         public class Settings
@@ -47,7 +45,7 @@ namespace PictTrimming
             public String TargetY { get; set; }
         }
 
-        private static readonly String[] SettingKeys = { "SourceFolderPath", "BaseX", "BaseY", "TargetX", "TargetY" };
+        private static readonly String[] _settingKeys = { "SourceFolderPath", "BaseX", "BaseY", "TargetX", "TargetY" };
 
         // XMLの組み立て/読み取りは同じ形式を手書きしていた4プロジェクトで共通だったため
         // [[_Common/SimpleSettings.cs]]へ集約した。ここにはPictTrimming固有の項目名の対応だけ残す
@@ -55,9 +53,9 @@ namespace PictTrimming
         {
             StandardTemplate.StcSimpleSettings settings = new StandardTemplate.StcSimpleSettings();
             String[] values = { sourceFolderPath, baseX, baseY, targetX, targetY };
-            for (int i = 0; i < SettingKeys.Length; i++)
+            for (int i = 0; i < _settingKeys.Length; i++)
             {
-                settings.Set(SettingKeys[i], values[i]);
+                settings.Set(_settingKeys[i], values[i]);
             }
             settings.SaveJson(filePath);
         }
@@ -71,13 +69,14 @@ namespace PictTrimming
             }
 
             // 保存されていない項目はnullのままにする(呼び出し元が既定値を使う)
+            Func<int, String> getOrNull = i => loaded.IsExist(_settingKeys[i]) ? loaded.Get(_settingKeys[i]) : null;
             return new Settings
             {
-                SourceFolderPath = loaded.IsExist(SettingKeys[0]) ? loaded.Get(SettingKeys[0]) : null,
-                BaseX = loaded.IsExist(SettingKeys[1]) ? loaded.Get(SettingKeys[1]) : null,
-                BaseY = loaded.IsExist(SettingKeys[2]) ? loaded.Get(SettingKeys[2]) : null,
-                TargetX = loaded.IsExist(SettingKeys[3]) ? loaded.Get(SettingKeys[3]) : null,
-                TargetY = loaded.IsExist(SettingKeys[4]) ? loaded.Get(SettingKeys[4]) : null,
+                SourceFolderPath = getOrNull(0),
+                BaseX = getOrNull(1),
+                BaseY = getOrNull(2),
+                TargetX = getOrNull(3),
+                TargetY = getOrNull(4),
             };
         }
     }

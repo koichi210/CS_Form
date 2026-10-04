@@ -10,11 +10,11 @@ namespace DialogChild.Tests
     /// </summary>
     internal static class FormReflection
     {
-        private const BindingFlags InstanceAny = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        private const BindingFlags _instanceAny = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         public static object GetField(object form, string fieldName)
         {
-            FieldInfo field = form.GetType().GetField(fieldName, InstanceAny);
+            FieldInfo field = form.GetType().GetField(fieldName, _instanceAny);
             if (field == null)
             {
                 throw new ArgumentException(string.Format("フィールド '{0}' が見つからない（型 {1}）", fieldName, form.GetType().Name));
@@ -29,7 +29,7 @@ namespace DialogChild.Tests
 
         public static void InvokeHandler(object form, string methodName, object sender, EventArgs args = null)
         {
-            MethodInfo method = form.GetType().GetMethod(methodName, InstanceAny);
+            MethodInfo method = form.GetType().GetMethod(methodName, _instanceAny);
             if (method == null)
             {
                 throw new ArgumentException(string.Format("メソッド '{0}' が見つからない（型 {1}）", methodName, form.GetType().Name));

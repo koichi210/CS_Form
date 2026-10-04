@@ -7,7 +7,8 @@ namespace ToyingFile
 {
     public partial class Form1 : Form
     {
-        StcUtils util = new StcUtils();
+        private readonly StcUtils _util = new StcUtils();
+
         public Form1()
         {
             InitializeComponent();
@@ -40,29 +41,29 @@ namespace ToyingFile
 
         private void textBox_Directory_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(e);
+            _util.SelectAll(e);
         }
 
         private void textBox_File_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(e);
+            _util.SelectAll(e);
         }
 
         private void textBox_DeleteString_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(e);
+            _util.SelectAll(e);
         }
 
         private void button_Execute_Click(object sender, EventArgs e)
         {
-            if (textBox_Directory.Text == String.Empty)
+            if (textBox_Directory.Text == string.Empty)
             {
                 MessageBox.Show("対象ファイルのディレクトリが設定されていません");
                 return;
             }
 
             //リストアップ
-            String[] targetFiles = GetTargetFiles();
+            string[] targetFiles = GetTargetFiles();
 
             // メニュー
             if (radioButton_DeleteString.Checked)
@@ -71,32 +72,23 @@ namespace ToyingFile
             }
         }
 
-        private String[] GetTargetFiles()
+        private string[] GetTargetFiles()
         {
-            String searchPattern = "*";
-            if (textBox_File.Text != String.Empty)
-            {
-                searchPattern = textBox_File.Text;
-            }
-
-            SearchOption searchOption = SearchOption.TopDirectoryOnly;
-            if (checkBox_SubDirectory.Checked)
-            {
-                searchOption = SearchOption.AllDirectories;
-            }
+            string searchPattern = (textBox_File.Text != string.Empty) ? textBox_File.Text : "*";
+            SearchOption searchOption = checkBox_SubDirectory.Checked ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
             return Directory.GetFiles(textBox_Directory.Text, searchPattern, searchOption);
         }
 
-        private void DeleteStringFromFiles(String[] filePaths)
+        private void DeleteStringFromFiles(string[] filePaths)
         {
-            String[] deleteStrings = textBox_DeleteString.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] deleteStrings = textBox_DeleteString.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             StcFileInputOutput fio = new StcFileInputOutput();
-            foreach (String filePath in filePaths)
+            foreach (string filePath in filePaths)
             {
-                String fileData = fio.LoadFile(filePath);
-                String resultData = Logic.DeleteStringFromContent(fileData, deleteStrings, checkBox_CaseSensitive.Checked, checkBox_DeleteLine.Checked);
+                string fileData = fio.LoadFile(filePath);
+                string resultData = Logic.DeleteStringFromContent(fileData, deleteStrings, checkBox_CaseSensitive.Checked, checkBox_DeleteLine.Checked);
                 fio.SaveFile(filePath, resultData);
             }
         }

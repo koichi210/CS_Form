@@ -74,7 +74,7 @@
             this.buttonMoveDirectionUp.TabIndex = 0;
             this.buttonMoveDirectionUp.Text = "↑";
             this.buttonMoveDirectionUp.UseVisualStyleBackColor = true;
-            this.buttonMoveDirectionUp.Click += new System.EventHandler(this.updatePosition);
+            this.buttonMoveDirectionUp.Click += new System.EventHandler(this.UpdatePosition);
             // 
             // groupBoxMoveDirection
             // 
@@ -98,7 +98,7 @@
             this.buttonMoveDirectionDown.TabIndex = 4;
             this.buttonMoveDirectionDown.Text = "↓";
             this.buttonMoveDirectionDown.UseVisualStyleBackColor = true;
-            this.buttonMoveDirectionDown.Click += new System.EventHandler(this.updatePosition);
+            this.buttonMoveDirectionDown.Click += new System.EventHandler(this.UpdatePosition);
             // 
             // buttonMoveDirectionRight
             // 
@@ -108,7 +108,7 @@
             this.buttonMoveDirectionRight.TabIndex = 3;
             this.buttonMoveDirectionRight.Text = "→";
             this.buttonMoveDirectionRight.UseVisualStyleBackColor = true;
-            this.buttonMoveDirectionRight.Click += new System.EventHandler(this.updatePosition);
+            this.buttonMoveDirectionRight.Click += new System.EventHandler(this.UpdatePosition);
             // 
             // buttonMoveDirectionCenter
             // 
@@ -118,7 +118,7 @@
             this.buttonMoveDirectionCenter.TabIndex = 2;
             this.buttonMoveDirectionCenter.Text = "・";
             this.buttonMoveDirectionCenter.UseVisualStyleBackColor = true;
-            this.buttonMoveDirectionCenter.Click += new System.EventHandler(this.updatePosition);
+            this.buttonMoveDirectionCenter.Click += new System.EventHandler(this.UpdatePosition);
             // 
             // buttonMoveDirectionLeft
             // 
@@ -128,7 +128,7 @@
             this.buttonMoveDirectionLeft.TabIndex = 1;
             this.buttonMoveDirectionLeft.Text = "←";
             this.buttonMoveDirectionLeft.UseVisualStyleBackColor = true;
-            this.buttonMoveDirectionLeft.Click += new System.EventHandler(this.updatePosition);
+            this.buttonMoveDirectionLeft.Click += new System.EventHandler(this.UpdatePosition);
             // 
             // checkBoxVisible
             // 
@@ -190,7 +190,7 @@
             this.trackBarWindowHeight.TabIndex = 8;
             this.trackBarWindowHeight.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarWindowHeight.Value = 200;
-            this.trackBarWindowHeight.Scroll += new System.EventHandler(this.updateRectSize);
+            this.trackBarWindowHeight.Scroll += new System.EventHandler(this.UpdateRectSize);
             // 
             // labelWindowWidthValue
             // 
@@ -221,7 +221,7 @@
             this.trackBarWindowWidth.TabIndex = 5;
             this.trackBarWindowWidth.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarWindowWidth.Value = 300;
-            this.trackBarWindowWidth.Scroll += new System.EventHandler(this.updateRectSize);
+            this.trackBarWindowWidth.Scroll += new System.EventHandler(this.UpdateRectSize);
             // 
             // labelMoveDistanceValue
             // 
@@ -301,7 +301,7 @@
             this.trackBarWindowColorBlue.TabIndex = 8;
             this.trackBarWindowColorBlue.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarWindowColorBlue.Value = 128;
-            this.trackBarWindowColorBlue.Scroll += new System.EventHandler(this.updateColor);
+            this.trackBarWindowColorBlue.Scroll += new System.EventHandler(this.UpdateColor);
             // 
             // labelWindowColorGreenValue
             // 
@@ -332,7 +332,7 @@
             this.trackBarWindowColorGreen.TabIndex = 5;
             this.trackBarWindowColorGreen.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarWindowColorGreen.Value = 128;
-            this.trackBarWindowColorGreen.Scroll += new System.EventHandler(this.updateColor);
+            this.trackBarWindowColorGreen.Scroll += new System.EventHandler(this.UpdateColor);
             // 
             // labelWindowColorRedValue
             // 
@@ -363,7 +363,7 @@
             this.trackBarWindowColorRed.TabIndex = 2;
             this.trackBarWindowColorRed.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarWindowColorRed.Value = 128;
-            this.trackBarWindowColorRed.Scroll += new System.EventHandler(this.updateColor);
+            this.trackBarWindowColorRed.Scroll += new System.EventHandler(this.UpdateColor);
             // 
             // Form1
             // 

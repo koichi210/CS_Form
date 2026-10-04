@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
@@ -16,47 +15,25 @@ namespace ToyingData
     internal static class Logic
     {
         /// <summary>選ばれた変換対象から、正規表現の文字クラスを組み立てる。1つも選ばれていなければfalse。</summary>
-        public static Boolean TryGetRegexPattern(Boolean number, Boolean alphaLarge, Boolean alphaSmall, Boolean space, out String regexPattern)
+        public static bool TryGetRegexPattern(bool number, bool alphaLarge, bool alphaSmall, bool space, out string regexPattern)
         {
-            Boolean isSuccess = false;
+            string charClass = (number ? "０-９" : "")
+                + (alphaLarge ? "Ａ-Ｚ" : "")
+                + (alphaSmall ? "ａ-ｚ" : "")
+                + (space ? "　" : "");
+            regexPattern = "[" + charClass + "]";
 
-            regexPattern = "[";
-            if (number)
-            {
-                regexPattern += "０-９";
-                isSuccess = true;
-            }
-
-            if (alphaLarge)
-            {
-                regexPattern += "Ａ-Ｚ";
-                isSuccess = true;
-            }
-
-            if (alphaSmall)
-            {
-                regexPattern += "ａ-ｚ";
-                isSuccess = true;
-            }
-
-            if (space)
-            {
-                regexPattern += "　";
-                isSuccess = true;
-            }
-            regexPattern += "]";
-
-            return isSuccess;
+            return charClass.Length > 0;
         }
 
         /// <summary>指定した正規表現の文字クラスに一致する文字を、全角→半角へ変換する。</summary>
-        public static String[] ApplyWide2Narrow(String[] lines, String regexPattern)
+        public static string[] ApplyWide2Narrow(string[] lines, string regexPattern)
         {
             Regex re = new Regex(regexPattern);
             return lines.Select(str => re.Replace(str, ToNarrow)).ToArray();
         }
 
-        private static String ToNarrow(Match m)
+        private static string ToNarrow(Match m)
         {
             // Memo: 参照設定に「Microsoft.VisualBasic」が必要
             return Strings.StrConv(m.Value, VbStrConv.Narrow);

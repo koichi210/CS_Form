@@ -6,7 +6,7 @@ namespace DigitalClock
 {
     public partial class Form1 : Form
     {
-        private Point mouseDownPoint;
+        private Point _mouseDownPoint;
 
         public Form1()
         {
@@ -73,7 +73,7 @@ namespace DigitalClock
         {
             if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
             {
-                mouseDownPoint = new Point(e.X, e.Y);
+                _mouseDownPoint = new Point(e.X, e.Y);
             }
         }
 
@@ -81,8 +81,8 @@ namespace DigitalClock
         {
             if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
             {
-                this.Left += e.X - mouseDownPoint.X;
-                this.Top += e.Y - mouseDownPoint.Y;
+                this.Left += e.X - _mouseDownPoint.X;
+                this.Top += e.Y - _mouseDownPoint.Y;
             }
         }
     }

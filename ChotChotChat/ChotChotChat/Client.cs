@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
@@ -9,83 +8,63 @@ namespace ChotChotChat
 {
     class Client
     {
-        private readonly int port = 8080;
-        private readonly int TimeOutMsec = 100000;
-        private bool isConnected = false;
-        private TcpClient tcp;
+        private const int _port = 8080;
+        private const int _timeoutMsec = 100000;
+        private TcpClient _tcp;
 
-        public bool IsConnected { get { return isConnected; } }
+        public bool IsConnected { get; private set; }
 
         public String Connect(String hostName)
         {
-            if (isConnected)
+            if (IsConnected)
             {
                 MessageBox.Show("すでにサーバーと接続済みです");
                 return "";
             }
-            
-            //TcpClientを作成し、サーバーと接続する
-            tcp = new TcpClient(hostName, port);
-            isConnected = true;
 
+            //TcpClientを作成し、サーバーと接続する
+            _tcp = new TcpClient(hostName, _port);
+            IsConnected = true;
+
+            IPEndPoint remote = (IPEndPoint)_tcp.Client.RemoteEndPoint;
+            IPEndPoint local = (IPEndPoint)_tcp.Client.LocalEndPoint;
             return String.Format("サーバー({0}:{1})と接続しました({2}:{3})。",
-                ((IPEndPoint)tcp.Client.RemoteEndPoint).Address,
-                ((IPEndPoint)tcp.Client.RemoteEndPoint).Port,
-                ((IPEndPoint)tcp.Client.LocalEndPoint).Address,
-                ((IPEndPoint)tcp.Client.LocalEndPoint).Port);
+                remote.Address, remote.Port, local.Address, local.Port);
         }
 
         public String Disconnect()
         {
-            if (isConnected)
+            if (IsConnected)
             {
-                isConnected = false;
-                tcp.Close();
+                IsConnected = false;
+                _tcp.Close();
             }
-            return  "サーバーと切断しました。";
+            return "サーバーと切断しました。";
         }
 
         public void Send(String sendText)
         {
             //TODO:Try～CatchでサーバーDownを回避
             //NetworkStreamを取得
-            NetworkStream ns = tcp.GetStream();
-
-            // タイムアウト
-            ns.ReadTimeout = TimeOutMsec;
-            ns.WriteTimeout = TimeOutMsec;
-
-            //データ送信
-            Encoding enc = Encoding.UTF8;
-            byte[] sendBytes = enc.GetBytes(sendText + Environment.NewLine);
-            ns.Write(sendBytes, 0, sendBytes.Length);
-
-            //サーバーから送られたデータ受信する
-            MemoryStream ms = new MemoryStream();
-            byte[] resBytes = new byte[256];
-            int resSize = 0;
-
-            do
+            using (NetworkStream ns = _tcp.GetStream())
             {
-                //データの一部を受信する
-                resSize = ns.Read(resBytes, 0, resBytes.Length);
-                if (resSize == 0)
+                // タイムアウト
+                ns.ReadTimeout = _timeoutMsec;
+                ns.WriteTimeout = _timeoutMsec;
+
+                //データ送信
+                byte[] sendBytes = Encoding.UTF8.GetBytes(sendText + Environment.NewLine);
+                ns.Write(sendBytes, 0, sendBytes.Length);
+
+                //サーバーから送られたデータ(応答)を受信する。中身は使わない
+                if (NetworkStreamReader.ReceiveLine(ns) == null)
                 {
                     MessageBox.Show("Disconnect Server",
                         "Warning",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
-                    break;
                 }
-
-                //受信したデータを蓄積し、データの最後が\nでない時は受信を続ける
-                ms.Write(resBytes, 0, resSize);
-            } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
-
-            ms.Close();
-
-            //閉じる
-            ns.Close();
+            }
         }
     }
 }

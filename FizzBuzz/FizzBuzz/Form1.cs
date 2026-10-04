@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace FizzBuzz
@@ -38,13 +32,12 @@ namespace FizzBuzz
 
         private void button_execute_Click(object sender, EventArgs e)
         {
-            if (textBox_Number.Text == String.Empty)
+            if (String.IsNullOrEmpty(textBox_Number.Text))
             {
                 MessageBox.Show("pls set number");
                 return;
             }
             textBox_Result.Text = Logic.FizzBuzz(int.Parse(textBox_Number.Text));
-
         }
     }
 }

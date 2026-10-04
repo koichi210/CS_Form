@@ -46,19 +46,33 @@ namespace XmlReadWrite
             toolTip.SetToolTip(button_read4, "Write2で書いた形式のXMLを読み、Param1～4の欄に値を反映する");
         }
 
+        // 対象のXMLファイルが無ければメッセージを出してfalseを返す(全ボタン共通の事前チェック)
+        private bool CheckFileExists()
+        {
+            if (File.Exists(textBox_FileName.Text))
+            {
+                return true;
+            }
+
+            MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
+            return false;
+        }
+
+        // 空白ノードを無視するXmlTextReaderを作る
+        private XmlTextReader CreateReader()
+        {
+            return new XmlTextReader(textBox_FileName.Text) { WhitespaceHandling = WhitespaceHandling.None };
+        }
+
         private void button_write_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(textBox_FileName.Text))
+            if (!CheckFileExists())
             {
-                MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
                 return;
             }
 
-            XmlTextWriter writer = null;
-
-            try
+            using (XmlTextWriter writer = new XmlTextWriter(textBox_FileName.Text, null))
             {
-                writer = new XmlTextWriter(textBox_FileName.Text, null);
                 writer.WriteStartElement("x", "root", "urn:1");
                 writer.WriteStartElement("Setting");
 
@@ -81,21 +95,12 @@ namespace XmlReadWrite
                 writer.WriteEndElement();
                 writer.WriteEndElement();
             }
-
-            finally
-            {
-                if (writer != null)
-                {
-                    writer.Close();
-                }
-            }
         }
 
         private void button_write2_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(textBox_FileName.Text))
+            if (!CheckFileExists())
             {
-                MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
                 return;
             }
 
@@ -106,56 +111,34 @@ namespace XmlReadWrite
             document.AppendChild(declaration);
             document.AppendChild(root);
 
-            //XmlElement element = document.CreateElement("Setting");
-            //element.InnerText = "text";                     // 要素の内容
-            //element.SetAttribute("attribute", "256");       // 属性
-            //root.AppendChild(element);
-
-            XmlElement element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "FileName");  // 属性
-            element.InnerText = textBox_FileName.Text;      // 要素の内容
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "Param1");    // 属性
-            element.InnerText = textBox_Param1.Text;        // 要素の内容
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "Param2");    // 属性
-            element.InnerText = textBox_Param2.Text;        // 要素の内容
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "Param3");    // 属性
-            element.InnerText = textBox_Param3.Text;        // 要素の内容
-            root.AppendChild(element);
-
-            element = document.CreateElement("Setting");
-            element.SetAttribute("attribute", "Param4");    // 属性
-            element.InnerText = textBox_Param4.Text;        // 要素の内容
-            root.AppendChild(element);
+            AppendSettingElement(document, root, "FileName", textBox_FileName.Text);
+            AppendSettingElement(document, root, "Param1", textBox_Param1.Text);
+            AppendSettingElement(document, root, "Param2", textBox_Param2.Text);
+            AppendSettingElement(document, root, "Param3", textBox_Param3.Text);
+            AppendSettingElement(document, root, "Param4", textBox_Param4.Text);
 
             // ファイルに保存する
             document.Save(textBox_FileName.Text);
         }
 
+        // <Setting attribute="属性">内容</Setting> をrootの子に追加する
+        private static void AppendSettingElement(XmlDocument document, XmlElement root, string attribute, string text)
+        {
+            XmlElement element = document.CreateElement("Setting");
+            element.SetAttribute("attribute", attribute);  // 属性
+            element.InnerText = text;                      // 要素の内容
+            root.AppendChild(element);
+        }
+
         private void button_read_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(textBox_FileName.Text))
+            if (!CheckFileExists())
             {
-                MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
                 return;
             }
 
-            XmlTextReader reader = null;
-
-            try
+            using (XmlTextReader reader = CreateReader())
             {
-                // Load the reader with the data file and ignore all white space nodes.         
-                reader = new XmlTextReader(textBox_FileName.Text);
-                reader.WhitespaceHandling = WhitespaceHandling.None;
-
                 // Parse the file and display each of the nodes.
                 while (reader.Read())
                 {
@@ -185,9 +168,6 @@ namespace XmlReadWrite
                             Console.Write("<?xml version='1.0'?>");
                             break;
 
-                        case XmlNodeType.Document:
-                            break;
-
                         case XmlNodeType.DocumentType:
                             Console.Write("<!DOCTYPE {0} [{1}]", reader.Name, reader.Value);
                             break;
@@ -199,119 +179,76 @@ namespace XmlReadWrite
                         case XmlNodeType.EndElement:
                             Console.Write("</{0}>", reader.Name);
                             break;
-
-                        default:
-                            break;
                     }
-                }
-            }
-
-            finally
-            {
-                if (reader != null)
-                {
-                    reader.Close();
                 }
             }
         }
 
         private void button_read2_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(textBox_FileName.Text))
+            if (!CheckFileExists())
             {
-                MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
                 return;
             }
 
-            XmlTextReader reader = null;
-
-            try
+            using (XmlTextReader reader = CreateReader())
             {
-                // Load the reader with the data file and ignore all white space nodes.         
-                reader = new XmlTextReader(textBox_FileName.Text);
-                reader.WhitespaceHandling = WhitespaceHandling.None;
-
                 // Parse the file and display each of the nodes.
                 while (reader.Read())
                 {
-                    switch (reader.NodeType)
+                    if (reader.NodeType != XmlNodeType.Element)
                     {
-                        case XmlNodeType.Element:
-                            Console.Write("<{0}> ", reader.Name);
-                            if (reader.Name.Equals("FileName") )
-                            {
-                                Console.Write("<{0}>", reader.ReadElementString(reader.Name));
-                            }
-                            break;
-
-                        default :
-                            break;
+                        continue;
                     }
-                }
-            }
 
-            finally
-            {
-                if (reader != null)
-                {
-                    reader.Close();
+                    Console.Write("<{0}> ", reader.Name);
+                    if (reader.Name.Equals("FileName"))
+                    {
+                        Console.Write("<{0}>", reader.ReadElementString(reader.Name));
+                    }
                 }
             }
         }
 
         private void button_read3_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(textBox_FileName.Text))
+            if (!CheckFileExists())
             {
-                MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
                 return;
             }
 
-            XmlTextReader reader = null;
-
-            try
+            using (XmlTextReader reader = CreateReader())
             {
-                // Load the reader with the data file and ignore all white space nodes.         
-                reader = new XmlTextReader(textBox_FileName.Text);
-                reader.WhitespaceHandling = WhitespaceHandling.None;
-
                 // Parse the file and display each of the nodes.
                 while (reader.Read())
                 {
-                    if (reader.NodeType == XmlNodeType.Element)
+                    if (reader.NodeType != XmlNodeType.Element)
                     {
-                        if (reader.HasAttributes)
+                        continue;
+                    }
+
+                    if (reader.HasAttributes)
+                    {
+                        for (int i = 0; i < reader.AttributeCount; i++)
                         {
-                            for (int i = 0; i < reader.AttributeCount; i++)
-                            {
-                                // 属性ノードへ移動
-                                reader.MoveToAttribute(i);
-                                // 属性名、及び属性の値を表示
-                                Console.Write("{1} = {2} ", i, reader.Name, reader.Value);
-                            }
-                        }
-                        else
-                        {
-                            Console.Write("{0}",reader.Value);
+                            // 属性ノードへ移動
+                            reader.MoveToAttribute(i);
+                            // 属性名、及び属性の値を表示
+                            Console.Write("{0} = {1} ", reader.Name, reader.Value);
                         }
                     }
-                }
-            }
-
-            finally
-            {
-                if (reader != null)
-                {
-                    reader.Close();
+                    else
+                    {
+                        Console.Write(reader.Value);
+                    }
                 }
             }
         }
 
         private void button_read4_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(textBox_FileName.Text))
+            if (!CheckFileExists())
             {
-                MessageBox.Show("ファイルがみつかりません。" + textBox_FileName.Text);
                 return;
             }
 
@@ -322,24 +259,22 @@ namespace XmlReadWrite
 
             foreach (XmlElement element in document.DocumentElement)
             {
-                string attribute = element.GetAttribute("attribute");   // 属性
                 string text = element.InnerText;                        // 要素の内容
 
-                if (attribute.Equals("Param1"))
+                switch (element.GetAttribute("attribute"))              // 属性
                 {
-                    textBox_Param1.Text = text;
-                }
-                else if (attribute.Equals("Param2"))
-                {
-                    textBox_Param2.Text = text;
-                }
-                else if (attribute.Equals("Param3"))
-                {
-                    textBox_Param3.Text = text;
-                }
-                else if (attribute.Equals("Param4"))
-                {
-                    textBox_Param4.Text = text;
+                    case "Param1":
+                        textBox_Param1.Text = text;
+                        break;
+                    case "Param2":
+                        textBox_Param2.Text = text;
+                        break;
+                    case "Param3":
+                        textBox_Param3.Text = text;
+                        break;
+                    case "Param4":
+                        textBox_Param4.Text = text;
+                        break;
                 }
             }
         }

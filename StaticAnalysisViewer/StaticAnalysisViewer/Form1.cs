@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -9,24 +8,24 @@ namespace StaticAnalysisViewer
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private StcFileInputOutput fio = new StcFileInputOutput();
-        private DataBase DB = new DataBase();
+        private readonly StcFileInputOutput _fio = new StcFileInputOutput();
+        private readonly DataBase _db = new DataBase();
 
         // Default値
-        private readonly String SettingFileName = @"StaticAnalysisViewer.json";
+        private const String _settingFileName = @"StaticAnalysisViewer.json";
 
         // 設定ファイルはJSONが基本。旧XML(StaticAnalysisViewer.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
         // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
-        private const String LegacySettingFileName = @"StaticAnalysisViewer.xml";
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+        private const String _legacySettingFileName = @"StaticAnalysisViewer.xml";
+        private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
         // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
         // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\StaticAnalysisViewer\配下
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
-        private const String AppName = "StaticAnalysisViewer";
-        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private const String _appName = "StaticAnalysisViewer";
+        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         private static Boolean IsJsonFile(String filePath)
         {
@@ -36,15 +35,15 @@ namespace StaticAnalysisViewer
         // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
         private Boolean LoadProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath, this);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(_sr, filePath) : _sr.LoadProc(filePath, this);
         }
 
         private Boolean SaveProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath, this);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(_sr, filePath) : _sr.SaveSetting(filePath, this);
         }
 
-        private static readonly int    DEF_CATEGORY_SORT_IDX = 3;
+        private const int _defaultCategorySortIdx = 3;
 
         // ヘルプ
         public String HelpLink { get; set; } = "";
@@ -57,12 +56,12 @@ namespace StaticAnalysisViewer
             InitializePlaceholders();
             InitializeToolTips();
 
-            sr.RegisterItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
-            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
-            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
-                path => sr.LoadProc(path, this));
-            util.UpdateProfileList(comboBox_Profile, ProfileExtensions, "", userDataFolder);
+            _sr.RegisterItem(this);
+            String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
+            String defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
+                path => _sr.LoadProc(path, this));
+            _util.UpdateProfileList(comboBox_Profile, _profileExtensions, "", _userDataFolder);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -102,8 +101,8 @@ namespace StaticAnalysisViewer
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
                 return;
             }
 
@@ -150,7 +149,7 @@ namespace StaticAnalysisViewer
 
         private void TextBox_SortResult_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == System.Windows.Forms.Keys.A & e.Control == true)
+            if (e.KeyCode == Keys.A && e.Control)
             {
                 TextBox_Ranking.SelectAll();
             }
@@ -158,7 +157,7 @@ namespace StaticAnalysisViewer
 
         private void LoadDataPathKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == System.Windows.Forms.Keys.A & e.Control == true)
+            if (e.KeyCode == Keys.A && e.Control)
             {
                 TextBox_LoadDataList.SelectAll();
             }
@@ -166,7 +165,7 @@ namespace StaticAnalysisViewer
 
         private void TextBox_TopRankingNum_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == System.Windows.Forms.Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
             {
                 ShowResult();
             }
@@ -175,7 +174,7 @@ namespace StaticAnalysisViewer
         private void TextBox_TopRankingNum_KeyPress(object sender, KeyPressEventArgs e)
         {
             //押されたキーが 数値でない場合は、イベントをキャンセルする
-            e.Handled = util.IsNotNumberKey(e);
+            e.Handled = _util.IsNotNumberKey(e);
         }
 
         private void Combo_RankingWeekly_SelectedIndexChanged(object sender, EventArgs e)
@@ -189,34 +188,37 @@ namespace StaticAnalysisViewer
             // 最初に取り込むcsvからCategoryを作成する
             bool isCategoryAlreadySet = false;
 
+            // Linesは呼ぶたびに配列を作り直すので1回だけ取得する
+            string[] dataPaths = TextBox_LoadDataList.Lines;
+
             //プログレスバーの初期化
-            ProgressBar_LoadStatus.Maximum = TextBox_LoadDataList.Lines.Length;
+            ProgressBar_LoadStatus.Maximum = dataPaths.Length;
             ProgressBar_LoadStatus.Minimum = 0;
             ProgressBar_LoadStatus.Value = 0;
 
-            DB.Initialize();
+            _db.Initialize();
             for (int i = ProgressBar_LoadStatus.Minimum; i < ProgressBar_LoadStatus.Maximum; i++, ProgressBar_LoadStatus.Value++)
             {
-                string data = fio.LoadFile(TextBox_LoadDataList.Lines[i]);
-                if (data.Equals(""))
+                string data = _fio.LoadFile(dataPaths[i]);
+                if (data == "")
                 {
                     //ファイルパスが無効だったら次へ
                     continue;
                 }
 
                 // ランキングに表示するラベルを生成
-                string label = Logic.CreateLabelName(TextBox_LoadDataList.Lines[i]);
+                string label = Logic.CreateLabelName(dataPaths[i]);
 
                 // DBにデータを設定
-                DB.CreateArray(data, label);
+                _db.CreateArray(data, label);
                 Combo_RankingWeekly.Items.Add(label);
 
                 // Categoryコンボボックスを設定
                 if (! isCategoryAlreadySet)
                 {
-                    string[] categories = DB.GetCategories();
+                    string[] categories = _db.GetCategories();
                     Combo_SortCategory.Items.AddRange(categories);
-                    Combo_SortCategory.SelectedIndex = DEF_CATEGORY_SORT_IDX;
+                    Combo_SortCategory.SelectedIndex = _defaultCategorySortIdx;
                     isCategoryAlreadySet = true;
                 }
             }
@@ -236,7 +238,7 @@ namespace StaticAnalysisViewer
         // 並び替え要求
         private bool SortExecute()
         {
-            int arrayNum = DB.GetArrayNum();
+            int arrayNum = _db.GetArrayNum();
             if (arrayNum == 0)
             {
                 MessageBox.Show("並び替えるデータがありません。",
@@ -249,7 +251,7 @@ namespace StaticAnalysisViewer
             // データベースの登録されているすべてを並べ替え
             for (int i = 0; i < arrayNum; i++)
             {
-                DB.SortData(i, Combo_SortCategory.SelectedIndex);
+                _db.SortData(i, Combo_SortCategory.SelectedIndex);
             }
 
             return true;
@@ -271,16 +273,16 @@ namespace StaticAnalysisViewer
             int preArrayIdx = Combo_RankingWeekly.SelectedIndex - 1;
 
             // 表示対象の配列取得
-            DataBase_T array = DB.GetData(Combo_RankingWeekly.SelectedIndex);
+            DataBaseEntry array = _db.GetData(Combo_RankingWeekly.SelectedIndex);
 
             //表示するランキング数を取得
             int topRankingNum = int.Parse(TextBox_TopRankingNum.Text);
 
             // ランキング文字列生成＆表示
-            TextBox_Ranking.Text = Logic.CreateRankingString(DB, preArrayIdx, array, topRankingNum);
+            TextBox_Ranking.Text = Logic.CreateRankingString(_db, preArrayIdx, array, topRankingNum);
 
             // 「行数の合計」の文字列生成＆表示
-            TextBox_CountLineTotal.Text = Logic.CreateCountNumTotal(DB, array).ToString();
+            TextBox_CountLineTotal.Text = Logic.CreateCountNumTotal(_db, array).ToString();
             
             // 「ファイル数の合計」の文字列生成＆表示
             TextBox_FileNumTotal.Text = array.RowNum.ToString();
@@ -303,7 +305,7 @@ namespace StaticAnalysisViewer
 
         private void CreateRankingGraphics()
         {
-            DataBase_T array = DB.GetData(Combo_RankingWeekly.SelectedIndex);
+            DataBaseEntry array = _db.GetData(Combo_RankingWeekly.SelectedIndex);
             int topRankingNum = int.Parse(TextBox_TopRankingNum.Text);
             int categoryIdx = Combo_SortCategory.SelectedIndex;
 
@@ -324,7 +326,7 @@ namespace StaticAnalysisViewer
             for (int i = 0; i < loopMax; i++)
             {
                 // Rowが短い場合はカラ行
-                if (array.Data[i].Length < DB.GetColumnNum())
+                if (array.Data[i].Length < _db.GetColumnNum())
                 {
                     continue;
                 }
@@ -369,13 +371,13 @@ namespace StaticAnalysisViewer
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
+            String loadFileName = Path.Combine(_userDataFolder, comboBox_Profile.Text);
             LoadProfile(loadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
-            String loadFileName = fio.SelectLoadFileName(SettingFileName, userDataFolder);
+            String loadFileName = _fio.SelectLoadFileName(_settingFileName, _userDataFolder);
             if (LoadProfile(loadFileName))
             {
                 comboBox_Profile.Text = Path.GetFileName(loadFileName);
@@ -384,161 +386,9 @@ namespace StaticAnalysisViewer
 
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_Profile, ProfileExtensions, SaveProfile,
-                userDataFolder, "設定値を保存しました。");
+            JsonSaveRestore.SaveProfileWithDialog(_util, _fio, comboBox_Profile, _profileExtensions, SaveProfile,
+                _userDataFolder, "設定値を保存しました。");
         }
-    }
-
-    public partial class DataBase
-    {
-        public int UNKNOWN_IDX { get; } = -1;
-
-        // 以前は10000件固定の配列で、超えると配列外で落ちていたのでListにした
-        private List<DataBase_T> DataArray = new List<DataBase_T>();
-        private string[] Categories;
-        private int CategoryIdx = 0;
-        private int ColumnNum = 0;      // 列数（最初に読んだファイルの1行目の列数。制約：全ファイル同一とする）
-
-        // 並べ替えメソッド(値の大きい順。比較できない行は後ろへ)
-        private int CompareArray(string[] x, string[] y)
-        {
-            int xValue;
-            int yValue;
-            Boolean isXComparable = TryGetCategoryValue(x, out xValue);
-            Boolean isYComparable = TryGetCategoryValue(y, out yValue);
-
-            // 両方とも比較不能なときに1と-1を返し分けていたため、x>yとy>xが同時に成立して
-            // Array.Sortが「矛盾した結果を返します」で落ちることがあった
-            if (!isXComparable && !isYComparable)
-            {
-                return 0;
-            }
-            if (!isXComparable)
-            {
-                return 1;
-            }
-            if (!isYComparable)
-            {
-                return -1;
-            }
-
-            return yValue.CompareTo(xValue);
-        }
-
-        // 比較対象の列が範囲内にあり、数値として読める場合だけtrue
-        private Boolean TryGetCategoryValue(string[] values, out int value)
-        {
-            value = 0;
-            return CategoryIdx < values.Length && int.TryParse(values[CategoryIdx], out value);
-        }
-
-        // 初期化
-        public void Initialize()
-        {
-            DataArray.Clear();
-            Categories = null;
-            CategoryIdx = 0;
-            ColumnNum = 0;
-        }
-
-        // データ配列生成
-        public void CreateArray(string data, string label)
-        {
-            DataBase_T entry = new DataBase_T();
-            entry.Label = label;
-
-            // 行ごとに抽出
-            var rows = data.Split('\n');
-            int length = rows.Length - 1;
-            entry.Data = new string[length][];
-
-            if (Categories == null)
-            {
-                Categories = rows[0].Split(',');
-            }
-
-            //セルごとに抽出
-            for (int i = 0, idx = 1; i < length; i++, idx++)
-            {
-                entry.Data[i] = rows[idx].Split(',');
-            }
-
-            // 行数を設定
-            entry.RowNum = length;
-
-            // 制約：すべて同一のフォーマットを読むこと。読み込むファイルごとに列数が変わらないこと
-            // 列数を記憶(最初の1回だけ)
-            if (ColumnNum == 0)
-            {
-                ColumnNum = entry.Data[0].Length;
-            }
-
-            DataArray.Add(entry);
-        }
-
-        // データを並び替える
-        public void SortData(int arrayIdx, int categoryIdx)
-        {
-            // 並び替え基準を記憶
-            CategoryIdx = categoryIdx;
-
-            // 並び替え
-            System.Array.Sort(DataArray[arrayIdx].Data, CompareArray);
-        }
-
-        // データ配列取得
-        public DataBase_T GetData(int arrayIdx)
-        {
-            return DataArray[arrayIdx];
-        }
-
-        // データのインデックス取得
-        public int GetIdx(int arrayIdx, int searchIdx, string name)
-        {
-            if (arrayIdx >= 0)
-            {
-                for (int i = 0; i < DataArray[arrayIdx].RowNum; i++)
-                {
-                    if (DataArray[arrayIdx].Data[i].Length > 1 &&
-                        DataArray[arrayIdx].Data[i][searchIdx].IndexOf(name) >= 0)
-                    {
-                        return i;
-                    }
-                }
-            }
-            return UNKNOWN_IDX;
-        }
-
-        // カテゴリ文字列を取得
-        public string[] GetCategories()
-        {
-            return Categories;
-        }
-
-        // 配列数取得
-        public int GetArrayNum()
-        {
-            return DataArray.Count;
-        }
-
-        // 列数取得
-        public int GetColumnNum()
-        {
-            return ColumnNum;
-        }
-
-        // 行数取得(指定したファイルのデータ行数)
-        public int GetRowNum(int arrayIdx)
-        {
-            return DataArray[arrayIdx].RowNum;
-        }
-    }
-
-    public struct DataBase_T
-    {
-        public string Label;    // 表示するラベル名
-        public int RowNum;      // データ行数(ヘッダ行を除く)
-        public string[][] Data; // データ配列
     }
 }
 

@@ -4,20 +4,18 @@ namespace ProgressBar
 {
     public partial class Form1
     {
-        private Boolean m_IsSingleThreadRunning = false;
+        private bool _isSingleThreadRunning = false;
 
         private void StartSingleThread()
         {
-            m_IsSingleThreadRunning = true;
+            _isSingleThreadRunning = true;
 
-            progressBar_SingleThread.Maximum = ProgressBarMax;
-            progressBar_SingleThread.Minimum = ProgressBarMin;
-            progressBar_SingleThread.Value = 0;
+            ResetProgressBar(progressBar_SingleThread);
 
             for (int i = progressBar_SingleThread.Minimum; i < progressBar_SingleThread.Maximum; i++)
             {
                 System.Threading.Thread.Sleep(50);
-                if (!m_IsSingleThreadRunning)
+                if (!_isSingleThreadRunning)
                 {
                     break;
                 }
@@ -29,7 +27,7 @@ namespace ProgressBar
         private void StopSingleThread()
         {
             // メイン処理と同一タスクでStop要求を送るので、設定が効かない（Cpuが空かない）
-            m_IsSingleThreadRunning = false;
+            _isSingleThreadRunning = false;
         }
     }
 }

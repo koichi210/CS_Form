@@ -14,7 +14,7 @@ namespace EventRecorder
         // コンボボックスで設定ファイルを選び直したら、そのままそれを読み込む(Cheetosと同じ挙動)
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
+            String loadFileName = System.IO.Path.Combine(_userDataFolder, comboBox_Profile.Text);
             LoadProfile(loadFileName);
         }
 
@@ -31,7 +31,7 @@ namespace EventRecorder
         }
 
         // 設定ファイル(記録データ+プレイリスト)をまるごと読み込む。拡張子がjsonならJSON、
-        // それ以外は従来通りXMLとして読み込む(既定でプレイリストもクリアする、sr.LoadProc相当)
+        // それ以外は従来通りXMLとして読み込む(既定でプレイリストもクリアする、_sr.LoadProc相当)
         private void LoadProfile(String filePath)
         {
             if (IsJsonFile(filePath))
@@ -40,14 +40,14 @@ namespace EventRecorder
             }
             else
             {
-                sr.LoadProc(filePath, this);
+                _sr.LoadProc(filePath, this);
             }
 
             UpdatePlaylistMissingFileHighlights();
         }
 
         // プレイリスト再生時、各行の設定ファイルを1つずつ読み込む専用(記録データのみ差し替え、
-        // プレイリスト自体は触らない。playbackLoader.LoadProc(..., false)のJSON対応版)
+        // プレイリスト自体は触らない。_playbackLoader.LoadProc(..., false)のJSON対応版)
         private void LoadProfileForPlayback(String filePath)
         {
             if (IsJsonFile(filePath))
@@ -56,7 +56,7 @@ namespace EventRecorder
             }
             else
             {
-                playbackLoader.LoadProc(filePath, this, false);
+                _playbackLoader.LoadProc(filePath, this, false);
             }
         }
 
@@ -182,7 +182,7 @@ namespace EventRecorder
             return profile;
         }
 
-        // filePathの拡張子で振り分けて保存する(JSONならJsonFileStorage、XMLなら従来のsr.SaveSetting)
+        // filePathの拡張子で振り分けて保存する(JSONならJsonFileStorage、XMLなら従来の_sr.SaveSetting)
         // 失敗時はダイアログを出さず理由だけ返す(エラー表示はSaveProfileWithErrorDialogで1回だけ行う)
         private Boolean SaveProfile(String filePath, out String errorMessage)
         {
@@ -201,7 +201,7 @@ namespace EventRecorder
                 }
             }
 
-            return sr.SaveSetting(filePath);
+            return _sr.SaveSetting(filePath);
         }
 
         private Boolean SaveProfileWithErrorDialog(String filePath)
@@ -217,24 +217,23 @@ namespace EventRecorder
             {
                 message += Environment.NewLine + errorMessage;
             }
-            MessageBox.Show(message, AppName + " - 保存エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(message, _appName + " - 保存エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return false;
         }
 
-        // comboBox_Profile(プレイリストのcol_PlaylistFileも含む)へ、userDataFolder配下の
-        // *.xmlと*.jsonの両方をまとめてリストアップする。util.UpdateProfileListは拡張子を
+        // comboBox_Profile(プレイリストのcol_PlaylistFileも含む)へ、_userDataFolder配下の
+        // *.xmlと*.jsonの両方をまとめてリストアップする。_util.UpdateProfileListは拡張子を
         // 1パターンしか指定できないため、ここでは2回検索した結果をマージして直接セットする
         private void UpdateProfileListAll(String defaultProfileName)
         {
-            String[] xmlFiles = System.IO.Directory.GetFiles(userDataFolder, "*.xml", System.IO.SearchOption.AllDirectories);
+            String[] xmlFiles = System.IO.Directory.GetFiles(_userDataFolder, "*.xml", System.IO.SearchOption.AllDirectories);
             // EventRecorder.json(アプリの設定ファイル)はプロファイルではないので除外する
-            String[] jsonFiles = System.IO.Directory.GetFiles(userDataFolder, "*.json", System.IO.SearchOption.AllDirectories)
-                .Where(f => !IsAppSettingsFile(f))
-                .ToArray();
+            IEnumerable<String> jsonFiles = System.IO.Directory.GetFiles(_userDataFolder, "*.json", System.IO.SearchOption.AllDirectories)
+                .Where(f => !IsAppSettingsFile(f));
             String[] files = xmlFiles.Concat(jsonFiles).ToArray();
 
-            util.SetComboBoxFromArray(comboBox_Profile, files, userDataFolder);
-            util.SetComboBoxText(comboBox_Profile, defaultProfileName);
+            _util.SetComboBoxFromArray(comboBox_Profile, files, _userDataFolder);
+            _util.SetComboBoxText(comboBox_Profile, defaultProfileName);
         }
 
         // UpdateProfileListAllは内部でItems.Clear()するため、comboBox_Profileの選択がいったん
@@ -254,8 +253,8 @@ namespace EventRecorder
             }
         }
 
-        // 読込ボタンと同じ感覚で使えるよう、「現在のファイルに上書きしますか?」の確認は挟まず、
-        // 常にダイアログを直接開く(SelectSaveFileNameのCheetos流の確認ステップはあえて使わない)
+        // プルダウンで選択中のファイルがあれば「上書きしますか?」を確認し、
+        // 上書きしない(または未選択)ならファイル保存ダイアログを開く
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
             // プルダウンで既存ファイルが選ばれている時は、毎回ダイアログを開かず
@@ -277,7 +276,7 @@ namespace EventRecorder
 
                 if (overwriteResult == DialogResult.Yes)
                 {
-                    String overwriteFileName = System.IO.Path.Combine(userDataFolder, comboBox_Profile.Text);
+                    String overwriteFileName = System.IO.Path.Combine(_userDataFolder, comboBox_Profile.Text);
                     if (!SaveProfileWithErrorDialog(overwriteFileName))
                     {
                         return;
@@ -291,7 +290,7 @@ namespace EventRecorder
 
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.FileName = comboBox_Profile.Text;
-            dlg.InitialDirectory = userDataFolder;
+            dlg.InitialDirectory = _userDataFolder;
             // 今後はJSON保存を主流にしていく方針なので、フィルタの先頭(既定)をJSONにしてある。
             // 既存のXMLプロファイルを開いた状態でここに来て.jsonを選べば、そのままXML→JSON変換になる
             dlg.Filter = "JSONファイル(*.json)|*.json|XMLファイル(*.xml)|*.xml|すべてのファイル(*.*)|*.*";

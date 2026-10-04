@@ -16,13 +16,13 @@ namespace DialogChild.Tests
         {
             using (var form = new Form1())
             {
-                var child = (Form)FormReflection.GetField(form, "child");
+                var child = (Form)FormReflection.GetField(form, "_child");
                 var trackBarMoveDistance = FormReflection.GetControl(form, "trackBarMoveDistance");
                 trackBarMoveDistance.GetType().GetProperty("Value").SetValue(trackBarMoveDistance, 20, null);
 
                 int before = child.Top;
                 var sender = new Button { Name = "buttonMoveDirectionUp" };
-                FormReflection.InvokeHandler(form, "updatePosition", sender);
+                FormReflection.InvokeHandler(form, "UpdatePosition", sender);
 
                 Assert.AreEqual(System.Math.Max(0, before - 20), child.Top);
 
@@ -35,12 +35,12 @@ namespace DialogChild.Tests
         {
             using (var form = new Form1())
             {
-                var child = (Form)FormReflection.GetField(form, "child");
+                var child = (Form)FormReflection.GetField(form, "_child");
                 var trackBarWindowWidth = (TrackBar)FormReflection.GetControl(form, "trackBarWindowWidth");
                 var trackBarWindowHeight = (TrackBar)FormReflection.GetControl(form, "trackBarWindowHeight");
 
                 var sender = new Button { Name = "buttonMoveDirectionCenter" };
-                FormReflection.InvokeHandler(form, "updatePosition", sender);
+                FormReflection.InvokeHandler(form, "UpdatePosition", sender);
 
                 int expectedLeft = (trackBarWindowWidth.Maximum - child.Width) / 2;
                 int expectedTop = (trackBarWindowHeight.Maximum - child.Height) / 2;
@@ -56,7 +56,7 @@ namespace DialogChild.Tests
         {
             using (var form = new Form1())
             {
-                var child = (Form)FormReflection.GetField(form, "child");
+                var child = (Form)FormReflection.GetField(form, "_child");
                 var checkBoxVisible = (CheckBox)FormReflection.GetControl(form, "checkBoxVisible");
 
                 checkBoxVisible.Checked = false;
@@ -84,7 +84,7 @@ namespace DialogChild.Tests
                 Control label = FormReflection.GetControl(form, "labelMoveDistanceValue");
                 Assert.AreEqual("42", label.Text);
 
-                ((Form)FormReflection.GetField(form, "child")).Dispose();
+                ((Form)FormReflection.GetField(form, "_child")).Dispose();
             }
         }
 
@@ -93,13 +93,13 @@ namespace DialogChild.Tests
         {
             using (var form = new Form1())
             {
-                var child = (Form)FormReflection.GetField(form, "child");
+                var child = (Form)FormReflection.GetField(form, "_child");
                 var trackBarWindowWidth = FormReflection.GetControl(form, "trackBarWindowWidth");
                 var trackBarWindowHeight = FormReflection.GetControl(form, "trackBarWindowHeight");
                 trackBarWindowWidth.GetType().GetProperty("Value").SetValue(trackBarWindowWidth, 300, null);
                 trackBarWindowHeight.GetType().GetProperty("Value").SetValue(trackBarWindowHeight, 200, null);
 
-                FormReflection.InvokeHandler(form, "updateRectSize", trackBarWindowWidth);
+                FormReflection.InvokeHandler(form, "UpdateRectSize", trackBarWindowWidth);
 
                 Assert.AreEqual(300, child.Width);
                 Assert.AreEqual(200, child.Height);
@@ -113,7 +113,7 @@ namespace DialogChild.Tests
         {
             using (var form = new Form1())
             {
-                var child = (Form)FormReflection.GetField(form, "child");
+                var child = (Form)FormReflection.GetField(form, "_child");
                 var trackBarRed = FormReflection.GetControl(form, "trackBarWindowColorRed");
                 var trackBarGreen = FormReflection.GetControl(form, "trackBarWindowColorGreen");
                 var trackBarBlue = FormReflection.GetControl(form, "trackBarWindowColorBlue");
@@ -121,7 +121,7 @@ namespace DialogChild.Tests
                 trackBarGreen.GetType().GetProperty("Value").SetValue(trackBarGreen, 20, null);
                 trackBarBlue.GetType().GetProperty("Value").SetValue(trackBarBlue, 30, null);
 
-                FormReflection.InvokeHandler(form, "updateColor", trackBarRed);
+                FormReflection.InvokeHandler(form, "UpdateColor", trackBarRed);
 
                 Assert.AreEqual(Color.FromArgb(10, 20, 30), child.BackColor);
 

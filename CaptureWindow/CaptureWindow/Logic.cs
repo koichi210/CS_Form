@@ -5,7 +5,7 @@ namespace CaptureWindow
 {
     /// <summary>
     /// もともと Form1.cs の SaveSetting_Click / LoadSetting に実装されていた、
-    /// 設定値をXMLファイルに保存/読み込みするロジック。
+    /// 設定値をファイルに保存/読み込みするロジック(現在はJSON。旧XMLは読み込み時に移行する)。
     ///
     /// XMLの組み立てと読み取りは、同じ形式を手書きしていた4プロジェクト
     /// (CaptureWindow/PictTrimming/PictMerge/PictMerge2)で共通だったため
@@ -15,10 +15,10 @@ namespace CaptureWindow
     /// </summary>
     internal static class Logic
     {
-        private const String KeySavePath = "TextBox_SavePath";
-        private const String KeyMouseX = "TextBox_MouseX";
-        private const String KeyMouseY = "TextBox_MouseY";
-        private const String KeySleep = "TextBox_Sleep";
+        private const String _keySavePath = "TextBox_SavePath";
+        private const String _keyMouseX = "TextBox_MouseX";
+        private const String _keyMouseY = "TextBox_MouseY";
+        private const String _keySleep = "TextBox_Sleep";
 
         public class Settings
         {
@@ -31,10 +31,10 @@ namespace CaptureWindow
         public static void SaveSetting(String path, String savePath, String mouseX, String mouseY, String sleep)
         {
             StcSimpleSettings settings = new StcSimpleSettings();
-            settings.Set(KeySavePath, savePath);
-            settings.Set(KeyMouseX, mouseX);
-            settings.Set(KeyMouseY, mouseY);
-            settings.Set(KeySleep, sleep);
+            settings.Set(_keySavePath, savePath);
+            settings.Set(_keyMouseX, mouseX);
+            settings.Set(_keyMouseY, mouseY);
+            settings.Set(_keySleep, sleep);
             settings.SaveJson(path);
         }
 
@@ -50,11 +50,16 @@ namespace CaptureWindow
             // 保存されていない項目はnullのままにする(呼び出し元が既定値を使う)
             return new Settings
             {
-                SavePath = loaded.IsExist(KeySavePath) ? loaded.Get(KeySavePath) : null,
-                MouseX = loaded.IsExist(KeyMouseX) ? loaded.Get(KeyMouseX) : null,
-                MouseY = loaded.IsExist(KeyMouseY) ? loaded.Get(KeyMouseY) : null,
-                Sleep = loaded.IsExist(KeySleep) ? loaded.Get(KeySleep) : null,
+                SavePath = GetOrNull(loaded, _keySavePath),
+                MouseX = GetOrNull(loaded, _keyMouseX),
+                MouseY = GetOrNull(loaded, _keyMouseY),
+                Sleep = GetOrNull(loaded, _keySleep),
             };
+        }
+
+        private static String GetOrNull(StcSimpleSettings settings, String key)
+        {
+            return settings.IsExist(key) ? settings.Get(key) : null;
         }
     }
 }

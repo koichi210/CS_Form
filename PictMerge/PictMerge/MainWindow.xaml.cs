@@ -12,7 +12,7 @@ namespace PictMerge
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly String SettingFile = @"PictMerge.json";
+        private const String _settingFile = @"PictMerge.json";
 
         public MainWindow()
         {
@@ -104,45 +104,48 @@ namespace PictMerge
 
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
+                //　オリジナルファイル＆バックアップファイル(切断位置の行ごとには変わらないので、行のループの外で1回だけ求める)
+                String fileName = ListBox_ListUp.SelectedItems[i].ToString();
+                String backupFolderPath = SourceFolderPath.Text + @"\" + @"org";
+                String sourceFilePath = SourceFolderPath.Text + @"\" + fileName;
+                String backupSourceFilePath = backupFolderPath + @"\" + fileName;
+
+                Directory.CreateDirectory(backupFolderPath);
+
+                // 文字列が部分一致しなければ対象外
+                if (sourceFilePath.IndexOf(SourceFile1Prefix.Text) == -1)
+                {
+                    continue;
+                }
+
+                //　マージファイル＆バックアップファイル
+                String mergeFilePath = sourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
+                String backupMergeFilePath = backupSourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
+
                 for (int j = 0; j < trimHeights.Length; j++)
                 {
-                    //　オリジナルファイル＆バックアップファイル
-                    String sourceFilePath = SourceFolderPath.Text + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
-                    String backupSourceFilePath = SourceFolderPath.Text + @"\" + @"org" + @"\" + ListBox_ListUp.SelectedItems[i].ToString();
+                    // 元ファイルをバックアップ(前の行でマージした結果を次の行の元にするため、行ごとに取り直す)
+                    File.Copy(sourceFilePath, backupSourceFilePath, true);
+                    File.Copy(mergeFilePath, backupMergeFilePath, true);
 
-                    Directory.CreateDirectory(SourceFolderPath.Text + @"\" + @"org");
-
-                    // 文字列が部分一致したら処理
-                    if (sourceFilePath.IndexOf(SourceFile1Prefix.Text) != -1)
+                    if (trimHeights[j].Equals(""))
                     {
-                        //　マージファイル＆バックアップファイル
-                        String mergeFilePath = sourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
-                        String backupMergeFilePath = backupSourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
+                        continue;
+                    }
 
-                        // 元ファイルをバックアップ
+                    int trimHeight = int.Parse(trimHeights[j]);
 
-                        File.Copy(sourceFilePath, backupSourceFilePath, true);
-                        File.Copy(mergeFilePath, backupMergeFilePath, true);
-
-                        if (trimHeights[j].Equals(""))
-                        {
-                            continue;
-                        }
-
-                        int trimHeight = int.Parse(trimHeights[j]);
-
-                        // TODO：入れ子にするための暫定
-                        // マージ実行
-                        if (j % 2 == 0)
-                        {
-                            MergeImage(sourceFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
-                            MergeImage(mergeFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
-                        }
-                        else
-                        {
-                            MergeImage(sourceFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
-                            MergeImage(mergeFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
-                        }
+                    // TODO：入れ子にするための暫定
+                    // マージ実行
+                    if (j % 2 == 0)
+                    {
+                        MergeImage(sourceFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
+                        MergeImage(mergeFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
+                    }
+                    else
+                    {
+                        MergeImage(sourceFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
+                        MergeImage(mergeFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
                     }
                 }
             }
@@ -159,14 +162,14 @@ namespace PictMerge
             settings.Set("PictWidth", PictWidth.Text);
             settings.Set("PictHeight", PictHeight.Text);
             settings.Set("TrimmingHeight", TrimmingHeight.Text);
-            settings.SaveJson(SettingFile);
+            settings.SaveJson(_settingFile);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            StandardTemplate.StcSimpleSettings settings = StandardTemplate.StcSimpleSettings.LoadWithMigration(SettingFile);
+            StandardTemplate.StcSimpleSettings settings = StandardTemplate.StcSimpleSettings.LoadWithMigration(_settingFile);
             if (settings == null)
             {
                 // 設定ファイルが無い/壊れている場合は初期値のまま進める

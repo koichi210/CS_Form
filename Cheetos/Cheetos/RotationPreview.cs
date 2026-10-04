@@ -205,10 +205,8 @@ namespace Cheetos
         }
 
         public RotationPreview(String originX, String originY, String angle)
+            : this()
         {
-            InitializeComponent();
-            InitializeToolTips();
-
             textBox_OriginX.Text = originX;
             textBox_OriginY.Text = originY;
             textBox_angle.Text = angle;
@@ -294,19 +292,9 @@ namespace Cheetos
                 return false;
             }
 
-            int val;
-            if (!Int32.TryParse(textBox_OriginX.Text, out val))
-            {
-                textBox_OriginX.Text = "";
-            }
-            if (!Int32.TryParse(textBox_OriginY.Text, out val))
-            {
-                textBox_OriginY.Text = "";
-            }
-            if (!Int32.TryParse(textBox_angle.Text, out val))
-            {
-                textBox_angle.Text = "";
-            }
+            textBox_OriginX.Text = Logic.KeepIfInteger(textBox_OriginX.Text);
+            textBox_OriginY.Text = Logic.KeepIfInteger(textBox_OriginY.Text);
+            textBox_angle.Text = Logic.KeepIfInteger(textBox_angle.Text);
 
             return true;
         }
@@ -318,39 +306,29 @@ namespace Cheetos
                 return;
             }
 
-            Bitmap img = new Bitmap(textBox_loadfilepath.Text);
-            int max = Math.Max(img.Width, img.Height);
-            pictureBox_Dest.Size = new Size(max * 2, max * 2);
-            Bitmap canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
-
-            //ラジアン単位に変換
-            int angle = 0;
+            //原点・角度(AdjustParamで数値でなければ空欄にしてあるので、空欄は0として扱う。
+            // 以前はfloat.Parse("")でFormatExceptionになっていた)
+            int angle;
             Int32.TryParse(textBox_angle.Text, out angle);
-            double d = angle / (180 / Math.PI);
+            float x;
+            float.TryParse(textBox_OriginX.Text, out x);
+            float y;
+            float.TryParse(textBox_OriginY.Text, out y);
 
-            //新しい座標位置を計算する
-            float x = float.Parse(textBox_OriginX.Text);
-            float y = float.Parse(textBox_OriginY.Text);
-
-            float x1 = x + img.Width * (float)Math.Cos(d);
-            float y1 = y + img.Width * (float)Math.Sin(d);
-            float x2 = x - img.Height * (float)Math.Sin(d);
-            float y2 = y + img.Height * (float)Math.Cos(d);
-
-            //PointF配列を作成
-            PointF[] destinationPoints =
+            Bitmap canvas;
+            using (Bitmap img = new Bitmap(textBox_loadfilepath.Text))
             {
-                new PointF(x, y),
-                new PointF(x1, y1),
-                new PointF(x2, y2)
-            };
+                int max = Math.Max(img.Width, img.Height);
+                pictureBox_Dest.Size = new Size(max * 2, max * 2);
+                canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
 
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                //画像を表示
-                g.DrawImage(img, destinationPoints);
+                PointF[] destinationPoints = Rotation.GetDestinationPoints(x, y, img.Size, angle);
 
-                img.Dispose();
+                using (Graphics g = Graphics.FromImage(canvas))
+                {
+                    //画像を表示
+                    g.DrawImage(img, destinationPoints);
+                }
             }
 
             //pictureBoxに表示

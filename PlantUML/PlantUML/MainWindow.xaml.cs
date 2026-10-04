@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Windows;
 using System.Diagnostics;
+using System.IO;
+using System.Windows;
 
 namespace PlantUML
 {
@@ -9,7 +10,8 @@ namespace PlantUML
     /// </summary>
     public partial class MainWindow : Window
     {
-        private String scriptName = "PlantUML.bat";
+        private const string _scriptName = "PlantUML.bat";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -17,19 +19,18 @@ namespace PlantUML
             InFile.Text = @"sample\sequence.puml";
             ConfigFile.Text = @"sample\config.txt";
             PlantumlPath.Text = @"plantuml.jar";
-
         }
 
         private void Execute_Click(object sender, RoutedEventArgs e)
         {
-            String commandParam = Logic.BuildCommandParam(PlantumlPath.Text, ConfigFile.Text, System.IO.File.Exists(ConfigFile.Text), InFile.Text);
+            string commandParam = Logic.BuildCommandParam(PlantumlPath.Text, ConfigFile.Text, File.Exists(ConfigFile.Text), InFile.Text);
 
-            System.IO.StreamWriter writer = new System.IO.StreamWriter(scriptName);
-            writer.WriteLine(commandParam);
-            writer.Close();
+            File.WriteAllText(_scriptName, commandParam + Environment.NewLine);
 
-            Process process = Process.Start(scriptName);
-            process.WaitForExit();              // プロセスの終了を待つ
+            using (Process process = Process.Start(_scriptName))
+            {
+                process.WaitForExit();              // プロセスの終了を待つ
+            }
         }
     }
 }

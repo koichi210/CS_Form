@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using StandardTemplate;
 
@@ -13,9 +14,9 @@ namespace CaptureWindow
         // ※実際にマウスカーソルを動かして物理クリックを送る/画面を撮る処理なので、
         // 自動テストでは検証できない。挙動が変わっていないか、Captureボタンを押しての
         // 実機確認が必要。
-        private readonly CaptWindow captWindow = new CaptWindow();
+        private readonly CaptWindow _captWindow = new CaptWindow();
 
-        private readonly String SettingFilePath = @"CaptureWindow.json";
+        private const String _settingFilePath = @"CaptureWindow.json";
 
         public Form1()
         {
@@ -31,11 +32,11 @@ namespace CaptureWindow
             TextBox_Sleep.Text = @"3";
 
             // 以前のMouseProc()と同じ「指定座標をクリックしてから元の位置に戻す」動作にする設定
-            captWindow.SetMouseMove(true);
-            captWindow.SetRestoreMousePosition(true);
-            // CURRENT_SCREENキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
-            captWindow.TargetWindow = this;
-            captWindow.SetCaptureCase(true);
+            _captWindow.SetMouseMove(true);
+            _captWindow.SetRestoreMousePosition(true);
+            // CurrentScreenキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
+            _captWindow.TargetWindow = this;
+            _captWindow.SetCaptureCase(true);
 
             LoadSetting();
         }
@@ -74,37 +75,37 @@ namespace CaptureWindow
                 return;
             }
 
-            String fileFormat = TextBox_SavePath.Text + @"\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            String fileFormat = TextBox_SavePath.Text + @"\" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
 
-            captWindow.SetFileFormat(fileFormat);
-            captWindow.SetFileIdx(1);
-            captWindow.SetCaptureTarget(GetSelectedCaptureTarget());
+            _captWindow.SetFileFormat(fileFormat);
+            _captWindow.SetFileIdx(1);
+            _captWindow.SetCaptureTarget(GetSelectedCaptureTarget());
 
-            captWindow.CaptureProc();   // "_1.png" として保存、呼ぶたびにFileIdxが自動で進む
+            _captWindow.CaptureProc();   // "_1.png" として保存、呼ぶたびにFileIdxが自動で進む
 
-            if (!TextBox_MouseX.Text.Equals("") && !TextBox_MouseY.Text.Equals(""))
+            if (TextBox_MouseX.Text != "" && TextBox_MouseY.Text != "")
             {
-                captWindow.MouseProc(TextBox_MouseX.Text, TextBox_MouseY.Text, CaptWindow.MOUSE_EVENT.LEFT_CLICK);
+                _captWindow.MouseProc(TextBox_MouseX.Text, TextBox_MouseY.Text, CaptWindow.MouseEventType.LeftClick);
 
-                if (!TextBox_Sleep.Text.Equals(""))
+                if (TextBox_Sleep.Text != "")
                 {
                     System.Threading.Thread.Sleep(int.Parse(TextBox_Sleep.Text)*1000);
                 }
-                captWindow.CaptureProc();   // "_2.png" として保存
+                _captWindow.CaptureProc();   // "_2.png" として保存
             }
         }
 
-        private CaptWindow.CAPTURE_TARGET GetSelectedCaptureTarget()
+        private CaptWindow.CaptureTargetType GetSelectedCaptureTarget()
         {
             if (Radio_FullScreen.Checked)
             {
-                return CaptWindow.CAPTURE_TARGET.FULL_SCREEN;
+                return CaptWindow.CaptureTargetType.FullScreen;
             }
             if (Radio_CurrentScreen.Checked)
             {
-                return CaptWindow.CAPTURE_TARGET.CURRENT_SCREEN;
+                return CaptWindow.CaptureTargetType.CurrentScreen;
             }
-            return CaptWindow.CAPTURE_TARGET.CURRENT_WINDOW;
+            return CaptWindow.CaptureTargetType.CurrentWindow;
         }
 
         private bool EnsureSavePathExists()
@@ -131,39 +132,37 @@ namespace CaptureWindow
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            TextBox_MousePoint.Text = Cursor.Position.X.ToString() + "," + Cursor.Position.Y.ToString();
+            Point position = Cursor.Position;
+            TextBox_MousePoint.Text = position.X + "," + position.Y;
         }
 
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            Logic.SaveSetting(SettingFilePath, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
+            Logic.SaveSetting(_settingFilePath, TextBox_SavePath.Text, TextBox_MouseX.Text, TextBox_MouseY.Text, TextBox_Sleep.Text);
 
             MessageBox.Show("設定値を保存しました♪");
         }
 
         private void LoadSetting()
         {
-            Logic.Settings settings = Logic.LoadSetting(SettingFilePath);
+            Logic.Settings settings = Logic.LoadSetting(_settingFilePath);
             if (settings == null)
             {
                 return;
             }
 
-            if (settings.SavePath != null)
+            SetTextIfNotNull(TextBox_SavePath, settings.SavePath);
+            SetTextIfNotNull(TextBox_MouseX, settings.MouseX);
+            SetTextIfNotNull(TextBox_MouseY, settings.MouseY);
+            SetTextIfNotNull(TextBox_Sleep, settings.Sleep);
+        }
+
+        // 保存されていなかった項目(null)は既定値のまま残す
+        private static void SetTextIfNotNull(Control control, String value)
+        {
+            if (value != null)
             {
-                TextBox_SavePath.Text = settings.SavePath;
-            }
-            if (settings.MouseX != null)
-            {
-                TextBox_MouseX.Text = settings.MouseX;
-            }
-            if (settings.MouseY != null)
-            {
-                TextBox_MouseY.Text = settings.MouseY;
-            }
-            if (settings.Sleep != null)
-            {
-                TextBox_Sleep.Text = settings.Sleep;
+                control.Text = value;
             }
         }
     }

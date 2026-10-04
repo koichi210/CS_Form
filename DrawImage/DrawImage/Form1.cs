@@ -53,44 +53,44 @@ namespace DrawImage
 
         private Bitmap GetCanvas()
         {
-            Bitmap canvas;
             if (pictureBox1.Image == null)
             {
                 //描画先とするImageオブジェクトを作成する
-                canvas = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            }
-            else
-            {
-                //すでに描画済みだったら、表示されているもののイメージを取得
-                canvas = new Bitmap(pictureBox1.Image);
+                return new Bitmap(pictureBox1.Width, pictureBox1.Height);
             }
 
-            return canvas;
+            //すでに描画済みだったら、表示されているもののイメージを取得
+            return new Bitmap(pictureBox1.Image);
+        }
+
+        // キャンバスに描画してpictureBox1に表示する。差し替え前の画像は破棄する(以前は描くたびに古いBitmapが残っていた)
+        private void DrawOnCanvas(Action<Graphics> draw)
+        {
+            Bitmap canvas = GetCanvas();
+            using (Graphics g = Graphics.FromImage(canvas))
+            {
+                draw(g);
+            }
+
+            Image oldImage = pictureBox1.Image;
+            pictureBox1.Image = canvas;
+            oldImage?.Dispose();
         }
 
         private void DrawLine(Point startPoint, Point endPoint, Color color)
         {
-            Bitmap canvas = GetCanvas();
-            Graphics g = Graphics.FromImage(canvas);
-
-            Pen pen = new Pen(color, 3);
-            g.DrawLine(pen, startPoint, endPoint);
-
-            pen.Dispose();
-            g.Dispose();
-
-            pictureBox1.Image = canvas;
+            DrawOnCanvas(g =>
+            {
+                using (Pen pen = new Pen(color, 3))
+                {
+                    g.DrawLine(pen, startPoint, endPoint);
+                }
+            });
         }
 
         private void DrawCircle(Rectangle rect, Brush brush)
         {
-            Bitmap canvas = GetCanvas();
-            Graphics g = Graphics.FromImage(canvas);
-
-            g.FillEllipse(brush, rect);
-            g.Dispose();
-
-            pictureBox1.Image = canvas;
+            DrawOnCanvas(g => g.FillEllipse(brush, rect));
         }
     }
 }

@@ -10,13 +10,13 @@ namespace ImageViewer.Tests
     [TestClass]
     public class SaveRestoreTests
     {
-        private string tempDirectory;
+        private string _tempDirectory;
 
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "ImageViewerSaveRestoreTests_" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(tempDirectory);
+            _tempDirectory = Path.Combine(Path.GetTempPath(), "ImageViewerSaveRestoreTests_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(_tempDirectory);
         }
 
         [TestCleanup]
@@ -24,7 +24,7 @@ namespace ImageViewer.Tests
         {
             try
             {
-                if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, true);
+                if (Directory.Exists(_tempDirectory)) Directory.Delete(_tempDirectory, true);
             }
             catch (IOException)
             {
@@ -47,7 +47,7 @@ namespace ImageViewer.Tests
 
                 var sr = new SaveRestore();
                 sr.RegisterItem(writer);
-                string path = Path.Combine(tempDirectory, "setting.xml");
+                string path = Path.Combine(_tempDirectory, "setting.xml");
                 Assert.IsTrue(sr.SaveXmlFile(path));
 
                 using (Form1 reader = NewForm())

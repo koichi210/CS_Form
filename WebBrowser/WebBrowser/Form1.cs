@@ -34,7 +34,7 @@ namespace WebBrowser
 
         private void button_Go_Click(object sender, EventArgs e)
         {
-            if ( textBox_Url.Text.Length == 0 )
+            if (textBox_Url.Text.Length == 0)
             {
                 // URLが指定されていない
                 return;
@@ -45,7 +45,7 @@ namespace WebBrowser
             {
                 webBrowser.Navigate(new Uri(textBox_Url.Text));
             }
-            catch (System.UriFormatException)
+            catch (UriFormatException)
             {
                 MessageBox.Show("ページが読み込めませんでした" + Environment.NewLine + textBox_Url.Text,
                     "Error",
@@ -56,8 +56,7 @@ namespace WebBrowser
 
         private void button_Test_Click(object sender, EventArgs e)
         {
-            String documentText = webBrowser.DocumentText;
-            MessageBox.Show(documentText, "Source Text");
+            MessageBox.Show(webBrowser.DocumentText, "Source Text");
         }
     }
 }

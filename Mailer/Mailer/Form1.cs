@@ -7,20 +7,20 @@ namespace Mailer
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        readonly String SettingFileName = @"Mailer.json";
+        private const String _settingFileName = @"Mailer.json";
 
         // 設定ファイルはJSONが基本。旧XML(Mailer.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
         // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
-        private const String LegacySettingFileName = @"Mailer.xml";
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+        private const String _legacySettingFileName = @"Mailer.xml";
+        private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
         // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
         // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\Mailer\配下
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
-        private const String AppName = "Mailer";
-        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private const String _appName = "Mailer";
+        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         private static Boolean IsJsonFile(String filePath)
         {
@@ -30,19 +30,19 @@ namespace Mailer
         // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
         private Boolean LoadProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(_sr, filePath) : _sr.LoadProc(filePath);
         }
 
         private Boolean SaveProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(_sr, filePath) : _sr.SaveSetting(filePath);
         }
 
-        readonly String MailUrl = @"https://mail.google.com/mail/?view=cm&fs=1";
+        private const String _mailUrl = @"https://mail.google.com/mail/?view=cm&fs=1";
 
-        private StcFileInputOutput fio = new StcFileInputOutput();
+        private readonly StcFileInputOutput _fio = new StcFileInputOutput();
 
-        private ExecParam param = new ExecParam();
+        private readonly ExecParam _param = new ExecParam();
 
         class ExecParam
         {
@@ -59,12 +59,12 @@ namespace Mailer
             InitializePlaceholders();
             InitializeToolTips();
 
-            sr.RegisterItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
-            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
-            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
-                path => sr.LoadProc(path));
-            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, "", userDataFolder);
+            _sr.RegisterItem(this);
+            String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
+            String defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
+                path => _sr.LoadProc(path));
+            _util.UpdateProfileList(comboBox_LoadSetting, _profileExtensions, "", _userDataFolder);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -113,8 +113,8 @@ namespace Mailer
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
                 return;
             }
 
@@ -123,7 +123,7 @@ namespace Mailer
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            String loadFileName = Path.Combine(_userDataFolder, comboBox_LoadSetting.Text);
             LoadProfile(loadFileName);
         }
 
@@ -132,15 +132,15 @@ namespace Mailer
             // プロファイル未選択のときは既定の設定ファイル名で保存ダイアログを出す
             if (comboBox_LoadSetting.Text == String.Empty)
             {
-                comboBox_LoadSetting.Text = SettingFileName;
+                comboBox_LoadSetting.Text = _settingFileName;
             }
 
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile, userDataFolder);
+            JsonSaveRestore.SaveProfileWithDialog(_util, _fio, comboBox_LoadSetting, _profileExtensions, SaveProfile, _userDataFolder);
         }
  
         private void button_OpenBrowse_Click(object sender, EventArgs e)
         {
-            if (!TryReadUIParam())
+            if (!TryReadUiParam())
             {
                 return;
             }
@@ -150,21 +150,21 @@ namespace Mailer
 
         private void button_OpenBrowse_OneWeek_Click(object sender, EventArgs e)
         {
-            if (!TryReadUIParam())
+            if (!TryReadUiParam())
             {
                 return;
             }
-            var dayOffsets = Logic.GetLoopList(param.CreateNum, check_BoxReverse.Checked);
+            var dayOffsets = Logic.GetLoopList(_param.CreateNum, check_BoxReverse.Checked);
             foreach (var dayOffset in dayOffsets)
             {
                 OpenBrowser(dayOffset);
-                System.Threading.Thread.Sleep(param.IntervalMsec);
+                System.Threading.Thread.Sleep(_param.IntervalMsec);
             }
         }
 
         private void OpenBrowser(int daysOffset = 0)
         {
-            String browseUrl = MailUrl;
+            String browseUrl = _mailUrl;
             if (textBox_MailTo.Text != String.Empty)
             {
                 browseUrl += "&to=" + textBox_MailTo.Text;
@@ -180,7 +180,7 @@ namespace Mailer
 
             if (textBox_MailSubject.Text != String.Empty)
             {
-                DateTime userDate = param.UserDate.AddDays(daysOffset);
+                DateTime userDate = _param.UserDate.AddDays(daysOffset);
                 String chromeFormatText = textBox_MailSubject.Text.Replace(" ", "+");
                 browseUrl += "&su=" + Logic.GetReplaceDay(chromeFormatText, userDate);
             }
@@ -190,36 +190,31 @@ namespace Mailer
                 browseUrl += "&body=" + textBox_MailBody.Text.Replace("\r\n", "%0D%0A").Replace(" ", "+");
             }
 
-            util.ExecuteProcess(textBox_BrowserPath.Text, browseUrl);
+            _util.ExecuteProcess(textBox_BrowserPath.Text, browseUrl);
         }
 
-        // 画面の入力値をparamへ読み込む。ブラウザが見つからなければfalse
-        private Boolean TryReadUIParam()
+        // 画面の入力値を_paramへ読み込む。ブラウザが見つからなければfalse
+        private Boolean TryReadUiParam()
         {
-            if( !util.IsExistFileNameInEnvironment(textBox_BrowserPath.Text) )
+            if( !_util.IsExistFileNameInEnvironment(textBox_BrowserPath.Text) )
             {
                 MessageBox.Show("ファイルが存在しません" + Environment.NewLine + textBox_BrowserPath.Text);
                 return false;
             }
 
-            int.TryParse(textBox_CreateNum.Text, out param.CreateNum);
-            int.TryParse(textBox_IntervalMsec.Text, out param.IntervalMsec);
+            int.TryParse(textBox_CreateNum.Text, out _param.CreateNum);
+            int.TryParse(textBox_IntervalMsec.Text, out _param.IntervalMsec);
 
-            param.UserDate = new DateTime(
-                dateTimePicker_Calendar.Value.Year,
-                dateTimePicker_Calendar.Value.Month,
-                dateTimePicker_Calendar.Value.Day,
-                dateTimePicker_Calendar.Value.Hour,
-                dateTimePicker_Calendar.Value.Minute,
-                dateTimePicker_Calendar.Value.Second,
-                0);
+            DateTime selected = dateTimePicker_Calendar.Value;
+            _param.UserDate = new DateTime(
+                selected.Year, selected.Month, selected.Day,
+                selected.Hour, selected.Minute, selected.Second, 0);
             return true;
         }
 
         private void textBox_BrowserPath_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(textBox_BrowserPath.Text, e);
-
+            _util.ExecutePath(textBox_BrowserPath.Text, e);
         }
 
         private void button_Help_Click(object sender, EventArgs e)

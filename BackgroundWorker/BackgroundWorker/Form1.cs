@@ -26,8 +26,7 @@ namespace BackgroundWorker
             buttonCancel.Enabled = true;
 
             // 別スレッドに渡すパラメータ
-            List<object> arguments = new List<object>();
-            arguments.Add(100);
+            List<object> arguments = new List<object> { 100 };
 
             // 別スレッドを非同期実行
             bgWorker.RunWorkerAsync(arguments);   // ⇒DoWork()

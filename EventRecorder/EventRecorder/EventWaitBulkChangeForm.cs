@@ -9,9 +9,11 @@ namespace EventRecorder
     // 対象イベントは「直前がWAIT_MS行であるイベント」で、そのWAIT_MS行の待機時間をまとめて変更する
     internal class EventWaitBulkChangeForm : DialogFormBase
     {
-        private readonly TextBox txtEventName;
-        private readonly TextBox txtWaitMs;
-        private readonly Button btnOk;
+        private readonly TextBox _txtEventName;
+        private readonly TextBox _txtWaitMs;
+        private readonly Button _btnOk;
+
+        private const String _dialogTitle = "WAIT時間を一括変更";
 
         public String EventName { get; private set; }
         public int WaitMs { get; private set; }
@@ -46,7 +48,7 @@ namespace EventRecorder
 
         public EventWaitBulkChangeForm(String initialEventName)
         {
-            this.Text = "WAIT時間を一括変更";
+            this.Text = _dialogTitle;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
             this.MaximizeBox = false;
@@ -62,7 +64,7 @@ namespace EventRecorder
                 AutoSize = true,
             };
 
-            txtEventName = new TextBox
+            _txtEventName = new TextBox
             {
                 Location = new Point(10, 34),
                 Width = 200,
@@ -76,28 +78,28 @@ namespace EventRecorder
                 AutoSize = true,
             };
 
-            txtWaitMs = new TextBox
+            _txtWaitMs = new TextBox
             {
                 Location = new Point(10, 90),
                 Width = 100,
                 Text = "100",
             };
 
-            btnOk = new Button
+            _btnOk = new Button
             {
                 Text = "OK",
                 Location = new Point(285, 110),
                 Width = 85,
             };
-            btnOk.Click += BtnOk_Click;
+            _btnOk.Click += BtnOk_Click;
 
             this.Controls.Add(label);
-            this.Controls.Add(txtEventName);
+            this.Controls.Add(_txtEventName);
             this.Controls.Add(waitLabel);
-            this.Controls.Add(txtWaitMs);
-            this.Controls.Add(btnOk);
+            this.Controls.Add(_txtWaitMs);
+            this.Controls.Add(_btnOk);
 
-            this.AcceptButton = btnOk;
+            this.AcceptButton = _btnOk;
 
             InitializeToolTips();
         }
@@ -109,29 +111,29 @@ namespace EventRecorder
             ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
             this.Disposed += (s, e) => toolTip.Dispose();
 
-            toolTip.SetToolTip(txtEventName, "Event列の名前(例: LEFT_DOWN、KEY_DOWN)。大文字/小文字は区別しない。直前がWAIT_MS行でない行は変更されない");
+            toolTip.SetToolTip(_txtEventName, "Event列の名前(例: LEFT_DOWN、KEY_DOWN)。大文字/小文字は区別しない。直前がWAIT_MS行でない行は変更されない");
         }
 
         private void BtnOk_Click(object sender, EventArgs e)
         {
             String eventName;
-            if (!TryNormalizeEventName(txtEventName.Text, out eventName))
+            if (!TryNormalizeEventName(_txtEventName.Text, out eventName))
             {
                 MessageBox.Show(
                     "イベント名が正しくないよ(例: LEFT_UP, RIGHT_DOWN, KEY_DOWN, KEY_UP)",
-                    "WAIT時間を一括変更",
+                    _dialogTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                txtEventName.Focus();
+                _txtEventName.Focus();
                 return;
             }
 
             int wait;
-            if (!int.TryParse(txtWaitMs.Text, out wait) || wait < 0)
+            if (!int.TryParse(_txtWaitMs.Text, out wait) || wait < 0)
             {
                 MessageBox.Show(
                     "0以上の整数を入力してね",
-                    "WAIT時間を一括変更",
+                    _dialogTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
                 return;

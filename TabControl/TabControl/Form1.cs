@@ -15,21 +15,6 @@ namespace TabControl
             tabPage1.Controls.Add(new Button());
         }
 
-        private void tabPage3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tabPage2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tabPage1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
         {
             if (e.TabPage == tabPage1)
@@ -40,11 +25,6 @@ namespace TabControl
             {
                 MessageBox.Show("page2");
             }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

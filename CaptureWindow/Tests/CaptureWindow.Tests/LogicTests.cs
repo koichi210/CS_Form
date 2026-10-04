@@ -15,13 +15,13 @@ namespace CaptureWindow.Tests
     [TestClass]
     public class LogicTests
     {
-        private string tempDirectory;
+        private string _tempDirectory;
 
         [TestInitialize]
         public void SetUp()
         {
-            tempDirectory = Path.Combine(Path.GetTempPath(), "CaptureWindowTests_" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(tempDirectory);
+            _tempDirectory = Path.Combine(Path.GetTempPath(), "CaptureWindowTests_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(_tempDirectory);
         }
 
         [TestCleanup]
@@ -29,7 +29,7 @@ namespace CaptureWindow.Tests
         {
             try
             {
-                if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, true);
+                if (Directory.Exists(_tempDirectory)) Directory.Delete(_tempDirectory, true);
             }
             catch (IOException)
             {
@@ -40,7 +40,7 @@ namespace CaptureWindow.Tests
         [TestMethod]
         public void 保存した設定を読み込むと同じ値が復元される()
         {
-            string path = Path.Combine(tempDirectory, "settings.json");
+            string path = Path.Combine(_tempDirectory, "settings.json");
 
             Logic.SaveSetting(path, @"C:	mp", "500", "600", "3");
 
@@ -56,7 +56,7 @@ namespace CaptureWindow.Tests
         [TestMethod]
         public void ファイルが存在しなければnullを返す()
         {
-            string path = Path.Combine(tempDirectory, "notfound.json");
+            string path = Path.Combine(_tempDirectory, "notfound.json");
 
             Logic.Settings settings = Logic.LoadSetting(path);
 
@@ -66,7 +66,7 @@ namespace CaptureWindow.Tests
         [TestMethod]
         public void 保存ファイルはJSONとして書き出される()
         {
-            string path = Path.Combine(tempDirectory, "settings.json");
+            string path = Path.Combine(_tempDirectory, "settings.json");
 
             Logic.SaveSetting(path, @"C:	mp", "1", "2", "3");
 
@@ -78,8 +78,8 @@ namespace CaptureWindow.Tests
         [TestMethod]
         public void 旧XMLしか無ければJSONへ移行され旧XMLは削除される()
         {
-            string jsonPath = Path.Combine(tempDirectory, "migrate.json");
-            string xmlPath = Path.Combine(tempDirectory, "migrate.xml");
+            string jsonPath = Path.Combine(_tempDirectory, "migrate.json");
+            string xmlPath = Path.Combine(_tempDirectory, "migrate.xml");
 
             // 旧形式(XML)の設定ファイルを用意する
             File.WriteAllText(xmlPath,
@@ -103,8 +103,8 @@ namespace CaptureWindow.Tests
         [TestMethod]
         public void JSONと旧XMLが両方あればJSONが使われ旧XMLは残る()
         {
-            string jsonPath = Path.Combine(tempDirectory, "both.json");
-            string xmlPath = Path.Combine(tempDirectory, "both.xml");
+            string jsonPath = Path.Combine(_tempDirectory, "both.json");
+            string xmlPath = Path.Combine(_tempDirectory, "both.xml");
 
             Logic.SaveSetting(jsonPath, @"C:\json", "1", "2", "3");
             File.WriteAllText(xmlPath,

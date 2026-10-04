@@ -1,101 +1,93 @@
 using System;
+using System.Text;
 
 namespace WeeklyReportFormatter
 {
     /// <summary>
     /// もともと Form1.cs の button_ThisWeekChange_Click / button_NextWeekChange_Click /
     /// button_PerforceChange_Click に埋め込まれていた、週報のテキスト整形ロジックを
-    /// テストできる形に切り出したもの。コードはそのまま移しただけで書き換えていない。
+    /// テストできる形に切り出したもの。
     /// textBox_UserName.Text などのコントロール参照は、呼び出し元(Form1)で読み取った
     /// 値を引数として渡す形に変えた。
     /// </summary>
     internal static class Logic
     {
-        private const int NextWeekLinesPerItem = 3;
-        private const int PerforceLinesPerItem = 2;
+        private const int _nextWeekLinesPerItem = 3;
+        private const int _perforceLinesPerItem = 2;
 
-        public static String FormatThisWeek(String beforeText, String userName)
+        public static string FormatThisWeek(string beforeText, string userName)
         {
-            String result = "";
+            // String +=は行数が多いほど文字列全体のコピーが積み上がるため、StringBuilderに溜める
+            StringBuilder result = new StringBuilder();
 
-            String[] lines = beforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < lines.Length; i++)
+            foreach (string rawLine in SplitLines(beforeText))
             {
-                String line = lines[i];
-                line = line.TrimEnd();
-                line = line.Replace("\t", "");                        // タブ ⇒ スペース
+                string line = rawLine.TrimEnd();
+                line = line.Replace("\t", "");                        // タブ削除
                 line = "\t" + line;                                   // 先頭にタブ挿入
                 line = line.Replace(userName + " ", "(") + ")";       // ユーザー名削除
                 line = line.Replace(".0)", ")");                      // ストーリーポイントの".0"が邪魔
-                line += Environment.NewLine;                             // 終端に改行挿入
 
-                result += line;
+                result.Append(line).Append(Environment.NewLine);      // 終端に改行挿入
             }
 
-            return result;
+            return result.ToString();
         }
 
-        public static String FormatNextWeek(String beforeText, String userName)
+        public static string FormatNextWeek(string beforeText, string userName)
         {
-            String result = "";
+            StringBuilder result = new StringBuilder();
 
-            String[] lines = beforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = SplitLines(beforeText);
             for (int i = 0; i < lines.Length; i++)
             {
-                String line = lines[i];
-                line = line.TrimEnd();
+                string line = lines[i].TrimEnd();
 
-                switch (i % NextWeekLinesPerItem)
+                switch (i % _nextWeekLinesPerItem)
                 {
                     case 0:
-                        line = "\t" + line;   // 先頭にタブ挿入
+                        result.Append('\t').Append(line);   // 先頭にタブ挿入
                         break;
 
                     case 1:
-                        line = " " + line;   // 課題Noと課題名の間にスペース
+                        result.Append(' ').Append(line);    // 課題Noと課題名の間にスペース
                         break;
 
                     case 2:
-                        int nameIndex = line.IndexOf(userName);   // ユーザー名の先頭
-                        nameIndex += userName.Length;                // ユーザー名の終端
-                        line = " (" + line.Substring(nameIndex) + ")" + Environment.NewLine;  // ストーリーポイント
-                        break;
-
-                    default:
+                        int nameEndIndex = line.IndexOf(userName) + userName.Length;   // ユーザー名の終端
+                        result.Append(" (").Append(line.Substring(nameEndIndex)).Append(')').Append(Environment.NewLine);  // ストーリーポイント
                         break;
                 }
-
-                result += line;
             }
 
-            return result;
+            return result.ToString();
         }
 
-        public static String FormatPerforce(String beforeText)
+        public static string FormatPerforce(string beforeText)
         {
-            String[] lines = beforeText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            String result = "";
+            StringBuilder result = new StringBuilder();
+
+            string[] lines = SplitLines(beforeText);
             for (int i = 0; i < lines.Length; i++)
             {
-                lines[i] = lines[i].TrimStart();
-                lines[i] = lines[i].TrimEnd();
+                string line = lines[i].Trim();
 
-                switch (i % PerforceLinesPerItem)
+                if (i % _perforceLinesPerItem == 0)
                 {
-                    case 0:
-                        result += lines[i] + " ";     // ProjectID
-                        break;
-
-                    case 1:
-                        result += lines[i];           // Summary
-                        break;
-
-                    default:
-                        break;
+                    result.Append(line).Append(' ');     // ProjectID
+                }
+                else
+                {
+                    result.Append(line);                 // Summary
                 }
             }
 
-            return result;
+            return result.ToString();
+        }
+
+        private static string[] SplitLines(string text)
+        {
+            return text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

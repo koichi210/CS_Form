@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace FFEdit
 {
@@ -26,16 +27,16 @@ namespace FFEdit
         public int PadDigits { get; set; } = 0; // 0埋めする桁数
         public Boolean KeepOriginalName { get; set; } = false;
 
-        private FileMng fm = new FileMng();
+        private readonly FileMng _fileMng = new FileMng();
 
         public Boolean Restore()
         {
-            return fm.RestoreAll();
+            return _fileMng.RestoreAll();
         }
 
         public String Execute()
         {
-            String errorList = "";
+            StringBuilder errorList = new StringBuilder();
 
             for (int i = 0; i < FileList.Count; i++)
             {
@@ -49,22 +50,20 @@ namespace FFEdit
                     continue;
                 }
 
-                if (fm.Move(srcName, destName))
+                if (_fileMng.Move(srcName, destName))
                 {
                     // 復元用に処理を覚えておく
-                    fm.AddRestoreItem(srcName, destName);
+                    _fileMng.AddRestoreItem(srcName, destName);
                 }
                 else
                 {
                     // エラー発生
-                    errorList += "Src=" + srcName + Environment.NewLine;
-                    errorList += "Dst=" + destName + Environment.NewLine;
-                    errorList += Environment.NewLine;
+                    FileMng.AppendError(errorList, srcName, destName);
                 }
             }
-            fm.IncrementSerialNumber();
+            _fileMng.IncrementSerialNumber();
 
-            return errorList;
+            return errorList.ToString();
         }
 
         private String GetChangedName(String srcName, int index = 0)
@@ -99,24 +98,20 @@ namespace FFEdit
                     break;
             }
 
-            String fullPathName = "";
             String directoryPath = Path.GetDirectoryName(srcName);
-            if (directoryPath != String.Empty)
+            if (directoryPath == String.Empty)
             {
-                fullPathName += directoryPath.TrimEnd('\\') + @"\";
+                return targetName;
             }
-            fullPathName += targetName;
-
-            return fullPathName;
+            return directoryPath.TrimEnd('\\') + @"\" + targetName;
         }
 
         private String GetNumberedName(String srcName, int index)
         {
-            String destName = "";
             int number = index + FirstNumber;
 
             // 文字列生成
-            destName += number.ToString().PadLeft(PadDigits, '0');
+            String destName = number.ToString().PadLeft(PadDigits, '0');
 
             if (KeepOriginalName)
             {

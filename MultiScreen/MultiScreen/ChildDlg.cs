@@ -5,7 +5,7 @@ namespace MultiScreen
 {
     public partial class ChildDlg : Form
     {
-        public ChildDlg(String buttonName)
+        public ChildDlg(string buttonName)
         {
             InitializeComponent();
 

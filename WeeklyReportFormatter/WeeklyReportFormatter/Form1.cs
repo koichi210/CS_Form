@@ -6,10 +6,10 @@ namespace WeeklyReportFormatter
 {
     public partial class Form1 : Form
     {
-        private StcUtils util = new StcUtils();
-        private StcFileInputOutput fileInputOutput = new StcFileInputOutput();
+        private readonly StcUtils _util = new StcUtils();
+        private readonly StcFileInputOutput _fileInputOutput = new StcFileInputOutput();
 
-        private readonly String UserNameFileName = "WhoAmI.txt";
+        private const string _userNameFileName = "WhoAmI.txt";
 
         public Form1()
         {
@@ -20,9 +20,9 @@ namespace WeeklyReportFormatter
             InitializeToolTips();
 
             // カレントディレクトリ移動
-            util.SetCurrentDirectory();
+            _util.SetCurrentDirectory();
 
-            textBox_UserName.Text = fileInputOutput.LoadFile(UserNameFileName);
+            textBox_UserName.Text = _fileInputOutput.LoadFile(_userNameFileName);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -51,32 +51,32 @@ namespace WeeklyReportFormatter
 
         private void textBox_ThisWeekBefore_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_ThisWeekBefore, e);
+            _util.SelectAll(textBox_ThisWeekBefore, e);
         }
 
         private void textBox_ThisWeekAfter_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_ThisWeekAfter, e);
+            _util.SelectAll(textBox_ThisWeekAfter, e);
         }
 
         private void textBox_NextWeekBefore_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_NextWeekBefore, e);
+            _util.SelectAll(textBox_NextWeekBefore, e);
         }
 
         private void textBox_NextWeekAfter_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_NextWeekAfter, e);
+            _util.SelectAll(textBox_NextWeekAfter, e);
         }
 
         private void textBox_PerforceBefore_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_PerforceBefore, e);
+            _util.SelectAll(textBox_PerforceBefore, e);
         }
 
         private void textBox_PerforceAfter_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_PerforceAfter, e);
+            _util.SelectAll(textBox_PerforceAfter, e);
         }
 
         private void button_ThisWeekChange_Click(object sender, EventArgs e)
@@ -99,17 +99,17 @@ namespace WeeklyReportFormatter
         /// <summary>
         /// 変換元テキストを整形して変換先に表示し、クリップボードにもコピーする（3ボタン共通処理）
         /// </summary>
-        private void ConvertText(TextBox beforeTextBox, TextBox afterTextBox, Func<String, String> format)
+        private void ConvertText(TextBox beforeTextBox, TextBox afterTextBox, Func<string, string> format)
         {
             afterTextBox.Clear();
-            if (beforeTextBox.Text == String.Empty)
+            if (beforeTextBox.Text == string.Empty)
             {
                 MessageBox.Show("変換元データが入力されていません");
                 return;
             }
 
             afterTextBox.Text = format(beforeTextBox.Text);
-            util.SetClipboardText(afterTextBox.Text);
+            _util.SetClipboardText(afterTextBox.Text);
         }
     }
 }

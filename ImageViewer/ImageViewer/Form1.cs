@@ -7,21 +7,21 @@ namespace ImageViewer
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private StcFileInputOutput fio = new StcFileInputOutput();
-        private readonly String DefaultSaveName = @"ImageViewer.json";
+        private readonly StcFileInputOutput _fio = new StcFileInputOutput();
+        private const String _defaultSaveName = @"ImageViewer.json";
 
         // 設定ファイルはJSONが基本。旧XML(ImageViewer.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
         // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
-        private const String LegacySettingFileName = @"ImageViewer.xml";
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+        private const String _legacySettingFileName = @"ImageViewer.xml";
+        private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
         // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
         // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\ImageViewer\配下
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
-        private const String AppName = "ImageViewer";
-        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private const String _appName = "ImageViewer";
+        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         private static Boolean IsJsonFile(String filePath)
         {
@@ -31,12 +31,12 @@ namespace ImageViewer
         // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
         private Boolean LoadProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadXmlFile(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(_sr, filePath) : _sr.LoadXmlFile(filePath);
         }
 
         private Boolean SaveProfile(String filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveXmlFile(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(_sr, filePath) : _sr.SaveXmlFile(filePath);
         }
 
 
@@ -56,12 +56,12 @@ namespace ImageViewer
 
             InitializeCommonSettings(Properties.Resources.ImageViewer);
 
-            sr.RegisterItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, DefaultSaveName);
-            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
-            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
-                path => sr.LoadXmlFile(path));
-            util.UpdateProfileList(comboBox_Profile, ProfileExtensions, DefaultSaveName, userDataFolder);
+            _sr.RegisterItem(this);
+            String defaultJsonPath = Path.Combine(_userDataFolder, _defaultSaveName);
+            String defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
+                path => _sr.LoadXmlFile(path));
+            _util.UpdateProfileList(comboBox_Profile, _profileExtensions, _defaultSaveName, _userDataFolder);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -100,8 +100,8 @@ namespace ImageViewer
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
                 return;
             }
 
@@ -110,15 +110,15 @@ namespace ImageViewer
 
         private void textBox_FolderPath_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(textBox_FolderPath.Text, e);
+            _util.ExecutePath(textBox_FolderPath.Text, e);
         }
 
         // 現在の拡大率でプレビューを表示する(isSample=trueのときは1枚だけ)
         private void ShowPreview(bool isSample)
         {
-            PreView pv = new PreView();
-            pv.SetSize(hScrollBar_Scaling.Value);
-            pv.View(imageList, listView_Image, textBox_FolderPath.Text, textBox_Extension.Text, isSample);
+            Preview preview = new Preview();
+            preview.SetSize(hScrollBar_Scaling.Value);
+            preview.View(imageList, listView_Image, textBox_FolderPath.Text, textBox_Extension.Text, isSample);
         }
 
         private void button_SampleView_Click(object sender, EventArgs e)
@@ -149,19 +149,19 @@ namespace ImageViewer
         {
             if (listView_Image.SelectedItems.Count == 1)
             {
-                util.ExecutePath(listView_Image.SelectedItems[0].Text);
+                _util.ExecutePath(listView_Image.SelectedItems[0].Text);
             }
         }
 
         private void comboBox_Profile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFileName = Path.Combine(userDataFolder, comboBox_Profile.Text);
+            String loadFileName = Path.Combine(_userDataFolder, comboBox_Profile.Text);
             LoadProfile(loadFileName);
         }
 
         private void button_ProfileLoad_Click(object sender, EventArgs e)
         {
-            String loadFileName = fio.SelectLoadFileName(DefaultSaveName, userDataFolder);
+            String loadFileName = _fio.SelectLoadFileName(_defaultSaveName, _userDataFolder);
             if (LoadProfile(loadFileName))
             {
                 comboBox_Profile.Text = Path.GetFileName(loadFileName);
@@ -170,7 +170,7 @@ namespace ImageViewer
 
         private void button_ProfileSave_Click(object sender, EventArgs e)
         {
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_Profile, ProfileExtensions, SaveProfile, userDataFolder);
+            JsonSaveRestore.SaveProfileWithDialog(_util, _fio, comboBox_Profile, _profileExtensions, SaveProfile, _userDataFolder);
         }
     }
 }

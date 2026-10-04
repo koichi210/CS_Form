@@ -1,24 +1,23 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace VisualStudioBuilder
 {
     /// <summary>
     /// もともと Form1.cs に実装されていた、ビルドスクリプト生成やパス組み立てに関する
-    /// ロジックをテストできる形に切り出したもの。コードはそのまま移しただけで
-    /// 書き換えていない。DataGridView/TextBox など Form のコントロール参照は、
+    /// ロジックをテストできる形に切り出したもの。DataGridView/TextBox など Form のコントロール参照は、
     /// 呼び出し元(Form1)で読み取った値を引数として渡す形に変えた。
     ///
-    /// StrDataGridBuildListEnable / ExtSln / ExtLog は Form1.cs 側の readonly フィールドと
-    /// 同じ値を持つ定数として、ここに複製している(値の二重管理だが、UI初期化に必要な
-    /// Form1側のフィールドは残したまま、Logic側だけを切り出すための妥協)。
+    /// BuildListEnable / SlnExtension はForm1側(グリッドの初期化・一括登録)からも参照する。
     /// </summary>
     internal static class Logic
     {
-        private const String StrDataGridBuildListEnable = "○";
-        private const String ExtSln = ".sln";
-        private const String ExtLog = ".log";
+        // グリッドの「ビルド」列で、ビルド対象を表す値
+        public const String BuildListEnable = "○";
+        public const String SlnExtension = ".sln";
+        private const String _logExtension = ".log";
 
         public static String GetFilePathName(String pathName, String fileName, String ext = "")
         {
@@ -32,27 +31,22 @@ namespace VisualStudioBuilder
 
         public static String GetLogPathName(String pathName, String fileName)
         {
-            return GetFilePathName(pathName, fileName.Replace(ExtSln, ExtLog));
+            return GetFilePathName(pathName, fileName.Replace(SlnExtension, _logExtension));
         }
 
         public static String CreateScriptHeader(String visualStudioExePath, String buildOption)
         {
-            String script = "";
-
-            //script += @"set DEV_ENV=\""C:\Program Files (x86)\""Microsoft Visual Studio 10.0\""Common7\""IDE\""devenv.exe";
-            script += @"set DEV_ENV=""" + visualStudioExePath + @"""" + Environment.NewLine;
-
-            //script += @"set BUILD_OPT=/rebuild release";
-            script += "set BUILD_OPT=" + buildOption + Environment.NewLine;
-            script += Environment.NewLine;
-
-            return script;
+            // 例: set DEV_ENV="C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe"
+            //     set BUILD_OPT=/rebuild release
+            return @"set DEV_ENV=""" + visualStudioExePath + @"""" + Environment.NewLine
+                + "set BUILD_OPT=" + buildOption + Environment.NewLine
+                + Environment.NewLine;
         }
 
         public static String CreateBuildScript(String buildEnable, String solutionName, String projectPath, String logDirectory, Boolean isExportLog)
         {
             // パラメータチェック
-            if (buildEnable != StrDataGridBuildListEnable ||
+            if (buildEnable != BuildListEnable ||
                 solutionName == String.Empty ||
                 projectPath == String.Empty)
             {
@@ -62,23 +56,23 @@ namespace VisualStudioBuilder
             String solutionPath = GetSolutionPathName(projectPath, solutionName);
             String logName = GetLogPathName(logDirectory, solutionName);
 
-            String script = "";
+            var script = new StringBuilder();
             if (isExportLog)
             {
                 // ファイルが存在したら削除
                 if (File.Exists(logName))
                 {
-                    script += "del " + logName + Environment.NewLine;
+                    script.Append("del ").Append(logName).Append(Environment.NewLine);
                 }
-                script += @"%DEV_ENV% %BUILD_OPT% /out " + logName + " " + solutionPath + Environment.NewLine;
+                script.Append("%DEV_ENV% %BUILD_OPT% /out ").Append(logName).Append(' ').Append(solutionPath).Append(Environment.NewLine);
             }
             else
             {
-                script += @"%DEV_ENV% %BUILD_OPT% " + solutionPath + Environment.NewLine;
+                script.Append("%DEV_ENV% %BUILD_OPT% ").Append(solutionPath).Append(Environment.NewLine);
             }
-            script += Environment.NewLine;
+            script.Append(Environment.NewLine);
 
-            return script;
+            return script.ToString();
         }
 
         // ビルド結果(ログの一覧)を成功/失敗/上書き失敗に振り分けて、表示用の文字列にする。
@@ -89,9 +83,9 @@ namespace VisualStudioBuilder
                                                  Boolean isExclude, String ignoreExecuteFileWord,
                                                  Func<String, String, Boolean> isDetectContent)
         {
-            String successList = "[ビルド成功]" + Environment.NewLine;
-            String errorList = "[ビルド失敗]" + Environment.NewLine;
-            String excludeList = "[実行ファイルの上書きに失敗]" + Environment.NewLine;
+            var successList = new StringBuilder("[ビルド成功]" + Environment.NewLine);
+            var errorList = new StringBuilder("[ビルド失敗]" + Environment.NewLine);
+            var excludeList = new StringBuilder("[実行ファイルの上書きに失敗]" + Environment.NewLine);
 
             foreach (String logPath in logPathList)
             {
@@ -99,31 +93,32 @@ namespace VisualStudioBuilder
                 if (isDetectContent(logPath, buildErrorWord))
                 {
                     // ビルド失敗
-                    errorList += logPath + Environment.NewLine;
+                    errorList.Append(logPath).Append(Environment.NewLine);
                     isSuccess = false;
                 }
 
                 if (isExclude && isDetectContent(logPath, ignoreExecuteFileWord))
                 {
                     // 上書き不可
-                    excludeList += logPath + Environment.NewLine;
+                    excludeList.Append(logPath).Append(Environment.NewLine);
                     isSuccess = false;
                 }
 
                 if (isSuccess)
                 {
                     // ビルド成功
-                    successList += logPath + Environment.NewLine;
+                    successList.Append(logPath).Append(Environment.NewLine);
                 }
             }
 
-            String result = successList + Environment.NewLine;
+            var result = new StringBuilder();
+            result.Append(successList).Append(Environment.NewLine);
             if (isExclude)
             {
-                result += excludeList + Environment.NewLine;
+                result.Append(excludeList).Append(Environment.NewLine);
             }
-            result += errorList + Environment.NewLine;
-            return result;
+            result.Append(errorList).Append(Environment.NewLine);
+            return result.ToString();
         }
 
         // rootPath以下(サブフォルダ含む)から、名前がdirectoryNameと一致するフォルダを

@@ -234,6 +234,52 @@ namespace FileArranger.Tests
             }
         }
 
+        // 回帰テスト: 参照候補フォルダの保存キーは、以前は typo の "RefrenceCandidate" だった。
+        // キー名を "ReferenceCandidate" に直した後も、旧キーで保存された設定ファイルを読めること
+        [TestMethod]
+        public void LoadProcは旧キー名RefrenceCandidateの参照候補フォルダも読み込む()
+        {
+            using (global::FileArranger.FileArranger writer = NewForm())
+            {
+                writer.ReferenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
+                string path = PathFor("legacy_reference");
+                Assert.IsTrue(NewSaveRestore(writer).SaveSetting(path, writer));
+                RewriteLegacyReferenceKey(path);
+
+                using (global::FileArranger.FileArranger reader = NewForm())
+                {
+                    Assert.IsTrue(NewSaveRestore(reader).LoadProc(path, reader));
+                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.ReferenceCandidateFolders);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void LoadJsonFileは旧キー名RefrenceCandidateの参照候補フォルダも読み込む()
+        {
+            using (global::FileArranger.FileArranger writer = NewForm())
+            {
+                writer.ReferenceCandidateFolders = new[] { @"D:\ref\a", @"D:\ref\b" };
+                string path = Path.Combine(tempDirectory, "legacy_reference.json");
+                Assert.IsTrue(NewSaveRestore(writer).SaveJsonFile(path, writer));
+                RewriteLegacyReferenceKey(path);
+
+                using (global::FileArranger.FileArranger reader = NewForm())
+                {
+                    Assert.IsTrue(NewSaveRestore(reader).LoadJsonFile(path, reader));
+                    CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.ReferenceCandidateFolders);
+                }
+            }
+        }
+
+        // 保存したファイルの参照候補フォルダのキーを、typo修正前の旧キー名に書き換える
+        private static void RewriteLegacyReferenceKey(string path)
+        {
+            string text = File.ReadAllText(path, System.Text.Encoding.UTF8);
+            StringAssert.Contains(text, "ReferenceCandidate");
+            File.WriteAllText(path, text.Replace("ReferenceCandidate", "RefrenceCandidate"), System.Text.Encoding.UTF8);
+        }
+
         [TestMethod]
         public void LoadProcは読み込んだあとリストをクリアする()
         {

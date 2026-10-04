@@ -22,7 +22,7 @@ namespace StaticAnalysisViewer.Tests
             var db = new DataBase();
             db.Initialize();
 
-            string result = Logic.CreatePreRankingString(db, 0, db.UNKNOWN_IDX);
+            string result = Logic.CreatePreRankingString(db, 0, db.UnknownIdx);
 
             Assert.AreEqual("New!", result);
         }

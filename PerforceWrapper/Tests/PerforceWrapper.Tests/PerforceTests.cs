@@ -57,7 +57,7 @@ namespace PerforceWrapper.Tests
             var p4 = new Perforce();
             p4.SetServerName("myserver:1666");
             p4.SetWorkspace("my_workspace");
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -70,7 +70,7 @@ namespace PerforceWrapper.Tests
         public void CreateCommandUseTreeは未設定の環境変数を出力しない()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -85,7 +85,7 @@ namespace PerforceWrapper.Tests
         public void CreateCommandUseTreeはツリーの末尾に3点リーダーを補って再帰指定にする()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -97,7 +97,7 @@ namespace PerforceWrapper.Tests
         public void CreateCommandUseTreeはすでに3点リーダーが付いていれば重複させない()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main/...");
 
             string command = p4.CreateCommandUseTree();
@@ -110,7 +110,7 @@ namespace PerforceWrapper.Tests
         public void CreateCommandUseTreeは複数行のツリーをそれぞれコマンド化する()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree("//depot/a" + Environment.NewLine + "//depot/b");
 
             string command = p4.CreateCommandUseTree();
@@ -123,7 +123,7 @@ namespace PerforceWrapper.Tests
         public void CreateCommandUseTreeは空行を無視する()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree("//depot/a" + Environment.NewLine + Environment.NewLine + "//depot/b");
 
             string command = p4.CreateCommandUseTree();
@@ -136,7 +136,7 @@ namespace PerforceWrapper.Tests
         public void リビジョンを指定しなければheadリビジョンになる()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -148,7 +148,7 @@ namespace PerforceWrapper.Tests
         public void リビジョンを指定するとそのリビジョンになる()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
             p4.SetRevision("100");
 
@@ -157,18 +157,18 @@ namespace PerforceWrapper.Tests
             StringAssert.Contains(command, "...@100");
         }
 
-        // Perforce.OPERATOR_TYPE は internal な列挙型なので、public な [DataTestMethod] の
+        // Perforce.OperatorType は internal な列挙型なので、public な [DataTestMethod] の
         // シグネチャには直接出せない（アクセシビリティの一貫性エラーになる）。
         // 列挙値の名前を文字列で渡し、メソッド内で Enum.Parse する。
         [DataTestMethod]
-        [DataRow("EDIT", "p4 edit ")]
-        [DataRow("REVERT", "p4 revert ")]
-        [DataRow("DELETE", "p4 delete ")]
-        [DataRow("SYNC", "p4 sync ")]
-        [DataRow("DIFF", "p4 diff2 -qt ")]
+        [DataRow("Edit", "p4 edit ")]
+        [DataRow("Revert", "p4 revert ")]
+        [DataRow("Delete", "p4 delete ")]
+        [DataRow("Sync", "p4 sync ")]
+        [DataRow("Diff", "p4 diff2 -qt ")]
         public void OperatorTypeごとに対応するp4コマンドになる(string typeName, string expectedPrefix)
         {
-            var type = (Perforce.OPERATOR_TYPE)Enum.Parse(typeof(Perforce.OPERATOR_TYPE), typeName);
+            var type = (Perforce.OperatorType)Enum.Parse(typeof(Perforce.OperatorType), typeName);
 
             var p4 = new Perforce();
             p4.SetOperatorType(type);
@@ -183,7 +183,7 @@ namespace PerforceWrapper.Tests
         public void SET_LABELはラベル名を含んだtagコマンドになる()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SET_LABEL);
+            p4.SetOperatorType(Perforce.OperatorType.SetLabel);
             p4.SetLabelName("REL_1_0");
             p4.SetTargetTree(@"//depot/main");
 
@@ -196,13 +196,13 @@ namespace PerforceWrapper.Tests
         public void COPYとMERGEはブランチマップ名を含んだコマンドになる()
         {
             var copy = new Perforce();
-            copy.SetOperatorType(Perforce.OPERATOR_TYPE.COPY);
+            copy.SetOperatorType(Perforce.OperatorType.Copy);
             copy.SetBranchMapName("my_branch");
             copy.SetTargetTree(@"//depot/main");
             StringAssert.Contains(copy.CreateCommandUseTree(), "p4 copy -b my_branch -s ");
 
             var merge = new Perforce();
-            merge.SetOperatorType(Perforce.OPERATOR_TYPE.MERGE);
+            merge.SetOperatorType(Perforce.OperatorType.Merge);
             merge.SetBranchMapName("my_branch");
             merge.SetTargetTree(@"//depot/main");
             StringAssert.Contains(merge.CreateCommandUseTree(), "p4 integrate -b my_branch -s ");
@@ -212,7 +212,7 @@ namespace PerforceWrapper.Tests
         public void CreateCommandDefinedは指定したコマンド文字列をそのまま使う()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
 
             string command = p4.CreateCommandDefined("//depot/main/file.txt#5");
 
@@ -234,7 +234,7 @@ namespace PerforceWrapper.Tests
         {
             var p4 = new Perforce();
             p4.SetDebugMode(true);
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -246,7 +246,7 @@ namespace PerforceWrapper.Tests
         public void デバッグモードでなければPAUSEは付かない()
         {
             var p4 = new Perforce();
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -263,7 +263,7 @@ namespace PerforceWrapper.Tests
             var p4 = new Perforce();
             p4.SetUserName("test_user");
             p4.SetUserPass(dummyPassword);
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -284,7 +284,7 @@ namespace PerforceWrapper.Tests
             var p4 = new Perforce();
             p4.SetUserName("test_user");
             p4.SetUserPass(dummyPassword);
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
@@ -303,7 +303,7 @@ namespace PerforceWrapper.Tests
         {
             var p4 = new Perforce();
             p4.SetUserName("test_user");
-            p4.SetOperatorType(Perforce.OPERATOR_TYPE.SYNC);
+            p4.SetOperatorType(Perforce.OperatorType.Sync);
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();

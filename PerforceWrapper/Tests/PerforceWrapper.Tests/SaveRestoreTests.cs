@@ -87,7 +87,7 @@ namespace PerforceWrapper.Tests
 
             using (Form1 writer = NewForm())
             {
-                writer.textbox_perforce_password.Text = dummyPassword;
+                writer.textBox_perforce_password.Text = dummyPassword;
 
                 string path = PathFor("password");
                 NewSaveRestore(writer).SaveXmlFile(path);
@@ -100,7 +100,7 @@ namespace PerforceWrapper.Tests
                 {
                     NewSaveRestore(reader).LoadXmlFile(path);
 
-                    Assert.AreEqual(dummyPassword, reader.textbox_perforce_password.Text, "復号すると元のパスワードに戻る");
+                    Assert.AreEqual(dummyPassword, reader.textBox_perforce_password.Text, "復号すると元のパスワードに戻る");
                 }
             }
         }

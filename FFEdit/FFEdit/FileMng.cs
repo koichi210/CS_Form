@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.IO;
+using System.Text;
 using StandardTemplate;
 
 namespace FFEdit
 {
     class FileMng : StcProcessMemory
     {
-        private StcUtils util = new StcUtils();
-        private StcFileInputOutput fileIO = new StcFileInputOutput();
+        private readonly StcUtils _util = new StcUtils();
+        private readonly StcFileInputOutput _fileIO = new StcFileInputOutput();
 
         // 直前の操作1回分を、記録しておいた移動元へ戻す。
         // Rename/Functionの両方に同じ実装が置かれていたためここへ集約した
@@ -30,84 +31,81 @@ namespace FFEdit
             return true;
         }
 
-        public bool Move(String srcName, String destName, Boolean showErrorPopup = false)
+        public Boolean Move(String srcName, String destName, Boolean showErrorPopup = false)
         {
-            bool success = true;
-
             try
             {
                 if (File.Exists(srcName))
                 {
                     File.Move(srcName, destName);
+                    return true;
                 }
-                else if (Directory.Exists(srcName))
+                if (Directory.Exists(srcName))
                 {
                     Directory.Move(srcName, destName);
+                    return true;
                 }
-                else
-                {
-                    success = false;
-                }
+                return false;
             }
             catch (Exception)
             {
                 if (showErrorPopup)
                 {
-                    MessageBox.Show("指定パスが移動できませんでした。" + Environment.NewLine +
-                        srcName + Environment.NewLine +
-                        destName);
+                    ShowPathMessage("指定パスが移動できませんでした。", srcName, destName);
                 }
-                success = false;
+                return false;
             }
-
-            return success;
         }
 
-        public bool Copy(String srcName, String destName, Boolean showErrorPopup = false)
+        public Boolean Copy(String srcName, String destName, Boolean showErrorPopup = false)
         {
-            bool success = true;
-
             try
             {
                 if (File.Exists(srcName))
                 {
                     File.Copy(srcName, destName);
+                    return true;
                 }
-                else if (Directory.Exists(srcName))
+                if (Directory.Exists(srcName))
                 {
-                    MessageBox.Show("ディレクトリコピーは未対応です。" + Environment.NewLine +
-                        srcName + Environment.NewLine +
-                        destName);
-                    success = false;
-
+                    ShowPathMessage("ディレクトリコピーは未対応です。", srcName, destName);
                 }
-                else
-                {
-                    success = false;
-                }
+                return false;
             }
             catch (Exception)
             {
                 if (showErrorPopup)
                 {
-                    MessageBox.Show("指定パスがコピーできませんでした。" + Environment.NewLine +
-                        srcName + Environment.NewLine +
-                        destName);
+                    ShowPathMessage("指定パスがコピーできませんでした。", srcName, destName);
                 }
-                success = false;
+                return false;
             }
+        }
 
-            return success;
+        private static void ShowPathMessage(String message, String srcName, String destName)
+        {
+            MessageBox.Show(message + Environment.NewLine +
+                srcName + Environment.NewLine +
+                destName);
+        }
+
+        // 失敗した移動/コピーの移動元・移動先を、エラー画面(ErrorMsg)に出す一覧へ追記する
+        // (Rename/Functionで同じ書式を使う)
+        public static void AppendError(StringBuilder errorList, String srcName, String destName)
+        {
+            errorList.Append("Src=").Append(srcName).Append(Environment.NewLine);
+            errorList.Append("Dst=").Append(destName).Append(Environment.NewLine);
+            errorList.Append(Environment.NewLine);
         }
 
         public void DeleteBlankDir(String dirPath)
         {
             String command = @"for /f ""delims="" %%d in ('dir """ + dirPath + @""" /ad /b /s') do rd ""%%d""" + Environment.NewLine;
 
-            String batchFile = fileIO.CreateTempFile("bat");
-            fileIO.CreateFile(batchFile, command);
+            String batchFile = _fileIO.CreateTempFile("bat");
+            _fileIO.CreateFile(batchFile, command);
 
-            util.ExecuteProcess(batchFile, true );
+            _util.ExecuteProcess(batchFile, true );
         }
     }
 }

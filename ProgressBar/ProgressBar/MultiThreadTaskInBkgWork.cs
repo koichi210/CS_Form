@@ -14,9 +14,7 @@ namespace ProgressBar
                 return;
             }
 
-            progressBar_MultiThreadTaskInBkgWork.Maximum = ProgressBarMax;
-            progressBar_MultiThreadTaskInBkgWork.Minimum = ProgressBarMin;
-            progressBar_MultiThreadTaskInBkgWork.Value = 0;
+            ResetProgressBar(progressBar_MultiThreadTaskInBkgWork);
 
             backgroundWorker_TaskInBkgWorker.RunWorkerAsync();   // ⇒DoWork()
         }

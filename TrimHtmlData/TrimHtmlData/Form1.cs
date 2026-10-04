@@ -2,45 +2,46 @@
 using System.Windows.Forms;
 using System.IO;
 using System.Net;
+using System.Text;
 using StandardTemplate;
 
 namespace TrimHtmlData
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private Boolean IsDebug = false;
-        private readonly String SettingFileName = @"TrimHtmlData.json";
+        private bool _isDebug = false;
+        private const string _settingFileName = @"TrimHtmlData.json";
 
         // 設定ファイルはJSONが基本。旧XML(TrimHtmlData.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
         // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
-        private const String LegacySettingFileName = @"TrimHtmlData.xml";
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+        private const string _legacySettingFileName = @"TrimHtmlData.xml";
+        private static readonly string[] _profileExtensions = { "*.json", "*.xml" };
 
         // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
         // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\TrimHtmlData\配下
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
-        private const String AppName = "TrimHtmlData";
-        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private const string _appName = "TrimHtmlData";
+        private readonly string _userDataFolder = UserDataLocation.GetUserDataFolder(_appName);
 
-        private static Boolean IsJsonFile(String filePath)
+        private static bool IsJsonFile(string filePath)
         {
-            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
         }
 
         // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
-        private Boolean LoadProfile(String filePath)
+        private bool LoadProfile(string filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(_sr, filePath) : _sr.LoadProc(filePath);
         }
 
-        private Boolean SaveProfile(String filePath)
+        private bool SaveProfile(string filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(_sr, filePath) : _sr.SaveSetting(filePath);
         }
 
-        private StcFileInputOutput fio = new StcFileInputOutput();
+        private readonly StcFileInputOutput _fio = new StcFileInputOutput();
 
         public Form1()
         {
@@ -51,12 +52,12 @@ namespace TrimHtmlData
             InitializePlaceholders();
             InitializeToolTips();
 
-            sr.RegisterItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
-            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
-            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
-                path => sr.LoadProc(path));
-            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFileName, userDataFolder);
+            _sr.RegisterItem(this);
+            string defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
+            string defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
+                path => _sr.LoadProc(path));
+            _util.UpdateProfileList(comboBox_LoadSetting, _profileExtensions, _settingFileName, _userDataFolder);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -97,8 +98,8 @@ namespace TrimHtmlData
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
                 return;
             }
 
@@ -107,23 +108,23 @@ namespace TrimHtmlData
 
         private void textBox_SourceList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_SourceList, e);
+            _util.SelectAll(textBox_SourceList, e);
         }
 
         private void textBox_DestList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_DestList, e);
+            _util.SelectAll(textBox_DestList, e);
         }
 
         private void textBox_SearchWord_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_SearchWord, e);
+            _util.SelectAll(textBox_SearchWord, e);
         }
 
         private void Form1_DoubleClick(object sender, EventArgs e)
         {
-            IsDebug = !IsDebug;
-            MessageBox.Show("IsDebug=" + IsDebug.ToString());
+            _isDebug = !_isDebug;
+            MessageBox.Show("IsDebug=" + _isDebug.ToString());
         }
 
         private void button_Execute_Click(object sender, EventArgs e)
@@ -131,32 +132,32 @@ namespace TrimHtmlData
             // 出力先をクリア
             textBox_DestList.Text = "";
 
+            // Text +=はURLごとにテキストボックス全体を作り直すため、StringBuilderに溜めて最後に1回だけセットする
+            StringBuilder destText = new StringBuilder();
+
             int trimLineNum = Logic.GetTrimLine(textBox_TrimLineNum.Text);
 
-            StringComparison comparison = StringComparison.OrdinalIgnoreCase;
-            if (checkBox_OrdinalCase.Checked)
-            {
-                comparison = StringComparison.Ordinal;
-            }
+            StringComparison comparison = checkBox_OrdinalCase.Checked ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
             StcDebug dbg = new StcDebug();
-            dbg.IsDebugMode = IsDebug;
+            dbg.IsDebugMode = _isDebug;
 
-            String[] urls = textBox_SourceList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (String url in urls)
+            string[] urls = textBox_SourceList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string url in urls)
             {
-                textBox_DestList.Text += "◆" + url + Environment.NewLine;
+                destText.Append("◆").Append(url).Append(Environment.NewLine);
 
-                String htmlSource = GetHtmlSource(url);
+                string htmlSource = GetHtmlSource(url);
                 dbg.WriteDataInNewFile(htmlSource, "_1_source");
 
-                String result = Logic.GetSearchString(htmlSource, textBox_SearchWord.Text, trimLineNum, comparison, checkBox_FirstWordOnly.Checked);
+                string result = Logic.GetSearchString(htmlSource, textBox_SearchWord.Text, trimLineNum, comparison, checkBox_FirstWordOnly.Checked);
                 dbg.WriteDataInNewFile(result, "_2_search");
 
-                textBox_DestList.Text += result;
+                destText.Append(result);
             }
+            textBox_DestList.Text = destText.ToString();
 
-            util.SetClipboardText(textBox_DestList.Text);
+            _util.SetClipboardText(textBox_DestList.Text);
         }
 
         /// <summary>
@@ -164,26 +165,28 @@ namespace TrimHtmlData
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        private String GetHtmlSource(String url)
+        private string GetHtmlSource(string url)
         {
-            String htmlSource = "";
-            WebClient client = new WebClient();
+            string htmlSource = "";
             try
             {
-                client.Encoding = System.Text.Encoding.UTF8;
-                htmlSource = client.DownloadString(url);
+                using (WebClient client = new WebClient())
+                {
+                    client.Encoding = Encoding.UTF8;
+                    htmlSource = client.DownloadString(url);
+                }
             }
             catch (Exception)
             {
                 MessageBox.Show("ソース取得に失敗しました。" + Environment.NewLine + url);
             }
 
-            return util.ChangeNewLineCodeLF2CRLF(htmlSource);
+            return _util.ChangeNewLineCodeLf2Crlf(htmlSource);
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFilePath = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            string loadFilePath = Path.Combine(_userDataFolder, comboBox_LoadSetting.Text);
             if (File.Exists(loadFilePath))
             {
                 LoadProfile(loadFilePath);
@@ -192,7 +195,7 @@ namespace TrimHtmlData
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile, userDataFolder);
+            JsonSaveRestore.SaveProfileWithDialog(_util, _fio, comboBox_LoadSetting, _profileExtensions, SaveProfile, _userDataFolder);
         }
     }
 }

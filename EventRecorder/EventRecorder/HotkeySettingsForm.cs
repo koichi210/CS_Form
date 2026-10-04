@@ -16,8 +16,13 @@ namespace EventRecorder
         {
             InitializeComponent();
 
-            RecordHotkey = currentRecordHotkey;
-            PlayHotkey = currentPlayHotkey;
+            SetHotkeys(currentRecordHotkey, currentPlayHotkey);
+        }
+
+        private void SetHotkeys(Keys recordHotkey, Keys playHotkey)
+        {
+            RecordHotkey = recordHotkey;
+            PlayHotkey = playHotkey;
             textBox_Record.Text = HotkeyFormatter.Format(RecordHotkey);
             textBox_Play.Text = HotkeyFormatter.Format(PlayHotkey);
         }
@@ -25,25 +30,19 @@ namespace EventRecorder
         private void textBox_Record_KeyDown(object sender, KeyEventArgs e)
         {
             Keys captured;
-            if (!TryCaptureHotkey(e, out captured))
+            if (TryCaptureHotkey(e, out captured))
             {
-                return;
+                SetHotkeys(captured, PlayHotkey);
             }
-
-            RecordHotkey = captured;
-            textBox_Record.Text = HotkeyFormatter.Format(RecordHotkey);
         }
 
         private void textBox_Play_KeyDown(object sender, KeyEventArgs e)
         {
             Keys captured;
-            if (!TryCaptureHotkey(e, out captured))
+            if (TryCaptureHotkey(e, out captured))
             {
-                return;
+                SetHotkeys(RecordHotkey, captured);
             }
-
-            PlayHotkey = captured;
-            textBox_Play.Text = HotkeyFormatter.Format(PlayHotkey);
         }
 
         // テキストボックスへの通常の文字入力・キャレット移動は起こさせず、押されたキーの
@@ -69,10 +68,7 @@ namespace EventRecorder
 
         private void button_Reset_Click(object sender, EventArgs e)
         {
-            RecordHotkey = HotkeyDefaults.Record;
-            PlayHotkey = HotkeyDefaults.Play;
-            textBox_Record.Text = HotkeyFormatter.Format(RecordHotkey);
-            textBox_Play.Text = HotkeyFormatter.Format(PlayHotkey);
+            SetHotkeys(HotkeyDefaults.Record, HotkeyDefaults.Play);
         }
 
         private void button_Save_Click(object sender, EventArgs e)

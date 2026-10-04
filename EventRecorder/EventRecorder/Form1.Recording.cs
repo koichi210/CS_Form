@@ -15,7 +15,7 @@ namespace EventRecorder
 
         private void button_Clear_Click(object sender, EventArgs e)
         {
-            if (isRecording || isPlaying)
+            if (_isRecording || _isPlaying)
             {
                 return;
             }
@@ -26,62 +26,62 @@ namespace EventRecorder
         // 現在の記録中/再生中の状態をタイトルバーに反映する
         private void UpdateTitle()
         {
-            if (isRecording)
+            if (_isRecording)
             {
-                this.Text = BaseTitle + " - 記録中";
+                this.Text = _baseTitle + " - 記録中";
             }
-            else if (isPlaying)
+            else if (_isPlaying)
             {
                 // (表示例)プレイバック中：2 / 5：34/100
                 // 「2 / 5」=全体ループ(プレイリストの全体周回。単発再生では常に1/1)の今の実行数/最大数、
                 // 「34/100」=ループ(PlayRows呼び出し1回あたりの繰り返し)の今の実行回数/最大数
-                this.Text = BaseTitle + " - プレイバック中："
-                    + playbackOverallLoopNo + " / " + playbackOverallLoopMax + "："
-                    + playbackInnerLoopNo + "/" + playbackInnerLoopMax;
+                this.Text = _baseTitle + " - プレイバック中："
+                    + _playbackOverallLoopNo + " / " + _playbackOverallLoopMax + "："
+                    + _playbackInnerLoopNo + "/" + _playbackInnerLoopMax;
             }
             else
             {
-                this.Text = BaseTitle;
+                this.Text = _baseTitle;
             }
         }
 
         // 単発再生とプレイリスト実行は1つのbutton_Play(表示名「再生」)に統合したので、
-        // isPlayingが変わるたびにその表示を同期させるだけでよい
+        // _isPlayingが変わるたびにその表示を同期させるだけでよい
         private void UpdatePlayButton()
         {
-            button_Play.Text = isPlaying ? "停止" : "再生";
+            button_Play.Text = _isPlaying ? "停止" : "再生";
         }
 
         // 記録開始/停止を切り替える。ボタンクリックからもF1ホットキーからも呼ばれる
         private void ToggleRecording()
         {
-            if (isRecording)
+            if (_isRecording)
             {
                 GlobalHook.MouseHook.Stop();
-                gridFlushTimer.Stop();
+                _gridFlushTimer.Stop();
                 FlushPendingRows();
-                isRecording = false;
+                _isRecording = false;
                 button_Record.Text = "記録";
                 UpdateTitle();
                 return;
             }
 
             // 終了処理中は新しく記録を始めない
-            if (isPlaying || isExiting)
+            if (_isPlaying || _isExiting)
             {
                 return;
             }
 
             // 記録開始時に既存の行はクリアしない(既存のマクロに追記で記録したい場合があるため)
-            pendingRows.Clear();
-            pressedKeys.Clear();
-            lastEventTick = Environment.TickCount;
+            _pendingRows.Clear();
+            _pressedKeys.Clear();
+            _lastEventTick = Environment.TickCount;
 
             GlobalHook.MouseHook.AddEvent(OnMouseEvent);
             GlobalHook.MouseHook.Start();
 
-            gridFlushTimer.Start();
-            isRecording = true;
+            _gridFlushTimer.Start();
+            _isRecording = true;
             button_Record.Text = "記録中…";
             UpdateTitle();
         }
@@ -106,7 +106,7 @@ namespace EventRecorder
 
             // キーバインド設定画面が開いている間は、テスト入力したキーがホットキーとして
             // 誤発動しないよう、記録データへの取り込みも含めてここで丸ごと処理を止める
-            if (isHotkeySettingsOpen)
+            if (_isHotkeySettingsOpen)
             {
                 return;
             }
@@ -117,18 +117,18 @@ namespace EventRecorder
             // ホットキーはアプリ操作用の予約キーなので、マクロの記録データには含めない。
             // s.Keyはフックから来る生のキー(修飾キーは含まない)なので、押した瞬間の
             // Ctrl/Alt/Shiftの状態を合わせて現在の組み合わせを作ってから、ユーザー設定の
-            // ホットキー(hotkeyToggleRecord/hotkeyTogglePlay。これも同じ表現方法)と比較する
+            // ホットキー(_hotkeyToggleRecord/_hotkeyTogglePlay。これも同じ表現方法)と比較する
             if (isDown)
             {
                 Keys heldModifiers = Control.ModifierKeys & (Keys.Control | Keys.Alt | Keys.Shift);
                 Keys combo = s.Key | heldModifiers;
-                Boolean isRecordHotkey = combo == hotkeyToggleRecord;
-                Boolean isPlayHotkey = combo == hotkeyTogglePlay;
+                Boolean isRecordHotkey = combo == _hotkeyToggleRecord;
+                Boolean isPlayHotkey = combo == _hotkeyTogglePlay;
 
                 if (isRecordHotkey || isPlayHotkey)
                 {
                     // リピート抑制。対応するKeyUpが来るまでは連続トグルさせない
-                    if (!pressedHotkeys.Add(s.Key))
+                    if (!_pressedHotkeys.Add(s.Key))
                     {
                         return;
                     }
@@ -149,13 +149,13 @@ namespace EventRecorder
             {
                 // Down時にホットキーとして処理したキーのUpは、マクロ記録に含めず消費する。
                 // (Up時点で先にShiftを離していても、Down時の判定結果に合わせて対称に扱う)
-                if (pressedHotkeys.Remove(s.Key))
+                if (_pressedHotkeys.Remove(s.Key))
                 {
                     return;
                 }
             }
 
-            if (!isRecording)
+            if (!_isRecording)
             {
                 return;
             }
@@ -164,48 +164,48 @@ namespace EventRecorder
             {
                 // すでに押されている状態なら、OSのキーリピートによるKeyDown連発なので無視する。
                 // 対応するKeyUpが来るまでは「押されたまま」として扱う
-                if (!pressedKeys.Add(s.Key))
+                if (!_pressedKeys.Add(s.Key))
                 {
                     return;
                 }
             }
             else if (isUp)
             {
-                pressedKeys.Remove(s.Key);
+                _pressedKeys.Remove(s.Key);
             }
 
             QueueRow(s.Stroke.ToString(), "", "", s.Key.ToString(), TakeElapsedMsAndReset());
         }
 
-        // 直前のイベント(前回この関数を呼んだ時点)からの経過msを返し、基準時刻(lastEventTick)を今に更新する。
+        // 直前のイベント(前回この関数を呼んだ時点)からの経過msを返し、基準時刻(_lastEventTick)を今に更新する。
         // 記録開始直後の1件目は「記録開始からの待機」になる
         private int TakeElapsedMsAndReset()
         {
             int now = Environment.TickCount;
-            int wait = now - lastEventTick;
-            lastEventTick = now;
+            int wait = now - _lastEventTick;
+            _lastEventTick = now;
             return wait < 0 ? 0 : wait;
         }
 
         // 記録した1件をバッファに貯めるだけ(フックのコールバックを描画待ちで塞がないため)。
-        // 実際のDataGridViewへの反映はgridFlushTimerがまとめて行う
+        // 実際のDataGridViewへの反映は_gridFlushTimerがまとめて行う
         // waitが正の場合、待機だけを表す独立したWAIT_MS行を先に積んでから、実際のイベント行を積む
         // (待機時間はイベント自体の属性ではなく、シーケンス上の別行として表現する方式にしたため)
         private void QueueRow(String type, String x, String y, String key, int wait)
         {
             if (wait > 0)
             {
-                pendingRows.Add(new String[] { WaitEventType, "", "", "", wait.ToString() });
+                _pendingRows.Add(new String[] { _waitEventType, "", "", "", wait.ToString() });
             }
 
-            pendingRows.Add(new String[] { type, x, y, key, "0" });
+            _pendingRows.Add(new String[] { type, x, y, key, "0" });
         }
 
         // 貯まった行をまとめてDataGridViewに反映する。1件ずつ反映するより
         // 再描画・スクロール処理の回数を大幅に減らせる
         private void FlushPendingRows()
         {
-            if (pendingRows.Count == 0)
+            if (_pendingRows.Count == 0)
             {
                 return;
             }
@@ -213,14 +213,14 @@ namespace EventRecorder
             dataGridView_Events.SuspendLayout();
 
             int lastIdx = -1;
-            foreach (String[] r in pendingRows)
+            foreach (String[] r in _pendingRows)
             {
                 lastIdx = dataGridView_Events.Rows.Add();
                 DataGridViewRow row = dataGridView_Events.Rows[lastIdx];
                 EventRowMapper.ApplyToRow(row, col_Type, col_X, col_Y, col_Key, col_Wait, r);
             }
 
-            pendingRows.Clear();
+            _pendingRows.Clear();
 
             dataGridView_Events.ResumeLayout();
 
@@ -251,14 +251,14 @@ namespace EventRecorder
                     if (IsWaitEventType(type))
                     {
                         // 旧バージョンの表記("WAIT")が残っていたら、ここで新表記に揃えておく
-                        if (type == LegacyWaitEventType)
+                        if (type == _legacyWaitEventType)
                         {
-                            row.Cells[col_Type.Index].Value = WaitEventType;
+                            row.Cells[col_Type.Index].Value = _waitEventType;
                         }
                         continue;
                     }
 
-                    int wait = util.GetInteger(Convert.ToString(row.Cells[col_Wait.Index].Value));
+                    int wait = _util.GetInteger(Convert.ToString(row.Cells[col_Wait.Index].Value));
                     if (wait <= 0)
                     {
                         continue;
@@ -266,7 +266,7 @@ namespace EventRecorder
 
                     dataGridView_Events.Rows.Insert(i, 1);
                     DataGridViewRow waitRow = dataGridView_Events.Rows[i];
-                    waitRow.Cells[col_Type.Index].Value = WaitEventType;
+                    waitRow.Cells[col_Type.Index].Value = _waitEventType;
                     waitRow.Cells[col_Wait.Index].Value = wait.ToString();
 
                     // 元の行のWaitは移し替えたので0にしておく(でないと再生時に二重に待ってしまう)

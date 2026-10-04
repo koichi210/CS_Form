@@ -18,7 +18,7 @@ namespace ContextHelp.Tests
             {
                 FormReflection.InvokeHandler(form, "Form1_Load", form);
 
-                var popupHelp = (HelpProvider)FormReflection.GetField(form, "popupHelp");
+                var popupHelp = (HelpProvider)FormReflection.GetField(form, "_popupHelp");
                 Control label1 = FormReflection.GetControl(form, "label1");
                 Control button1 = FormReflection.GetControl(form, "button1");
                 Control checkBox1 = FormReflection.GetControl(form, "checkBox1");

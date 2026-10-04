@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.ComponentModel;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Cheetos
@@ -24,12 +25,12 @@ namespace Cheetos
                 return;
             }
 
-            if (!fio.EnsureDirectory(do_DestPortFolderPath.Text))
+            if (!_fio.EnsureDirectory(do_DestPortFolderPath.Text))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + do_DestPortFolderPath.Text);
                 return;
             }
-            if (!fio.EnsureDirectory(do_DestLandFolderPath.Text))
+            if (!_fio.EnsureDirectory(do_DestLandFolderPath.Text))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + do_DestLandFolderPath.Text);
                 return;
@@ -70,7 +71,7 @@ namespace Cheetos
             // senderの値はbgWorkerの値と同じ
             BackgroundWorker worker = (BackgroundWorker)sender;
 
-            String errorString = "";
+            StringBuilder errors = new StringBuilder();
 
             // このメソッドへのパラメータ
             OrientWorkerParam param = (OrientWorkerParam)e.Argument;
@@ -83,9 +84,9 @@ namespace Cheetos
                     : param.DestLandFolderPath;
                 String destName = destFolderPath + @"\" + Path.GetFileName(files[i]);
 
-                if (!fio.FileMove(files[i], destName))
+                if (!_fio.FileMove(files[i], destName))
                 {
-                    errorString += "Move " + files[i] + " " + destName + Environment.NewLine;
+                    errors.Append("Move ").Append(files[i]).Append(" ").Append(destName).AppendLine();
                 }
 
                 // 進捗率の表示
@@ -100,7 +101,7 @@ namespace Cheetos
             }
 
             worker.ReportProgress(files.Length);      // ⇒ProgressChanged()
-            e.Result = errorString;
+            e.Result = errors.ToString();
         }
 
         private void bkgWorkerOrient_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

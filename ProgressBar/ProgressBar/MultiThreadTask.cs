@@ -5,20 +5,18 @@ namespace ProgressBar
 {
     public partial class Form1
     {
-        private Boolean m_IsMultiThreadTaskRunning = false;
+        private bool _isMultiThreadTaskRunning = false;
 
         private void StartMultiThreadTask()
         {
-            if (m_IsMultiThreadTaskRunning)
+            if (_isMultiThreadTaskRunning)
             {
                 // 実行中
                 return;
             }
-            m_IsMultiThreadTaskRunning = true;
+            _isMultiThreadTaskRunning = true;
 
-            progressBar_MultiThreadTask.Maximum = ProgressBarMax;
-            progressBar_MultiThreadTask.Minimum = ProgressBarMin;
-            progressBar_MultiThreadTask.Value = 0;
+            ResetProgressBar(progressBar_MultiThreadTask);
 
             Task task = new Task(() =>
             {
@@ -26,7 +24,7 @@ namespace ProgressBar
                 {
                     for (int i = progressBar_MultiThreadTask.Minimum; i < progressBar_MultiThreadTask.Maximum; i++)
                     {
-                        if (!m_IsMultiThreadTaskRunning)
+                        if (!_isMultiThreadTaskRunning)
                         {
                             break;
                         }
@@ -40,7 +38,7 @@ namespace ProgressBar
                 finally
                 {
                     // 最後まで進んだ場合や途中で失敗した場合も、次のStartを受け付けられるように戻す
-                    m_IsMultiThreadTaskRunning = false;
+                    _isMultiThreadTaskRunning = false;
                 }
             });
             task.Start();
@@ -49,7 +47,7 @@ namespace ProgressBar
         private void StopMultiThreadTask()
         {
             // メイン処理は別タスクで実施しているので、Stop要求を受け付けられる
-            m_IsMultiThreadTaskRunning = false;
+            _isMultiThreadTaskRunning = false;
         }
     }
 }

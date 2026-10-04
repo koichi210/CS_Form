@@ -4,22 +4,22 @@ using System.IO;
 
 namespace Picture
 {
-    class PicEdit : IDisposable
+    sealed class PicEdit : IDisposable
     {
         // 描画先
-        protected Bitmap m_Canvas;
-        protected Bitmap m_SourceImg;
+        private Bitmap _canvas;
+        private Bitmap _sourceImg;
 
         public PicEdit(String basePictFile)
         {
             //既存ファイルをもとに、描画先Imageオブジェクトを作成
-            m_Canvas = new Bitmap(basePictFile);
+            _canvas = new Bitmap(basePictFile);
         }
 
         public PicEdit(int destWidth, int destHeight)
         {
             //新規に描画先Imageオブジェクトを作成
-            m_Canvas = new Bitmap(destWidth, destHeight);
+            _canvas = new Bitmap(destWidth, destHeight);
         }
 
         // IDisposable。ReleaseImg が解放後に null を入れるので、二重に呼んでも
@@ -27,18 +27,17 @@ namespace Picture
         public void Dispose()
         {
             // リソース解放
-            ReleaseImg(ref m_Canvas);
-            ReleaseImg(ref m_SourceImg);
+            ReleaseImg(ref _canvas);
+            ReleaseImg(ref _sourceImg);
         }
 
         public void SaveCanvas(String savePictFile)
         {
-            m_Canvas.Save(savePictFile);
+            _canvas.Save(savePictFile);
 
             // TODO：デストラクタでは想定したタイミングで呼ばれないため暫定。
             // リソース解放
-            ReleaseImg(ref m_Canvas);
-            ReleaseImg(ref m_SourceImg);
+            Dispose();
         }
 
         public void TrimExec(String basePictFile, Rectangle cutParam)
@@ -64,7 +63,7 @@ namespace Picture
             //描画する部分の範囲を設定。位置(X, Y)、大きさ(Width, Height)
             Rectangle pasteRect = new Rectangle(putParam.X, putParam.Y, cutParam.Width, cutParam.Height);
 
-            using (Graphics g = Graphics.FromImage(m_Canvas))
+            using (Graphics g = Graphics.FromImage(_canvas))
             {
                 //画像の一部を描画
                 g.DrawImage(sourceImg, pasteRect, cutParam, GraphicsUnit.Pixel);
@@ -77,20 +76,27 @@ namespace Picture
         {
             using (MemoryStream ms = new MemoryStream())
             {
-                m_Canvas.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                _canvas.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 return ms.Length;
             }
         }
 
         public void CreateSourceImg(String sourceImgFile)
         {
-            //加工元ファイルのImageオブジェクトを作成
-            m_SourceImg = new Bitmap(sourceImgFile);
+            //加工元ファイルのImageオブジェクトを作成。
+            // 以前はMergeExecのたびに加工元の複製(new Bitmap(_sourceImg))を作り直していたが、
+            // 加工元は変更されないので複製は毎回同じ内容になる。ここで1回だけ複製して使い回す
+            // (描画元は従来と同じ「複製」なので出力は変わらない。ファイルのロックも早く外れる)
+            ReleaseImg(ref _sourceImg);
+            using (Bitmap loaded = new Bitmap(sourceImgFile))
+            {
+                _sourceImg = new Bitmap(loaded);
+            }
         }
 
         public void ReleaseSourceImg()
         {
-            ReleaseImg(ref m_SourceImg);
+            ReleaseImg(ref _sourceImg);
         }
 
         public void MergeExec(Rectangle cutParam)
@@ -100,16 +106,13 @@ namespace Picture
 
         public void MergeExec(Rectangle cutParam, Point putParam)
         {
-            //加工元画像の複製から描画する
-            using (Bitmap img = new Bitmap(m_SourceImg))
-            {
-                TrimExec(img, cutParam, putParam);
-            }
+            //加工元画像の複製(CreateSourceImgで作成済み)から描画する
+            TrimExec(_sourceImg, cutParam, putParam);
         }
 
         public Size GetCanvasSize()
         {
-            return new Size(m_Canvas.Width, m_Canvas.Height);
+            return new Size(_canvas.Width, _canvas.Height);
         }
 
         private void ReleaseImg(ref Bitmap img)

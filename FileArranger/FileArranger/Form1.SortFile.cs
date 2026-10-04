@@ -4,12 +4,12 @@ using System.IO;
 
 namespace FileArranger
 {
-    // ファイル並べ替えタブ(sf)の処理(Form1.csから分割。コードは移しただけで中身は変えていない)
+    // ファイル並べ替えタブ(sf)の処理(Form1.csから分割)
     partial class FileArranger
     {
         private void sf_textBox_TargetFile_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(sf_textBox_TargetFile.Text, e);
+            _util.ExecutePath(sf_textBox_TargetFile.Text, e);
         }
 
         private void sf_button_Listup_TargetFile_Click(object sender, EventArgs e)
@@ -21,36 +21,28 @@ namespace FileArranger
 
             // フォルダをリストアップ
             String[] folders = Directory.GetDirectories(sf_textBox_TargetFile.Text);
-            sf_listBox_Target.Items.Clear();
-            for (int i = 0; i < folders.Length; i++)
-            {
-                String folderName = GetDisplayName(folders[i], sf_textBox_TargetFile.Text);
-                sf_listBox_Target.Items.Add(folderName);
-            }
-
+            FillListBox(sf_listBox_Target, folders, sf_textBox_TargetFile.Text);
             sf_label_TotalNum.Text = "フォルダ数：" + folders.Length.ToString();
-
         }
 
         private void sf_button_SortFileRename_Click(object sender, EventArgs e)
         {
-            if (sf_listBox_Target.SelectedItems.Count == 0)
+            if (!HasSelectedItems(sf_listBox_Target.SelectedItems.Count))
             {
-                MessageBox.Show("項目が選択されていません。");
                 return;
             }
 
-            for (int i = 0; i < sf_listBox_Target.SelectedItems.Count; i++)
+            foreach (object selectedItem in sf_listBox_Target.SelectedItems)
             {
-                String folderPath = sf_textBox_TargetFile.Text + @"\" + sf_listBox_Target.SelectedItems[i].ToString();
-                sorter.SortFolder(folderPath);
+                String folderPath = sf_textBox_TargetFile.Text + @"\" + selectedItem.ToString();
+                _sorter.SortFolder(folderPath);
             }
-            sorter.CommitBatch();
+            _sorter.CommitBatch();
         }
 
         private void sf_button_Sort_Restore_Click(object sender, EventArgs e)
         {
-            if (!sorter.Restore())
+            if (!_sorter.Restore())
             {
                 MessageBox.Show("これ以上復元できません");
             }
@@ -58,7 +50,7 @@ namespace FileArranger
 
         private void sf_listBox_Target_SelectedIndexChanged(object sender, EventArgs e)
         {
-            sf_label_SelectNum.Text = "選択数：" + sf_listBox_Target.SelectedItems.Count.ToString();
+            sf_label_SelectNum.Text = FormatSelectedCount(sf_listBox_Target.SelectedItems.Count);
         }
 
         private void sf_listBox_Target_KeyDown(object sender, KeyEventArgs e)
@@ -69,7 +61,7 @@ namespace FileArranger
             }
             else
             {
-                util.SelectAll(e);
+                _util.SelectAll(e);
             }
         }
     }

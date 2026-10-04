@@ -29,12 +29,12 @@ namespace WebCamera
         // UIがまだ表示していない(ProgressChangedが処理されていない)フレーム数。
         // UIの描画がカメラのフレームレートに追いつかないとき、未処理のBitmapが
         // メッセージキューに溜まり続けてメモリを食い潰さないよう、ワーカー側で間引く。
-        private int pendingFrames;
-        private const int MaxPendingFrames = 2;
+        private int _pendingFrames;
+        private const int _maxPendingFrames = 2;
 
         // フォームを閉じようとしたときにワーカーが動いていたら、いったん閉じるのを取り消し、
         // ワーカーの終了(RunWorkerCompleted)を待ってから改めて閉じる。そのための目印。
-        private bool closeRequested;
+        private bool _closeRequested;
 
         public Form1()
         {
@@ -94,7 +94,7 @@ namespace WebCamera
                     }
 
                     // UIが前のフレームをまだ表示できていなければ、このフレームは捨てる
-                    if (Volatile.Read(ref pendingFrames) >= MaxPendingFrames)
+                    if (Volatile.Read(ref _pendingFrames) >= _maxPendingFrames)
                     {
                         continue;
                     }
@@ -102,7 +102,7 @@ namespace WebCamera
                     // frame のバッファは次の Read で上書きされるので、独立した Bitmap にコピーしてから渡す。
                     // 渡した Bitmap の所有権はUI側に移り、破棄もUI側が行う
                     Bitmap bmp = BitmapConverter.ToBitmap(frame);
-                    Interlocked.Increment(ref pendingFrames);
+                    Interlocked.Increment(ref _pendingFrames);
                     worker.ReportProgress(0, bmp);
                 }
 
@@ -112,7 +112,7 @@ namespace WebCamera
 
         private void backgroundWorker_Capture_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            Interlocked.Decrement(ref pendingFrames);
+            Interlocked.Decrement(ref _pendingFrames);
 
             Bitmap bmp = e.UserState as Bitmap;
             if (bmp == null)
@@ -121,28 +121,23 @@ namespace WebCamera
             }
 
             // 閉じている最中に届いたフレームは表示せず、リークしないよう破棄だけする
-            if (closeRequested || IsDisposed || Disposing)
+            if (_closeRequested || IsDisposed || Disposing)
             {
                 bmp.Dispose();
                 return;
             }
 
-            //描画(差し替えた古いBitmapは、もう誰も参照していないので破棄する)
-            Image old = pictureBox_Preview.Image;
-            pictureBox_Preview.Image = bmp;
-            if (old != null)
-            {
-                old.Dispose();
-            }
+            //描画
+            ReplacePreviewImage(bmp);
 
             UpdateButtons();
         }
 
         private void backgroundWorker_Capture_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pendingFrames = 0;
+            _pendingFrames = 0;
 
-            if (closeRequested)
+            if (_closeRequested)
             {
                 // FormClosing で保留していた終了を、ワーカーが止まった今あらためて実行する
                 Close();
@@ -220,7 +215,7 @@ namespace WebCamera
             // DoEvents で回して待つ代わりに、いったん閉じるのを取り消してワーカーに停止を要求する。
             // ワーカーがカメラを解放して終わると RunWorkerCompleted から Close() し直す
             e.Cancel = true;
-            closeRequested = true;
+            _closeRequested = true;
             backgroundWorker_Capture.CancelAsync();
             button_StartStop.Enabled = false;
             button_Snapshot.Enabled = false;
@@ -229,12 +224,15 @@ namespace WebCamera
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             // 最後に表示していた Bitmap を解放する
+            ReplacePreviewImage(null);
+        }
+
+        // 表示中の画像を差し替え、古い画像を破棄する(古い画像はもう誰も参照していない)
+        private void ReplacePreviewImage(Image newImage)
+        {
             Image old = pictureBox_Preview.Image;
-            pictureBox_Preview.Image = null;
-            if (old != null)
-            {
-                old.Dispose();
-            }
+            pictureBox_Preview.Image = newImage;
+            old?.Dispose();
         }
     }
 }

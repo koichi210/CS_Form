@@ -20,18 +20,18 @@ namespace EventRecorder
 
         // 単発再生とプレイリスト実行を1つのbutton_Play(表示名「再生」)に統合したので、
         // 開始時にどちらを動かすかはラジオボタンで選択中のモードで振り分ける。
-        // 停止は共通(今動いている方が何であれ、そのままstopPlayRequestedで止める)。
+        // 停止は共通(今動いている方が何であれ、そのまま_stopPlayRequestedで止める)。
         // ボタンクリックからも再生ホットキー(変換キー/Shift+F2)からも呼ばれる
         private void PlayOrStop()
         {
-            if (isPlaying)
+            if (_isPlaying)
             {
-                stopPlayRequested = true;
+                _stopPlayRequested = true;
                 return;
             }
 
             // 終了処理中は新しく再生を始めない
-            if (isRecording || isExiting)
+            if (_isRecording || _isExiting)
             {
                 return;
             }
@@ -62,29 +62,36 @@ namespace EventRecorder
                 return;
             }
 
-            // 再生終了後にカーソルを戻せるよう、今の位置を覚えておく
-            cursorPositionBeforePlay = Cursor.Position;
-
             // 単発再生には「全体ループ」の概念が無いので常に1/1固定にする
-            playbackOverallLoopNo = 1;
-            playbackOverallLoopMax = 1;
-            playbackInnerLoopNo = 0;
-            playbackInnerLoopMax = loopCount;
+            _playbackOverallLoopNo = 1;
+            _playbackOverallLoopMax = 1;
+            _playbackInnerLoopNo = 0;
+            _playbackInnerLoopMax = loopCount;
 
-            isPlaying = true;
-            stopPlayRequested = false;
+            StartPlaybackTask(() => PlayLoop(rows, loopCount));
+        }
+
+        // 単発再生・プレイリスト実行共通の開始処理。ループ進捗(_playbackXxxLoopNo/Max)は
+        // 呼び出し元で設定済みの前提で、「再生中」状態にしてからplaybackを再生スレッドで動かす
+        private void StartPlaybackTask(Action playback)
+        {
+            // 再生終了後にカーソルを戻せるよう、今の位置を覚えておく
+            _cursorPositionBeforePlay = Cursor.Position;
+
+            _isPlaying = true;
+            _stopPlayRequested = false;
             UpdatePlayButton();
             UpdateTitle();
             MinimizeIfRequested();
 
-            playbackTask = Task.Run(() => PlayLoop(rows, loopCount));
+            _playbackTask = Task.Run(playback);
         }
 
         // ループ回数の入力値を数値にする。読めない値・0以下は1回として扱う
         // (単発再生・プレイリストの全体ループ・プレイリストの各行のループ回数で共通)
         private int ParseLoopCount(String text)
         {
-            int loopCount = util.GetInteger(text);
+            int loopCount = _util.GetInteger(text);
             return loopCount <= 0 ? 1 : loopCount;
         }
 
@@ -130,7 +137,7 @@ namespace EventRecorder
                 PlayRows(rows, loopCount);
 
                 // マウスカーソルを再生開始前の位置に戻す
-                Cursor.Position = cursorPositionBeforePlay;
+                Cursor.Position = _cursorPositionBeforePlay;
             }
             catch (Exception ex)
             {
@@ -139,10 +146,10 @@ namespace EventRecorder
             finally
             {
                 // 途中で例外が起きても、必ず「再生中」状態を解除する。
-                // ここを素通りしてしまうとisPlayingがtrueのまま固まり、記録も再生も
+                // ここを素通りしてしまうと_isPlayingがtrueのまま固まり、記録も再生も
                 // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)
-                isPlaying = false;
-                stopPlayRequested = false;
+                _isPlaying = false;
+                _stopPlayRequested = false;
                 InvokeOnUi(() =>
                 {
                     UpdatePlayButton();
@@ -178,7 +185,7 @@ namespace EventRecorder
         {
             if (IsDisposed || !IsHandleCreated)
             {
-                stopPlayRequested = true;
+                _stopPlayRequested = true;
                 return;
             }
 
@@ -188,11 +195,11 @@ namespace EventRecorder
             }
             catch (ObjectDisposedException)
             {
-                stopPlayRequested = true;
+                _stopPlayRequested = true;
             }
             catch (InvalidOperationException) when (IsDisposed || !IsHandleCreated)
             {
-                stopPlayRequested = true;
+                _stopPlayRequested = true;
             }
         }
 
@@ -207,7 +214,7 @@ namespace EventRecorder
             finally
             {
                 // 中断された場合、Downのままのキー/マウスボタンを全部Upに戻す
-                if (stopPlayRequested)
+                if (_stopPlayRequested)
                 {
                     ReleaseAllPressedInputs();
                 }
@@ -216,12 +223,12 @@ namespace EventRecorder
 
         private void PlayRowsCore(List<String[]> rows, int loopCount)
         {
-            for (int i = 0; i < loopCount && !stopPlayRequested; i++)
+            for (int i = 0; i < loopCount && !_stopPlayRequested; i++)
             {
-                playbackInnerLoopNo = i + 1;
-                playbackInnerLoopMax = loopCount;
+                _playbackInnerLoopNo = i + 1;
+                _playbackInnerLoopMax = loopCount;
 
-                for (int idx = 0; idx < rows.Count && !stopPlayRequested; idx++)
+                for (int idx = 0; idx < rows.Count && !_stopPlayRequested; idx++)
                 {
                     String[] r = rows[idx];
 
@@ -231,18 +238,18 @@ namespace EventRecorder
                         UpdateTitle();
                     });
 
-                    if (stopPlayRequested)
+                    if (_stopPlayRequested)
                     {
                         return;
                     }
 
-                    int wait = util.GetInteger(r[4]);
+                    int wait = _util.GetInteger(r[4]);
                     if (wait > 0)
                     {
                         InterruptibleSleep(wait);
                     }
 
-                    if (stopPlayRequested)
+                    if (_stopPlayRequested)
                     {
                         return;
                     }
@@ -252,18 +259,18 @@ namespace EventRecorder
             }
         }
 
-        // 待機を短い間隔(SleepPollIntervalMs)に分割し、都度stopPlayRequestedを見て
+        // 待機を短い間隔(_sleepPollIntervalMs)に分割し、都度_stopPlayRequestedを見て
         // 早期に抜けられるようにする。単純にThread.Sleep(wait)のままだと、WAIT_MS行の
         // 待機時間が長い(例: 10秒)時に停止ボタンを押してもそのSleepが終わるまで
         // 一切反応しなくなってしまう不具合があったため、これに置き換えた
-        private const int SleepPollIntervalMs = 50;
+        private const int _sleepPollIntervalMs = 50;
 
         private void InterruptibleSleep(int totalMs)
         {
             int remaining = totalMs;
-            while (remaining > 0 && !stopPlayRequested)
+            while (remaining > 0 && !_stopPlayRequested)
             {
-                int step = Math.Min(SleepPollIntervalMs, remaining);
+                int step = Math.Min(_sleepPollIntervalMs, remaining);
                 Thread.Sleep(step);
                 remaining -= step;
             }
@@ -303,13 +310,13 @@ namespace EventRecorder
         // 記録中の最新行・単発再生中の実行中行のハイライト(dataGridView_Events側)
         private void HighlightEventRow(int idx)
         {
-            HighlightRow(dataGridView_Events, idx, ref highlightedEventRowIndex);
+            HighlightRow(dataGridView_Events, idx, ref _highlightedEventRowIndex);
         }
 
         // プレイリスト実行中、今どのファイル(行)を再生しているかのハイライト(dataGridView_Playlist側)
         private void HighlightPlaylistRow(int idx)
         {
-            HighlightRow(dataGridView_Playlist, idx, ref highlightedPlaylistRowIndex);
+            HighlightRow(dataGridView_Playlist, idx, ref _highlightedPlaylistRowIndex);
         }
 
         // Ctrl+V。DataGridViewはCtrl+A(全選択)/Ctrl+C(コピー)は標準対応してるけど、
@@ -356,14 +363,14 @@ namespace EventRecorder
         // フックする。編集中はキー入力がまずこのTextBoxに渡り、dataGridView_PlaylistのKeyDown
         // までは届かないため(未編集時のセル移動は上のdataGridView_Playlist_KeyDownで拾えている)。
         // 編集用コントロールはグリッド側で使い回されるので、フック済みハンドラの二重登録を防ぐ
-        private TextBox playlistLoopCountEditingControl;
+        private TextBox _playlistLoopCountEditingControl;
 
         private void dataGridView_Playlist_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            if (playlistLoopCountEditingControl != null)
+            if (_playlistLoopCountEditingControl != null)
             {
-                playlistLoopCountEditingControl.KeyDown -= PlaylistLoopCountEditingControl_KeyDown;
-                playlistLoopCountEditingControl = null;
+                _playlistLoopCountEditingControl.KeyDown -= PlaylistLoopCountEditingControl_KeyDown;
+                _playlistLoopCountEditingControl = null;
             }
 
             if (dataGridView_Playlist.CurrentCell == null
@@ -378,8 +385,8 @@ namespace EventRecorder
                 return;
             }
 
-            playlistLoopCountEditingControl = editBox;
-            playlistLoopCountEditingControl.KeyDown += PlaylistLoopCountEditingControl_KeyDown;
+            _playlistLoopCountEditingControl = editBox;
+            _playlistLoopCountEditingControl.KeyDown += PlaylistLoopCountEditingControl_KeyDown;
         }
 
         private void PlaylistLoopCountEditingControl_KeyDown(object sender, KeyEventArgs e)
@@ -429,7 +436,7 @@ namespace EventRecorder
         // 戻せるよう、DataGridViewExのUndoバッチでまとめる
         private void ClearSelectedCells(StandardTemplate.DataGridViewEx grid)
         {
-            if (isRecording || isPlaying)
+            if (_isRecording || _isPlaying)
             {
                 return;
             }
@@ -471,7 +478,7 @@ namespace EventRecorder
         // 列がグリッドの列数をはみ出る分は切り捨て、行が足りない場合は全部貼り付けられるように追加する
         private void PasteFromClipboard()
         {
-            if (isRecording || isPlaying || !Clipboard.ContainsText())
+            if (_isRecording || _isPlaying || !Clipboard.ContainsText())
             {
                 return;
             }
@@ -532,21 +539,14 @@ namespace EventRecorder
         // 貼り付け(PasteFromClipboard)と検索ダイアログ([[FindReplaceForm.cs]])の両方から使う
         internal static List<DataGridViewColumn> GetVisibleColumnsInDisplayOrder(DataGridView grid)
         {
-            List<DataGridViewColumn> columns = new List<DataGridViewColumn>();
-            foreach (DataGridViewColumn col in grid.Columns)
-            {
-                if (col.Visible)
-                {
-                    columns.Add(col);
-                }
-            }
-
-            columns.Sort((a, b) => a.DisplayIndex.CompareTo(b.DisplayIndex));
-            return columns;
+            return grid.Columns.Cast<DataGridViewColumn>()
+                .Where(col => col.Visible)
+                .OrderBy(col => col.DisplayIndex)
+                .ToList();
         }
 
         // 右クリックしたセルの行(手動で行の追加/削除をする対象)。右クリック無しの状態(-1)なら末尾扱い
-        private int contextMenuRowIndex = -1;
+        private int _contextMenuRowIndex = -1;
 
         // 右クリック時に、そのセルの行を選択状態にしつつ対象行を覚えておく
         private void dataGridView_Events_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -556,7 +556,7 @@ namespace EventRecorder
                 return;
             }
 
-            contextMenuRowIndex = e.RowIndex;
+            _contextMenuRowIndex = e.RowIndex;
             SelectRowOnRightClick(dataGridView_Events, e);
         }
 
@@ -582,19 +582,19 @@ namespace EventRecorder
         // 行が無い場所を右クリックした場合は「行の削除」を選べないようにする
         private void contextMenuStrip_Grid_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (isRecording || isPlaying)
+            if (_isRecording || _isPlaying)
             {
                 e.Cancel = true;
                 return;
             }
 
-            menuItem_DeleteRow.Enabled = contextMenuRowIndex >= 0 && contextMenuRowIndex < dataGridView_Events.Rows.Count;
+            menuItem_DeleteRow.Enabled = _contextMenuRowIndex >= 0 && _contextMenuRowIndex < dataGridView_Events.Rows.Count;
         }
 
         // 右クリックした行のすぐ下に空行を1件挿入する(何も無い場所を右クリックした場合は末尾に追加)
         private void menuItem_AddRow_Click(object sender, EventArgs e)
         {
-            int insertAt = (contextMenuRowIndex >= 0) ? contextMenuRowIndex + 1 : dataGridView_Events.Rows.Count;
+            int insertAt = (_contextMenuRowIndex >= 0) ? _contextMenuRowIndex + 1 : dataGridView_Events.Rows.Count;
             dataGridView_Events.Rows.Insert(insertAt, 1);
         }
 
@@ -604,9 +604,9 @@ namespace EventRecorder
         private void menuItem_BulkChangeEventWait_Click(object sender, EventArgs e)
         {
             String initialEventName = String.Empty;
-            if (contextMenuRowIndex >= 0 && contextMenuRowIndex < dataGridView_Events.Rows.Count)
+            if (_contextMenuRowIndex >= 0 && _contextMenuRowIndex < dataGridView_Events.Rows.Count)
             {
-                String clickedType = Convert.ToString(dataGridView_Events.Rows[contextMenuRowIndex].Cells[col_Type.Index].Value);
+                String clickedType = Convert.ToString(dataGridView_Events.Rows[_contextMenuRowIndex].Cells[col_Type.Index].Value);
                 if (!IsWaitEventType(clickedType))
                 {
                     initialEventName = clickedType;
@@ -662,7 +662,7 @@ namespace EventRecorder
         // 一緒に探して削除する(片方だけ残って孤立するのを防ぐため)
         private void menuItem_DeleteRow_Click(object sender, EventArgs e)
         {
-            List<int> targetIndexes = GetSelectedOrContextMenuRowIndexes(dataGridView_Events, contextMenuRowIndex);
+            List<int> targetIndexes = GetSelectedOrContextMenuRowIndexes(dataGridView_Events, _contextMenuRowIndex);
             if (targetIndexes.Count == 0)
             {
                 return;
@@ -758,18 +758,18 @@ namespace EventRecorder
         // 行ヘッダー(左端)に行番号(0始まりのインデックス)を描画する。
         // DataGridViewには自動で行番号を出す機能が無いので、定番のRowPostPaintで自前描画する。
         // dataGridView_Events・dataGridView_Playlist両方から共用するので、対象はsenderから取る
+        // 行の描画のたびに作り直さない(以前は毎回newしてDisposeもしていなかった)よう使い回す
+        private static readonly StringFormat _rowNumberFormat = new StringFormat()
+        {
+            Alignment = StringAlignment.Center,
+            LineAlignment = StringAlignment.Center
+        };
+
         private void dataGridView_Events_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
             DataGridView grid = (DataGridView)sender;
-            String rowIndexStr = e.RowIndex.ToString();
-            StringFormat format = new StringFormat()
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            };
-
             Rectangle headerBounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, grid.RowHeadersWidth, e.RowBounds.Height);
-            e.Graphics.DrawString(rowIndexStr, grid.Font, SystemBrushes.ControlText, headerBounds, format);
+            e.Graphics.DrawString(e.RowIndex.ToString(), grid.Font, SystemBrushes.ControlText, headerBounds, _rowNumberFormat);
         }
 
         // マウスイベントの行なのにKey列にも値が入っているか判定する。
@@ -779,8 +779,7 @@ namespace EventRecorder
             String eventType = Convert.ToString(row.Cells[col_Type.Index].Value);
             String keyValue = Convert.ToString(row.Cells[col_Key.Index].Value);
 
-            InputSimulation.InputSimulator.MouseStroke mouseStroke;
-            Boolean isMouseRow = Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(eventType, out mouseStroke);
+            Boolean isMouseRow = Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(eventType, out _);
 
             if (isMouseRow && !String.IsNullOrEmpty(keyValue))
             {
@@ -799,6 +798,7 @@ namespace EventRecorder
         private Boolean IsRowInvalidForPlayback(DataGridViewRow row, out String message)
         {
             String type = Convert.ToString(row.Cells[col_Type.Index].Value);
+            message = "";
 
             if (IsWaitEventType(type))
             {
@@ -807,46 +807,27 @@ namespace EventRecorder
                 if (!int.TryParse(wait, out waitValue) || waitValue < 0)
                 {
                     message = "WAIT_MS行の待機時間(" + wait + ")が数値として読み取れないよ";
-                    return true;
                 }
-
-                message = "";
-                return false;
             }
-
-            InputSimulation.InputSimulator.MouseStroke mouseStroke;
-            if (Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(type, out mouseStroke))
+            else if (Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(type, out _))
             {
                 String x = Convert.ToString(row.Cells[col_X.Index].Value);
                 String y = Convert.ToString(row.Cells[col_Y.Index].Value);
-                int xValue, yValue;
-                if (!int.TryParse(x, out xValue) || !int.TryParse(y, out yValue))
+                if (!int.TryParse(x, out _) || !int.TryParse(y, out _))
                 {
                     message = "マウスイベント(" + type + ")のX/Y(" + x + ", " + y + ")が数値として読み取れないよ";
-                    return true;
                 }
-
-                message = "";
-                return false;
             }
-
-            InputSimulation.InputSimulator.KeyboardStroke keyStroke;
-            if (Enum.TryParse<InputSimulation.InputSimulator.KeyboardStroke>(type, out keyStroke))
+            else if (Enum.TryParse<InputSimulation.InputSimulator.KeyboardStroke>(type, out _))
             {
                 String key = Convert.ToString(row.Cells[col_Key.Index].Value);
-                Keys keyCode;
-                if (!Enum.TryParse<Keys>(key, out keyCode))
+                if (!Enum.TryParse<Keys>(key, out _))
                 {
                     message = "キーボードイベント(" + type + ")のKey(" + key + ")が認識できないよ";
-                    return true;
                 }
-
-                message = "";
-                return false;
             }
 
-            message = "";
-            return false;
+            return message.Length > 0;
         }
 
         // マウスイベントの行なのにKey列にも値が入っている場合や、再生時に読み取れない値が
@@ -916,7 +897,7 @@ namespace EventRecorder
         }
 
         // Detail列とX/Y/Key列(非表示)を相互に同期させている最中、再帰的な同期を防ぐためのフラグ
-        private Boolean isSyncingDetailColumn = false;
+        private Boolean _isSyncingDetailColumn;
 
         // Event列を書き換えた直後もDetail列の警告表示(CellFormatting)がすぐ反映されるように、
         // 明示的にDetail列セルを再描画する(別列の値変更ではCellFormattingが自動では呼ばれないため)。
@@ -926,7 +907,7 @@ namespace EventRecorder
         // 要望により、KeyUp/SysKeyUpも他の行と同じく表示するようにした)
         private void dataGridView_Events_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || isSyncingDetailColumn)
+            if (e.RowIndex < 0 || _isSyncingDetailColumn)
             {
                 return;
             }
@@ -957,15 +938,15 @@ namespace EventRecorder
         }
 
         // Event列が"WAIT_MS"の行は、待機のためだけの行(実際の操作を伴わない)を表す
-        private const String WaitEventType = "WAIT_MS";
+        private const String _waitEventType = "WAIT_MS";
 
         // 旧バージョンでは"WAIT"という表記で保存していたため、読込時だけはこちらも
         // 同じ意味として扱えるようにしておく(IsWaitEventType参照)
-        private const String LegacyWaitEventType = "WAIT";
+        private const String _legacyWaitEventType = "WAIT";
 
         private static Boolean IsWaitEventType(String type)
         {
-            return type == WaitEventType || type == LegacyWaitEventType;
+            return type == _waitEventType || type == _legacyWaitEventType;
         }
 
         private void SyncDetailFromHiddenColumns(int rowIndex)
@@ -973,13 +954,13 @@ namespace EventRecorder
             DataGridViewRow row = dataGridView_Events.Rows[rowIndex];
             String type = Convert.ToString(row.Cells[col_Type.Index].Value);
 
-            isSyncingDetailColumn = true;
+            _isSyncingDetailColumn = true;
             try
             {
                 if (IsWaitEventType(type))
                 {
-                    String wait = Convert.ToString(row.Cells[col_Wait.Index].Value);
-                    row.Cells[col_Detail.Index].Value = FormatWaitDetail(wait);
+                    // WAIT_MS行のDetail表示は待機時間の数値そのもの(単位は付けない)
+                    row.Cells[col_Detail.Index].Value = Convert.ToString(row.Cells[col_Wait.Index].Value);
                 }
                 else
                 {
@@ -991,7 +972,7 @@ namespace EventRecorder
             }
             finally
             {
-                isSyncingDetailColumn = false;
+                _isSyncingDetailColumn = false;
             }
         }
 
@@ -1001,14 +982,12 @@ namespace EventRecorder
             String type = Convert.ToString(row.Cells[col_Type.Index].Value);
             String detail = Convert.ToString(row.Cells[col_Detail.Index].Value);
 
-            isSyncingDetailColumn = true;
+            _isSyncingDetailColumn = true;
             try
             {
                 if (IsWaitEventType(type))
                 {
-                    String wait;
-                    TryParseWaitDetail(detail, out wait);
-                    row.Cells[col_Wait.Index].Value = wait;
+                    row.Cells[col_Wait.Index].Value = ParseWaitDetail(detail);
                 }
                 else
                 {
@@ -1021,7 +1000,7 @@ namespace EventRecorder
             }
             finally
             {
-                isSyncingDetailColumn = false;
+                _isSyncingDetailColumn = false;
             }
         }
 
@@ -1070,25 +1049,16 @@ namespace EventRecorder
             }
         }
 
-        // WAIT_MS行のDetail表示(数値だけ、単位は付けない)
-        private static String FormatWaitDetail(String waitMs)
-        {
-            return waitMs;
-        }
-
-        // FormatWaitDetailの逆変換。旧バージョンの"500ms"のような末尾"ms"付き表記が
+        // WAIT_MS行のDetail列の値から待機時間を取り出す。旧バージョンの"500ms"のような末尾"ms"付き表記が
         // 残っていた場合もそのまま数値として読めるように、その場合だけ末尾を取り除く
-        private static Boolean TryParseWaitDetail(String detail, out String waitMs)
+        private static String ParseWaitDetail(String detail)
         {
-            waitMs = String.Empty;
-
             if (String.IsNullOrEmpty(detail))
             {
-                return false;
+                return String.Empty;
             }
 
-            waitMs = detail.EndsWith("ms") ? detail.Substring(0, detail.Length - 2) : detail;
-            return true;
+            return detail.EndsWith("ms") ? detail.Substring(0, detail.Length - 2) : detail;
         }
 
         // 記録した1イベント分をSendInputで再現する
@@ -1105,8 +1075,8 @@ namespace EventRecorder
                 flags.Add(InputSimulation.InputSimulator.MouseStroke.MOVE);
                 flags.Add(mouseStroke);
 
-                int ix = util.GetInteger(x);
-                int iy = util.GetInteger(y);
+                int ix = _util.GetInteger(x);
+                int iy = _util.GetInteger(y);
                 InputSimulation.InputSimulator.AddMouseInput(ref inputs, flags, 0, true, ix, iy);
                 InputSimulation.InputSimulator.SendInput(inputs);
                 TrackPressedMouseButton(mouseStroke);
@@ -1127,19 +1097,19 @@ namespace EventRecorder
         // 再生中にDownしたまま(まだUpしていない)のキー/マウスボタン。再生スレッドからしか触らない。
         // 途中で再生を中断すると、Downだけ送って止まったキー/ボタンが押しっぱなしになってしまうため、
         // 中断時にReleaseAllPressedInputsでまとめてUpに戻す
-        private readonly HashSet<Keys> playbackPressedKeys = new HashSet<Keys>();
-        private readonly HashSet<InputSimulation.InputSimulator.MouseStroke> pressedMouseUpStrokes
+        private readonly HashSet<Keys> _playbackPressedKeys = new HashSet<Keys>();
+        private readonly HashSet<InputSimulation.InputSimulator.MouseStroke> _pressedMouseUpStrokes
             = new HashSet<InputSimulation.InputSimulator.MouseStroke>();
 
         private void TrackPressedKey(InputSimulation.InputSimulator.KeyboardStroke stroke, Keys keyCode)
         {
             if (stroke == InputSimulation.InputSimulator.KeyboardStroke.KEY_DOWN)
             {
-                playbackPressedKeys.Add(keyCode);
+                _playbackPressedKeys.Add(keyCode);
             }
             else
             {
-                playbackPressedKeys.Remove(keyCode);
+                _playbackPressedKeys.Remove(keyCode);
             }
         }
 
@@ -1149,22 +1119,22 @@ namespace EventRecorder
             switch (stroke)
             {
                 case InputSimulation.InputSimulator.MouseStroke.LEFT_DOWN:
-                    pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
+                    _pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
                     break;
                 case InputSimulation.InputSimulator.MouseStroke.LEFT_UP:
-                    pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
+                    _pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
                     break;
                 case InputSimulation.InputSimulator.MouseStroke.RIGHT_DOWN:
-                    pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.RIGHT_UP);
+                    _pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.RIGHT_UP);
                     break;
                 case InputSimulation.InputSimulator.MouseStroke.RIGHT_UP:
-                    pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.RIGHT_UP);
+                    _pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.RIGHT_UP);
                     break;
                 case InputSimulation.InputSimulator.MouseStroke.MIDDLE_DOWN:
-                    pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP);
+                    _pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP);
                     break;
                 case InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP:
-                    pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP);
+                    _pressedMouseUpStrokes.Remove(InputSimulation.InputSimulator.MouseStroke.MIDDLE_UP);
                     break;
             }
         }
@@ -1174,18 +1144,18 @@ namespace EventRecorder
         {
             List<InputSimulation.InputSimulator.Input> inputs = new List<InputSimulation.InputSimulator.Input>();
 
-            foreach (InputSimulation.InputSimulator.MouseStroke upStroke in pressedMouseUpStrokes)
+            foreach (InputSimulation.InputSimulator.MouseStroke upStroke in _pressedMouseUpStrokes)
             {
                 InputSimulation.InputSimulator.AddMouseInput(ref inputs, upStroke, 0, false, 0, 0);
             }
 
-            foreach (Keys keyCode in playbackPressedKeys)
+            foreach (Keys keyCode in _playbackPressedKeys)
             {
                 InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, InputSimulation.InputSimulator.KeyboardStroke.KEY_UP, keyCode);
             }
 
-            pressedMouseUpStrokes.Clear();
-            playbackPressedKeys.Clear();
+            _pressedMouseUpStrokes.Clear();
+            _playbackPressedKeys.Clear();
 
             if (inputs.Count > 0)
             {

@@ -75,7 +75,9 @@ namespace ResizeImg
                 int.Parse(textBox7.Text), int.Parse(textBox8.Text),
                 out sample, out original);
 
-            //pictureBox1に表示する
+            //pictureBoxに表示する(前回表示していた画像は破棄する)
+            pictureBox1.Image?.Dispose();
+            pictureBox2.Image?.Dispose();
             pictureBox1.Image = sample;
             pictureBox2.Image = original;
         }

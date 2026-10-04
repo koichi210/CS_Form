@@ -29,18 +29,16 @@ namespace Thumbnail
                 return;
             }
 
-            // プレビュー
+            // 画像ファイルは1回だけ読み込み、使い終わったら破棄する(Disposeしないとファイルがロックされたままになる)
+            using (Bitmap bmp = new Bitmap(textBox_FilePath.Text))
             {
-                Bitmap bmp = new Bitmap(textBox_FilePath.Text);
-                Bitmap preview = new Bitmap(bmp, pictureBox_Image.Width, pictureBox_Image.Height);
-                pictureBox_Image.Image = preview;
-            }
+                // プレビュー
+                pictureBox_Image.Image?.Dispose();
+                pictureBox_Image.Image = new Bitmap(bmp, pictureBox_Image.Width, pictureBox_Image.Height);
 
-            // サムネイル
-            {
-                Bitmap bmp = new Bitmap(textBox_FilePath.Text);
-                Image thumbnail = bmp.GetThumbnailImage(pictureBox_Thumbnail.Width, pictureBox_Thumbnail.Height, null, IntPtr.Zero);
-                pictureBox_Thumbnail.Image = thumbnail;
+                // サムネイル
+                pictureBox_Thumbnail.Image?.Dispose();
+                pictureBox_Thumbnail.Image = bmp.GetThumbnailImage(pictureBox_Thumbnail.Width, pictureBox_Thumbnail.Height, null, IntPtr.Zero);
             }
         }
     }

@@ -5,9 +5,10 @@ namespace MultiScreen
 {
     public partial class Form1 : Form
     {
-        private int ScreenWidth;    // 画面サイズ
-        private int ScreenHeight;   // 画面サイズ
-        private const int DefaultDlgNum = 10;    // ダイアログ生成数の既定値
+        private readonly int _screenWidth;    // 画面サイズ
+        private readonly int _screenHeight;   // 画面サイズ
+        private readonly Random _random = new Random();   // ダイアログの表示座標用(都度生成すると同じ値が続くため使い回す)
+        private const int _defaultDlgNum = 10;    // ダイアログ生成数の既定値
 
         public Form1()
         {
@@ -17,12 +18,12 @@ namespace MultiScreen
             InitializeToolTips();
 
             // ダイアログ生成数のDefault値を設定
-            textBox_DlgNum.Text = DefaultDlgNum.ToString();
+            textBox_DlgNum.Text = _defaultDlgNum.ToString();
             textBox_ButtonName.Text = "Click Me!!";
 
             // モニタの解像度取得
-            ScreenWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
-            ScreenHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+            _screenWidth = Screen.PrimaryScreen.Bounds.Width;
+            _screenHeight = Screen.PrimaryScreen.Bounds.Height;
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -48,31 +49,34 @@ namespace MultiScreen
 
         private void buttonAllPopup_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < int.Parse(textBox_DlgNum.Text); i++)
-            {
-                CreateDialog(i);
-            }
+            CreateDialogs(false);
         }
 
         private void buttonSequencePopup_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < int.Parse(textBox_DlgNum.Text); i++)
+            CreateDialogs(true);
+        }
+
+        private void CreateDialogs(bool isModal)
+        {
+            int dlgNum = int.Parse(textBox_DlgNum.Text);
+            for (int i = 0; i < dlgNum; i++)
             {
-                CreateDialog(i, true);
+                CreateDialog(i, isModal);
             }
         }
 
         private void CreateDialog(int dlgIndex, bool isModal = false)
         {
             // ランダムな表示座標を生成
-            Random random = new System.Random();
-            int dlgX = random.Next(ScreenWidth);
-            int dlgY = random.Next(ScreenHeight);
+            int dlgX = _random.Next(_screenWidth);
+            int dlgY = _random.Next(_screenHeight);
 
             // ダイアログの表示座標はマルチモニタを考慮する
-            int monitorIdx = dlgIndex % Screen.AllScreens.Length;
-            dlgX += Screen.AllScreens[monitorIdx].Bounds.Location.X;
-            dlgY += Screen.AllScreens[monitorIdx].Bounds.Location.Y;
+            Screen[] screens = Screen.AllScreens;
+            System.Drawing.Point monitorLocation = screens[dlgIndex % screens.Length].Bounds.Location;
+            dlgX += monitorLocation.X;
+            dlgY += monitorLocation.Y;
 
             // ダイアログ生成
             ChildDlg dlg = new ChildDlg(textBox_ButtonName.Text);
@@ -87,7 +91,7 @@ namespace MultiScreen
             }
             else
             {
-                dlg.Show(); // モードレス・ダイアログとして表示 
+                dlg.Show(); // モードレス・ダイアログとして表示
             }
         }
     }

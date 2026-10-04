@@ -6,7 +6,7 @@ namespace MoveDialog
 {
     public partial class Form1 : Form
     {
-        private readonly FormChild child = new FormChild();
+        private readonly FormChild _child = new FormChild();
 
         public Form1()
         {
@@ -18,7 +18,7 @@ namespace MoveDialog
             trackBarWindowHeight.Maximum = Screen.PrimaryScreen.Bounds.Height;
 
             // 子ウィンドウ表示
-            child.Show();
+            _child.Show();
         }
 
         // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
@@ -34,33 +34,33 @@ namespace MoveDialog
             toolTip.SetToolTip(trackBarWindowHeight, "子ウィンドウの高さ(ピクセル)。上限はプライマリ画面の高さ");
         }
 
-        private void updatePosition(object sender, EventArgs e)
+        private void UpdatePosition(object sender, EventArgs e)
         {
             switch ((sender as Button).Name)
             {
             case "buttonMoveDirectionUp":
-                child.Top = Logic.GetSubValue(child.Top, trackBarMoveDistance.Value);
+                _child.Top = Logic.GetSubValue(_child.Top, trackBarMoveDistance.Value);
                 break;
             case "buttonMoveDirectionDown":
-                child.Top = Logic.GetAddValue(trackBarWindowHeight.Maximum, child.Top, trackBarMoveDistance.Value, child.Height);
+                _child.Top = Logic.GetAddValue(trackBarWindowHeight.Maximum, _child.Top, trackBarMoveDistance.Value, _child.Height);
                 break;
             case "buttonMoveDirectionLeft":
-                child.Left = Logic.GetSubValue(child.Left, trackBarMoveDistance.Value);
+                _child.Left = Logic.GetSubValue(_child.Left, trackBarMoveDistance.Value);
                 break;
             case "buttonMoveDirectionRight":
-                child.Left = Logic.GetAddValue(trackBarWindowWidth.Maximum, child.Left, trackBarMoveDistance.Value, child.Width);
+                _child.Left = Logic.GetAddValue(trackBarWindowWidth.Maximum, _child.Left, trackBarMoveDistance.Value, _child.Width);
                 break;
             default:
                 // buttonMoveDirectionCenter
-                child.Left = (trackBarWindowWidth.Maximum - child.Width) / 2;
-                child.Top = (trackBarWindowHeight.Maximum - child.Height) / 2;
+                _child.Left = (trackBarWindowWidth.Maximum - _child.Width) / 2;
+                _child.Top = (trackBarWindowHeight.Maximum - _child.Height) / 2;
                 break;
             }
         }
 
         private void checkBoxVisible_CheckedChanged(object sender, EventArgs e)
         {
-            child.Visible = checkBoxVisible.Checked;
+            _child.Visible = checkBoxVisible.Checked;
         }
 
         private void trackBarMoveDistance_Scroll(object sender, EventArgs e)
@@ -68,18 +68,18 @@ namespace MoveDialog
             labelMoveDistanceValue.Text = trackBarMoveDistance.Value.ToString();
         }
 
-        private void updateRectSize(object sender, EventArgs e)
+        private void UpdateRectSize(object sender, EventArgs e)
         {
-            child.Width = trackBarWindowWidth.Value;
-            child.Height = trackBarWindowHeight.Value;
+            _child.Width = trackBarWindowWidth.Value;
+            _child.Height = trackBarWindowHeight.Value;
 
             labelWindowWidthValue.Text = trackBarWindowWidth.Value.ToString();
             labelWindowHeightValue.Text = trackBarWindowHeight.Value.ToString();
         }
 
-        private void updateColor(object sender, EventArgs e)
+        private void UpdateColor(object sender, EventArgs e)
         {
-            child.BackColor = Color.FromArgb(trackBarWindowColorRed.Value, trackBarWindowColorGreen.Value, trackBarWindowColorBlue.Value);
+            _child.BackColor = Color.FromArgb(trackBarWindowColorRed.Value, trackBarWindowColorGreen.Value, trackBarWindowColorBlue.Value);
 
             labelWindowColorRedValue.Text = trackBarWindowColorRed.Value.ToString();
             labelWindowColorGreenValue.Text = trackBarWindowColorGreen.Value.ToString();

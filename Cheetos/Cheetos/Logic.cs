@@ -20,7 +20,7 @@ namespace Cheetos
     {
         /// <summary>
         /// 画像の左右の白フチの太さを比較し、縦長（Portrait）向けの画像かどうかを判定する。
-        /// IsSample=true のときは判定結果をポップアップ表示する（もとの実装のまま）。
+        /// isSample=true のときは判定結果をポップアップ表示する（もとの実装のまま）。
         /// </summary>
         public static bool IsPortrait(String targetFileName, int whiteWidth, int whiteCoef, Boolean isSample = false)
         {
@@ -99,7 +99,7 @@ namespace Cheetos
 
         /// <summary>
         /// キャプチャ画像のファイル名の先頭部分（保存先＋接頭辞＋任意でタイムスタンプ）を組み立てる。
-        /// 元は cw_checkBox_AddTimeStamp.Checked を直接参照していたので、AddTimeStamp 引数に置き換えた。
+        /// 元は cw_checkBox_AddTimeStamp.Checked を直接参照していたので、addTimeStamp 引数に置き換えた。
         /// </summary>
         public static String BuildFilePathPrefix(String directoryPath, String prefix, Boolean addTimeStamp)
         {
@@ -138,6 +138,16 @@ namespace Cheetos
                 return (val + addValue).ToString();
             }
             return baseValue;
+        }
+
+        /// <summary>
+        /// 整数として読める文字列ならそのまま、読めなければ空文字を返す
+        /// (回転タブとRotationPreviewの入力欄の補正で共通)。
+        /// </summary>
+        public static String KeepIfInteger(String text)
+        {
+            int val;
+            return Int32.TryParse(text, out val) ? text : "";
         }
     }
 }

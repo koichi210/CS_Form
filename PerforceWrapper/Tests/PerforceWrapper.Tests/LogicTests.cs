@@ -18,7 +18,7 @@ namespace PerforceWrapper.Tests
         {
             var result = Logic.GetOperatorType(checkoutChecked: true, restoreChecked: false, deleteChecked: false, getLatestChecked: false);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.EDIT, result);
+            Assert.AreEqual(Perforce.OperatorType.Edit, result);
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace PerforceWrapper.Tests
         {
             var result = Logic.GetOperatorType(checkoutChecked: false, restoreChecked: true, deleteChecked: false, getLatestChecked: false);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.REVERT, result);
+            Assert.AreEqual(Perforce.OperatorType.Revert, result);
         }
 
         [TestMethod]
@@ -34,7 +34,7 @@ namespace PerforceWrapper.Tests
         {
             var result = Logic.GetOperatorType(checkoutChecked: false, restoreChecked: false, deleteChecked: true, getLatestChecked: false);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.DELETE, result);
+            Assert.AreEqual(Perforce.OperatorType.Delete, result);
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@ namespace PerforceWrapper.Tests
         {
             var result = Logic.GetOperatorType(checkoutChecked: false, restoreChecked: false, deleteChecked: false, getLatestChecked: true);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.SYNC, result);
+            Assert.AreEqual(Perforce.OperatorType.Sync, result);
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace PerforceWrapper.Tests
         {
             var result = Logic.GetOperatorType(checkoutChecked: false, restoreChecked: false, deleteChecked: false, getLatestChecked: false);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.SYNC, result);
+            Assert.AreEqual(Perforce.OperatorType.Sync, result);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace PerforceWrapper.Tests
             // （実際のラジオボタンは単一選択だが、判定順の仕様として記録しておく）。
             var result = Logic.GetOperatorType(checkoutChecked: true, restoreChecked: true, deleteChecked: true, getLatestChecked: true);
 
-            Assert.AreEqual(Perforce.OPERATOR_TYPE.EDIT, result);
+            Assert.AreEqual(Perforce.OperatorType.Edit, result);
         }
 
         // ------------------------------------------------------------------
@@ -70,32 +70,32 @@ namespace PerforceWrapper.Tests
         [TestMethod]
         public void GetCurrentTabId_0番目はBASE_OPERATION()
         {
-            Assert.AreEqual(Logic.TAB_ID.BASE_OPERATION, Logic.GetCurrentTabId(0));
+            Assert.AreEqual(Logic.TabId.BaseOperation, Logic.GetCurrentTabId(0));
         }
 
         [TestMethod]
         public void GetCurrentTabId_1番目はSET_LABEL()
         {
-            Assert.AreEqual(Logic.TAB_ID.SET_LABEL, Logic.GetCurrentTabId(1));
+            Assert.AreEqual(Logic.TabId.SetLabel, Logic.GetCurrentTabId(1));
         }
 
         [TestMethod]
         public void GetCurrentTabId_2番目はDIFF_LABEL()
         {
-            Assert.AreEqual(Logic.TAB_ID.DIFF_LABEL, Logic.GetCurrentTabId(2));
+            Assert.AreEqual(Logic.TabId.DiffLabel, Logic.GetCurrentTabId(2));
         }
 
         [TestMethod]
         public void GetCurrentTabId_3番目はAPPLY_LABEL()
         {
-            Assert.AreEqual(Logic.TAB_ID.APPLY_LABEL, Logic.GetCurrentTabId(3));
+            Assert.AreEqual(Logic.TabId.ApplyLabel, Logic.GetCurrentTabId(3));
         }
 
         [TestMethod]
         public void GetCurrentTabId_範囲外の値は既定値のBASE_OPERATION()
         {
-            Assert.AreEqual(Logic.TAB_ID.BASE_OPERATION, Logic.GetCurrentTabId(99));
-            Assert.AreEqual(Logic.TAB_ID.BASE_OPERATION, Logic.GetCurrentTabId(-1));
+            Assert.AreEqual(Logic.TabId.BaseOperation, Logic.GetCurrentTabId(99));
+            Assert.AreEqual(Logic.TabId.BaseOperation, Logic.GetCurrentTabId(-1));
         }
     }
 }

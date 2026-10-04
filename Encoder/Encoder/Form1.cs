@@ -7,7 +7,7 @@ namespace Encoder
 {
     public partial class Form1 : Form
     {
-        private StcUtils util = new StcUtils();
+        private readonly StcUtils _util = new StcUtils();
 
         public Form1()
         {
@@ -45,11 +45,9 @@ namespace Encoder
             if (radioButton_Utf8ToSjis.Checked)
             {
                 StcFileInputOutput fio = new StcFileInputOutput();
-                String outputFileName = Path.GetDirectoryName(inputPathName)
-                    + @"\" + Path.GetFileNameWithoutExtension(inputPathName)
-                    + "_sjis"
-                    + Path.GetExtension(inputPathName);
-                fio.ChangeStringCodeUTF2SJIS(inputPathName, outputFileName);
+                String outputFileName = Path.Combine(Path.GetDirectoryName(inputPathName),
+                    Path.GetFileNameWithoutExtension(inputPathName) + "_sjis" + Path.GetExtension(inputPathName));
+                fio.ChangeStringCodeUtf2Sjis(inputPathName, outputFileName);
             }
             else
             {
@@ -59,7 +57,7 @@ namespace Encoder
 
         private void DropBox_DragEnter(object sender, DragEventArgs e)
         {
-            util.SetDragFile(e);
+            _util.SetDragFile(e);
         }
 
         private void DropBox_DragDrop(object sender, DragEventArgs e)

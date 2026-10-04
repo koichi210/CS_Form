@@ -13,7 +13,7 @@ namespace PerforceWrapper
             RegisterCtrl("Perforce", "comboBox_perforce_server", parent.comboBox_perforce_server);
             RegisterCtrlList("Perforce", "comboBox_perforce_user", parent.comboBox_perforce_user);
             RegisterCtrl("Perforce", "comboBox_perforce_user", parent.comboBox_perforce_user);
-            RegisterSecureCtrl("Perforce", "textbox_perforce_password", parent.textbox_perforce_password);
+            RegisterSecureCtrl("Perforce", "textbox_perforce_password", parent.textBox_perforce_password);
             RegisterCtrlList("Perforce", "comboBox_perforce_workspace", parent.comboBox_perforce_workspace);
             RegisterCtrl("Perforce", "comboBox_perforce_workspace", parent.comboBox_perforce_workspace);
             RegisterCtrl("Perforce", "comboBox_perforce_charset", parent.comboBox_perforce_charset);

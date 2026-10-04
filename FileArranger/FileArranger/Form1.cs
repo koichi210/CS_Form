@@ -8,41 +8,41 @@ namespace FileArranger
 {
     partial class FileArranger : StcBaseForm<SaveRestore>
     {
-        readonly String SettingFileNameXml = @"FileArranger.xml";
-        readonly String SettingFileNameJson = @"FileArranger.json";
+        private const String _settingFileNameXml = @"FileArranger.xml";
+        private const String _settingFileNameJson = @"FileArranger.json";
 
         // プロファイル(FileArranger.xml/.json)の置き場。exe直下(bin/Debug、bin/Release)は
         // ビルド出力の掃除等で丸ごと消される事故が起きうるため、そこには置かない。
         // 実データは%LOCALAPPDATA%\FileArranger\配下(既定)にあり、exe直下にはその場所を示す
         // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
-        private const String AppName = "FileArranger";
-        readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+        private const String _appName = "FileArranger";
+        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
-        private readonly String[] RenameDirColumns = { "変更前", "変更後" };
-        private readonly String[] PartitionFileColumns = { "対象", "移動前名称", "移動後名称" };
+        private static readonly String[] _renameDirColumns = { "変更前", "変更後" };
+        private static readonly String[] _partitionFileColumns = { "対象", "移動前名称", "移動後名称" };
 
         // rd_listView_Targetの列Idx
-        private readonly int RenameSrcIdx = 0;
-        private readonly int RenameDestIdx = 1;
+        private const int _renameSrcIdx = 0;
+        private const int _renameDestIdx = 1;
 
         // pf_listView_Targetの列Idx
-        private readonly int PartitionTargetIdx = 0;
-        private readonly int PartitionMoveSrcIdx = 1;
-        private readonly int PartitionMoveDestIdx = 2;
+        private const int _partitionTargetIdx = 0;
+        private const int _partitionMoveSrcIdx = 1;
+        private const int _partitionMoveDestIdx = 2;
 
         // リファレンス名の候補
         public String[] ReferenceCandidateFolders { get; set; }
 
-        private StcFileInputOutput fio = new StcFileInputOutput();
-        // StcBaseForm<SaveRestore>のprotected StcUtils utilを、FileArranger固有の拡張
+        private readonly StcFileInputOutput _fio = new StcFileInputOutput();
+        // StcBaseForm<SaveRestore>のprotected StcUtils _utilを、FileArranger固有の拡張
         // メソッド(AvoidFolderNameConflict等)を持つUtilsで意図的に隠す。
-        // UtilsはStcUtilsを継承しているだけなので、既存のutil.ExecutePath()等の呼び出しは
+        // UtilsはStcUtilsを継承しているだけなので、既存の_util.ExecutePath()等の呼び出しは
         // そのまま継承元のメソッドとして動く。
-        private new Utils util = new Utils();
-        private StcProcessMemory renameDirMemory = new StcProcessMemory();    // フォルダ名変更(rdタブ)の復元用
-        private FileSorter sorter = new FileSorter();
+        private new Utils _util = new Utils();
+        private readonly StcProcessMemory _renameDirMemory = new StcProcessMemory();    // フォルダ名変更(rdタブ)の復元用
+        private readonly FileSorter _sorter = new FileSorter();
 
         public FileArranger()
         {
@@ -56,13 +56,13 @@ namespace FileArranger
             InitializePlaceholders();
             InitializeToolTips();
 
-            sr.RegisterLoadItem(this);
+            _sr.RegisterLoadItem(this);
 
             // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
             // ([[_Common/JsonSaveRestore.cs]])
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileNameJson);
-            String defaultXmlPath = Path.Combine(userDataFolder, SettingFileNameXml);
-            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
+            String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileNameJson);
+            String defaultXmlPath = Path.Combine(_userDataFolder, _settingFileNameXml);
+            JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
 
             UpdateProfileListAll("");
         }
@@ -170,16 +170,16 @@ namespace FileArranger
         {
             if (IsJsonFile(filePath))
             {
-                return sr.LoadJsonFile(filePath, this);
+                return _sr.LoadJsonFile(filePath, this);
             }
 
-            return sr.LoadProc(filePath, this);
+            return _sr.LoadProc(filePath, this);
         }
 
         // 旧XMLの読み込み(移行用)。JsonSaveRestore.LoadWithMigrationへ渡す
         private Boolean LoadProfileFromXml(String path)
         {
-            return sr.LoadProc(path, this);
+            return _sr.LoadProc(path, this);
         }
 
         // 設定ファイルを拡張子で振り分けて保存する
@@ -187,31 +187,31 @@ namespace FileArranger
         {
             if (IsJsonFile(filePath))
             {
-                return sr.SaveJsonFile(filePath, this);
+                return _sr.SaveJsonFile(filePath, this);
             }
 
-            return sr.SaveSetting(filePath, this);
+            return _sr.SaveSetting(filePath, this);
         }
 
         // comboBox_LoadSettingへ、userDataFolder配下の*.xmlと*.jsonの両方をまとめてリストアップする。
-        // util.UpdateProfileListは拡張子を1パターンしか指定できないため、2回検索した結果をマージする
+        // _util.UpdateProfileListは拡張子を1パターンしか指定できないため、2回検索した結果をマージする
         private void UpdateProfileListAll(String defaultProfileName)
         {
-            String[] xmlFiles = Directory.GetFiles(userDataFolder, "*.xml", SearchOption.AllDirectories);
-            String[] jsonFiles = Directory.GetFiles(userDataFolder, "*.json", SearchOption.AllDirectories);
+            String[] xmlFiles = Directory.GetFiles(_userDataFolder, "*.xml", SearchOption.AllDirectories);
+            String[] jsonFiles = Directory.GetFiles(_userDataFolder, "*.json", SearchOption.AllDirectories);
             String[] files = xmlFiles.Concat(jsonFiles).ToArray();
 
-            util.SetComboBoxFromArray(comboBox_LoadSetting, files, userDataFolder);
-            util.SetComboBoxText(comboBox_LoadSetting, defaultProfileName);
+            _util.SetComboBoxFromArray(comboBox_LoadSetting, files, _userDataFolder);
+            _util.SetComboBoxText(comboBox_LoadSetting, defaultProfileName);
         }
 
         private void cmn_textBox_AddList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(e);
+            _util.SelectAll(e);
         }
 
         // リストアップ前のフォルダ確認。各タブで同じ確認をしていたためまとめた
-        // (IsErrorPopup=falseなら、無効でもメッセージを出さずに中断する)
+        // (showErrorPopup=falseなら、無効でもメッセージを出さずに中断する)
         private static Boolean IsValidFolderPath(String folderPath, Boolean showErrorPopup = true)
         {
             if (Directory.Exists(folderPath))
@@ -233,9 +233,87 @@ namespace FileArranger
             return fullPath.Remove(0, baseFolderPath.Length + 1);
         }
 
+        // パス一覧を表示用の名前にしてListBoxへ並べ直す(各タブのリストアップで共通)
+        private static void FillListBox(ListBox listBox, String[] paths, String baseFolderPath)
+        {
+            listBox.BeginUpdate();
+            listBox.Items.Clear();
+            listBox.Items.AddRange(paths.Select(path => (object)GetDisplayName(path, baseFolderPath)).ToArray());
+            listBox.EndUpdate();
+        }
+
+        // パス一覧を表示用の名前にしてListViewへ並べ直す。1列目に名前を入れ、残りの列は空欄にする
+        private static void FillListView(ListView listView, String[] paths, String baseFolderPath, int columnCount)
+        {
+            listView.BeginUpdate();
+            listView.Items.Clear();
+            foreach (String path in paths)
+            {
+                String[] item = new String[columnCount];
+                item[0] = GetDisplayName(path, baseFolderPath);
+                for (int i = 1; i < columnCount; i++)
+                {
+                    item[i] = "";
+                }
+                listView.Items.Add(new ListViewItem(item));
+            }
+            listView.EndUpdate();
+        }
+
+        // ListViewの列を作り直し、幅を均等に割り振る
+        private static void RecreateColumnsEvenly(ListView listView, String[] columnNames)
+        {
+            listView.Columns.Clear();
+
+            // ListViewコントロールのプロパティを設定
+            listView.FullRowSelect = true;
+            listView.GridLines = true;
+            listView.Sorting = SortOrder.Ascending;
+            listView.View = View.Details;
+
+            // 列（コラム）ヘッダの作成
+            int columnWidth = listView.Width / columnNames.Length;
+            foreach (String columnName in columnNames)
+            {
+                listView.Columns.Add(new ColumnHeader { Text = columnName, Width = columnWidth });
+            }
+        }
+
+        // 選択項目が無ければメッセージを出してfalseを返す(各タブの実行ボタンで共通)
+        private static Boolean HasSelectedItems(int selectedCount)
+        {
+            if (selectedCount > 0)
+            {
+                return true;
+            }
+
+            MessageBox.Show("項目が選択されていません。");
+            return false;
+        }
+
+        private static String FormatSelectedCount(int selectedCount)
+        {
+            return "選択数：" + selectedCount.ToString();
+        }
+
+        // BackgroundWorker実行前の進捗バー初期化(mf/pfタブで共通)
+        private void ResetProgressBar(int maximum)
+        {
+            progressBar.Maximum = maximum;
+            progressBar.Minimum = 0;
+            progressBar.Value = 0;
+        }
+
+        // BackgroundWorkerの進捗表示(mf/pfタブで共通)
+        private void ShowProgress(int doneCount)
+        {
+            progressText.Text = doneCount + "/" + progressBar.Maximum + " 完了";
+            progressBar.Value = doneCount;
+        }
+
         private void SaveSetting_Click(object sender, EventArgs e)
         {
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile, userDataFolder);
+            JsonSaveRestore.SaveProfileWithDialog(_util, _fio, comboBox_LoadSetting, _profileExtensions, SaveProfile, _userDataFolder);
         }
 
         // Ctrl+Sで「設定値保存」ボタンと同じ動作にする(テキストボックス等にフォーカスがあっても拾える)
@@ -263,8 +341,8 @@ namespace FileArranger
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
                 return;
             }
 
@@ -273,7 +351,7 @@ namespace FileArranger
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            String loadFileName = Path.Combine(_userDataFolder, comboBox_LoadSetting.Text);
             LoadProfile(loadFileName);
         }
 
@@ -300,7 +378,7 @@ namespace FileArranger
             ReferenceCandidateFolders = Directory.GetDirectories(cmn_textBox_Reference.Text);
 
             // 新規追加
-            if ( !cmn_textBox_AddList.Text.Equals(String.Empty) )
+            if (cmn_textBox_AddList.Text != String.Empty)
             {
                 String[] addReferenceList = cmn_textBox_AddList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 Logic.DeleteDuplicate(ReferenceCandidateFolders, ref addReferenceList, rd_textBox_SplitWord3.Text);

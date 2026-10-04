@@ -42,11 +42,8 @@ namespace Rotation
 
         private void button_ClickDraw(object sender, EventArgs e)
         {
-            if (pictureBox_Source.Image != null)
-            {
-                pictureBox_Source.Image.Dispose();
-                pictureBox_Source.Image = null;
-            }
+            pictureBox_Source.Image?.Dispose();
+            pictureBox_Source.Image = null;
             pictureBox_Source.Image = Image.FromFile(textBox_loadfilepath.Text);
             DrawPictureBox();
         }
@@ -61,30 +58,34 @@ namespace Rotation
 
         private void textBox_angle_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_angle.Text = Logic.UpdateValue(textBox_angle.Text, e.KeyCode);
-            DrawPictureBox();
+            UpdateValueAndRedraw(textBox_angle, e.KeyCode);
         }
 
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginX.Text = Logic.UpdateValue(textBox_OriginX.Text, e.KeyCode);
-            DrawPictureBox();
+            UpdateValueAndRedraw(textBox_OriginX, e.KeyCode);
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginY.Text = Logic.UpdateValue(textBox_OriginY.Text, e.KeyCode);
+            UpdateValueAndRedraw(textBox_OriginY, e.KeyCode);
+        }
+
+        // ↑/↓キーで入力欄の値を1ずつ増減し、プレビューを更新する
+        private void UpdateValueAndRedraw(TextBox textBox, Keys keyCode)
+        {
+            textBox.Text = Logic.UpdateValue(textBox.Text, keyCode);
             DrawPictureBox();
         }
 
         // キー入力のたびに呼ばれるため、入力途中の値や画像未指定では例外にせず、描画せずにfalseを返す
-        private Boolean DrawPictureBox(Boolean isSave = false)
+        private bool DrawPictureBox(bool isSave = false)
         {
             int angle;
             float x;
             float y;
             if (!File.Exists(textBox_loadfilepath.Text) ||
-                !Int32.TryParse(textBox_angle.Text, out angle) ||
+                !int.TryParse(textBox_angle.Text, out angle) ||
                 !float.TryParse(textBox_OriginX.Text, out x) ||
                 !float.TryParse(textBox_OriginY.Text, out y))
             {
@@ -119,11 +120,7 @@ namespace Rotation
             }
 
             //pictureBoxに表示
-            if (pictureBox_Dest.Image != null)
-            {
-                pictureBox_Dest.Image.Dispose();
-                pictureBox_Dest.Image = null;
-            }
+            pictureBox_Dest.Image?.Dispose();
             pictureBox_Dest.Image = canvas;
 
             if (isSave)

@@ -5,12 +5,12 @@ using System.IO;
 
 namespace FileArranger
 {
-    // ファイル移動タブ(mf)の処理(Form1.csから分割。コードは移しただけで中身は変えていない)
+    // ファイル移動タブ(mf)の処理(Form1.csから分割)
     partial class FileArranger
     {
         private void mf_textBox_TargetDir_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(mf_textBox_TargetDir.Text, e);
+            _util.ExecutePath(mf_textBox_TargetDir.Text, e);
         }
 
         private void mf_button_Listup_Click(object sender, EventArgs e)
@@ -27,41 +27,33 @@ namespace FileArranger
 
             // 移動元フォルダをリストアップ
             String[] files = Directory.GetFiles(mf_textBox_SourceDir.Text);
-            mf_listBox_Target.Items.Clear();
-            for (int i = 0; i < files.Length; i++)
-            {
-                String fileName = GetDisplayName(files[i], mf_textBox_SourceDir.Text);
-                mf_listBox_Target.Items.Add(fileName);
-            }
+            FillListBox(mf_listBox_Target, files, mf_textBox_SourceDir.Text);
             mf_label_TotalNum.Text = "ファイル数：" + files.Length.ToString();
         }
 
         private void mf_listBox_Target_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(e);
+            _util.SelectAll(e);
         }
 
         private void mf_listBox_Target_SelectedIndexChanged(object sender, EventArgs e)
         {
-            mf_label_SelectNum.Text = "選択数：" + mf_listBox_Target.SelectedItems.Count.ToString();
+            mf_label_SelectNum.Text = FormatSelectedCount(mf_listBox_Target.SelectedItems.Count);
         }
 
         private void mf_button_MoveFile_Click(object sender, EventArgs e)
         {
-            if (!fio.EnsureDirectory(mf_textBox_TargetDir.Text))
+            if (!_fio.EnsureDirectory(mf_textBox_TargetDir.Text))
             {
                 return;
             }
 
-            if (mf_listBox_Target.SelectedItems.Count == 0)
+            if (!HasSelectedItems(mf_listBox_Target.SelectedItems.Count))
             {
-                MessageBox.Show("項目が選択されていません。");
                 return;
             }
 
-            progressBar.Maximum = mf_listBox_Target.SelectedItems.Count;
-            progressBar.Minimum = 0;
-            progressBar.Value = 0;
+            ResetProgressBar(mf_listBox_Target.SelectedItems.Count);
 
             // 別スレッドを非同期実行
             MoveFileWorkerParam param = new MoveFileWorkerParam
@@ -69,9 +61,9 @@ namespace FileArranger
                 SourceDir = mf_textBox_SourceDir.Text,
                 TargetDir = mf_textBox_TargetDir.Text,
             };
-            for (int i = 0; i < mf_listBox_Target.SelectedItems.Count; i++)
+            foreach (object selectedItem in mf_listBox_Target.SelectedItems)
             {
-                param.TargetNames.Add(mf_listBox_Target.SelectedItems[i].ToString());
+                param.TargetNames.Add(selectedItem.ToString());
             }
 
             bgWorkerMove.RunWorkerAsync(param);   // ⇒bgWorker_DoWork()
@@ -79,7 +71,7 @@ namespace FileArranger
 
         private void mf_textBox_SourceDir_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(mf_textBox_SourceDir.Text, e);
+            _util.ExecutePath(mf_textBox_SourceDir.Text, e);
         }
 
         private void bgWorkerMove_DoWork(object sender, DoWorkEventArgs e)
@@ -95,23 +87,16 @@ namespace FileArranger
             {
                 String targetName = param.TargetNames[i];
                 String sourcePath = param.SourceDir + @"\" + targetName;
-                String targetPath = param.TargetDir + @"\" + fio.GetLastPathName(targetName);
+                String targetPath = param.TargetDir + @"\" + _fio.GetLastPathName(targetName);
 
                 // 移動先に同名のファイルがある場合は重複回避
                 // (targetPathはファイルパスなので、フォルダの有無しか見ないAvoidFolderNameConflictでは
                 //  同名ファイルの存在を検知できず、Move処理に失敗してしまう。AvoidFileNameConflictで
                 //  ファイル/フォルダ両方の存在をチェックしてリネームする)
-                util.AvoidFileNameConflict(ref targetPath, i);
-                fio.MoveDirectory(sourcePath, targetPath);
+                _util.AvoidFileNameConflict(ref targetPath, i);
+                _fio.MoveDirectory(sourcePath, targetPath);
 
                 worker.ReportProgress(i);      // ⇒ProgressChanged()
-
-                // キャンセルされてないかチェック
-                //if (worker.CancellationPending)
-                //{
-                //    e.Cancel = true;
-                //    return;
-                //}
             }
             worker.ReportProgress(param.TargetNames.Count);
 
@@ -124,8 +109,7 @@ namespace FileArranger
         private void bgWorkerMove_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             // 進捗率の表示
-            progressText.Text = e.ProgressPercentage + "/" + progressBar.Maximum + " 完了";
-            progressBar.Value = e.ProgressPercentage;
+            ShowProgress(e.ProgressPercentage);
         }
 
         private void bgWorkerMove_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

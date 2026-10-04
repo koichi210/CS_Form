@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace FFEdit
 {
@@ -18,71 +19,58 @@ namespace FFEdit
         public List<String> FileList { get; set; }
         public FunctionType Type { get; set; }
 
-        private FileMng fm = new FileMng();
+        private readonly FileMng _fileMng = new FileMng();
 
         public Boolean Restore()
         {
-            return fm.RestoreAll();
+            return _fileMng.RestoreAll();
         }
 
         public String Execute()
         {
-            String errorList = "";
+            StringBuilder errorList = new StringBuilder();
 
             for (int i = 0; i < FileList.Count; i++)
             {
                 String srcName = BaseDir + '\\' + FileList[i];
-                String destName = "";
-                switch (Type)
+                if (Type == FunctionType.DelEmptyDir)
                 {
-                    case FunctionType.DelEmptyDir:
-                        fm.DeleteBlankDir(srcName);
-                        break;
+                    _fileMng.DeleteBlankDir(srcName);
+                    continue;
+                }
 
-                    case FunctionType.Move:
-                        destName = DestDir + '\\' + Path.GetFileName(FileList[i]);
-                        if (srcName == destName)
-                        {
-                            // 同一だったら処理しない
-                            continue;
-                        }
+                // 移動/コピー(サブフォルダ内の項目も移動先の直下に置く)
+                String destName = DestDir + '\\' + Path.GetFileName(FileList[i]);
+                if (srcName == destName)
+                {
+                    // 同一だったら処理しない
+                    continue;
+                }
 
-                        Directory.CreateDirectory(DestDir);
-                        if (fm.Move(srcName, destName))
-                        {
-                            // 復元用に設定を覚えておく
-                            fm.AddRestoreItem(srcName, destName);
-                        }
-                        else
-                        {
-                            errorList += "Src=" + srcName + Environment.NewLine;
-                            errorList += "Dst=" + destName + Environment.NewLine;
-                            errorList += Environment.NewLine;
-                        }
-                        break;
+                Directory.CreateDirectory(DestDir);
+                Boolean isSuccess;
+                if (Type == FunctionType.Move)
+                {
+                    isSuccess = _fileMng.Move(srcName, destName);
+                    if (isSuccess)
+                    {
+                        // 復元用に設定を覚えておく(コピーのときは処理を覚えない)
+                        _fileMng.AddRestoreItem(srcName, destName);
+                    }
+                }
+                else
+                {
+                    isSuccess = _fileMng.Copy(srcName, destName);
+                }
 
-                    case FunctionType.Copy:
-                        destName = DestDir + '\\' + Path.GetFileName(FileList[i]);
-                        if (srcName == destName)
-                        {
-                            // 同一だったら処理しない
-                            continue;
-                        }
-
-                        Directory.CreateDirectory(DestDir);
-                        // コピーのときは処理を覚えない
-                        if (!fm.Copy(srcName, destName))
-                        {
-                            errorList += "Src=" + srcName + Environment.NewLine;
-                            errorList += "Dst=" + destName + Environment.NewLine;
-                            errorList += Environment.NewLine;
-                        }
-                        break;
+                if (!isSuccess)
+                {
+                    FileMng.AppendError(errorList, srcName, destName);
                 }
             }
-            fm.IncrementSerialNumber();
+            _fileMng.IncrementSerialNumber();
 
-            return errorList;
+            return errorList.ToString();
         }
     }
 }

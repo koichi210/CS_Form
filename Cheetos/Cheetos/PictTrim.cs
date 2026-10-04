@@ -12,12 +12,12 @@ namespace Cheetos
     {
         private void Button_TrimListup_Click(object sender, EventArgs e)
         {
-            ListupTrim();
+            ListUpTrim();
         }
 
         private void pt_ListBox_ListUp_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(e);
+            _util.SelectAll(e);
         }
 
         private void pt_ListBox_ListUp_SelectedIndexChanged(object sender, EventArgs e)
@@ -44,14 +44,14 @@ namespace Cheetos
             pt_TargetY.Text = target.Y.ToString();
         }
 
-        private void ListupTrim()
+        private void ListUpTrim()
         {
-            ListupFolderFiles(pt_SourceFolderPath, pt_ListBox_ListUp);
+            ListUpFolderFiles(pt_SourceFolderPath, pt_ListBox_ListUp);
         }
 
         private void Button_Trim_Click(object sender, EventArgs e)
         {
-            debugLog.WriteData("Button_Trim_Click" + Environment.NewLine, false);
+            _debugLog.WriteData("Button_Trim_Click" + Environment.NewLine, false);
 
             // キャンセル
             if (bkgWorkerTrim.IsBusy)
@@ -61,7 +61,7 @@ namespace Cheetos
             }
 
             String backUpDirPath = pt_SourceFolderPath.Text + @"\" + @"Bk_Trim";
-            if (!fio.EnsureDirectory(backUpDirPath))
+            if (!_fio.EnsureDirectory(backUpDirPath))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
                 return;
@@ -99,13 +99,13 @@ namespace Cheetos
                 BackUpDirPath = backUpDirPath,
             };
 
-            debugLog.WriteData("Source = " + pt_SourceFolderPath.Text);
-            debugLog.WriteData("Backup = " + backUpDirPath);
-            debugLog.WriteData("Pos(" + pt_BaseX.Text + "," + pt_BaseY.Text + ")");
-            debugLog.WriteData("Size(" + targetWidth + "," + targetHeight + ")");
+            _debugLog.WriteData("Source = " + pt_SourceFolderPath.Text);
+            _debugLog.WriteData("Backup = " + backUpDirPath);
+            _debugLog.WriteData("Pos(" + pt_BaseX.Text + "," + pt_BaseY.Text + ")");
+            _debugLog.WriteData("Size(" + targetWidth + "," + targetHeight + ")");
 
             // ListBoxの値を配列で取得
-            param.TargetFileNames = util.GetStrArrayFromListBox(pt_ListBox_ListUp.SelectedItems);
+            param.TargetFileNames = _util.GetStrArrayFromListBox(pt_ListBox_ListUp.SelectedItems);
 
             SetStartTime();
             pt_Button_Trim.Text = "中断";
@@ -179,7 +179,7 @@ namespace Cheetos
             pt_Button_Trim.Text = "切り取り";
 
             // リストを更新
-            ListupTrim();
+            ListUpTrim();
         }
     }
 }

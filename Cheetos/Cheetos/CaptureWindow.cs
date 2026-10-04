@@ -9,29 +9,29 @@ namespace Cheetos
     // CaptureWindow
     partial class Cheetos
     {
-        private readonly CaptWindow cw = new CaptWindow();
+        private readonly CaptWindow _captWindow = new CaptWindow();
         private void tabPageCaptureWindow_MouseMove(object sender, MouseEventArgs e)
         {
             cw_TextBox_Status.Text = "X=" + Cursor.Position.X.ToString() + ", Y=" + Cursor.Position.Y.ToString();
         }
 
         // Captureボタンを押した瞬間のマウス座標。一連のCapture処理が終わったらここへ戻す
-        private Point captureStartCursorPosition;
+        private Point _captureStartCursorPosition;
 
         private void Button_Capture_Click(object sender, EventArgs e)
         {
             // 実行中だったら停止する(他タブのBackgroundWorkerと同じ「もう一度押すと中断」)。
             // isCaptureRunningはスレッドが終わるまでtrueのままにしておく(ここでfalseにすると、
             // スレッドの終了処理が終わる前にもう一度押されたとき二重起動してしまう)
-            if (isCaptureRunning)
+            if (_isCaptureRunning)
             {
-                cw.Stop();
+                _captWindow.Stop();
                 return;
             }
 
-            captureStartCursorPosition = Cursor.Position;
+            _captureStartCursorPosition = Cursor.Position;
 
-            fio.EnsureDirectory(cw_TextBox_SavePath.Text, true);
+            _fio.EnsureDirectory(cw_TextBox_SavePath.Text, true);
             String filePathPrefix = Logic.BuildFilePathPrefix(cw_TextBox_SavePath.Text, cw_TextBox_SaveFilePrefix.Text, cw_checkBox_AddTimeStamp.Checked);
 
             int loopCount = 1;
@@ -44,23 +44,23 @@ namespace Cheetos
 
             // キャプチャ対象を設定。以降はバックグラウンドスレッドで動くため、
             // コントロールの値はここ(UIスレッド)で読み取っておく
-            CaptWindow.CAPTURE_TARGET captTarget;
+            CaptWindow.CaptureTargetType captTarget;
             if (cw_Radio_FullScreen.Checked)
             {
-                captTarget = CaptWindow.CAPTURE_TARGET.FULL_SCREEN;
+                captTarget = CaptWindow.CaptureTargetType.FullScreen;
             }
             else if (cw_Radio_CurrentScreen.Checked)
             {
-                captTarget = CaptWindow.CAPTURE_TARGET.CURRENT_SCREEN;
+                captTarget = CaptWindow.CaptureTargetType.CurrentScreen;
             }
             else // cw_Radio_CurrentWindow
             {
-                captTarget = CaptWindow.CAPTURE_TARGET.CURRENT_WINDOW;
+                captTarget = CaptWindow.CaptureTargetType.CurrentWindow;
             }
             String sleepMsecText = cw_TextBox_Sleep.Text;
             int gridRowCount = cw_dataGridView.RowCount;
 
-            isCaptureRunning = true;
+            _isCaptureRunning = true;
             cw_Button_Capture.Text = "中断";
 
             CaptureForeground(filePathPrefix, loopCount, captTarget, sleepMsecText, gridRowCount);
@@ -79,7 +79,7 @@ namespace Cheetos
         }
         private void cw_TextBox_SavePath_KeyDown(object sender, KeyEventArgs e)
         {
-            util.ExecutePath(cw_TextBox_SavePath.Text, e);
+            _util.ExecutePath(cw_TextBox_SavePath.Text, e);
         }
 
 
@@ -88,73 +88,73 @@ namespace Cheetos
         // (SendKeys/ClipboardはSTAスレッドが必要なため、専用のSTAスレッドでループを回し、
         //  Formのコントロールに触る部分だけInvokeでUIスレッドに戻す。UIスレッドはクリックを
         //  即座に処理できるので中断が効くようになる)
-        private void CaptureForeground(String filePathPrefix, int loopCount, CaptWindow.CAPTURE_TARGET captTarget, String sleepMsecText, int gridRowCount)
+        private void CaptureForeground(String filePathPrefix, int loopCount, CaptWindow.CaptureTargetType captTarget, String sleepMsecText, int gridRowCount)
         {
             Thread captureThread = new Thread(() =>
             {
                 try
                 {
                     // 初期化
-                    cw.Initialize();
+                    _captWindow.Initialize();
 
                     // マウス移動後にもとの位置へ戻すか
-                    cw.SetRestoreMousePosition(false);
+                    _captWindow.SetRestoreMousePosition(false);
 
                     // 実行前のSleep
-                    cw.SetSleepTimeMsec(sleepMsecText);
-                    cw.ExecuteSleep();
+                    _captWindow.SetSleepTimeMsec(sleepMsecText);
+                    _captWindow.ExecuteSleep();
 
-                    cw.SetCaptureTarget(captTarget);
+                    _captWindow.SetCaptureTarget(captTarget);
 
-                    debugLog.WriteData("Capture: START", false);
-                    for (int i = 1; i <= loopCount && !cw.IsStopRequest; i++)
+                    _debugLog.WriteData("Capture: START", false);
+                    for (int i = 1; i <= loopCount && !_captWindow.IsStopRequest; i++)
                     {
-                        debugLog.WriteData("Capture: Loop=" + i.ToString() + "/" + loopCount.ToString());
+                        _debugLog.WriteData("Capture: Loop=" + i.ToString() + "/" + loopCount.ToString());
 
                         // ファイルのIndex番号を初期化
-                        cw.SetFileIdx(1);
+                        _captWindow.SetFileIdx(1);
 
                         // ファイル名生成
                         String fileFormat = filePathPrefix + String.Format("{0:D4}", i);
-                        cw.SetFileFormat(fileFormat);
-                        debugLog.WriteData(" Capture: Filename=" + fileFormat);
+                        _captWindow.SetFileFormat(fileFormat);
+                        _debugLog.WriteData(" Capture: Filename=" + fileFormat);
 
                         // いまのところマウス移動しないユースケースは無い
-                        cw.SetMouseMove(true);
+                        _captWindow.SetMouseMove(true);
 
                         // 順次Capture実行
-                        for (int j = 0; j < gridRowCount && !cw.IsStopRequest; j++)
+                        for (int j = 0; j < gridRowCount && !_captWindow.IsStopRequest; j++)
                         {
-                            debugLog.WriteData(" Capture: RowCnt=" + j.ToString() + "/" + gridRowCount.ToString());
+                            _debugLog.WriteData(" Capture: RowCnt=" + j.ToString() + "/" + gridRowCount.ToString());
 
                             // グリッドの値はUIスレッドが持つコントロールなのでInvokeで読み出す
                             String captureEventStr = String.Empty, pointX = String.Empty, pointY = String.Empty, mouseEventStr = String.Empty, sleepMsec = String.Empty;
                             this.Invoke((MethodInvoker)delegate ()
                             {
-                                captureEventStr = util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(GridHeaderCaptureStr));
-                                pointX = util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(GridHeaderMouseXStr));
-                                pointY = util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(GridHeaderMouseYStr));
-                                mouseEventStr = util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(GridHeaderMouseActionStr));
-                                sleepMsec = util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(GridHeaderSleepStr));
+                                captureEventStr = _util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(_gridHeaderCaptureStr));
+                                pointX = _util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(_gridHeaderMouseXStr));
+                                pointY = _util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(_gridHeaderMouseYStr));
+                                mouseEventStr = _util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(_gridHeaderMouseActionStr));
+                                sleepMsec = _util.GetDataGridCell(cw_dataGridView, j, GetDataGridColumnIdx(_gridHeaderSleepStr));
                             });
 
-                            cw.SetCaptureCase(IsCaptureEvent(captureEventStr));
-                            debugLog.WriteData("  Capture: SetCaptureCase() Done");
+                            _captWindow.SetCaptureCase(IsCaptureEvent(captureEventStr));
+                            _debugLog.WriteData("  Capture: SetCaptureCase() Done");
 
-                            if (cw.SetMousePoint(pointX, pointY))
+                            if (_captWindow.SetMousePoint(pointX, pointY))
                             {
-                                cw.SetMouseEvent(GetMouseEvent(mouseEventStr));
+                                _captWindow.SetMouseEvent(GetMouseEvent(mouseEventStr));
 
-                                cw.MouseProc();
-                                debugLog.WriteData("  Capture: MouseEvent() Complete");
+                                _captWindow.MouseProc();
+                                _debugLog.WriteData("  Capture: MouseEvent() Complete");
                             }
 
-                            cw.SetSleepTimeMsec(sleepMsec);
-                            cw.ExecuteSleep();
-                            debugLog.WriteData("  Capture: ExecuteSleep() Complete");
+                            _captWindow.SetSleepTimeMsec(sleepMsec);
+                            _captWindow.ExecuteSleep();
+                            _debugLog.WriteData("  Capture: ExecuteSleep() Complete");
 
-                            cw.CaptureProc();
-                            debugLog.WriteData("  Capture: CaptureProc() Complete");
+                            _captWindow.CaptureProc();
+                            _debugLog.WriteData("  Capture: CaptureProc() Complete");
                         }
 
                         // 終了予想時間・進捗バー更新
@@ -167,15 +167,15 @@ namespace Cheetos
                             UpdateProgressBar();
                         });
                     }
-                    debugLog.WriteData("Capture: END" + Environment.NewLine);
+                    _debugLog.WriteData("Capture: END" + Environment.NewLine);
 
-                    String errLog = cw.GetErrorLog();
+                    String errLog = _captWindow.GetErrorLog();
                     this.Invoke((MethodInvoker)delegate ()
                     {
                         TextBox_Status.Text += " 完了";
 
                         // Capture処理が全て終わったら、ボタンを押した時のマウス座標へ戻す
-                        Cursor.Position = captureStartCursorPosition;
+                        Cursor.Position = _captureStartCursorPosition;
 
                         if (errLog != String.Empty)
                         {
@@ -187,13 +187,13 @@ namespace Cheetos
                 {
                     this.Invoke((MethodInvoker)delegate ()
                     {
-                        Cursor.Position = captureStartCursorPosition;
+                        Cursor.Position = _captureStartCursorPosition;
                         MessageBox.Show("キャプチャ中にエラーが発生したよ" + Environment.NewLine + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     });
                 }
                 finally
                 {
-                    isCaptureRunning = false;
+                    _isCaptureRunning = false;
                     this.Invoke((MethodInvoker)delegate ()
                     {
                         cw_Button_Capture.Text = "Capture";

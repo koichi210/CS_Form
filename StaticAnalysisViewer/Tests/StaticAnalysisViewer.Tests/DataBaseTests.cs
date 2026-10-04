@@ -83,7 +83,7 @@ namespace StaticAnalysisViewer.Tests
         }
 
         [TestMethod]
-        public void GetIdxは見つからなければUNKNOWN_IDXを返す()
+        public void GetIdxは見つからなければUnknownIdxを返す()
         {
             var db = new DataBase();
             db.Initialize();
@@ -91,11 +91,11 @@ namespace StaticAnalysisViewer.Tests
 
             int idx = db.GetIdx(0, 0, "not_exist.cs");
 
-            Assert.AreEqual(db.UNKNOWN_IDX, idx);
+            Assert.AreEqual(db.UnknownIdx, idx);
         }
 
         [TestMethod]
-        public void GetIdxはArrayIdxが負ならUNKNOWN_IDXを返す()
+        public void GetIdxはArrayIdxが負ならUnknownIdxを返す()
         {
             var db = new DataBase();
             db.Initialize();
@@ -103,7 +103,7 @@ namespace StaticAnalysisViewer.Tests
 
             int idx = db.GetIdx(-1, 0, "a.cs");
 
-            Assert.AreEqual(db.UNKNOWN_IDX, idx, "初回データ(前回データが無い)の判定に使われる");
+            Assert.AreEqual(db.UnknownIdx, idx, "初回データ(前回データが無い)の判定に使われる");
         }
 
         [TestMethod]

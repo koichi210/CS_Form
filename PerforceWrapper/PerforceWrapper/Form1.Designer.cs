@@ -45,7 +45,7 @@
             this.comboBox_perforce_workspace = new StandardTemplate.ComboBoxEx();
             this.comboBox_perforce_charset = new StandardTemplate.ComboBoxEx();
             this.label6 = new System.Windows.Forms.Label();
-            this.textbox_perforce_password = new StandardTemplate.TextBoxEx();
+            this.textBox_perforce_password = new StandardTemplate.TextBoxEx();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage_standard_Operation = new System.Windows.Forms.TabPage();
@@ -267,15 +267,15 @@
             this.label6.TabIndex = 10;
             this.label6.Text = "パスワード：";
             // 
-            // textbox_perforce_password
+            // textBox_perforce_password
             // 
-            this.textbox_perforce_password.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_perforce_password.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textbox_perforce_password.Location = new System.Drawing.Point(91, 68);
-            this.textbox_perforce_password.Name = "textbox_perforce_password";
-            this.textbox_perforce_password.PasswordChar = '*';
-            this.textbox_perforce_password.Size = new System.Drawing.Size(169, 19);
-            this.textbox_perforce_password.TabIndex = 3;
+            this.textBox_perforce_password.Location = new System.Drawing.Point(91, 68);
+            this.textBox_perforce_password.Name = "textBox_perforce_password";
+            this.textBox_perforce_password.PasswordChar = '*';
+            this.textBox_perforce_password.Size = new System.Drawing.Size(169, 19);
+            this.textBox_perforce_password.TabIndex = 3;
             // 
             // backgroundWorker
             // 
@@ -584,7 +584,7 @@
             // 
             this.groupBox1.Controls.Add(this.comboBox_perforce_charset);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.textbox_perforce_password);
+            this.groupBox1.Controls.Add(this.textBox_perforce_password);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label3);
@@ -672,7 +672,7 @@
         public StandardTemplate.ComboBoxEx comboBox_perforce_charset;
         private System.Windows.Forms.Label label6;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
-        public StandardTemplate.TextBoxEx textbox_perforce_password;
+        public StandardTemplate.TextBoxEx textBox_perforce_password;
         public System.Windows.Forms.RadioButton radioButton_so_menu_delete;
         public System.Windows.Forms.RadioButton radioButton_so_menu_get_latest;
         public System.Windows.Forms.RadioButton radioButton_so_menu_restore;

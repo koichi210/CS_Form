@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ToyingFile
@@ -8,7 +8,7 @@ namespace ToyingFile
     /// もともと Form1.cs の FunctionDeleteString(現 DeleteStringFromFiles) に埋め込まれていた、ファイル内容から
     /// 指定文字列を含む行を処理するロジックを、テストできる形に切り出したもの。
     ///
-    /// コードはそのまま移しただけで書き換えていない。ファイルの読み書き(fio.LoadFile/
+    /// ファイルの読み書き(fio.LoadFile/
     /// SaveFile)は Form1 側に残し、ここには文字列だけを渡す・返す形にした。
     ///
     /// caseSensitive(大文字小文字を区別するか)は、以前は「削除対象の行かどうかを判定する IndexOf」
@@ -22,45 +22,45 @@ namespace ToyingFile
         /// ファイル内容(改行区切り)から、deleteStrings のいずれかを含む行を処理する。
         /// deleteWholeLine=true なら行ごと空行にする。false なら該当文字列だけ削除する。
         /// </summary>
-        public static String DeleteStringFromContent(String fileData, String[] deleteStrings, Boolean caseSensitive, Boolean deleteWholeLine)
+        public static string DeleteStringFromContent(string fileData, string[] deleteStrings, bool caseSensitive, bool deleteWholeLine)
         {
             StringComparison comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
-            String[] lines = fileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            // 大文字小文字を区別しない削除用の正規表現は、行ごとに作り直さず最初に1回だけ作る
+            Regex[] ignoreCaseRegexes = (caseSensitive || deleteWholeLine)
+                ? null
+                : deleteStrings.Select(s => new Regex(Regex.Escape(s), RegexOptions.IgnoreCase)).ToArray();
 
-            var list = new List<String>(lines);
+            string[] lines = fileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
-            for (int j = 0; j < list.Count; j++)
+            for (int j = 0; j < lines.Length; j++)
             {
-                if (list[j] == String.Empty)
-                {
-                    continue;
-                }
-
-                for (int k = 0; k < deleteStrings.Length; k++)
+                for (int k = 0; k < deleteStrings.Length && lines[j] != string.Empty; k++)
                 {
                     //削除対象の行か判別
-                    if (list[j].IndexOf(deleteStrings[k], comparison) != -1)
+                    if (lines[j].IndexOf(deleteStrings[k], comparison) == -1)
                     {
-                        if (deleteWholeLine)
-                        {
-                            // 一行削除&空行追加
-                            list[j] = "";
-                        }
-                        else if (caseSensitive)
-                        {
-                            // 文字だけ削除ならReplace
-                            list[j] = list[j].Replace(deleteStrings[k], "");
-                        }
-                        else
-                        {
-                            list[j] = Regex.Replace(list[j], Regex.Escape(deleteStrings[k]), "", RegexOptions.IgnoreCase);
-                        }
+                        continue;
+                    }
+
+                    if (deleteWholeLine)
+                    {
+                        // 一行削除&空行追加
+                        lines[j] = "";
+                    }
+                    else if (caseSensitive)
+                    {
+                        // 文字だけ削除ならReplace
+                        lines[j] = lines[j].Replace(deleteStrings[k], "");
+                    }
+                    else
+                    {
+                        lines[j] = ignoreCaseRegexes[k].Replace(lines[j], "");
                     }
                 }
             }
 
-            return String.Join(Environment.NewLine, list.ToArray());
+            return string.Join(Environment.NewLine, lines);
         }
     }
 }

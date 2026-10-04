@@ -13,9 +13,9 @@ namespace Cheetos
         public String SourceFolderPath { get; set; } = String.Empty;
         public String BackUpDirPath { get; set; } = String.Empty;
 
-        private String TargetFileName = String.Empty;
-        private String FilePath = String.Empty;
-        private String BackUpFilePath = String.Empty;
+        private String _targetFileName = String.Empty;
+        private String _filePath = String.Empty;
+        private String _backUpFilePath = String.Empty;
 
         public bool SetTargetFileName(String targetFileName)
         {
@@ -24,16 +24,16 @@ namespace Cheetos
                 // 空行だったら処理しない
                 return false;
             }
-            TargetFileName = targetFileName;
+            _targetFileName = targetFileName;
             return true;
         }
 
         public bool BackUpTargetFile()
         {
-            FilePath = SourceFolderPath + @"\" + TargetFileName;
-            BackUpFilePath = BackUpDirPath + @"\" + TargetFileName;
+            _filePath = SourceFolderPath + @"\" + _targetFileName;
+            _backUpFilePath = BackUpDirPath + @"\" + _targetFileName;
 
-            File.Copy(FilePath, BackUpFilePath, true);
+            File.Copy(_filePath, _backUpFilePath, true);
             return true;
         }
 
@@ -44,28 +44,13 @@ namespace Cheetos
             try
             {
                 // 読み込み元と同じファイルへ上書き保存するため、imgは保存より前に解放しておく必要がある
-                using (Bitmap img = new Bitmap(FilePath))
+                using (Bitmap img = new Bitmap(_filePath))
                 {
                     // 元画像の対角線の長さを一辺とする正方形のキャンバスを用意する
                     int length = (int)Math.Sqrt(img.Width * img.Width + img.Height * img.Height);
                     canvas = new Bitmap(length, length);
 
-                    //ラジアン単位に変換
-                    double d = Angle / (180 / Math.PI);
-
-                    //新しい座標位置を計算する
-                    float x1 = BaseX + img.Width * (float)Math.Cos(d);
-                    float y1 = BaseY + img.Width * (float)Math.Sin(d);
-                    float x2 = BaseX - img.Height * (float)Math.Sin(d);
-                    float y2 = BaseY + img.Height * (float)Math.Cos(d);
-
-                    //PointF配列を作成
-                    PointF[] destinationPoints =
-                    {
-                        new PointF(BaseX, BaseY),
-                        new PointF(x1, y1),
-                        new PointF(x2, y2)
-                    };
+                    PointF[] destinationPoints = GetDestinationPoints(BaseX, BaseY, img.Size, Angle);
 
                     using (Graphics g = Graphics.FromImage(canvas))
                     {
@@ -74,7 +59,7 @@ namespace Cheetos
                     }
                 }
 
-                canvas.Save(FilePath);
+                canvas.Save(_filePath);
             }
             finally
             {
@@ -83,6 +68,30 @@ namespace Cheetos
                     canvas.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// 原点(originX, originY)を中心にangle度回転して描くときの、Graphics.DrawImage(Image, PointF[])へ
+        /// 渡す3点(左上・右上・左下)を求める。回転実行(RotateExecute)とプレビュー(RotationPreview)で共通。
+        /// </summary>
+        public static PointF[] GetDestinationPoints(float originX, float originY, Size imageSize, int angle)
+        {
+            //ラジアン単位に変換
+            double d = angle / (180 / Math.PI);
+
+            //新しい座標位置を計算する
+            float x1 = originX + imageSize.Width * (float)Math.Cos(d);
+            float y1 = originY + imageSize.Width * (float)Math.Sin(d);
+            float x2 = originX - imageSize.Height * (float)Math.Sin(d);
+            float y2 = originY + imageSize.Height * (float)Math.Cos(d);
+
+            //PointF配列を作成
+            return new PointF[]
+            {
+                new PointF(originX, originY),
+                new PointF(x1, y1),
+                new PointF(x2, y2)
+            };
         }
     }
 
@@ -103,12 +112,12 @@ namespace Cheetos
 
         private void pr_Button_Listup_Click(object sender, EventArgs e)
         {
-            ListupRotation();
+            ListUpRotation();
         }
 
-        private void ListupRotation()
+        private void ListUpRotation()
         {
-            ListupFolderFiles(pr_SourceFolderPath, pr_ListBox_ListUp);
+            ListUpFolderFiles(pr_SourceFolderPath, pr_ListBox_ListUp);
         }
 
         private void pr_Button_Rotation_Click(object sender, EventArgs e)
@@ -127,25 +136,15 @@ namespace Cheetos
             }
 
             String backUpDirPath = pr_SourceFolderPath.Text + @"\" + @"Bk_Rotate";
-            if (!fio.EnsureDirectory(backUpDirPath))
+            if (!_fio.EnsureDirectory(backUpDirPath))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
                 return;
             }
 
-            int val;
-            if (!Int32.TryParse(pr_BaseX.Text, out val))
-            {
-                pr_BaseX.Text = "";
-            }
-            if (!Int32.TryParse(pr_BaseY.Text, out val))
-            {
-                pr_BaseY.Text = "";
-            }
-            if (!Int32.TryParse(pr_Angle.Text, out val))
-            {
-                pr_Angle.Text = "";
-            }
+            pr_BaseX.Text = Logic.KeepIfInteger(pr_BaseX.Text);
+            pr_BaseY.Text = Logic.KeepIfInteger(pr_BaseY.Text);
+            pr_Angle.Text = Logic.KeepIfInteger(pr_Angle.Text);
 
             InitProgressBar(pr_ListBox_ListUp.SelectedItems.Count);
 
@@ -159,7 +158,7 @@ namespace Cheetos
                 BackUpDirPath = backUpDirPath,
 
                 // ListBoxの値を配列で取得
-                TargetFileNames = util.GetStrArrayFromListBox(pr_ListBox_ListUp.SelectedItems),
+                TargetFileNames = _util.GetStrArrayFromListBox(pr_ListBox_ListUp.SelectedItems),
             };
 
             SetStartTime();
@@ -225,7 +224,7 @@ namespace Cheetos
             pr_Button_Rotation.Text = "回転実行";
 
             // リストを更新
-            ListupRotation();
+            ListUpRotation();
         }
     }
 }

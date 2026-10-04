@@ -7,38 +7,38 @@ namespace TrimFileData
 {
     partial class Form1 : StcBaseForm<SaveRestore>
     {
-        private readonly String SettingFileName = @"TrimFileData.json";
+        private const string _settingFileName = @"TrimFileData.json";
 
         // 設定ファイルはJSONが基本。旧XML(TrimFileData.xml)しか無い場合は起動時に読み込んでJSONへ移行し、
         // 旧XMLは削除する([[_Common/JsonSaveRestore.cs]])。プロファイル一覧は移行途中でも
         // 両方見えるよう、*.jsonと*.xmlの両方をリストアップする
-        private const String LegacySettingFileName = @"TrimFileData.xml";
-        private static readonly String[] ProfileExtensions = { "*.json", "*.xml" };
+        private const string _legacySettingFileName = @"TrimFileData.xml";
+        private static readonly string[] _profileExtensions = { "*.json", "*.xml" };
 
         // プロファイルの置き場。exe直下(bin/Debug、bin/Release)はビルド出力の掃除等で
         // 丸ごと消される事故が起きうるため、そこには置かない。実データは%LOCALAPPDATA%\TrimFileData\配下
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
-        private const String AppName = "TrimFileData";
-        private readonly String userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(AppName);
+        private const string _appName = "TrimFileData";
+        private readonly string _userDataFolder = UserDataLocation.GetUserDataFolder(_appName);
 
-        private static Boolean IsJsonFile(String filePath)
+        private static bool IsJsonFile(string filePath)
         {
-            return String.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(Path.GetExtension(filePath), ".json", StringComparison.OrdinalIgnoreCase);
         }
 
         // 拡張子で振り分けて読み込む(旧XMLのプロファイルも引き続き開ける)
-        private Boolean LoadProfile(String filePath)
+        private bool LoadProfile(string filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Load(sr, filePath) : sr.LoadProc(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Load(_sr, filePath) : _sr.LoadProc(filePath);
         }
 
-        private Boolean SaveProfile(String filePath)
+        private bool SaveProfile(string filePath)
         {
-            return IsJsonFile(filePath) ? JsonSaveRestore.Save(sr, filePath) : sr.SaveSetting(filePath);
+            return IsJsonFile(filePath) ? JsonSaveRestore.Save(_sr, filePath) : _sr.SaveSetting(filePath);
         }
 
-        private StcFileInputOutput fio = new StcFileInputOutput();
+        private readonly StcFileInputOutput _fio = new StcFileInputOutput();
 
         public Form1()
         {
@@ -49,12 +49,12 @@ namespace TrimFileData
             InitializePlaceholders();
             InitializeToolTips();
 
-            sr.RegisterItem(this);
-            String defaultJsonPath = Path.Combine(userDataFolder, SettingFileName);
-            String defaultXmlPath = Path.Combine(userDataFolder, LegacySettingFileName);
-            JsonSaveRestore.LoadWithMigration(sr, defaultJsonPath, defaultXmlPath,
-                path => sr.LoadProc(path));
-            util.UpdateProfileList(comboBox_LoadSetting, ProfileExtensions, SettingFileName, userDataFolder);
+            _sr.RegisterItem(this);
+            string defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
+            string defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
+            JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
+                path => _sr.LoadProc(path));
+            _util.UpdateProfileList(comboBox_LoadSetting, _profileExtensions, _settingFileName, _userDataFolder);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -94,8 +94,8 @@ namespace TrimFileData
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(AppName, userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, AppName));
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
                 return;
             }
 
@@ -104,12 +104,12 @@ namespace TrimFileData
 
         private void textBox_SearchWordList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_SearchWordList, e);
+            _util.SelectAll(textBox_SearchWordList, e);
         }
 
         private void textBox_SearchResultList_KeyDown(object sender, KeyEventArgs e)
         {
-            util.SelectAll(textBox_SearchResultList, e);
+            _util.SelectAll(textBox_SearchResultList, e);
         }
 
         private void button_Execute_Click(object sender, EventArgs e)
@@ -117,35 +117,35 @@ namespace TrimFileData
             // 出力先をクリア
             textBox_SearchResultList.Text = "";
 
-            String referData = fio.LoadFile(textBox_ReferencePath.Text);
-            if (referData == String.Empty)
+            string referData = _fio.LoadFile(textBox_ReferencePath.Text);
+            if (referData == string.Empty)
             {
                 MessageBox.Show("リファレンスファイルが開けません。" + Environment.NewLine + textBox_ReferencePath.Text);
                 return;
             }
 
             // 検索ワードをリストアップ
-            String[] searchWordLines = textBox_SearchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] searchWordLines = textBox_SearchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // リファレンスをリスト化
-            String[] referLines = referData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] referLines = referData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // 検索結果をコントロールにセット
             textBox_SearchResultList.Text = Logic.GetSearchData(searchWordLines, referLines, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text);
-            util.SetClipboardText(textBox_SearchResultList.Text);
+            _util.SetClipboardText(textBox_SearchResultList.Text);
         }
 
         private void textBox_ReferencePath_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                util.ExecutePath(textBox_ReferencePath.Text);
+                _util.ExecutePath(textBox_ReferencePath.Text);
             }
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String loadFileName = Path.Combine(userDataFolder, comboBox_LoadSetting.Text);
+            string loadFileName = Path.Combine(_userDataFolder, comboBox_LoadSetting.Text);
             if (File.Exists(loadFileName))
             {
                 LoadProfile(loadFileName);
@@ -154,7 +154,7 @@ namespace TrimFileData
 
         private void button_SaveSetting_Click(object sender, EventArgs e)
         {
-            JsonSaveRestore.SaveProfileWithDialog(util, fio, comboBox_LoadSetting, ProfileExtensions, SaveProfile, userDataFolder);
+            JsonSaveRestore.SaveProfileWithDialog(_util, _fio, comboBox_LoadSetting, _profileExtensions, SaveProfile, _userDataFolder);
         }
     }
 }

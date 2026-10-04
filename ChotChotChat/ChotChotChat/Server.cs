@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
@@ -9,15 +8,15 @@ namespace ChotChotChat
 {
     class Server
     {
-        private readonly int port = 8080;
-        private readonly int TimeOutMsec = 100000;
-        private bool isConnected = false;
-        private TcpListener listener;
-        private TcpClient client;
+        private const int _port = 8080;
+        private const int _timeoutMsec = 100000;
+        private bool _isConnected = false;
+        private TcpListener _listener;
+        private TcpClient _client;
 
         public String Connect(String listenAddress)
         {
-            if (isConnected)
+            if (_isConnected)
             {
                 MessageBox.Show("すでにクライアントと接続済みです");
                 return "";
@@ -30,97 +29,72 @@ namespace ChotChotChat
             //String host = "localhost";
             //IPAddress ipAddress = Dns.GetHostEntry(host).AddressList[0];
 
-            listener = new TcpListener(ipAddress, port);
+            _listener = new TcpListener(ipAddress, _port);
 
             //Listenを開始
-            listener.Start();
+            _listener.Start();
 
             //接続要求があったら受け入れる
-            client = listener.AcceptTcpClient();
-            isConnected = true;
+            _client = _listener.AcceptTcpClient();
+            _isConnected = true;
 
-            return  String.Format("クライアント({0}:{1})と接続しました。",
-                ((IPEndPoint)client.Client.RemoteEndPoint).Address,
-                ((IPEndPoint)client.Client.RemoteEndPoint).Port);
+            IPEndPoint remote = (IPEndPoint)_client.Client.RemoteEndPoint;
+            return String.Format("クライアント({0}:{1})と接続しました。", remote.Address, remote.Port);
         }
 
         public String Disconnect()
         {
-            // 接続待ちの途中で失敗した場合もポートを解放するため、isConnectedに関係なく閉じる
-            isConnected = false;
-            if (client != null)
+            // 接続待ちの途中で失敗した場合もポートを解放するため、_isConnectedに関係なく閉じる
+            _isConnected = false;
+            if (_client != null)
             {
-                client.Close();
-                client = null;
+                _client.Close();
+                _client = null;
             }
-            if (listener != null)
+            if (_listener != null)
             {
-                listener.Stop();
-                listener = null;
+                _listener.Stop();
+                _listener = null;
             }
             return "クライアントとの接続を閉じました。";
         }
 
         public void Receive(Form1 parent)
         {
-            // データ受信
             Encoding enc = Encoding.UTF8;
 
             //NetworkStreamを取得
-            NetworkStream ns = client.GetStream();
-
-            // タイムアウト
-            ns.ReadTimeout = TimeOutMsec;
-            ns.WriteTimeout = TimeOutMsec;
-
-            //while (true)
+            using (NetworkStream ns = _client.GetStream())
             {
+                // タイムアウト
+                ns.ReadTimeout = _timeoutMsec;
+                ns.WriteTimeout = _timeoutMsec;
+
                 //クライアントから送られたデータ受信
-                MemoryStream ms = new MemoryStream();
-                byte[] resBytes = new byte[256];
-                int resSize = 0;
-
-                do
+                byte[] received = NetworkStreamReader.ReceiveLine(ns);
+                if (received == null)
                 {
-                    //データの一部を受信
-                    resSize = ns.Read(resBytes, 0, resBytes.Length);
-                    if (resSize == 0)
-                    {
-                        isConnected = false;
-                        MessageBox.Show("Disconnect Client",
-                            "Warning",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning);
-                        // 暫定
-                        ms.Close();
-                        ns.Close();
-                        return;
-                    }
-
-                    //受信したデータを蓄積し、データの最後が\nでない時は受信を続ける
-                    ms.Write(resBytes, 0, resSize);
-                } while (ns.DataAvailable || resBytes[resSize - 1] != '\n');
+                    _isConnected = false;
+                    MessageBox.Show("Disconnect Client",
+                        "Warning",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
 
                 //受信したデータを文字列に変換
-                String resMsg = enc.GetString(ms.GetBuffer(), 0, (int)ms.Length);
-                ms.Close();
+                String resMsg = enc.GetString(received);
 
                 // ログ画面更新
                 parent.textBox_Log.Text += resMsg;
 
-                if (isConnected)
+                if (_isConnected)
                 {
-                    //クライアントにデータ送信
-                    String sendMsg = resMsg.Length.ToString();
-                    byte[] sendBytes = enc.GetBytes(sendMsg + '\n');
-
-                    //データ送信
+                    //クライアントにデータ送信(受信した文字数を返す)
+                    byte[] sendBytes = enc.GetBytes(resMsg.Length.ToString() + '\n');
                     ns.Write(sendBytes, 0, sendBytes.Length);
                 }
             }
-
-            //閉じる
-            ns.Close();
         }
     }
 }

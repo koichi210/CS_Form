@@ -8,13 +8,12 @@ namespace TrimFileData
     /// <summary>
     /// もともと Form1.cs の GetSearchData / GetHitWord に実装されていた、
     /// 検索ワードリストとリファレンスデータから該当行を抽出するロジックを
-    /// テストできる形に切り出したもの。コードはそのまま移しただけで書き換えていない。
-    /// Form のコントロール参照(checkBox_OrdinalCase.Checked 等)は、呼び出し元
+    /// テストできる形に切り出したもの。Form のコントロール参照(checkBox_OrdinalCase.Checked 等)は、呼び出し元
     /// (Form1)で読み取った値を引数として渡す形に変えた。
     /// </summary>
     internal static class Logic
     {
-        public static String GetSearchData(String[] searchWordLines, String[] referLines, Boolean ordinalCase, Boolean firstWordOnly, String searchCommonWord)
+        public static string GetSearchData(string[] searchWordLines, string[] referLines, bool ordinalCase, bool firstWordOnly, string searchCommonWord)
         {
             StringComparison comparison = ordinalCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
@@ -27,8 +26,8 @@ namespace TrimFileData
             {
                 resultBuilder.Append("◆").Append(searchWordLines[i]).Append(Environment.NewLine);
 
-                String[] searchWords = searchWordLines[i].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                String hitLines = GetHitLines(searchWords, referLines, comparison, firstWordOnly, searchCommonWord);
+                string[] searchWords = searchWordLines[i].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                string hitLines = GetHitLines(searchWords, referLines, comparison, firstWordOnly, searchCommonWord);
                 resultBuilder.Append(util.TrimDuplication(hitLines, Environment.NewLine));
                 resultBuilder.Append(Environment.NewLine).Append(Environment.NewLine);
             }
@@ -36,14 +35,14 @@ namespace TrimFileData
             return resultBuilder.ToString();
         }
 
-        public static String GetHitLines(String[] searchWords, String[] referLines, StringComparison comparison, Boolean firstWordOnly, String searchCommonWord)
+        public static string GetHitLines(string[] searchWords, string[] referLines, StringComparison comparison, bool firstWordOnly, string searchCommonWord)
         {
             // searchCommonWordによる絞り込みはsearchWordsのどの単語(j)でも結果が変わらないため、
             // 以前は単語数(j)×参照行数(k)回、毎回同じIndexOf判定を繰り返していた。
             // 単語ループに入る前に1回だけreferLinesを絞り込んでおけば、絞り込み自体はO(k)で済む。
-            Boolean hasCommonWord = searchCommonWord != "";
-            List<String> filteredLines = new List<String>(referLines.Length);
-            foreach (String line in referLines)
+            bool hasCommonWord = searchCommonWord != "";
+            List<string> filteredLines = new List<string>(referLines.Length);
+            foreach (string line in referLines)
             {
                 if (!hasCommonWord || line.IndexOf(searchCommonWord, comparison) != -1)
                 {

@@ -11,7 +11,7 @@ namespace PictMerge2.Tests
     /// クラス）のテスト。実際の画像ファイルを使い、描画結果のピクセルを確認する
     /// ことで検証する。
     ///
-    /// ⚠️ PicEdit のデストラクタは m_SourceImg.Dispose() を無条件に呼ぶため
+    /// ⚠️ PicEdit のデストラクタは _sourceImg.Dispose() を無条件に呼ぶため
     /// (CreateSourceImgを一度も呼んでいないとm_SourceImgがnullのままで、
     /// ファイナライザスレッドでNullReferenceExceptionが発生しプロセスが
     /// クラッシュしかねない)、テストで生成するPicEditは必ずCreateSourceImgを

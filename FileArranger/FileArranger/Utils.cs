@@ -15,7 +15,7 @@ namespace FileArranger
             {
                 return;
             }
-            targetPath = targetPath + "_Cnt" + loopIdx.ToString() + "_" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            targetPath = AppendConflictSuffix(targetPath, loopIdx);
         }
 
         // ファイル名の重複回避(同名のファイル/フォルダが無ければtrue。あれば名前を変えてfalse)
@@ -25,8 +25,14 @@ namespace FileArranger
             {
                 return true;
             }
-            targetPath = targetPath + "_Cnt" + loopIdx.ToString() + "_" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            targetPath = AppendConflictSuffix(targetPath, loopIdx);
             return false;
+        }
+
+        // 重複回避用に、名前の末尾へ「_Cnt連番_日時」を付ける
+        private static String AppendConflictSuffix(String targetPath, int loopIdx)
+        {
+            return targetPath + "_Cnt" + loopIdx.ToString() + "_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
         }
 
         public String CreateNewFolderName(String srcName, String trimName = "", Boolean isReverse = false)

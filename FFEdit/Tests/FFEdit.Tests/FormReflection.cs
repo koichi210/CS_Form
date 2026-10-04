@@ -6,7 +6,7 @@ namespace FFEdit.Tests
     /// <summary>
     /// private なフィールドやメソッドを、production コードを一切変更せずに
     /// テストから操作するための小さなヘルパー。
-    /// (Class_List.Tests の同名クラスと同じ考え方)
+    /// (ClassList.Tests の同名クラスと同じ考え方)
     /// </summary>
     internal static class FormReflection
     {

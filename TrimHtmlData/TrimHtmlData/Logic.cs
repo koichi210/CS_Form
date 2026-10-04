@@ -7,8 +7,7 @@ namespace TrimHtmlData
     /// <summary>
     /// もともと Form1.cs の GetTrimLine / GetSearchString に実装されていた、
     /// HTMLソースから検索ワードにヒットする行(とその前後指定行数)を抽出するロジックを
-    /// テストできる形に切り出したもの。コードはそのまま移しただけで書き換えていない。
-    /// checkBox_FirstWordOnly.Checked などのコントロール参照は、呼び出し元(Form1)で
+    /// テストできる形に切り出したもの。checkBox_FirstWordOnly.Checked などのコントロール参照は、呼び出し元(Form1)で
     /// 読み取った値を引数として渡す形に変えた。
     ///
     /// trimLineNum が2以上でヒット行が末尾付近だと lines[i + j] が配列範囲外になっていたが、
@@ -16,7 +15,7 @@ namespace TrimHtmlData
     /// </summary>
     internal static class Logic
     {
-        public static int GetTrimLine(String trimLineNumText)
+        public static int GetTrimLine(string trimLineNumText)
         {
             StcUtils util = new StcUtils();
             int trimLineNum = util.GetInteger(trimLineNumText);
@@ -28,9 +27,9 @@ namespace TrimHtmlData
             return trimLineNum;
         }
 
-        public static String GetSearchString(String htmlSource, String searchWord, int trimLineNum, StringComparison comparison, Boolean firstWordOnly)
+        public static string GetSearchString(string htmlSource, string searchWord, int trimLineNum, StringComparison comparison, bool firstWordOnly)
         {
-            String[] lines = htmlSource.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = htmlSource.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             // String +=はヒット行数が多いほど文字列全体のコピーが積み上がって遅くなるため、
             // StringBuilderに置き換える(ロジック・境界チェックの挙動は変えていない)。
             StringBuilder result = new StringBuilder();

@@ -7,34 +7,29 @@ namespace Rotation
     /// <summary>
     /// もともと Form1.cs の UpdateValue / DrawPictureBox に実装されていた、
     /// 矢印キーによる数値インクリメントと、画像回転描画のための座標計算ロジックを
-    /// テストできる形に切り出したもの。コードはそのまま移しただけで書き換えて
-    /// いない。textBoxのコントロール参照は、呼び出し元(Form1)で読み取った値を
+    /// テストできる形に切り出したもの。textBoxのコントロール参照は、呼び出し元(Form1)で読み取った値を
     /// 引数として渡す形に変えた。
     /// </summary>
     internal static class Logic
     {
-        public static String UpdateValue(String baseValue, Keys keyCode)
+        public static string UpdateValue(string baseValue, Keys keyCode)
         {
-            int delta = 0;
+            int value;
+            if (!int.TryParse(baseValue, out value))
+            {
+                return baseValue;
+            }
+
             switch (keyCode)
             {
                 case Keys.Up:
-                    delta = 1;
+                    value++;
                     break;
                 case Keys.Down:
-                    delta = -1;
-                    break;
-                default:
+                    value--;
                     break;
             }
-
-            int value;
-            if (Int32.TryParse(baseValue, out value))
-            {
-                value += delta;
-                return value.ToString();
-            }
-            return baseValue;
+            return value.ToString();
         }
 
         /// <summary>

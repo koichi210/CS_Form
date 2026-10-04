@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
@@ -9,10 +9,6 @@ namespace FileArranger
     /// <summary>
     /// もともと Form1.cs のイベントハンドラの隣に private メソッドとして埋め込まれていた
     /// 純粋なロジックを、テストできる形に切り出したもの。
-    ///
-    /// コードは Form1.cs にあったものをそのまま移しただけで、中身の書き換えはしていない。
-    /// 呼び出し側（Form1.cs）も、このクラスのメソッドを呼ぶよう書き換えただけで、
-    /// 渡す値・受け取る値・呼ぶ順序は変えていない。
     /// </summary>
     internal static class Logic
     {
@@ -22,18 +18,15 @@ namespace FileArranger
         /// </summary>
         public static int GetPaddingDigits(long number, Boolean isZeroDigitForZero = false)
         {
-            const int PaddingMinDigits = 2;
-            int paddingDigits = 0;
+            const int paddingMinDigits = 2;
 
+            // 数値が「0」のときは、桁数も「0」とする
             if (isZeroDigitForZero && number == 0)
             {
-                // 数値が「0」のときは、桁数も「0」とする
+                return 0;
             }
-            else if (number.ToString().Length <= PaddingMinDigits)
-            {
-                paddingDigits = PaddingMinDigits;
-            }
-            return paddingDigits;
+
+            return number.ToString().Length <= paddingMinDigits ? paddingMinDigits : 0;
         }
 
         /// <summary>連番に加算数を足し、必要な桁数までゼロ埋めした文字列にする。</summary>
@@ -48,9 +41,11 @@ namespace FileArranger
         /// <summary>全角の数字・英字・スペースを半角に変換する。</summary>
         public static String ChangeWide2Narrow(String srcString)
         {
-            Regex re = new Regex("[０-９Ａ-Ｚａ-ｚ　]");
-            return re.Replace(srcString, ToNarrow);
+            return _wideCharRegex.Replace(srcString, ToNarrow);
         }
+
+        // 呼ばれるたびに作り直さないよう使い回す
+        private static readonly Regex _wideCharRegex = new Regex("[０-９Ａ-Ｚａ-ｚ　]");
 
         private static String ToNarrow(Match m)
         {
@@ -64,7 +59,7 @@ namespace FileArranger
         /// </summary>
         public static int GetAddCount(ListView lv, String fileName, String trimName, Boolean isReverse = false)
         {
-            const int TargetSubItemIdx = 0;
+            const int targetSubItemIdx = 0;
 
             int count = 0;
             String searchName = "";
@@ -78,7 +73,7 @@ namespace FileArranger
             for (int i = 0; i < lv.SelectedItems.Count; i++)
             {
                 int idx = lv.SelectedItems[i].Index;
-                String srcFileName = lv.Items[idx].SubItems[TargetSubItemIdx].Text;
+                String srcFileName = lv.Items[idx].SubItems[targetSubItemIdx].Text;
 
                 if (srcFileName.IndexOf(searchName) != -1)
                 {
@@ -102,29 +97,10 @@ namespace FileArranger
         /// </summary>
         public static void DeleteDuplicate(String[] existingArray, ref String[] newArray, String delimiter)
         {
-            // 以前は走査中のリストから自分自身の要素を削除しながらインデックスを
-            // 巻き戻す(i--)という紛らわしい書き方をしていた。走査対象(newArray)と
-            // 結果(result)を分けることでインデックス操作を無くした(挙動は変えていない)。
-            var result = new List<String>();
-            foreach (String newItem in newArray)
-            {
-                Boolean isDuplicate = false;
-                foreach (String existingItem in existingArray)
-                {
-                    if (existingItem.IndexOf(newItem) != -1)
-                    {
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-
-                if (!isDuplicate)
-                {
-                    result.Add(newItem);
-                }
-            }
-
-            newArray = result.ToArray();
+            // 既存の一覧のどれかに部分一致する項目を取り除く
+            newArray = newArray
+                .Where(newItem => !existingArray.Any(existingItem => existingItem.IndexOf(newItem) != -1))
+                .ToArray();
         }
     }
 }

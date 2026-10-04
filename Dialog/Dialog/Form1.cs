@@ -6,35 +6,36 @@ namespace Dialog
 {
     public partial class Form1 : Form
     {
-        private Button buttonDynamic;
+        private readonly Button _buttonDynamic = new Button()
+        {
+            Text = "DialogDynamic",
+            Location = new Point(20, 20),
+        };
 
         public Form1()
         {
             InitializeComponent();
 
-            buttonDynamic = new Button()
-            {
-                Text = "DialogDynamic",
-                Location = new Point(20, 20),
-            };
-
-            buttonDynamic.Click += new EventHandler(buttonDynamic_Click);
-            this.Controls.Add(buttonDynamic);
+            _buttonDynamic.Click += buttonDynamic_Click;
+            this.Controls.Add(_buttonDynamic);
             this.Text = "Form1";
         }
 
-        void buttonDynamic_Click(object sender, EventArgs e)
+        private void buttonDynamic_Click(object sender, EventArgs e)
         {
-            DialogDynamic dialog = new DialogDynamic();
-
-            // モーダルダイアログとして表示
-            dialog.ShowDialog();
+            // モーダルダイアログとして表示(ShowDialogで出したフォームは閉じても破棄されないのでusingで破棄する)
+            using (DialogDynamic dialog = new DialogDynamic())
+            {
+                dialog.ShowDialog();
+            }
         }
 
         private void button_static_modal_Click(object sender, EventArgs e)
         {
-            FormStatic fs = new FormStatic();
-            fs.ShowDialog();
+            using (FormStatic fs = new FormStatic())
+            {
+                fs.ShowDialog();
+            }
         }
 
         private void button_static_modeless_Click(object sender, EventArgs e)
