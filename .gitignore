@@ -95,3 +95,6 @@ TrimHtmlData/TrimHtmlData/bin/Release/TrimHtmlData_C_Title.xml
 # UserDataLocation([[_Common/UserDataLocation.cs]])が生成する案内板ファイル。
 # 実データは%LOCALAPPDATA%配下にあり、これは各PC固有のポインタなのでコミットしない
 **/DataFolder.txt
+
+# テストプロジェクトのビルド出力（x64等のプラットフォーム別フォルダも含めて丸ごと無視。アプリ本体のRelease exeだけコミットする）
+**/Tests/**/bin/
