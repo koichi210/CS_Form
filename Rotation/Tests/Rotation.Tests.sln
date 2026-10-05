@@ -9,18 +9,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rotation.Tests", "Rotation.
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Release|x64 = Release|x64
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Debug|x86.Build.0 = Debug|Any CPU
-		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Release|x86.ActiveCfg = Release|Any CPU
-		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Release|x86.Build.0 = Release|Any CPU
-		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Debug|x64.ActiveCfg = Debug|x64
-		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Debug|x64.Build.0 = Debug|x64
-		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Release|x64.ActiveCfg = Release|x64
-		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Release|x64.Build.0 = Release|x64
+		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6760990C-ABD6-4FE2-AAD3-B63665758722}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E9A7C1D-8B3F-4D6A-9C2E-5F1B8A3D6C9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

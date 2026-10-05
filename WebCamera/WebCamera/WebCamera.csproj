@@ -13,6 +13,10 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <!-- OpenCvSharp4同梱のRoslynアナライザーが要求するMicrosoft.CodeAnalysisを
+         VS2019同梱の古いcscが読み込めずCS8032が出る。コードには無関係の警告なので抑止する
+         (ExcludeAssetsはこの非SDK形式のPackageReferenceでは効かなかった実績あり)。 -->
+    <NoWarn>$(NoWarn);CS8032</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,10 +55,6 @@
   <ItemGroup>
     <!-- 2020年版(4.4.0)から2026年版へ更新。packages.config + 壊れたHintPath参照の
          組み合わせで NuGet 復元が失敗していたため、PackageReference 形式に移行した -->
-    <!-- ビルド時に CS8032 警告が出る: パッケージ同梱のアナライザーが要求する
-         Microsoft.CodeAnalysis 4.14系を、VS2019同梱の古いRoslynが読み込めないため。
-         ExcludeAssets等では抑止できなかった(この形式のプロジェクトでは効かない)。
-         ビルド自体は成功し実行にも影響しないため、警告は許容している。 -->
     <!-- OpenCvSharp4.runtime.win のネイティブDLL(OpenCvSharpExtern.dll)は x64 版しか同梱されない。
          AnyCPU の exe は既定(Prefer32Bit=true)だと32bitで起動して DLL を読めないため、
          上の Debug/Release 構成で Prefer32Bit=false にして64bitで起動させている。 -->
