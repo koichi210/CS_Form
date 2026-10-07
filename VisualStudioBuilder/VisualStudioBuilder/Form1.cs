@@ -98,8 +98,8 @@ namespace VisualStudioBuilder
         // (既定値は[[SaveRestore.cs]]のRegisterCtrlに合わせた)
         private void InitializePlaceholders()
         {
-            textBox_VisualStudioExePath.PlaceholderText = @"例: C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe";
-            textBox_BuildOption.PlaceholderText = "例: /rebuild release";
+            textBox_VisualStudioExePath.PlaceholderText = "例: " + Logic.DefaultMsBuildPath;
+            textBox_BuildOption.PlaceholderText = "例: " + Logic.DefaultBuildOption;
             textBox_DeleteDirectoryName.PlaceholderText = "例: obj";
             textBox_LogDirectory.PlaceholderText = @"例: C:\Work\BuildLog";
             textBox_DetectBuildErrorWord.PlaceholderText = "例: error";
@@ -115,8 +115,8 @@ namespace VisualStudioBuilder
             this.Disposed += (s, e) => toolTip.Dispose();
 
             toolTip.SetToolTip(comboBox_Profile, "保存済みのプロファイル。選ぶとその内容を読み込む");
-            toolTip.SetToolTip(textBox_VisualStudioExePath, "ビルドに使うdevenv.exeのパス");
-            toolTip.SetToolTip(textBox_BuildOption, "devenvにそのまま渡す引数(ビルドの種類と構成名)");
+            toolTip.SetToolTip(textBox_VisualStudioExePath, "ビルドに使うMSBuild.exeのパス。Visual Studio本体が無くても、Build Tools for Visual Studioに入っているMSBuild.exeでビルドできる");
+            toolTip.SetToolTip(textBox_BuildOption, "MSBuildにそのまま渡す引数(ターゲットと構成名。例: /t:Rebuild /p:Configuration=Release /p:Platform=x64)");
             toolTip.SetToolTip(button_Build, "ビルド欄が○のソリューションを順にビルドする。開始時にログ出力先フォルダを中身ごと削除する");
             toolTip.SetToolTip(checkBox_DeleteDirectory, "オンならビルド完了後、ビルド対象の各プロジェクトフォルダ以下(サブフォルダ含む)から下の欄の名前と一致するフォルダを探して削除する");
 
@@ -256,6 +256,15 @@ namespace VisualStudioBuilder
             if (BuildWorker.IsBusy)
             {
                 MessageBox.Show("ビルド実行中です。終わってからもう一度押してください");
+                return;
+            }
+
+            // MSBuild.exeが無いとバッチが即エラーで終わり、ログフォルダだけ消えてしまうため、
+            // ログ削除やバッチ作成より前に確かめる
+            String msBuildPathError = Logic.ValidateMsBuildPath(textBox_VisualStudioExePath.Text, File.Exists);
+            if (msBuildPathError != String.Empty)
+            {
+                MessageBox.Show(msBuildPathError, "Warning");
                 return;
             }
 

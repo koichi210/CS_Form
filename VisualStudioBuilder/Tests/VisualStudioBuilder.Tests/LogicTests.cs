@@ -55,12 +55,12 @@ namespace VisualStudioBuilder.Tests
         }
 
         [TestMethod]
-        public void CreateScriptHeaderはDEV_ENVとBUILD_OPTを設定する()
+        public void CreateScriptHeaderはMSBUILDとBUILD_OPTを設定する()
         {
-            string result = Logic.CreateScriptHeader(@"C:\devenv.exe", "/rebuild release");
+            string result = Logic.CreateScriptHeader(@"C:\MSBuild.exe", "/t:Rebuild /p:Configuration=Release");
 
-            StringAssert.Contains(result, @"set DEV_ENV=""C:\devenv.exe""");
-            StringAssert.Contains(result, "set BUILD_OPT=/rebuild release");
+            StringAssert.Contains(result, @"set MSBUILD=""C:\MSBuild.exe""");
+            StringAssert.Contains(result, "set BUILD_OPT=/t:Rebuild /p:Configuration=Release");
         }
 
         [TestMethod]
@@ -78,21 +78,21 @@ namespace VisualStudioBuilder.Tests
         }
 
         [TestMethod]
-        public void CreateBuildScriptはログ出力なしならdevenvコマンドのみ生成する()
+        public void CreateBuildScriptはログ出力なしならmsbuildコマンドのみ生成する()
         {
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, false);
 
-            StringAssert.Contains(result, @"%DEV_ENV% %BUILD_OPT% C:\proj\a.sln");
-            Assert.IsFalse(result.Contains("/out"));
+            StringAssert.Contains(result, @"%MSBUILD% ""C:\proj\a.sln"" %BUILD_OPT%");
+            Assert.IsFalse(result.Contains("/fl"));
         }
 
         [TestMethod]
-        public void CreateBuildScriptはログ出力ありならoutオプション付きで生成する()
+        public void CreateBuildScriptはログ出力ありならファイルロガー付きで生成する()
         {
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, true);
 
             string expectedLog = Path.Combine(tempDirectory, "a.log");
-            StringAssert.Contains(result, "/out " + expectedLog);
+            StringAssert.Contains(result, @"%MSBUILD% ""C:\proj\a.sln"" %BUILD_OPT% /fl ""/flp:logfile=" + expectedLog + @";verbosity=minimal""");
         }
 
         [TestMethod]
@@ -103,7 +103,7 @@ namespace VisualStudioBuilder.Tests
 
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, true);
 
-            StringAssert.Contains(result, "del " + logPath);
+            StringAssert.StartsWith(result, @"del """ + logPath + @"""");
         }
 
         [TestMethod]
@@ -112,6 +112,50 @@ namespace VisualStudioBuilder.Tests
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, true);
 
             Assert.IsFalse(result.Contains("del "));
+        }
+
+        // --- ValidateMsBuildPath(ビルド前のMSBuild.exeの確認) ------------------------
+        // ファイルの有無は差し替えられるので、実ファイル無しで判定だけを検証できる
+
+        [TestMethod]
+        public void ValidateMsBuildPathは存在するMSBuild_exeなら空文字を返す()
+        {
+            string result = Logic.ValidateMsBuildPath(Logic.DefaultMsBuildPath, path => true);
+            Assert.AreEqual("", result);
+        }
+
+        [TestMethod]
+        public void ValidateMsBuildPathはファイル名の大文字小文字を区別しない()
+        {
+            string result = Logic.ValidateMsBuildPath(@"C:\Tools\msbuild.EXE", path => true);
+            Assert.AreEqual("", result);
+        }
+
+        [TestMethod]
+        public void ValidateMsBuildPathは空欄ならエラーを返す()
+        {
+            Assert.AreNotEqual("", Logic.ValidateMsBuildPath("", path => true));
+            Assert.AreNotEqual("", Logic.ValidateMsBuildPath("  ", path => true));
+        }
+
+        [TestMethod]
+        public void ValidateMsBuildPathは存在しなければエラーを返す()
+        {
+            string result = Logic.ValidateMsBuildPath(Logic.DefaultMsBuildPath, path => false);
+
+            StringAssert.Contains(result, "見つかりません");
+            StringAssert.Contains(result, Logic.DefaultMsBuildPath);
+        }
+
+        [TestMethod]
+        public void ValidateMsBuildPathは旧設定のdevenv_exeならファイルがあってもエラーを返す()
+        {
+            string devenv = @"C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe";
+
+            string result = Logic.ValidateMsBuildPath(devenv, path => true);
+
+            StringAssert.Contains(result, "MSBuild.exe");
+            StringAssert.Contains(result, Logic.DefaultBuildOption);
         }
 
         // --- ClassifyBuildResult(ビルド結果の振り分け) ---------------------------------

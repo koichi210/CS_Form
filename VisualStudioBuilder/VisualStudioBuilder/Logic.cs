@@ -18,6 +18,11 @@ namespace VisualStudioBuilder
         public const String BuildListEnable = "○";
         public const String SlnExtension = ".sln";
         private const String _logExtension = ".log";
+        private const String _msBuildFileName = "MSBuild.exe";
+
+        // 設定ファイルに値が無いときの既定値([[SaveRestore.cs]]から参照)
+        public const String DefaultMsBuildPath = @"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe";
+        public const String DefaultBuildOption = "/t:Rebuild /p:Configuration=Release";
 
         public static String GetFilePathName(String pathName, String fileName, String ext = "")
         {
@@ -34,11 +39,38 @@ namespace VisualStudioBuilder
             return GetFilePathName(pathName, fileName.Replace(SlnExtension, _logExtension));
         }
 
-        public static String CreateScriptHeader(String visualStudioExePath, String buildOption)
+        // ビルドに使うMSBuild.exeのパスを確かめる。問題なければ空文字、問題があれば
+        // 画面に出すメッセージを返す。ファイルの有無は呼び出し側から渡してもらう
+        // (テストで実ファイル無しに判定できるように)。
+        // 以前はdevenv.exeでビルドしていたので、古い設定ファイルを読むとdevenv.exeのパスが
+        // 入っている。そのまま動かすとオプションの書式が違って失敗するため、ここで弾いて案内する
+        public static String ValidateMsBuildPath(String msBuildPath, Func<String, Boolean> fileExists)
         {
-            // 例: set DEV_ENV="C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe"
-            //     set BUILD_OPT=/rebuild release
-            return @"set DEV_ENV=""" + visualStudioExePath + @"""" + Environment.NewLine
+            if (String.IsNullOrWhiteSpace(msBuildPath))
+            {
+                return "MSBuildパスが空欄です。MSBuild.exeのパスを指定してください";
+            }
+
+            if (!String.Equals(Path.GetFileName(msBuildPath), _msBuildFileName, StringComparison.OrdinalIgnoreCase))
+            {
+                return "MSBuildパスには" + _msBuildFileName + "を指定してください" + Environment.NewLine
+                    + "(devenv.exeでのビルドは廃止しました。ビルドオプションも「" + DefaultBuildOption + "」の書式に変えてください)" + Environment.NewLine
+                    + msBuildPath;
+            }
+
+            if (!fileExists(msBuildPath))
+            {
+                return "MSBuild.exeが見つかりません" + Environment.NewLine + msBuildPath;
+            }
+
+            return "";
+        }
+
+        public static String CreateScriptHeader(String msBuildPath, String buildOption)
+        {
+            // 例: set MSBUILD="C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+            //     set BUILD_OPT=/t:Rebuild /p:Configuration=Release
+            return @"set MSBUILD=""" + msBuildPath + @"""" + Environment.NewLine
                 + "set BUILD_OPT=" + buildOption + Environment.NewLine
                 + Environment.NewLine;
         }
@@ -56,19 +88,25 @@ namespace VisualStudioBuilder
             String solutionPath = GetSolutionPathName(projectPath, solutionName);
             String logName = GetLogPathName(logDirectory, solutionName);
 
+            // パスに空白が入っても1つの引数として渡るよう、ダブルクォートで囲む
             var script = new StringBuilder();
             if (isExportLog)
             {
                 // ファイルが存在したら削除
                 if (File.Exists(logName))
                 {
-                    script.Append("del ").Append(logName).Append(Environment.NewLine);
+                    script.Append("del \"").Append(logName).Append('"').Append(Environment.NewLine);
                 }
-                script.Append("%DEV_ENV% %BUILD_OPT% /out ").Append(logName).Append(' ').Append(solutionPath).Append(Environment.NewLine);
+                // ログはエラーと警告だけにする(verbosity=minimal)。既定の詳しさだとコンパイラの
+                // コマンドライン(/errorreport:prompt等)まで載り、成功したビルドでも
+                // 検知ワード「error」に引っかかってしまうため
+                script.Append("%MSBUILD% \"").Append(solutionPath).Append("\" %BUILD_OPT%")
+                      .Append(" /fl \"/flp:logfile=").Append(logName).Append(";verbosity=minimal\"")
+                      .Append(Environment.NewLine);
             }
             else
             {
-                script.Append("%DEV_ENV% %BUILD_OPT% ").Append(solutionPath).Append(Environment.NewLine);
+                script.Append("%MSBUILD% \"").Append(solutionPath).Append("\" %BUILD_OPT%").Append(Environment.NewLine);
             }
             script.Append(Environment.NewLine);
 
