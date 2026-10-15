@@ -101,4 +101,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- OpenCvSharp4.runtime.win は、動画ファイルやネット配信を読むためのFFmpegプラグイン
+       (opencv_videoio_ffmpeg*.dll、約28MB)も出力にコピーする。カメラはWindows標準の
+       Media Foundation / DirectShow で読むのでこのDLLは使わない。Release出力はgit管理なので、
+       リポジトリを重くしないようコピー対象から外している。動画ファイルを読む機能を足すときは消すこと。
+       (パッケージのパスに ..\..\ が入っていてItemGroupの静的なRemoveでは一致しないため、ファイル名で外す) -->
+  <Target Name="ExcludeOpenCvFfmpegPlugin" BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <Content Remove="@(Content)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('opencv_videoio_ffmpeg'))" />
+    </ItemGroup>
+  </Target>
 </Project>
