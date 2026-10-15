@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -18,6 +19,24 @@ namespace ToyingFile
     /// </summary>
     internal static class Logic
     {
+        /// <summary>
+        /// 対象ファイルのディレクトリとして使えるかを調べ、使えなければ画面に出すメッセージを返す(使えればnull)。
+        /// 以前は存在しないディレクトリを指定すると Directory.GetFiles の例外で例外ダイアログが出ていた。
+        /// </summary>
+        public static string ValidateDirectory(string directory)
+        {
+            if (directory == string.Empty)
+            {
+                return "対象ファイルのディレクトリが設定されていません";
+            }
+            // Directory.Exists はパスに使えない文字が入っていても例外にせず false を返す
+            if (!Directory.Exists(directory))
+            {
+                return "対象ファイルのディレクトリが見つかりません" + Environment.NewLine + directory;
+            }
+            return null;
+        }
+
         /// <summary>
         /// ファイル内容(改行区切り)から、deleteStrings のいずれかを含む行を処理する。
         /// deleteWholeLine=true なら行ごと空行にする。false なら該当文字列だけ削除する。

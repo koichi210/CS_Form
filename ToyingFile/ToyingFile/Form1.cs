@@ -56,14 +56,25 @@ namespace ToyingFile
 
         private void button_Execute_Click(object sender, EventArgs e)
         {
-            if (textBox_Directory.Text == string.Empty)
+            string error = Logic.ValidateDirectory(textBox_Directory.Text);
+            if (error != null)
             {
-                MessageBox.Show("対象ファイルのディレクトリが設定されていません");
+                MessageBox.Show(error);
                 return;
             }
 
             //リストアップ
-            string[] targetFiles = GetTargetFiles();
+            // ディレクトリがあっても、アクセス権の無いサブフォルダやパターンに使えない文字があると列挙の途中で失敗する
+            string[] targetFiles;
+            try
+            {
+                targetFiles = GetTargetFiles();
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException)
+            {
+                MessageBox.Show("対象ファイルを列挙できませんでした" + Environment.NewLine + ex.Message);
+                return;
+            }
 
             // メニュー
             if (radioButton_DeleteString.Checked)

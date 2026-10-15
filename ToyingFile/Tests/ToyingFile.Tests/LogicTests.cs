@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ToyingFile.Tests
@@ -82,6 +83,34 @@ namespace ToyingFile.Tests
             string result = Logic.DeleteStringFromContent(content, new[] { "foo", "baz" }, caseSensitive: true, deleteWholeLine: false);
 
             Assert.AreEqual(" bar ", result);
+        }
+
+        [TestMethod]
+        public void ディレクトリが空なら未設定のメッセージを返す()
+        {
+            Assert.AreEqual("対象ファイルのディレクトリが設定されていません", Logic.ValidateDirectory(""));
+        }
+
+        [TestMethod]
+        public void 存在しないディレクトリなら見つからないメッセージを返す()
+        {
+            string dir = Path.Combine(Path.GetTempPath(), "ToyingFileNoSuchDir_" + Guid.NewGuid().ToString("N"));
+
+            string result = Logic.ValidateDirectory(dir);
+
+            Assert.AreEqual("対象ファイルのディレクトリが見つかりません" + Environment.NewLine + dir, result);
+        }
+
+        [TestMethod]
+        public void パスに使えない文字が入っていても例外にせず見つからない扱いにする()
+        {
+            StringAssert.StartsWith(Logic.ValidateDirectory(@"C:\Work|<>"), "対象ファイルのディレクトリが見つかりません");
+        }
+
+        [TestMethod]
+        public void 存在するディレクトリならnullを返す()
+        {
+            Assert.IsNull(Logic.ValidateDirectory(Path.GetTempPath()));
         }
     }
 }
