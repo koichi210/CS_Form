@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using StandardTemplate;
 
 namespace TrimHtmlData
@@ -127,61 +129,151 @@ namespace TrimHtmlData
             MessageBox.Show("IsDebug=" + _isDebug.ToString());
         }
 
+        // ウィンドウが閉じられたか。取得はUIスレッドの外で行うので、取得中に閉じられた後で
+        // 結果が届いても、破棄済みの画面やクリップボードに触らないよう途中で打ち切るために見る
+        private bool _isClosed = false;
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            _isClosed = true;
+            base.OnFormClosed(e);
+        }
+
         private void button_Execute_Click(object sender, EventArgs e)
         {
+            // 取得中はボタンを無効にしてあるが、念のため二重に走らせない
+            if (!button_Execute.Enabled)
+            {
+                return;
+            }
+
+            int trimLineNum;
+            if (!Logic.TryGetTrimLine(textBox_TrimLineNum.Text, out trimLineNum))
+            {
+                MessageBox.Show(this, Logic.TrimLineNumErrorMessage);
+                textBox_TrimLineNum.Focus();
+                textBox_TrimLineNum.SelectAll();
+                return;
+            }
+
             // 出力先をクリア
             textBox_DestList.Text = "";
 
-            // Text +=はURLごとにテキストボックス全体を作り直すため、StringBuilderに溜めて最後に1回だけセットする
-            StringBuilder destText = new StringBuilder();
-
-            int trimLineNum = Logic.GetTrimLine(textBox_TrimLineNum.Text);
-
-            StringComparison comparison = checkBox_OrdinalCase.Checked ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-
-            StcDebug dbg = new StcDebug();
-            dbg.IsDebugMode = _isDebug;
-
-            string[] urls = textBox_SourceList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string url in urls)
+            // 取得中も画面は操作できる(設定の読み込みで各欄が書き換わることもある)ので、
+            // 処理に使う値は開始時点でまとめて読み取っておく
+            TrimJob job = new TrimJob
             {
-                destText.Append("◆").Append(url).Append(Environment.NewLine);
+                Urls = Logic.SplitLines(textBox_SourceList.Text),
+                SearchWord = textBox_SearchWord.Text,
+                TrimLineNum = trimLineNum,
+                Comparison = checkBox_OrdinalCase.Checked ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase,
+                FirstWordOnly = checkBox_FirstWordOnly.Checked,
+                Debug = new StcDebug { IsDebugMode = _isDebug },
+                UiScheduler = TaskScheduler.FromCurrentSynchronizationContext(),
+            };
 
-                string htmlSource = GetHtmlSource(url);
-                dbg.WriteDataInNewFile(htmlSource, "_1_source");
+            SetFetching(true);
+            FetchNext(job, 0);
+        }
 
-                string result = Logic.GetSearchString(htmlSource, textBox_SearchWord.Text, trimLineNum, comparison, checkBox_FirstWordOnly.Checked);
-                dbg.WriteDataInNewFile(result, "_2_search");
+        // 実行1回分の入力値と途中経過
+        private class TrimJob
+        {
+            public string[] Urls;
+            public string SearchWord;
+            public int TrimLineNum;
+            public StringComparison Comparison;
+            public bool FirstWordOnly;
+            public StcDebug Debug;
+            public TaskScheduler UiScheduler;
 
-                destText.Append(result);
+            // Text +=はURLごとにテキストボックス全体を作り直すため、StringBuilderに溜めて最後に1回だけセットする
+            public readonly StringBuilder DestText = new StringBuilder();
+        }
+
+        // index番目のURLを取得する。以前はUIスレッドでそのまま取得していたため、取得が終わるまで画面が固まっていた。
+        // .NET Framework 4.0なのでasync/awaitは使えず、取得だけをTaskで裏に回し、
+        // 結果の処理は1件ずつUIスレッドに戻してから次のURLへ進む
+        // (失敗時のメッセージをURLの順に1件ずつ出す、以前の挙動を保つため)
+        private void FetchNext(TrimJob job, int index)
+        {
+            if (index >= job.Urls.Length)
+            {
+                FinishFetch(job);
+                return;
             }
-            textBox_DestList.Text = destText.ToString();
+
+            string url = job.Urls[index];
+            job.DestText.Append("◆").Append(url).Append(Environment.NewLine);
+            this.Text = _appName + " - 取得中 (" + (index + 1) + "/" + job.Urls.Length + ")";
+
+            Task.Factory.StartNew(() => DownloadHtmlSource(url))
+                .ContinueWith(task =>
+                {
+                    if (_isClosed)
+                    {
+                        return;
+                    }
+
+                    string htmlSource = "";
+                    if (task.IsFaulted)
+                    {
+                        // Exceptionを読んで「確認済み」にしておく(未確認のまま捨てられたTaskの例外として扱われないように)
+                        Exception unused = task.Exception;
+                        MessageBox.Show(this, "ソース取得に失敗しました。" + Environment.NewLine + url);
+
+                        // メッセージを出している間に閉じられることもある
+                        if (_isClosed)
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        htmlSource = task.Result;
+                    }
+
+                    htmlSource = _util.ChangeNewLineCodeLf2Crlf(htmlSource);
+                    job.Debug.WriteDataInNewFile(htmlSource, "_1_source");
+
+                    string result = Logic.GetSearchString(htmlSource, job.SearchWord, job.TrimLineNum, job.Comparison, job.FirstWordOnly);
+                    job.Debug.WriteDataInNewFile(result, "_2_search");
+
+                    job.DestText.Append(result);
+
+                    FetchNext(job, index + 1);
+                }, CancellationToken.None, TaskContinuationOptions.None, job.UiScheduler);
+        }
+
+        private void FinishFetch(TrimJob job)
+        {
+            textBox_DestList.Text = job.DestText.ToString();
+            SetFetching(false);
 
             _util.SetClipboardText(textBox_DestList.Text);
         }
 
-        /// <summary>
-        /// Htmlのソースを取得
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        private string GetHtmlSource(string url)
+        // 取得中は実行ボタンを押せなくし、ボタンとタイトルで取得中であることを示す
+        private void SetFetching(bool isFetching)
         {
-            string htmlSource = "";
-            try
+            button_Execute.Enabled = !isFetching;
+            button_Execute.Text = isFetching ? "取得中..." : "実行";
+            if (!isFetching)
             {
-                using (WebClient client = new WebClient())
-                {
-                    client.Encoding = Encoding.UTF8;
-                    htmlSource = client.DownloadString(url);
-                }
+                this.Text = _appName;
             }
-            catch (Exception)
-            {
-                MessageBox.Show("ソース取得に失敗しました。" + Environment.NewLine + url);
-            }
+        }
 
-            return _util.ChangeNewLineCodeLf2Crlf(htmlSource);
+        /// <summary>
+        /// Htmlのソースを取得する(UIスレッドの外で呼ばれる)。失敗時は例外をそのまま投げ、呼び出し元がメッセージを出す
+        /// </summary>
+        private static string DownloadHtmlSource(string url)
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.Encoding = Encoding.UTF8;
+                return client.DownloadString(url);
+            }
         }
 
         private void comboBox_LoadSetting_SelectedIndexChanged(object sender, EventArgs e)
