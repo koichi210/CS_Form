@@ -6,13 +6,10 @@ namespace ChotChotChat.Tests
     /// Form1（簡易TCPチャットのサンプル）のテスト。
     ///
     /// ⚠️ button_Server_Click / button_Client_Click / button_Send_Click は、
-    /// 内部のServer/Clientクラスを通じて実際のTCPソケット(ポート8080固定)を
-    /// 開き、Server.Receive/Client.SendはAcceptTcpClient/NetworkStream.Readで
-    /// 相手からのデータを実際にブロック待ちする作りになっている。
-    /// 相手側を用意しない限りテストがハングし、また接続失敗時や切断検知時には
+    /// 実際のTCPソケット(ポート8080固定)を開き、接続失敗時や切断検知時には
     /// MessageBox.Showも呼ばれる。安全にテストできないため、これら3つの
-    /// ハンドラと内部のServer/Clientクラスはテスト対象から完全に除外し、
-    /// フォームの生成のみを検証する。
+    /// ハンドラとClientクラスはテスト対象から除外し、フォームの生成のみを検証する。
+    /// Serverクラスは画面に触らない作りにしたので、ServerTestsで空いているポートを使って確かめている。
     /// </summary>
     [TestClass]
     public class Form1Tests

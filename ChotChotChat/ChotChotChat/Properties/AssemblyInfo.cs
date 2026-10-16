@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
+// テストプロジェクトから internal クラス（Server など）を直接参照できるようにする
+[assembly: InternalsVisibleTo("ChotChotChat.Tests")]
+
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
 [assembly: Guid("2266b7fe-c98a-4a2e-9ad3-a6e2c53e45aa")]
 
