@@ -133,13 +133,16 @@ namespace EventRecorder
                         return;
                     }
 
+                    // ホットキーの処理(再生前チェックのエラー表示など、MessageBoxを出すことがある)は、
+                    // フックのコールバックを抜けてから動かす。コールバックの中でモーダル画面を出すと、閉じるまで
+                    // コールバックが戻らずキー入力全体が固まる上、一定時間でWindowsにフックを黙って外されるため
                     if (isRecordHotkey)
                     {
-                        ToggleRecording();
+                        BeginInvoke((MethodInvoker)ToggleRecording);
                     }
                     else
                     {
-                        PlayOrStop();
+                        BeginInvoke((MethodInvoker)PlayOrStop);
                     }
 
                     return;
