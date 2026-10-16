@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using StandardTemplate;
 
 namespace PerforceWrapper
 {
@@ -23,7 +22,6 @@ namespace PerforceWrapper
         private String _workspace = "";
         private String _userName = "";
         private String _userPass = "";
-        private String _userPassFile = "";
         private String _charset = "";
         private String _targetTree = "";
         private String _revision = "";
@@ -167,14 +165,45 @@ namespace PerforceWrapper
             AppendSetCommand(command, "P4CHARSET", _charset);
             AppendSetCommand(command, "P4USER", _userName);
 
-            // Perforceログイン設定
-            if (_userName != String.Empty && _userPass != String.Empty)
-            {
-                command.Append("cat ").Append(CreatePasswordFile(_userPass)).Append(" | ");
-                command.Append("p4 -u ").Append(_userName).Append(" login -a").Append(Environment.NewLine);
-            }
-
+            // ログイン(p4 login)はバッチに含めない。パスワードを書いたファイルを作らずに済むよう、
+            // バッチより先に別プロセスで実行し、パスワードは標準入力で渡す(CreateLoginArguments)
             return command.ToString();
+        }
+
+        // ユーザー名とパスワードが両方入っていれば、コマンドの実行前にp4 loginする
+        public Boolean NeedsLogin
+        {
+            get { return _userName != String.Empty && _userPass != String.Empty; }
+        }
+
+        public String UserPass
+        {
+            get { return _userPass; }
+        }
+
+        // p4 login に渡す引数。バッチでは「set 変数=値」で渡している設定を、ここではグローバルオプションで渡す
+        // (ログインはバッチとは別のプロセスで行うため、バッチのsetは効かない)
+        public String CreateLoginArguments()
+        {
+            var arguments = new StringBuilder();
+
+            AppendGlobalOption(arguments, "-p", _serverName);
+            AppendGlobalOption(arguments, "-c", _workspace);
+            AppendGlobalOption(arguments, "-C", _charset);
+            AppendGlobalOption(arguments, "-u", _userName);
+            arguments.Append("login -a");
+
+            return arguments.ToString();
+        }
+
+        // 値が空でなければ「オプション 値 」を追加する(空ならPC側の既定設定を使う)。空白を含む値は""で囲む
+        private static void AppendGlobalOption(StringBuilder arguments, String option, String value)
+        {
+            if (value != String.Empty)
+            {
+                String quoted = value.IndexOf(' ') >= 0 ? "\"" + value + "\"" : value;
+                arguments.Append(option).Append(' ').Append(quoted).Append(' ');
+            }
         }
 
         // 値が空でなければ「set 変数名=値」の行を追加する(空ならPC側の既定設定を使う)
@@ -186,23 +215,9 @@ namespace PerforceWrapper
             }
         }
 
-        private String CreatePasswordFile(String password)
-        {
-            StcFileInputOutput fio = new StcFileInputOutput();
-            _userPassFile = fio.CreateTempFile();
-            fio.CreateFile(_userPassFile, password);
-
-            return _userPassFile;
-        }
-
         private String CreatePostCommand()
         {
             String command = "";
-
-            if (_userPassFile != String.Empty)
-            {
-                command += "del " + _userPassFile + Environment.NewLine;
-            }
 
             if (_isDebug)
             {

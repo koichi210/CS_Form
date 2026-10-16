@@ -150,18 +150,32 @@ namespace PerforceWrapper
             _util.SelectAll(e);
         }
 
-        private String ExecuteForeground(String script)
+        private String ExecuteForeground(Perforce pf, String script)
         {
+            if (pf.NeedsLogin)
+            {
+                Login(pf.CreateLoginArguments(), pf.UserPass);
+            }
+
             String batchFile = _fio.CreateTempFile("bat");
             _fio.CreateFile(batchFile, script);
 
-            _util.ExecuteProcess(out String output, batchFile);
-            return output;
+            try
+            {
+                using (_util.ExecuteProcess(out String output, batchFile))
+                {
+                    return output;
+                }
+            }
+            finally
+            {
+                File.Delete(batchFile);
+            }
         }
 
-        private void Execute(String script)
+        private void Execute(Perforce pf, String script)
         {
-            // 実行中に押されると RunWorkerAsync が例外になり、パスワード入りのバッチだけが残ってしまうため先に弾く
+            // 実行中に押されると RunWorkerAsync が例外になり、作ったバッチだけが残ってしまうため先に弾く
             if (backgroundWorker.IsBusy)
             {
                 MessageBox.Show("実行中です。終わってからもう一度押してください");
@@ -171,31 +185,102 @@ namespace PerforceWrapper
             String batchFile = _fio.CreateTempFile("bat");
             _fio.CreateFile(batchFile, script);
 
-            // 実行(引数はバッチのパス1つだけなのでそのまま渡す)
-            backgroundWorker.RunWorkerAsync(batchFile);   // ⇒DoWork()
+            backgroundWorker.RunWorkerAsync(new ExecuteRequest(batchFile, pf));   // ⇒DoWork()
+        }
+
+        // BackgroundWorkerに渡す引数。ログインが要らなければLoginArgumentsはnull
+        internal sealed class ExecuteRequest
+        {
+            public ExecuteRequest(String batchFile, Perforce pf)
+            {
+                BatchFile = batchFile;
+                if (pf != null && pf.NeedsLogin)
+                {
+                    LoginArguments = pf.CreateLoginArguments();
+                    Password = pf.UserPass;
+                }
+            }
+
+            public String BatchFile { get; }
+
+            public String LoginArguments { get; }
+
+            public String Password { get; }
         }
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             // このメソッドへのパラメータ
-            String batchFile = (String)e.Argument;
+            ExecuteRequest request = (ExecuteRequest)e.Argument;
 
             try
             {
-                // コマンド実行(バッチ完了後にパスワード入りファイルを安全に削除するため、終了を待つ)
-                using (Process process = _util.ExecuteProcess(batchFile))
+                // ログインはサーバーの応答待ちがあるので、画面を固めないようワーカー側で行う
+                if (request.LoginArguments != null)
+                {
+                    Login(request.LoginArguments, request.Password);
+                }
+
+                // コマンド実行(バッチ完了後に安全に削除するため、終了を待つ)
+                using (Process process = _util.ExecuteProcess(request.BatchFile))
                 {
                     process.WaitForExit();
                 }
             }
             finally
             {
-                // パスワードが含まれるので、プロセス実行後は失敗時も含め必ず削除する
-                File.Delete(batchFile);
+                // 一時ファイルなので、失敗時も含め必ず削除する
+                File.Delete(request.BatchFile);
             }
 
             // このメソッドからの戻り値
             e.Result = "SUCCESS";
+        }
+
+        // p4 login を実行する。パスワードはファイルにもコマンドラインにも書かず、p4の標準入力へ直接渡す。
+        // (以前はパスワードを平文で一時ファイルに書き出し、Windows標準には無い cat で読ませてバッチの中でログインしていた)
+        // 失敗したらp4の出力を添えて例外にする
+        private static void Login(String loginArguments, String password)
+        {
+            ProcessStartInfo psInfo = new ProcessStartInfo("p4", loginArguments);
+            psInfo.UseShellExecute = false;
+            psInfo.CreateNoWindow = true;
+            psInfo.RedirectStandardInput = true;
+            psInfo.RedirectStandardOutput = true;
+            psInfo.RedirectStandardError = true;
+
+            using (Process process = Process.Start(psInfo))
+            {
+                // 標準出力と標準エラーを順に読むと、片方のバッファが詰まった時に止まるので、エラー側は非同期で読む
+                System.Text.StringBuilder error = new System.Text.StringBuilder();
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        lock (error)
+                        {
+                            error.AppendLine(e.Data);
+                        }
+                    }
+                };
+                process.BeginErrorReadLine();
+
+                process.StandardInput.WriteLine(password);
+                process.StandardInput.Close();
+
+                String output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();   // 引数なしのWaitForExitは、非同期読み取りが終わるまで待つ
+
+                if (process.ExitCode != 0)
+                {
+                    String message;
+                    lock (error)
+                    {
+                        message = (error.ToString() + output).Trim();
+                    }
+                    throw new InvalidOperationException("p4 login に失敗しました" + Environment.NewLine + message);
+                }
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -271,7 +356,7 @@ namespace PerforceWrapper
             pf.SetTargetTree(textBox_tree_list.Text);
             pf.SetDebugMode(_isDebug);
 
-            Execute(pf.CreateCommandUseTree());
+            Execute(pf, pf.CreateCommandUseTree());
         }
 
         private void SetLabelExecute()
@@ -297,7 +382,7 @@ namespace PerforceWrapper
             pf.SetLabelName(textBox_sl_label_name.Text);
             pf.SetDebugMode(_isDebug);
 
-            Execute(pf.CreateCommandUseTree());
+            Execute(pf, pf.CreateCommandUseTree());
         }
 
         private void DiffLabelExecute()
@@ -330,7 +415,16 @@ namespace PerforceWrapper
                 pf.GetLabelDesignationPathName(textBox_dl_dest_tree.Text, textBox_dl_dest_label_name.Text) +
                 " > " + diffFile;
 
-            ExecuteForeground(pf.CreateCommandDefined(command));
+            try
+            {
+                ExecuteForeground(pf, pf.CreateCommandDefined(command));
+            }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is Win32Exception)
+            {
+                // ログインの失敗(InvalidOperationException)や、p4が見つからない(Win32Exception)
+                MessageBox.Show("コマンドの実行に失敗しました" + Environment.NewLine + ex.Message);
+                return;
+            }
 
             // 比較結果検証
             if (new FileInfo(diffFile).Length > 0)
@@ -361,7 +455,7 @@ namespace PerforceWrapper
             pf.SetTargetTree(textBox_tree_list.Text);
             pf.SetDebugMode(_isDebug);
 
-            Execute(pf.CreateCommandUseTree());
+            Execute(pf, pf.CreateCommandUseTree());
         }
 
         private void label16_DoubleClick(object sender, EventArgs e)

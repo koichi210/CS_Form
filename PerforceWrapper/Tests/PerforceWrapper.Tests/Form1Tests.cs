@@ -9,11 +9,11 @@ namespace PerforceWrapper.Tests
     /// <summary>
     /// Form1.backgroundWorker_DoWork（p4コマンドのバッチファイルを実行する箇所）のテスト。
     ///
-    /// このバッチファイルは、ユーザーがパスワードを入力した場合に p4 login 用のパスワード
-    /// ファイルを読む "cat <path> | p4 login" を含むことがある。以前は実行後の
-    /// File.Delete(batchFile) がコメントアウトされていたため、パスワード絡みの一時ファイルが
-    /// ディスクに残り続けるバグがあった。ここでは「実行後に必ず削除される」ことだけを確認する
-    /// （バッチの中身自体はパスワードを含まない無害なものにして、実際の p4 サーバーには依存しない）。
+    /// 以前このバッチファイルは、p4 login 用に平文のパスワードファイルを読む "cat <path> | p4 login" を
+    /// 含んでいて、実行後の File.Delete(batchFile) がコメントアウトされていたため、パスワード絡みの
+    /// 一時ファイルがディスクに残り続けるバグがあった。今はログインをバッチの外で行うのでパスワードは
+    /// 含まないが、一時ファイルを残さないことは引き続き確認する
+    /// （ログインなしの無害なバッチにして、実際の p4 サーバーには依存しない）。
     /// </summary>
     [TestClass]
     public class Form1Tests
@@ -28,11 +28,11 @@ namespace PerforceWrapper.Tests
 
                 try
                 {
-                    var args = new DoWorkEventArgs(batchFile);
+                    var args = new DoWorkEventArgs(new Form1.ExecuteRequest(batchFile, null));
                     MethodInfo method = typeof(Form1).GetMethod("backgroundWorker_DoWork", BindingFlags.NonPublic | BindingFlags.Instance);
                     method.Invoke(form, new object[] { form, args });
 
-                    Assert.IsFalse(File.Exists(batchFile), "パスワードが含まれうる一時バッチファイルは実行後に削除されるはず");
+                    Assert.IsFalse(File.Exists(batchFile), "一時バッチファイルは実行後に削除されるはず");
                 }
                 finally
                 {

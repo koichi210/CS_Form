@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,47 +9,11 @@ namespace PerforceWrapper.Tests
     ///
     /// 実際に p4 コマンドやシェルを実行するクラスではなく、実行用のコマンド文字列を
     /// 組み立てるだけの純粋なロジック。そのため文字列比較で安全に検証できる。
-    ///
-    /// ⚠️ 例外が1つある: ユーザー名とパスワードを両方設定すると、CreateEnvCommand が
-    /// パスワードを平文のまま一時ファイルに書き出す（CreatePasswordFile）。コマンド文字列を
-    /// 組み立てるだけのつもりが、実際にディスクへ書き込む副作用を持っている。
-    /// テストではダミーの値しか使わないが、後片付けとして生成された一時ファイルを
-    /// コマンド文字列から拾って確実に削除する。
+    /// (以前はパスワードを平文の一時ファイルに書き出す副作用があったが、今はファイルを作らない)
     /// </summary>
     [TestClass]
     public class PerforceTests
     {
-        [TestCleanup]
-        public void TearDown()
-        {
-            // CreateEnvCommand が作った一時パスワードファイルを、生成されたコマンド文字列から
-            // 拾って削除する。"cat <path> | " という形で埋め込まれている。
-            foreach (string path in tempPasswordFilesToClean)
-            {
-                try
-                {
-                    if (File.Exists(path)) File.Delete(path);
-                }
-                catch (IOException)
-                {
-                    // 後片付けの失敗はテストの成否に関係ないので黙って流す
-                }
-            }
-            tempPasswordFilesToClean.Clear();
-        }
-
-        private readonly System.Collections.Generic.List<string> tempPasswordFilesToClean = new System.Collections.Generic.List<string>();
-
-        /// <summary>生成されたコマンド文字列から一時パスワードファイルのパスを抜き出して、後で消す対象に登録する。</summary>
-        private void RememberPasswordFileIfAny(string command)
-        {
-            Match m = Regex.Match(command, @"cat (.+?) \|");
-            if (m.Success)
-            {
-                tempPasswordFilesToClean.Add(m.Groups[1].Value);
-            }
-        }
-
         [TestMethod]
         public void CreateCommandUseTreeはサーバーとワークスペースの環境変数を先頭に積む()
         {
@@ -255,9 +218,10 @@ namespace PerforceWrapper.Tests
         }
 
         [TestMethod]
-        public void ユーザー名とパスワードを設定するとログイン用コマンドが追加される()
+        public void ユーザー名とパスワードを設定してもバッチにはログインもパスワードも含めない()
         {
-            // ダミーの値。実在のパスワードは使わない。
+            // ログインはバッチより先に別プロセスで行い、パスワードは標準入力で渡す。
+            // 以前はパスワードを平文で一時ファイルに書き出し、"cat <path> | p4 login" をバッチに入れていた
             const string dummyPassword = "dummy_test_password_12345";
 
             var p4 = new Perforce();
@@ -267,35 +231,55 @@ namespace PerforceWrapper.Tests
             p4.SetTargetTree(@"//depot/main");
 
             string command = p4.CreateCommandUseTree();
-            RememberPasswordFileIfAny(command);
 
             StringAssert.Contains(command, "set P4USER=test_user");
-            StringAssert.Contains(command, "p4 -u test_user login -a");
-            StringAssert.Contains(command, "del ", "後片付け用の del コマンドが末尾に積まれる");
+            Assert.IsFalse(command.Contains("login"), "ログインはバッチの外で行う");
+            Assert.IsFalse(command.Contains(dummyPassword), "パスワードはバッチに書かない");
+            Assert.IsFalse(command.Contains("cat "), "Windows標準に無いcatは使わない");
+            Assert.IsFalse(command.Contains("del "), "消すべきパスワードファイルを作らない");
         }
 
         [TestMethod]
-        public void パスワードは平文のまま一時ファイルに書き出される()
+        public void ユーザー名とパスワードを両方設定した時だけログインが必要になる()
         {
-            // これは仕様として現状こうなっている、という記録。
-            // コマンド文字列を組み立てるだけに見えて、実際にはディスクへの書き込みを伴う。
-            const string dummyPassword = "dummy_test_password_12345";
+            var both = new Perforce();
+            both.SetUserName("test_user");
+            both.SetUserPass("dummy");
+            Assert.IsTrue(both.NeedsLogin);
 
+            var userOnly = new Perforce();
+            userOnly.SetUserName("test_user");
+            Assert.IsFalse(userOnly.NeedsLogin);
+
+            var passOnly = new Perforce();
+            passOnly.SetUserPass("dummy");
+            Assert.IsFalse(passOnly.NeedsLogin);
+        }
+
+        [TestMethod]
+        public void ログインの引数はバッチと同じ設定をグローバルオプションで渡す()
+        {
             var p4 = new Perforce();
+            p4.SetServerName("myserver:1666");
+            p4.SetWorkspace("my_workspace");
+            p4.SetCharset("utf8");
             p4.SetUserName("test_user");
-            p4.SetUserPass(dummyPassword);
-            p4.SetOperatorType(Perforce.OperatorType.Sync);
-            p4.SetTargetTree(@"//depot/main");
+            p4.SetUserPass("dummy_test_password_12345");
 
-            string command = p4.CreateCommandUseTree();
-            RememberPasswordFileIfAny(command);
+            string arguments = p4.CreateLoginArguments();
 
-            Match m = Regex.Match(command, @"cat (.+?) \|");
-            Assert.IsTrue(m.Success, "パスワードファイルのパスがコマンド中に埋め込まれているはず");
+            Assert.AreEqual("-p myserver:1666 -c my_workspace -C utf8 -u test_user login -a", arguments);
+            Assert.IsFalse(arguments.Contains("dummy_test_password_12345"), "パスワードはコマンドラインに出さない");
+        }
 
-            string path = m.Groups[1].Value;
-            Assert.IsTrue(File.Exists(path), "実際にファイルが作られている");
-            Assert.AreEqual(dummyPassword, File.ReadAllText(path), "中身は平文のパスワードそのもの");
+        [TestMethod]
+        public void ログインの引数は未設定の項目を省き空白を含む値は囲む()
+        {
+            var p4 = new Perforce();
+            p4.SetWorkspace("my workspace");
+            p4.SetUserName("test_user");
+
+            Assert.AreEqual("-c \"my workspace\" -u test_user login -a", p4.CreateLoginArguments());
         }
 
         [TestMethod]
@@ -310,6 +294,7 @@ namespace PerforceWrapper.Tests
 
             StringAssert.Contains(command, "set P4USER=test_user");
             Assert.IsFalse(command.Contains("login -a"));
+            Assert.IsFalse(p4.NeedsLogin);
         }
     }
 }
