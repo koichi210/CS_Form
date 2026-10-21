@@ -42,11 +42,24 @@ namespace ImageViewer
 
             for (int i = 0; i < maxNum; i++)
             {
-                using (Image original = Image.FromFile(files[i]))
+                // 壊れた画像・読めないファイル(一覧作成後に消された・ロック中など)が1枚でもあると、
+                // Image.FromFileの例外でそこから先が表示されなかった。読めない画像はサムネイル無し(ImageIndex=-1)で並べる
+                // (ImageListに追加できた枚数とファイルの番号がずれるので、ImageIndexは追加した位置を使う)
+                int imageIndex = -1;
+                try
                 {
-                    imageList.Images.Add(original);
+                    using (Image original = Image.FromFile(files[i]))
+                    {
+                        imageList.Images.Add(original);
+                    }
+                    imageIndex = imageList.Images.Count - 1;
                 }
-                listView.Items.Add(files[i], i);
+                catch (Exception ex) when (ex is OutOfMemoryException || ex is IOException
+                    || ex is UnauthorizedAccessException || ex is ArgumentException)
+                {
+                    // Image.FromFileは画像として読めないファイルにOutOfMemoryExceptionを投げる
+                }
+                listView.Items.Add(files[i], imageIndex);
             }
         }
     }

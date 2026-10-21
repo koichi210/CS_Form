@@ -159,5 +159,29 @@ namespace ImageViewer.Tests
                 Assert.AreEqual(1, imageList.Images.Count);
             }
         }
+
+        // 回帰テスト: 壊れた画像が1枚でもあると、以前はImage.FromFileの例外でそこから先が表示されなかった
+        [TestMethod]
+        public void 壊れた画像があってもサムネイル無しで並べて残りの画像も表示する()
+        {
+            CreatePng("a.png");
+            File.WriteAllText(Path.Combine(_tempDirectory, "b.png"), "これは画像ではない");
+            CreatePng("c.png");
+
+            var pv = new Preview();
+            pv.SetSize(32);
+
+            using (var imageList = new ImageList())
+            using (var listView = new ListView())
+            {
+                pv.View(imageList, listView, _tempDirectory, "*.png");
+
+                Assert.AreEqual(3, listView.Items.Count);
+                Assert.AreEqual(2, imageList.Images.Count);
+                Assert.AreEqual(0, listView.Items[0].ImageIndex);
+                Assert.AreEqual(-1, listView.Items[1].ImageIndex);
+                Assert.AreEqual(1, listView.Items[2].ImageIndex);
+            }
+        }
     }
 }
