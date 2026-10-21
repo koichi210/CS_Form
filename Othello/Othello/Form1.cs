@@ -206,10 +206,14 @@ namespace Othello
         /// </summary>
         private void menuItem_Undo_Click(object sender, EventArgs e)
         {
+            // 時間切れはゲーム終了なので、戻して続きを打つことはできない(メニューも無効にしてある)
+            if (_isTimedOut)
+            {
+                return;
+            }
             _comMoveTimer.Stop();
             if (_gm.Undo())
             {
-                _isTimedOut = false;
                 _gameState = GameState.Stop;
                 RedrawBoard();
             }
@@ -221,10 +225,13 @@ namespace Othello
         /// </summary>
         private void menuItem_Redo_Click(object sender, EventArgs e)
         {
+            if (_isTimedOut)
+            {
+                return;
+            }
             _comMoveTimer.Stop();
             if (_gm.Redo())
             {
-                _isTimedOut = false;
                 _gameState = GameState.Stop;
                 RedrawBoard();
             }
@@ -445,7 +452,16 @@ namespace Othello
 
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    System.IO.File.WriteAllText(dialog.FileName, Kifu.ToText(_gm.History));
+                    // 読み取り専用・他のアプリで開いている等で書けないとき、例外のままだとアプリごと落ちるので知らせて終える
+                    try
+                    {
+                        System.IO.File.WriteAllText(dialog.FileName, Kifu.ToText(_gm.History));
+                    }
+                    catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException
+                        || ex is System.Security.SecurityException)
+                    {
+                        MessageBox.Show("棋譜ファイルを保存できなかったよ。\n" + ex.Message, "棋譜の保存", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
@@ -560,8 +576,18 @@ namespace Othello
                 _countdownTimer.Stop();
                 _comMoveTimer.Stop();
                 _isTimedOut = true;
-                UpdateStatusLabel();
+                // 時間切れはゲーム終了。RedrawBoardで終局状態(End)にして、開始/停止メニュー・置ける場所のマークも合わせる
+                // (以前はUpdateStatusLabelだけだったので「進行中」のまま残り、「停止」を押すまで新しい対局を始められなかった)
+                RedrawBoard();
             }
+        }
+
+        // 時間切れはゲーム終了なので「一手戻す」「一手進める」は押せないようにする
+        // (以前は戻せたが、残り時間が0のままなので次のカウントダウンですぐ時間切れに戻っていた)
+        private void UpdateUndoRedoMenu()
+        {
+            menuItem_Undo.Enabled = !_isTimedOut && _gm.CanUndo;
+            menuItem_Redo.Enabled = !_isTimedOut && _gm.CanRedo;
         }
 
         private void pictureBoxField_MouseClick(object sender, MouseEventArgs e)
@@ -657,8 +683,7 @@ namespace Othello
             UpdateStatusLabel();
             UpdateTimeLabel();
 
-            menuItem_Undo.Enabled = _gm.CanUndo;
-            menuItem_Redo.Enabled = _gm.CanRedo;
+            UpdateUndoRedoMenu();
 
             UpdateMenuState();
 
