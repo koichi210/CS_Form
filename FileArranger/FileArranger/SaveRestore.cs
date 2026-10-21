@@ -103,6 +103,10 @@ namespace FileArranger
             parent.UpdateMoveDestDirComboBox();
 
             // リストをリセット
+            // (フォルダ移動/ファイル移動タブの一覧も、読み込んだ格納元とは別のフォルダの中身になってしまうので消す。
+            //  残したままだと、一覧の名前を新しい格納元に付け足したパスを削除・移動してしまう)
+            parent.md_listBox_Listup.Items.Clear();
+            parent.mf_listBox_Target.Items.Clear();
             parent.sf_listBox_Target.Items.Clear();
             parent.rd_listView_Target.Items.Clear();
             parent.pf_listView_Target.Items.Clear();

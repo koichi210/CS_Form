@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 
@@ -24,11 +25,8 @@ namespace FileArranger
                 return;
             }
 
-            foreach (String selectedName in Utils.GetSelectedNames(sf_listBox_Target))
-            {
-                _sorter.SortFolder(Path.Combine(sf_textBox_TargetFile.Text, selectedName));
-            }
-            _sorter.CommitBatch();
+            _sorter.SortFolders(Utils.GetSelectedNames(sf_listBox_Target)
+                .Select(selectedName => Path.Combine(sf_textBox_TargetFile.Text, selectedName)));
         }
 
         private void sf_button_Sort_Restore_Click(object sender, EventArgs e)
