@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ToyingFile.Tests
@@ -75,6 +76,30 @@ namespace ToyingFile.Tests
             }
 
             Assert.AreEqual("delete  word", File.ReadAllText(nestedFile));
+        }
+
+        [TestMethod]
+        public void 削除する文字列が無かったファイルは書き戻さない()
+        {
+            // 以前は一致しなかったファイルもShift_JISで書き直していたため、UTF-8の日本語やバイナリが化けていた
+            string hitFile = Path.Combine(tempDirectory, "hit.txt");
+            string utf8File = Path.Combine(tempDirectory, "utf8.txt");
+            byte[] utf8Bytes = new UTF8Encoding(false).GetBytes("日本語だけの行" + Environment.NewLine + "対象なし");
+            File.WriteAllText(hitFile, "x TARGET y");
+            File.WriteAllBytes(utf8File, utf8Bytes);
+
+            using (var form = new Form1())
+            {
+                FormReflection.SetText(form, "textBox_Directory", tempDirectory);
+                FormReflection.SetText(form, "textBox_DeleteString", "TARGET");
+                FormReflection.SetChecked(form, "radioButton_DeleteString", true);
+                FormReflection.SetChecked(form, "checkBox_CaseSensitive", true);
+
+                FormReflection.InvokeHandler(form, "button_Execute_Click");
+            }
+
+            Assert.AreEqual("x  y", File.ReadAllText(hitFile));
+            CollectionAssert.AreEqual(utf8Bytes, File.ReadAllBytes(utf8File), "一致しなかったファイルはバイト列ごとそのまま");
         }
     }
 }

@@ -35,7 +35,7 @@ namespace ToyingFile
 
             toolTip.SetToolTip(textBox_File, "対象にするファイル名のパターン(*や?のワイルドカード可)。空欄なら全ファイル");
             toolTip.SetToolTip(textBox_DeleteString, "削除する文字列。1行に1つずつ書く(空行は無視)");
-            toolTip.SetToolTip(checkBox_DeleteLine, "指定文字を含む行を行ごと空行にする(行は詰めない)。改行がCRLFでないファイルは全体が1行として扱われる");
+            toolTip.SetToolTip(checkBox_DeleteLine, "指定文字を含む行を行ごと空行にする(行は詰めない)。改行コード(CRLF/LF/CR)は元のまま残す");
             toolTip.SetToolTip(button_Execute, "対象ファイルをShift_JISとして読み込み、結果で直接上書きする。バックアップは作らない");
         }
 
@@ -100,6 +100,13 @@ namespace ToyingFile
             {
                 string fileData = fio.LoadFile(filePath);
                 string resultData = Logic.DeleteStringFromContent(fileData, deleteStrings, checkBox_CaseSensitive.Checked, checkBox_DeleteLine.Checked);
+
+                // 削除する文字列が無かったファイルは書き戻さない。以前は対象の全ファイルをShift_JISで書き直していたため、
+                // 一致しなかったUTF-8のテキストや画像等のバイナリ(ファイル名パターン空欄=全ファイル)まで化けて壊れていた
+                if (resultData == fileData)
+                {
+                    continue;
+                }
                 fio.SaveFile(filePath, resultData);
             }
         }

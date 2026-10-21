@@ -86,6 +86,27 @@ namespace ToyingFile.Tests
         }
 
         [TestMethod]
+        public void LFだけのファイルでも1行ずつ処理し改行コードは元のまま残す()
+        {
+            // 以前はCRLFだけで分けていたため、LFだけのファイルは全体が1行扱いになり、行ごと削除でファイルの中身が丸ごと消えていた
+            string content = "keep this\ndelete this line\nkeep too\n";
+
+            string result = Logic.DeleteStringFromContent(content, new[] { "delete" }, caseSensitive: true, deleteWholeLine: true);
+
+            Assert.AreEqual("keep this\n\nkeep too\n", result);
+        }
+
+        [TestMethod]
+        public void 改行コードが混在していてもそれぞれの改行コードのまま残す()
+        {
+            string content = "a TARGET\r\nb\nc TARGET\rd";
+
+            string result = Logic.DeleteStringFromContent(content, new[] { "TARGET" }, caseSensitive: true, deleteWholeLine: false);
+
+            Assert.AreEqual("a \r\nb\nc \rd", result);
+        }
+
+        [TestMethod]
         public void ディレクトリが空なら未設定のメッセージを返す()
         {
             Assert.AreEqual("対象ファイルのディレクトリが設定されていません", Logic.ValidateDirectory(""));
