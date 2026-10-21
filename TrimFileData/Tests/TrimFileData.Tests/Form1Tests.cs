@@ -82,5 +82,50 @@ namespace TrimFileData.Tests
             StringAssert.Contains(result, "apple pie");
             Assert.IsFalse(result.Contains("banana"));
         }
+
+        [TestMethod]
+        public void LF改行のリファレンスファイルでもヒットした行だけを抽出する()
+        {
+            // 以前はCRLFだけで分けていたため、LFだけのファイルは全体が1行扱いになり、ヒットしない行まで結果に出ていた
+            string referPath = Path.Combine(tempDirectory, "refer_lf.txt");
+            File.WriteAllText(referPath, "apple pie\nbanana split\ncherry apple\n", Encoding.GetEncoding("Shift_JIS"));
+
+            string result = null;
+            Exception failure = null;
+
+            // button_Execute_Click は内部で Clipboard.SetText を呼ぶため、STA スレッド上で実行する。
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    using (var form = new Form1())
+                    {
+                        FormReflection.SetText(form, "textBox_ReferencePath", referPath);
+                        // LFだけの文字列を貼り付けた検索ワード欄も1行ずつのワードとして扱う
+                        FormReflection.SetText(form, "textBox_SearchWordList", "pie\ncherry");
+
+                        FormReflection.InvokeHandler(form, "button_Execute_Click");
+
+                        result = FormReflection.GetText(form, "textBox_SearchResultList");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    failure = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            if (failure != null)
+            {
+                throw failure;
+            }
+
+            StringAssert.Contains(result, "◆pie" + Environment.NewLine + "apple pie" + Environment.NewLine);
+            StringAssert.Contains(result, "◆cherry" + Environment.NewLine + "cherry apple" + Environment.NewLine);
+            Assert.IsFalse(result.Contains("banana"));
+        }
     }
 }

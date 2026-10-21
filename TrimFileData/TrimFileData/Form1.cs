@@ -125,10 +125,11 @@ namespace TrimFileData
             }
 
             // 検索ワードをリストアップ
-            string[] searchWordLines = textBox_SearchWordList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            // (LFだけの文字列を貼り付けた場合やLF改行のファイルでも行に分かれるよう、改行コードを問わず分ける)
+            string[] searchWordLines = Logic.SplitLines(textBox_SearchWordList.Text);
 
             // リファレンスをリスト化
-            string[] referLines = referData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] referLines = Logic.SplitLines(referData);
 
             // 検索結果をコントロールにセット
             textBox_SearchResultList.Text = Logic.GetSearchData(searchWordLines, referLines, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text);
