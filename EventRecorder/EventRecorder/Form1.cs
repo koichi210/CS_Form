@@ -47,11 +47,11 @@ namespace EventRecorder
         // 直前のイベント時刻(記録の待機ms算出用)
         private int _lastEventTick;
 
-        // 記録中/再生中にハイライトしている行のインデックス(-1ならハイライト無し)
-        private int _highlightedEventRowIndex = -1;
+        // 記録中/再生中にハイライトしている行(nullならハイライト無し)
+        private DataGridViewRow _highlightedEventRow;
 
-        // プレイリスト実行中にハイライトしている行(dataGridView_Playlist側)のインデックス
-        private int _highlightedPlaylistRowIndex = -1;
+        // プレイリスト実行中にハイライトしている行(dataGridView_Playlist側)
+        private DataGridViewRow _highlightedPlaylistRow;
 
         // 再生開始時のマウスカーソル位置(再生終了後に戻すため)
         private Point _cursorPositionBeforePlay;

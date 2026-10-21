@@ -640,6 +640,7 @@ namespace EventRecorder
         // リストの各行を上から順に読み込み→その行のループ回数分だけ再生、を繰り返す
         private void PlaylistPlayLoop(List<PlaylistEntry> entries, int overallLoopCount)
         {
+            Boolean isCompleted = false;
             try
             {
                 for (int loopNo = 0; loopNo < overallLoopCount && !_stopPlayRequested; loopNo++)
@@ -684,6 +685,7 @@ namespace EventRecorder
                     }
                 }
 
+                isCompleted = true;
                 Cursor.Position = _cursorPositionBeforePlay;
             }
             catch (Exception ex)
@@ -692,6 +694,14 @@ namespace EventRecorder
             }
             finally
             {
+                // 中断された場合・例外で止まった場合は、Downのままのキー/マウスボタンを全部Upに戻す。
+                // (以前はPlayRowsの中でだけ戻していたため、例外で止まった時や、ファイルの切り替わり目
+                // (PlayRowsの外)で停止した時に、前のファイルで押したキーが押しっぱなしで残っていた)
+                if (_stopPlayRequested || !isCompleted)
+                {
+                    ReleaseAllPressedInputs();
+                }
+
                 // 途中で例外が起きても、必ず「再生中」状態を解除する。
                 // ここを素通りしてしまうと_isPlayingがtrueのまま固まり、記録も再生も
                 // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)

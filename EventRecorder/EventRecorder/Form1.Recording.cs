@@ -261,8 +261,9 @@ namespace EventRecorder
                         continue;
                     }
 
-                    int wait = _util.GetInteger(Convert.ToString(row.Cells[col_Wait.Index].Value));
-                    if (wait <= 0)
+                    // 読めない値は「待機なし」とみなす(_util.GetInteger(int.Parse)だと数値以外で読み込みごと例外になっていた。WPF版と同じ)
+                    int wait;
+                    if (!int.TryParse(Convert.ToString(row.Cells[col_Wait.Index].Value), out wait) || wait <= 0)
                     {
                         continue;
                     }

@@ -63,6 +63,7 @@
     <Compile Include="InputSimulatorTests.cs" />
     <Compile Include="EventRowMapperTests.cs" />
     <Compile Include="SessionGuardTests.cs" />
+    <Compile Include="Form1PlaybackTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

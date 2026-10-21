@@ -52,7 +52,14 @@ namespace EventRecorder
         {
             if (IsJsonFile(filePath))
             {
-                LoadProfileFromJson(filePath, false);
+                // ファイルが削除されている・壊れていて読めない場合、前のファイル(または元々表示していた)記録データを
+                // 誤って再生しないよう、空にして何も再生しない(以前は読込失敗時に表の中身がそのまま残り、
+                // 直前のファイルがもう一度再生されていた。XML側はLoadProcが先にクリアするので元々問題ない)
+                if (!LoadProfileFromJson(filePath, false))
+                {
+                    dataGridView_Events.Rows.Clear();
+                    dataGridView_Events.ClearUndoHistory();
+                }
             }
             else
             {
@@ -60,13 +67,14 @@ namespace EventRecorder
             }
         }
 
-        // JSONファイルを読み込み、記録データ(+clearPlaylistがtrueならプレイリストも)グリッドへ反映する
-        private void LoadProfileFromJson(String filePath, Boolean clearPlaylist)
+        // JSONファイルを読み込み、記録データ(+clearPlaylistがtrueならプレイリストも)グリッドへ反映する。
+        // ファイルが無い・読めない場合は何も変えずにfalseを返す
+        private Boolean LoadProfileFromJson(String filePath, Boolean clearPlaylist)
         {
             EventRecorderProfile profile = JsonFileStorage.Load<EventRecorderProfile>(filePath);
             if (profile == null)
             {
-                return;
+                return false;
             }
 
             dataGridView_Events.Rows.Clear();
@@ -136,6 +144,8 @@ namespace EventRecorder
             {
                 dataGridView_Playlist.ClearUndoHistory();
             }
+
+            return true;
         }
 
         // 今のグリッドの中身(記録データ+プレイリスト)をJSON保存用のPOCOに詰め替える

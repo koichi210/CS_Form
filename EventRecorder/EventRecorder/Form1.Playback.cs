@@ -89,9 +89,14 @@ namespace EventRecorder
 
         // ループ回数の入力値を数値にする。読めない値・0以下は1回として扱う
         // (単発再生・プレイリストの全体ループ・プレイリストの各行のループ回数で共通)
-        private int ParseLoopCount(String text)
+        internal static int ParseLoopCount(String text)
         {
-            int loopCount = _util.GetInteger(text);
+            // _util.GetInteger(int.Parse)は数値以外で例外になり、再生ボタン/ホットキーで落ちていたためTryParseにする
+            int loopCount;
+            if (!int.TryParse(text, out loopCount))
+            {
+                return 1;
+            }
             return loopCount <= 0 ? 1 : loopCount;
         }
 
@@ -134,9 +139,11 @@ namespace EventRecorder
 
         private void PlayLoop(List<String[]> rows, int loopCount)
         {
+            Boolean isCompleted = false;
             try
             {
                 PlayRows(rows, loopCount);
+                isCompleted = true;
 
                 // マウスカーソルを再生開始前の位置に戻す
                 Cursor.Position = _cursorPositionBeforePlay;
@@ -147,6 +154,13 @@ namespace EventRecorder
             }
             finally
             {
+                // 中断された場合・例外で止まった場合は、Downのままのキー/マウスボタンを全部Upに戻す
+                // (以前はPlayRowsの中で中断時だけ戻していたため、例外で止まった時に押しっぱなしで残っていた)
+                if (_stopPlayRequested || !isCompleted)
+                {
+                    ReleaseAllPressedInputs();
+                }
+
                 // 途中で例外が起きても、必ず「再生中」状態を解除する。
                 // ここを素通りしてしまうと_isPlayingがtrueのまま固まり、記録も再生も
                 // 二度とできなくなる(アプリが固まって見える不具合の原因になっていた)
@@ -207,20 +221,11 @@ namespace EventRecorder
 
         // rowsをloopCount回再生する処理そのもの(前後の状態管理は呼び出し元の責務)。
         // タブ1の単発再生・タブ2のプレイリスト再生の両方から共通で使う
+        // (中断・例外時に押しっぱなしのキー/マウスボタンを離すのは、再生全体の後片付けとして
+        // 呼び出し元(PlayLoop/PlaylistPlayLoop)のfinallyで行う)
         private void PlayRows(List<String[]> rows, int loopCount)
         {
-            try
-            {
-                PlayRowsCore(rows, loopCount);
-            }
-            finally
-            {
-                // 中断された場合、Downのままのキー/マウスボタンを全部Upに戻す
-                if (_stopPlayRequested)
-                {
-                    ReleaseAllPressedInputs();
-                }
-            }
+            PlayRowsCore(rows, loopCount);
         }
 
         private void PlayRowsCore(List<String[]> rows, int loopCount)
@@ -245,8 +250,10 @@ namespace EventRecorder
                         return;
                     }
 
-                    int wait = _util.GetInteger(r[4]);
-                    if (wait > 0)
+                    // WAIT_MS以外の行のWait(非表示)は再生前チェックの対象外なので、読めない値は「待機なし」とみなす
+                    // (int.Parse(_util.GetInteger)だと再生の途中で例外になって止まっていた)
+                    int wait;
+                    if (int.TryParse(r[4], out wait) && wait > 0)
                     {
                         InterruptibleSleep(wait);
                     }
@@ -280,17 +287,21 @@ namespace EventRecorder
 
         // 指定したグリッドのidx行を薄い黄色でハイライトし、見えるようにスクロールする。
         // idxに-1を渡すとハイライトを消す。記録中の最新行・単発再生中の実行中行・
-        // プレイリスト実行中の実行中行(グリッドは呼び出し元次第)、どれも共通のこの処理を使う
-        private void HighlightRow(StandardTemplate.DataGridViewEx grid, int idx, ref int highlightedIndexField)
+        // プレイリスト実行中の実行中行(グリッドは呼び出し元次第)、どれも共通のこの処理を使う。
+        // ハイライト中の行はインデックスではなく行オブジェクトで覚える(以前はインデックスで覚えていたため、記録後に
+        // それより上の行を削除・挿入すると位置がずれ、元のハイライト行が消されないまま黄色で残っていた)
+        internal static void HighlightRow(DataGridView grid, int idx, ref DataGridViewRow highlightedRowField)
         {
-            if (highlightedIndexField >= 0 && highlightedIndexField < grid.Rows.Count)
+            if (highlightedRowField != null)
             {
-                grid.Rows[highlightedIndexField].DefaultCellStyle.BackColor = Color.Empty;
+                highlightedRowField.DefaultCellStyle.BackColor = Color.Empty;
             }
 
+            DataGridViewRow nextRow = null;
             if (idx >= 0 && idx < grid.Rows.Count)
             {
-                grid.Rows[idx].DefaultCellStyle.BackColor = Color.LightYellow;
+                nextRow = grid.Rows[idx];
+                nextRow.DefaultCellStyle.BackColor = Color.LightYellow;
 
                 if (grid.Visible)
                 {
@@ -306,19 +317,19 @@ namespace EventRecorder
                 }
             }
 
-            highlightedIndexField = idx;
+            highlightedRowField = nextRow;
         }
 
         // 記録中の最新行・単発再生中の実行中行のハイライト(dataGridView_Events側)
         private void HighlightEventRow(int idx)
         {
-            HighlightRow(dataGridView_Events, idx, ref _highlightedEventRowIndex);
+            HighlightRow(dataGridView_Events, idx, ref _highlightedEventRow);
         }
 
         // プレイリスト実行中、今どのファイル(行)を再生しているかのハイライト(dataGridView_Playlist側)
         private void HighlightPlaylistRow(int idx)
         {
-            HighlightRow(dataGridView_Playlist, idx, ref _highlightedPlaylistRowIndex);
+            HighlightRow(dataGridView_Playlist, idx, ref _highlightedPlaylistRow);
         }
 
         // Ctrl+V。DataGridViewはCtrl+A(全選択)/Ctrl+C(コピー)は標準対応してるけど、
