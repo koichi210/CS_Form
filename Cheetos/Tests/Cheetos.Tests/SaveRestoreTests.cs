@@ -347,5 +347,97 @@ namespace Cheetos.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void 設定ファイルが無ければPictTrimは終点を座標で指定が選ばれる()
+        {
+            // 以前は既定値が無く、設定ファイルが無いとき(初回起動)に2つとも未選択になっていた
+            using (Cheetos form = NewForm())
+            {
+                form.pt_Radio_SelectSizeOfEnd.Checked = true;
+
+                Assert.IsFalse(NewSaveRestore(form).LoadXmlFile(PathFor("no_such_file")));
+
+                Assert.IsTrue(form.pt_Radio_SelectPointOfEnd.Checked);
+                Assert.IsFalse(form.pt_Radio_SelectSizeOfEnd.Checked);
+            }
+        }
+
+        // マウスでクリックしたときと同じく、RadioButton.OnClick(AutoCheckでCheckedにしてからClickを起こす)を呼ぶ。
+        // 画面を表示していないとPerformClickは何もしない(CanSelectがfalse)ため、OnClickを直接呼ぶ
+        private static void ClickRadio(System.Windows.Forms.RadioButton radio)
+        {
+            typeof(System.Windows.Forms.RadioButton)
+                .GetMethod("OnClick", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(radio, new object[] { EventArgs.Empty });
+        }
+
+        private static void SetPictTrimValues(Cheetos form, string baseX, string baseY, string targetX, string targetY)
+        {
+            form.pt_BaseX.Text = baseX;
+            form.pt_BaseY.Text = baseY;
+            form.pt_TargetX.Text = targetX;
+            form.pt_TargetY.Text = targetY;
+        }
+
+        [TestMethod]
+        public void PictTrimの終点指定を切り替えると値が換算され押し直しでは変わらない()
+        {
+            // 以前は選択済みのラジオボタンを押し直すたびに基点を足し引きしてしまい、値が壊れていた
+            using (Cheetos form = NewForm())
+            {
+                // 起動時に読み込まれた設定によらず、終点指定から始める(空欄だと換算でint.Parseが失敗するので0を入れておく)
+                SetPictTrimValues(form, "0", "0", "0", "0");
+                ClickRadio(form.pt_Radio_SelectPointOfEnd);
+                SetPictTrimValues(form, "10", "20", "110", "220");
+
+                ClickRadio(form.pt_Radio_SelectSizeOfEnd);
+                Assert.AreEqual("100", form.pt_TargetX.Text, "終点→サイズで基点を引く");
+                Assert.AreEqual("200", form.pt_TargetY.Text);
+
+                ClickRadio(form.pt_Radio_SelectSizeOfEnd);
+                Assert.AreEqual("100", form.pt_TargetX.Text, "サイズ指定のまま押し直しても変わらない");
+                Assert.AreEqual("200", form.pt_TargetY.Text);
+
+                ClickRadio(form.pt_Radio_SelectPointOfEnd);
+                Assert.AreEqual("110", form.pt_TargetX.Text, "サイズ→終点で基点を足す");
+                Assert.AreEqual("220", form.pt_TargetY.Text);
+
+                ClickRadio(form.pt_Radio_SelectPointOfEnd);
+                Assert.AreEqual("110", form.pt_TargetX.Text, "終点指定のまま押し直しても変わらない");
+                Assert.AreEqual("220", form.pt_TargetY.Text);
+            }
+        }
+
+        [TestMethod]
+        public void PictTrimのサイズ指定を読み込んだ後の切り替えも正しく換算される()
+        {
+            using (Cheetos writer = NewForm())
+            {
+                writer.pt_BaseX.Text = "10";
+                writer.pt_BaseY.Text = "20";
+                writer.pt_Radio_SelectSizeOfEnd.Checked = true;
+                writer.pt_TargetX.Text = "100";
+                writer.pt_TargetY.Text = "200";
+                string path = PathFor("trimmode");
+                NewSaveRestore(writer).SaveXmlFile(path);
+
+                using (Cheetos reader = NewForm())
+                {
+                    // 起動時に読み込まれた設定によらず、終点指定の状態から読み込む
+                    SetPictTrimValues(reader, "0", "0", "0", "0");
+                    ClickRadio(reader.pt_Radio_SelectPointOfEnd);
+                    reader.LoadProfile(path);
+                    Assert.IsTrue(reader.pt_Radio_SelectSizeOfEnd.Checked);
+
+                    ClickRadio(reader.pt_Radio_SelectSizeOfEnd);
+                    Assert.AreEqual("100", reader.pt_TargetX.Text, "読み込んだサイズ指定のまま押しても変わらない");
+
+                    ClickRadio(reader.pt_Radio_SelectPointOfEnd);
+                    Assert.AreEqual("110", reader.pt_TargetX.Text, "サイズ→終点で基点を足す");
+                    Assert.AreEqual("220", reader.pt_TargetY.Text);
+                }
+            }
+        }
     }
 }

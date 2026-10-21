@@ -93,6 +93,7 @@ namespace Cheetos
             String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileNameJson);
             String defaultXmlPath = Path.Combine(_userDataFolder, _settingFileNameXml);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
+            SyncPictTrimEndMode();
 
             UpdateProfileListAll("");
         }
@@ -223,7 +224,8 @@ namespace Cheetos
         }
 
         // 設定ファイルを拡張子で振り分けて読み込む。拡張子がjsonならJSON、それ以外は従来通りXML
-        private void LoadProfile(String filePath)
+        // internal: テスト(Cheetos.Tests)から読み込み後の終点指定の扱いを確認するため
+        internal void LoadProfile(String filePath)
         {
             if (IsJsonFile(filePath))
             {
@@ -233,6 +235,7 @@ namespace Cheetos
             {
                 _sr.LoadProc(filePath, this);
             }
+            SyncPictTrimEndMode();
         }
 
         // 旧XMLの読み込み(移行用)。JsonSaveRestore.LoadWithMigrationへ渡す

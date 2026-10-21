@@ -24,7 +24,8 @@ namespace Cheetos
             RegisterCtrl("PictTrim", "pt_SourceFolderPath", parent.pt_SourceFolderPath);
             RegisterCtrl("PictTrim", "pt_BaseX", parent.pt_BaseX);
             RegisterCtrl("PictTrim", "pt_BaseY", parent.pt_BaseY);
-            RegisterCtrl("PictTrim", "pt_Radio_SelectPointOfEnd", parent.pt_Radio_SelectPointOfEnd);
+            // 既定値が無いと、設定ファイルが無いとき(初回起動)に2つとも未選択になっていた(Designer.csのChecked = trueが上書きされる)
+            RegisterCtrl("PictTrim", "pt_Radio_SelectPointOfEnd", parent.pt_Radio_SelectPointOfEnd, "True");
             RegisterCtrl("PictTrim", "pt_Radio_SelectSizeOfEnd", parent.pt_Radio_SelectSizeOfEnd);
             RegisterCtrl("PictTrim", "pt_TargetX", parent.pt_TargetX);
             RegisterCtrl("PictTrim", "pt_TargetY", parent.pt_TargetY);

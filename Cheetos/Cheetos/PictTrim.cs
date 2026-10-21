@@ -25,11 +25,31 @@ namespace Cheetos
             pt_TextBox_Status.Text = "ファイル数：" + pt_ListBox_ListUp.SelectedItems.Count.ToString();
         }
 
+        // pt_TargetX/Yの値が今どちらの指定(true=終点の座標/false=サイズ)で入っているか。
+        // ラジオボタンのClickは選択済みのボタンをもう一度押しても来るため、以前はそのたびに
+        // 基点を足し引きしてしまい値が壊れていた。実際に指定が切り替わったときだけ換算する
+        private Boolean _ptTargetIsPointOfEnd = true;
+
+        // 設定ファイルの読み込みなどで、Clickを通らずにラジオボタンが変わった後に呼ぶ
+        // (読み込んだ値はラジオボタンの指定どおりに入っているので、換算はしない)
+        private void SyncPictTrimEndMode()
+        {
+            _ptTargetIsPointOfEnd = pt_Radio_SelectPointOfEnd.Checked;
+        }
+
         // 終点指定⇔サイズ指定の切り替えに合わせて、入力欄の値を換算し直す
         private void UpdatePictTrimSize()
         {
+            Boolean isPointOfEnd = pt_Radio_SelectPointOfEnd.Checked;
+            if (isPointOfEnd == _ptTargetIsPointOfEnd)
+            {
+                // 選択済みのラジオボタンを押し直しただけ
+                return;
+            }
+            _ptTargetIsPointOfEnd = isPointOfEnd;
+
             Point target = new Point();
-            if (pt_Radio_SelectPointOfEnd.Checked)
+            if (isPointOfEnd)
             {
                 target.X = int.Parse(pt_TargetX.Text) + int.Parse(pt_BaseX.Text);
                 target.Y = int.Parse(pt_TargetY.Text) + int.Parse(pt_BaseY.Text);
