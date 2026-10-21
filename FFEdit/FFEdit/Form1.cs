@@ -463,8 +463,8 @@ namespace FFEdit
                 return comboBox_ChangeNumber_Digit.SelectedIndex;
             }
 
-            // [自動桁数]の場合
-            return GetTargetCount().ToString().Length;
+            // [自動桁数]の場合(開始番号はChangeNameで先に設定済み)
+            return Rename.GetAutoPaddingDigits(_rename.FirstNumber, GetTargetCount());
         }
 
         private long GetIntervalTicks(int timeSpanIdx)

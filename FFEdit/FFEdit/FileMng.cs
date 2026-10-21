@@ -100,12 +100,19 @@ namespace FFEdit
 
         public void DeleteBlankDir(String dirPath)
         {
-            String command = @"for /f ""delims="" %%d in ('dir """ + dirPath + @""" /ad /b /s') do rd ""%%d""" + Environment.NewLine;
+            // dir /s は親フォルダを子より先に列挙するため、そのままだと「空フォルダだけを含むフォルダ」
+            // (a\b が両方空など)は、rd の時点ではまだ子が残っていて消えなかった。
+            // 逆順に並べ替えて、子(深い方)から先に rd する。sortはWindows標準のものをフルパスで使う
+            // (PATHでGitのsort.exe(GNU sort)が先に見つかると /r が効かず、何も消えなくなるため)
+            String command = @"for /f ""delims="" %%d in ('dir """ + dirPath + @""" /ad /b /s ^| %SystemRoot%\System32\sort.exe /r') do rd ""%%d""" + Environment.NewLine;
 
             String batchFile = _fileIO.CreateTempFile("bat");
             _fileIO.CreateFile(batchFile, command);
 
-            _util.ExecuteProcess(batchFile, true );
+            // 以前は完了を待たずに戻っていたため、直後の一覧更新に削除前のフォルダが残り、
+            // 一時バッチファイルとプロセスのハンドルも残ったままだった
+            _util.ExecutePathWithWait(batchFile, "", true);
+            File.Delete(batchFile);
         }
     }
 }
