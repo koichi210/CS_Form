@@ -58,5 +58,26 @@ namespace FFEdit.Tests
                 Assert.AreEqual(true, FormReflection.InvokeMethod(form, "IsFirstNumberValid"));
             }
         }
+
+        // 実行前の「拡張子」チェック。空欄の場合はメッセージボックスが出るため、
+        // ここでは通る場合(拡張子変更モードで入力あり・拡張子変更モード以外で空欄)だけを確認する
+        [TestMethod]
+        public void IsExtensionValidは拡張子変更モードで入力があれば通し拡張子変更モード以外なら空欄でも通す()
+        {
+            using (var form = new Form1())
+            {
+                var radioButtonChangeExt = (RadioButton)FormReflection.GetField(form, "radioButton_ChangeExt");
+                var radioButtonChangeAdd = (RadioButton)FormReflection.GetField(form, "radioButton_ChangeAdd");
+                var comboBoxString1 = (ComboBox)FormReflection.GetField(form, "comboBox_String1");
+
+                radioButtonChangeExt.Checked = true;
+                comboBoxString1.Text = ".jpg";
+                Assert.AreEqual(true, FormReflection.InvokeMethod(form, "IsExtensionValid"));
+
+                radioButtonChangeAdd.Checked = true;
+                comboBoxString1.Text = "";
+                Assert.AreEqual(true, FormReflection.InvokeMethod(form, "IsExtensionValid"));
+            }
+        }
     }
 }

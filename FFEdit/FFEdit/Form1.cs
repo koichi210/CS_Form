@@ -188,7 +188,7 @@ namespace FFEdit
             switch (tabControl.SelectedIndex)
             {
                 case _tabIdxChangeName:
-                    if (!IsFirstNumberValid())
+                    if (!IsFirstNumberValid() || !IsExtensionValid())
                     {
                         return;
                     }
@@ -425,6 +425,19 @@ namespace FFEdit
             }
 
             MessageBox.Show("最初の値には整数を入力してください。");
+            return false;
+        }
+
+        // 拡張子変更モードで拡張子の欄が空欄(「.」だけも含む)か確かめる。
+        // 空欄のまま実行すると「name.」と末尾がドットの名前になっていたため、実行前にメッセージを出す(拡張子変更モード以外は見ない)
+        private Boolean IsExtensionValid()
+        {
+            if (!radioButton_ChangeExt.Checked || comboBox_String1.Text.TrimStart('.') != String.Empty)
+            {
+                return true;
+            }
+
+            MessageBox.Show("拡張子を入力してください。");
             return false;
         }
 
