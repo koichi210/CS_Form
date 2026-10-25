@@ -100,6 +100,7 @@ namespace EventRecorder
                     row.Cells[col_Key.Index].Value = ev.Key;
                     row.Cells[col_Wait.Index].Value = ev.Wait;
                     row.Cells[col_Remarks.Index].Value = ev.Remarks;
+                    row.Cells[col_Delta.Index].Value = ev.Delta;
                 }
             }
             finally
@@ -171,6 +172,7 @@ namespace EventRecorder
                     Key = Convert.ToString(row.Cells[col_Key.Index].Value),
                     Wait = Convert.ToString(row.Cells[col_Wait.Index].Value),
                     Remarks = Convert.ToString(row.Cells[col_Remarks.Index].Value),
+                    Delta = Convert.ToString(row.Cells[col_Delta.Index].Value),
                 });
             }
 

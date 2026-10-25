@@ -179,9 +179,62 @@ namespace EventRecorder.Tests
                 Assert.AreEqual(click.Mouse.Y, input.Mouse.Y);
             }
 
-            // 奥へ回す(WHEEL_UP)が+、手前へ回す(WHEEL_DOWN)が-。回転量は記録していないので1ノッチ(WHEEL_DELTA=120)
+            // 奥へ回す(WHEEL_UP)が+、手前へ回す(WHEEL_DOWN)が-。回転量の無い行(以前のファイル)は1ノッチ(WHEEL_DELTA=120)
             Assert.AreEqual(120, wheelUp.Mouse.Data);
             Assert.AreEqual(-120, wheelDown.Mouse.Data);
+        }
+
+        [TestMethod]
+        public void ホイールの行は記録した回転量で送る()
+        {
+            // 高分解能ホイールは1ノッチより細かい量(例: 30)で何回も通知してくるので、1行=120で送ると回りすぎていた
+            Assert.AreEqual(30, Form1.BuildPlaybackInputs("WHEEL_UP", "100", "200", "", "30").Single().Mouse.Data);
+            Assert.AreEqual(-30, Form1.BuildPlaybackInputs("WHEEL_DOWN", "100", "200", "", "30").Single().Mouse.Data);
+            Assert.AreEqual(240, Form1.BuildPlaybackInputs("WHEEL_UP", "100", "200", "", "240").Single().Mouse.Data);
+
+            // 回転量が空なら従来どおり1ノッチ
+            Assert.AreEqual(-120, Form1.BuildPlaybackInputs("WHEEL_DOWN", "100", "200", "", "").Single().Mouse.Data);
+
+            // ホイール以外の行のmouseData(Xボタンの番号)は回転量で変えない
+            Assert.AreEqual(2, Form1.BuildPlaybackInputs("X2_DOWN", "100", "200", "", "30").Single().Mouse.Data);
+        }
+
+        [TestMethod]
+        public void 記録時のmouseDataの上位ワードから回転量を正の数で取り出す()
+        {
+            Assert.AreEqual("120", Form1.FormatWheelDelta(120u << 16));
+            Assert.AreEqual("30", Form1.FormatWheelDelta(30u << 16));
+            // 手前へ回すと上位ワードは負(-120 = 0xFF88)。向きはWHEEL_DOWNで表すので量は正で残す
+            Assert.AreEqual("120", Form1.FormatWheelDelta(0xFF880000u));
+            Assert.AreEqual("", Form1.FormatWheelDelta(0u));
+
+            int value;
+            Assert.IsTrue(Form1.TryParseWheelDelta("240", out value));
+            Assert.AreEqual(240, value);
+            Assert.IsFalse(Form1.TryParseWheelDelta("", out value));
+            Assert.IsFalse(Form1.TryParseWheelDelta("abc", out value));
+            Assert.IsFalse(Form1.TryParseWheelDelta("0", out value));
+            Assert.IsFalse(Form1.TryParseWheelDelta("-120", out value));
+        }
+
+        [TestMethod]
+        public void ホイールの回転量はDetail列にDeltaとして出し読み戻せる()
+        {
+            Assert.AreEqual("X:10 Y:20 Delta:240", Form1.FormatDetail("10", "20", "", "240"));
+            // 回転量の無い行(以前のファイル)の表示は今までどおり
+            Assert.AreEqual("X:10 Y:20", Form1.FormatDetail("10", "20", "", ""));
+            Assert.AreEqual("X:10 Y:20", Form1.FormatDetail("10", "20", "", null));
+            Assert.AreEqual("Key:A", Form1.FormatDetail("", "", "A", ""));
+
+            String x, y, key, delta;
+            Form1.ParseDetail("X:10 Y:20 Delta:60", out x, out y, out key, out delta);
+            Assert.AreEqual("10", x);
+            Assert.AreEqual("20", y);
+            Assert.AreEqual("", key);
+            Assert.AreEqual("60", delta);
+
+            Form1.ParseDetail("X:10 Y:20", out x, out y, out key, out delta);
+            Assert.AreEqual("", delta);
         }
 
         [TestMethod]

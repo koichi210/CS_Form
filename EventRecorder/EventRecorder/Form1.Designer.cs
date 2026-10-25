@@ -36,6 +36,7 @@ namespace EventRecorder
             this.col_X = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.col_Delta = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.col_Remarks = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Grid = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItem_AddRow = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,6 +106,7 @@ namespace EventRecorder
             this.col_X,
             this.col_Y,
             this.col_Key,
+            this.col_Delta,
             this.col_Remarks});
             this.dataGridView_Events.ContextMenuStrip = this.contextMenuStrip_Grid;
             this.dataGridView_Events.EnableUndoRedo = true;
@@ -159,6 +161,12 @@ namespace EventRecorder
             this.col_Key.HeaderText = "Key";
             this.col_Key.Name = "col_Key";
             this.col_Key.Visible = false;
+            //
+            // col_Delta
+            //
+            this.col_Delta.HeaderText = "Delta";
+            this.col_Delta.Name = "col_Delta";
+            this.col_Delta.Visible = false;
             // 
             // col_Remarks
             // 
@@ -596,6 +604,7 @@ namespace EventRecorder
         private System.Windows.Forms.DataGridViewTextBoxColumn col_X;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Key;
+        private System.Windows.Forms.DataGridViewTextBoxColumn col_Delta;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Wait;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Detail;
         private System.Windows.Forms.DataGridViewTextBoxColumn col_Remarks;

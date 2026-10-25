@@ -98,5 +98,29 @@ namespace EventRecorder.Tests
 
             CollectionAssert.AreEqual(original, roundTripped);
         }
+
+        [TestMethod]
+        public void Delta列付きでもApplyToRowとReadFromRowで同じ順に読み戻せる()
+        {
+            DataGridViewColumn colType, colX, colY, colKey, colWait;
+            DataGridView grid = CreateGridWithRealColumnOrder(out colType, out colX, out colY, out colKey, out colWait);
+
+            // Form1.Designer.csと同じくKeyの後ろにDelta(ホイールの回転量)列がある
+            DataGridViewColumn colDelta = new DataGridViewTextBoxColumn { Name = "col_Delta" };
+            grid.Columns.Add(colDelta);
+            grid.Rows.Add();
+            grid.Rows.Add();
+
+            // [Type, X, Y, Key, Wait, Delta]
+            String[] original = { "WHEEL_DOWN", "10", "20", "", "0", "240" };
+            EventRowMapper.ApplyToRow(grid.Rows[0], colType, colX, colY, colKey, colWait, colDelta, original);
+
+            CollectionAssert.AreEqual(original, EventRowMapper.ReadFromRow(grid.Rows[0], colType, colX, colY, colKey, colWait, colDelta));
+            Assert.AreEqual("240", grid.Rows[0].Cells[colDelta.Index].Value);
+
+            // Deltaの無い5要素の配列なら回転量は空
+            EventRowMapper.ApplyToRow(grid.Rows[1], colType, colX, colY, colKey, colWait, colDelta, new[] { "KEY_DOWN", "", "", "A", "0" });
+            Assert.AreEqual("", EventRowMapper.ReadFromRow(grid.Rows[1], colType, colX, colY, colKey, colWait, colDelta)[5]);
+        }
     }
 }

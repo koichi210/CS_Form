@@ -29,6 +29,18 @@ namespace EventRecorder
             row.Cells[colWait.Index].Value = r[4];
         }
 
+        // r([Type, X, Y, Key, Wait, Delta]の順)の値を、列名経由でrowの各セルへ書き込む。
+        // Delta(ホイールの回転量)は後から足した項目なので、5要素の配列なら空として扱う
+        internal static void ApplyToRow(
+            DataGridViewRow row,
+            DataGridViewColumn colType, DataGridViewColumn colX, DataGridViewColumn colY,
+            DataGridViewColumn colKey, DataGridViewColumn colWait, DataGridViewColumn colDelta,
+            String[] r)
+        {
+            ApplyToRow(row, colType, colX, colY, colKey, colWait, r);
+            row.Cells[colDelta.Index].Value = r.Length > 5 ? r[5] : "";
+        }
+
         // rowの各セルの値を、列名経由で[Type, X, Y, Key, Wait]の順の配列に読み出す(ApplyToRowの逆)
         internal static String[] ReadFromRow(
             DataGridViewRow row,
@@ -43,6 +55,16 @@ namespace EventRecorder
                 Convert.ToString(row.Cells[colKey.Index].Value),
                 Convert.ToString(row.Cells[colWait.Index].Value),
             };
+        }
+
+        // rowの各セルの値を、列名経由で[Type, X, Y, Key, Wait, Delta]の順の配列に読み出す
+        internal static String[] ReadFromRow(
+            DataGridViewRow row,
+            DataGridViewColumn colType, DataGridViewColumn colX, DataGridViewColumn colY,
+            DataGridViewColumn colKey, DataGridViewColumn colWait, DataGridViewColumn colDelta)
+        {
+            String[] r = ReadFromRow(row, colType, colX, colY, colKey, colWait);
+            return new String[] { r[0], r[1], r[2], r[3], r[4], Convert.ToString(row.Cells[colDelta.Index].Value) };
         }
     }
 }

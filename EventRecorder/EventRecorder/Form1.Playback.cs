@@ -131,8 +131,8 @@ namespace EventRecorder
                     continue;
                 }
 
-                // PlayRows/PlayOneEventは[Type, X, Y, Key, Wait]の順を前提にしている
-                list.Add(EventRowMapper.ReadFromRow(row, col_Type, col_X, col_Y, col_Key, col_Wait));
+                // PlayRows/PlayOneEventは[Type, X, Y, Key, Wait, Delta]の順を前提にしている
+                list.Add(EventRowMapper.ReadFromRow(row, col_Type, col_X, col_Y, col_Key, col_Wait, col_Delta));
             }
             return list;
         }
@@ -263,7 +263,7 @@ namespace EventRecorder
                         return;
                     }
 
-                    PlayOneEvent(r[0], r[1], r[2], r[3]);
+                    PlayOneEvent(r[0], r[1], r[2], r[3], r[5]);
                 }
             }
         }
@@ -822,13 +822,18 @@ namespace EventRecorder
                     message = "WAIT_MS行の待機時間(" + wait + ")が数値として読み取れないよ";
                 }
             }
-            else if (TryGetPlaybackMouseStroke(type, out _, out _))
+            else if (TryGetPlaybackMouseStroke(type, out InputSimulation.InputSimulator.MouseStroke mouseStroke, out _))
             {
                 String x = Convert.ToString(row.Cells[col_X.Index].Value);
                 String y = Convert.ToString(row.Cells[col_Y.Index].Value);
+                String delta = Convert.ToString(row.Cells[col_Delta.Index].Value);
                 if (!int.TryParse(x, out _) || !int.TryParse(y, out _))
                 {
                     message = "マウスイベント(" + type + ")のX/Y(" + x + ", " + y + ")が数値として読み取れないよ";
+                }
+                else if (mouseStroke == InputSimulation.InputSimulator.MouseStroke.WHEEL && !String.IsNullOrEmpty(delta) && !TryParseWheelDelta(delta, out _))
+                {
+                    message = "ホイールの回転量(" + delta + ")が正の数値として読み取れないよ";
                 }
             }
             else if (TryGetPlaybackKeyboardStroke(type, out _))
@@ -917,8 +922,8 @@ namespace EventRecorder
         internal const int XButton2 = 0x0002;
 
         // 記録したEvent列の名前がInputSimulatorのMouseStrokeと違うマウス操作(ホイール・X1/X2(サイド)ボタン)の、
-        // 送るときのMOUSEEVENTF_*とmouseData。ホイールの回転量は記録していないので、1行=1ノッチ(WHEEL_DELTA)で送る
-        // (記録時のフックはノッチごとに1回来るので、普通のマウスなら記録どおりの量になる)
+        // 送るときのMOUSEEVENTF_*とmouseData。ホイールはここでは1ノッチ(WHEEL_DELTA)の向きだけを決め、
+        // 記録した回転量(Delta)があればBuildPlaybackInputsでその量に置き換える(無い行は1行=1ノッチ)
         private static readonly Dictionary<String, KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>> _renamedMouseStrokes
             = new Dictionary<String, KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>>
         {
@@ -971,12 +976,26 @@ namespace EventRecorder
         // (internal static: Form1を生成せずにテストできるようにするため。WPF版と同じ)
         internal static List<InputSimulation.InputSimulator.Input> BuildPlaybackInputs(String type, String x, String y, String key)
         {
+            return BuildPlaybackInputs(type, x, y, key, "");
+        }
+
+        // ホイール行は、記録した回転量(delta)があればその量で送る。以前は回転量を記録しておらず、常に1行=1ノッチ(120)で
+        // 送っていたため、1ノッチより細かく何回も通知してくる高分解能ホイールだと記録より大きく回りすぎていた。
+        // deltaが空(回転量の無い以前のファイル)なら従来どおり±120で送る(WPF版と同じ)
+        internal static List<InputSimulation.InputSimulator.Input> BuildPlaybackInputs(String type, String x, String y, String key, String delta)
+        {
             List<InputSimulation.InputSimulator.Input> inputs = new List<InputSimulation.InputSimulator.Input>();
 
             InputSimulation.InputSimulator.MouseStroke mouseStroke;
             int mouseData;
             if (TryGetPlaybackMouseStroke(type, out mouseStroke, out mouseData))
             {
+                int deltaValue;
+                if (mouseStroke == InputSimulation.InputSimulator.MouseStroke.WHEEL && TryParseWheelDelta(delta, out deltaValue))
+                {
+                    mouseData = Math.Sign(mouseData) * deltaValue;
+                }
+
                 List<InputSimulation.InputSimulator.MouseStroke> flags = new List<InputSimulation.InputSimulator.MouseStroke>();
                 flags.Add(InputSimulation.InputSimulator.MouseStroke.MOVE);
                 flags.Add(mouseStroke);
@@ -993,6 +1012,19 @@ namespace EventRecorder
             }
 
             return inputs;
+        }
+
+        // ホイールの回転量(Delta)の文字列を読む。向きはWHEEL_UP/WHEEL_DOWNで表すので、正の数だけを受け付ける
+        internal static Boolean TryParseWheelDelta(String delta, out int value)
+        {
+            return int.TryParse(delta, out value) && value > 0;
+        }
+
+        // 記録時のフックのmouseData(上位ワードが符号付きの回転量)から、保存する回転量(正の数)の文字列を作る
+        internal static String FormatWheelDelta(uint mouseData)
+        {
+            int delta = Math.Abs((int)(short)((mouseData >> 16) & 0xffff));
+            return delta > 0 ? delta.ToString() : "";
         }
 
         // Detail列とX/Y/Key列(非表示)を相互に同期させている最中、再帰的な同期を防ぐためのフラグ
@@ -1020,7 +1052,7 @@ namespace EventRecorder
             }
 
             if (e.ColumnIndex == col_X.Index || e.ColumnIndex == col_Y.Index || e.ColumnIndex == col_Key.Index
-                || e.ColumnIndex == col_Wait.Index)
+                || e.ColumnIndex == col_Wait.Index || e.ColumnIndex == col_Delta.Index)
             {
                 // 記録・XML読込・貼り付け等で実データ(X/Y/Key、WAIT_MS行ならWait)が更新されたら、
                 // Detail列の表示も追従させる
@@ -1066,7 +1098,8 @@ namespace EventRecorder
                     String x = Convert.ToString(row.Cells[col_X.Index].Value);
                     String y = Convert.ToString(row.Cells[col_Y.Index].Value);
                     String key = Convert.ToString(row.Cells[col_Key.Index].Value);
-                    row.Cells[col_Detail.Index].Value = FormatDetail(x, y, key);
+                    String delta = Convert.ToString(row.Cells[col_Delta.Index].Value);
+                    row.Cells[col_Detail.Index].Value = FormatDetail(x, y, key, delta);
                 }
             }
             finally
@@ -1090,11 +1123,12 @@ namespace EventRecorder
                 }
                 else
                 {
-                    String x, y, key;
-                    ParseDetail(detail, out x, out y, out key);
+                    String x, y, key, delta;
+                    ParseDetail(detail, out x, out y, out key, out delta);
                     row.Cells[col_X.Index].Value = x;
                     row.Cells[col_Y.Index].Value = y;
                     row.Cells[col_Key.Index].Value = key;
+                    row.Cells[col_Delta.Index].Value = delta;
                 }
             }
             finally
@@ -1103,8 +1137,10 @@ namespace EventRecorder
             }
         }
 
-        // マウス行は"X:123 Y:456"、キーボード行は"Key:A"の形式でDetail列に表示する
-        private static String FormatDetail(String x, String y, String key)
+        // マウス行は"X:123 Y:456"、キーボード行は"Key:A"の形式でDetail列に表示する。
+        // ホイール行で回転量(delta)を記録してあれば、"X:123 Y:456 Delta:240"のように後ろに付ける
+        // (internal static: Form1を生成せずにテストできるようにするため)
+        internal static String FormatDetail(String x, String y, String key, String delta)
         {
             if (!String.IsNullOrEmpty(key))
             {
@@ -1113,18 +1149,24 @@ namespace EventRecorder
 
             if (!String.IsNullOrEmpty(x) || !String.IsNullOrEmpty(y))
             {
-                return "X:" + x + " Y:" + y;
+                String detail = "X:" + x + " Y:" + y;
+                if (!String.IsNullOrEmpty(delta))
+                {
+                    detail += " Delta:" + delta;
+                }
+                return detail;
             }
 
             return String.Empty;
         }
 
-        // FormatDetailの逆変換。"X:123 Y:456"や"Key:A"の形式から値を取り出す
-        private static void ParseDetail(String detail, out String x, out String y, out String key)
+        // FormatDetailの逆変換。"X:123 Y:456 Delta:240"や"Key:A"の形式から値を取り出す
+        internal static void ParseDetail(String detail, out String x, out String y, out String key, out String delta)
         {
             x = String.Empty;
             y = String.Empty;
             key = String.Empty;
+            delta = String.Empty;
 
             if (String.IsNullOrEmpty(detail))
             {
@@ -1145,6 +1187,10 @@ namespace EventRecorder
                 {
                     key = token.Substring(4);
                 }
+                else if (token.StartsWith("Delta:"))
+                {
+                    delta = token.Substring(6);
+                }
             }
         }
 
@@ -1163,9 +1209,9 @@ namespace EventRecorder
         // 記録した1イベント分をSendInputで再現する。
         // マウスのホイール・X(サイド)ボタン、キーボードのSYSKEY(Altを押しながらのキー・F10)も再生する
         // (以前は飛ばしていた。送る中身はBuildPlaybackInputsで組み立てる)
-        private void PlayOneEvent(String type, String x, String y, String key)
+        private void PlayOneEvent(String type, String x, String y, String key, String delta)
         {
-            List<InputSimulation.InputSimulator.Input> inputs = BuildPlaybackInputs(type, x, y, key);
+            List<InputSimulation.InputSimulator.Input> inputs = BuildPlaybackInputs(type, x, y, key, delta);
             if (inputs.Count == 0)
             {
                 return;

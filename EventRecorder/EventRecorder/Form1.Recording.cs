@@ -109,7 +109,11 @@ namespace EventRecorder
                 return;
             }
 
-            QueueRow(s.Stroke.ToString(), s.X.ToString(), s.Y.ToString(), "", TakeElapsedMsAndReset());
+            // ホイールは回転量(mouseDataの上位ワード)も残す。以前は残しておらず、再生は1行=1ノッチ固定だった
+            Boolean isWheel = s.Stroke == GlobalHook.MouseHook.Stroke.WHEEL_UP || s.Stroke == GlobalHook.MouseHook.Stroke.WHEEL_DOWN;
+            String delta = isWheel ? FormatWheelDelta(s.Data) : "";
+
+            QueueRow(s.Stroke.ToString(), s.X.ToString(), s.Y.ToString(), "", TakeElapsedMsAndReset(), delta);
         }
 
         private void OnKeyboardEvent(ref GlobalHook.KeyboardHook.StateKeyboard s)
@@ -287,14 +291,14 @@ namespace EventRecorder
         // 実際のDataGridViewへの反映は_gridFlushTimerがまとめて行う
         // waitが正の場合、待機だけを表す独立したWAIT_MS行を先に積んでから、実際のイベント行を積む
         // (待機時間はイベント自体の属性ではなく、シーケンス上の別行として表現する方式にしたため)
-        private void QueueRow(String type, String x, String y, String key, int wait)
+        private void QueueRow(String type, String x, String y, String key, int wait, String delta = "")
         {
             if (wait > 0)
             {
-                _pendingRows.Add(new String[] { _waitEventType, "", "", "", wait.ToString() });
+                _pendingRows.Add(new String[] { _waitEventType, "", "", "", wait.ToString(), "" });
             }
 
-            _pendingRows.Add(new String[] { type, x, y, key, "0" });
+            _pendingRows.Add(new String[] { type, x, y, key, "0", delta });
         }
 
         // 貯まった行をまとめてDataGridViewに反映する。1件ずつ反映するより
@@ -313,7 +317,7 @@ namespace EventRecorder
             {
                 lastIdx = dataGridView_Events.Rows.Add();
                 DataGridViewRow row = dataGridView_Events.Rows[lastIdx];
-                EventRowMapper.ApplyToRow(row, col_Type, col_X, col_Y, col_Key, col_Wait, r);
+                EventRowMapper.ApplyToRow(row, col_Type, col_X, col_Y, col_Key, col_Wait, col_Delta, r);
             }
 
             _pendingRows.Clear();
