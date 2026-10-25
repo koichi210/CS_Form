@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -28,6 +29,9 @@ namespace Cheetos
 
         // 「開始,終了」の区切り文字(行ごとに配列を作り直さないよう共有する)
         private static readonly String[] _trimHeightSeparator = { "," };
+
+        // 開始前の確認メッセージで、一部の画像だけで不正な行1つにつき並べる画像名の数
+        private const int _maxImageNamesInMessage = 10;
 
         public bool SetTargetFileName(String targetFileName)
         {
@@ -88,22 +92,22 @@ namespace Cheetos
 
         // 「開始,終了」(各値は数値か"-")の形になっていない行を返す。空行は対象外。
         // imageHeightを渡すと、終了がその高さより大きい行も返す(省略時は高さでは判定しない)。
-        // 確認ダイアログはバックグラウンドから出せないため、結合開始前にUIスレッドで使う
+        // 結合開始前の確認(画像ごとの判定)はClassifyInvalidTrimHeightsで行う
         public static String[] FindInvalidTrimHeights(String[] trimHeights, int imageHeight = int.MaxValue)
         {
             return trimHeights.Where(line => line != String.Empty && !IsValidTrimHeight(line, imageHeight)).ToArray();
         }
 
-        // 選択された結合対象(接頭辞1が付いたもの)のうち、いちばん低い画像の高さ。
-        // 開始前の確認(終了が画像の高さより大きい行)に使う。対象が無い・読めなければint.MaxValue
-        public static int GetMinImageHeight(String sourceFolderPath, String sourceFile1Prefix, String[] targetFileNames)
+        // 選択された結合対象(接頭辞1が付いたもの)の、画像名と高さの一覧。
+        // 開始前の確認(終了が画像の高さより大きい行)に使う。無いファイル・画像として読めないファイルは入れない
+        public static List<KeyValuePair<String, int>> GetImageHeights(String sourceFolderPath, String sourceFile1Prefix, String[] targetFileNames)
         {
             PictMerge pm = new PictMerge
             {
                 SourceFolderPath = sourceFolderPath,
                 SourceFile1Prefix = sourceFile1Prefix,
             };
-            int minHeight = int.MaxValue;
+            List<KeyValuePair<String, int>> imageHeights = new List<KeyValuePair<String, int>>();
             foreach (String targetFileName in targetFileNames)
             {
                 if (!pm.SetTargetFileName(targetFileName) || !pm.IsProcTarget())
@@ -121,7 +125,7 @@ namespace Cheetos
                     using (FileStream fs = File.OpenRead(filePath))
                     using (Image img = Image.FromStream(fs, false, false))
                     {
-                        minHeight = Math.Min(minHeight, img.Height);
+                        imageHeights.Add(new KeyValuePair<String, int>(targetFileName, img.Height));
                     }
                 }
                 catch (ArgumentException)
@@ -133,7 +137,80 @@ namespace Cheetos
                     // 読めないファイルは結合時のエラーに任せる
                 }
             }
-            return minHeight;
+            return imageHeights;
+        }
+
+        // 不正な行を、全部の画像で不正な行(invalidForAll)と、一部の画像だけで不正な行とその画像名(invalidForSome)に分ける。
+        // 書式が違う・開始が負の数・終了が開始より小さい行は、画像によらず全部の画像で不正。
+        // 終了が画像の高さより大きいかは画像ごとに判定する(以前はいちばん低い画像の高さで判定していたので、
+        // 高い画像では有効な行まで不正として挙がっていた)。結合時もその画像で不正な行だけを飛ばす
+        public static void ClassifyInvalidTrimHeights(String[] trimHeights, List<KeyValuePair<String, int>> imageHeights,
+            out List<String> invalidForAll, out List<KeyValuePair<String, String[]>> invalidForSome)
+        {
+            invalidForAll = new List<String>();
+            invalidForSome = new List<KeyValuePair<String, String[]>>();
+            foreach (String line in trimHeights)
+            {
+                if (line == String.Empty)
+                {
+                    continue;
+                }
+                if (!IsValidTrimHeight(line, int.MaxValue))
+                {
+                    invalidForAll.Add(line);
+                    continue;
+                }
+                String[] invalidImageNames = imageHeights
+                    .Where(imageHeight => !IsValidTrimHeight(line, imageHeight.Value))
+                    .Select(imageHeight => imageHeight.Key)
+                    .ToArray();
+                if (invalidImageNames.Length == 0)
+                {
+                    continue;
+                }
+                if (invalidImageNames.Length == imageHeights.Count)
+                {
+                    invalidForAll.Add(line);
+                }
+                else
+                {
+                    invalidForSome.Add(new KeyValuePair<String, String[]>(line, invalidImageNames));
+                }
+            }
+        }
+
+        // 開始前の確認メッセージ。不正な行が無ければString.Empty
+        public static String BuildInvalidTrimHeightsMessage(String[] trimHeights, List<KeyValuePair<String, int>> imageHeights)
+        {
+            List<String> invalidForAll;
+            List<KeyValuePair<String, String[]>> invalidForSome;
+            ClassifyInvalidTrimHeights(trimHeights, imageHeights, out invalidForAll, out invalidForSome);
+            if (invalidForAll.Count == 0 && invalidForSome.Count == 0)
+            {
+                return String.Empty;
+            }
+
+            StringBuilder message = new StringBuilder();
+            message.Append("フォーマットが不正な行(「開始,終了」の形でない・開始が負の数・終了が開始より小さい・終了が画像の高さより大きい)があります。").AppendLine();
+            if (invalidForAll.Count > 0)
+            {
+                message.Append("全部の画像で不正: [").Append(String.Join("] [", invalidForAll)).Append("]").AppendLine();
+            }
+            if (invalidForSome.Count > 0)
+            {
+                message.Append("一部の画像だけで不正(終了がその画像の高さより大きい):").AppendLine();
+                foreach (KeyValuePair<String, String[]> item in invalidForSome)
+                {
+                    message.Append("  [").Append(item.Key).Append("] ").Append(String.Join(", ", item.Value.Take(_maxImageNamesInMessage)));
+                    if (item.Value.Length > _maxImageNamesInMessage)
+                    {
+                        message.Append(" ほか").Append(item.Value.Length - _maxImageNamesInMessage).Append("件");
+                    }
+                    message.AppendLine();
+                }
+            }
+            message.Append("不正な行を(その画像では)飛ばして結合しますか？");
+            return message.ToString();
         }
 
         private static bool IsValidTrimHeight(String line, int imageHeight)
@@ -173,7 +250,7 @@ namespace Cheetos
 
                 foreach (String line in TrimHeightAry)
                 {
-                    // 不正な行は開始前にUIスレッドで確認済み(FindInvalidTrimHeights)なので、ここでは飛ばすだけ
+                    // 不正な行は開始前にUIスレッドで確認済み(BuildInvalidTrimHeightsMessage)なので、ここでは飛ばすだけ
                     if (line == String.Empty || !IsValidTrimHeight(line, sz.Height))
                     {
                         continue;
@@ -239,15 +316,13 @@ namespace Cheetos
             String[] targetFileNames = _util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
 
             // 切断基準となる高さ。書式の確認はバックグラウンドでは聞けないため、開始前にここで1回だけ行う
-            // (終了が画像の高さより大きい行も不正とするため、選択された画像のうちいちばん低い高さで確認する)
+            // (終了が画像の高さより大きい行も不正とするため、選択された画像ごとの高さで確認する)
             String[] trimHeights = pm_TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            int minImageHeight = global::Cheetos.PictMerge.GetMinImageHeight(pm_SourceFolderPath.Text, pm_SourceFile1Prefix.Text, targetFileNames);
-            String[] invalidTrimHeights = global::Cheetos.PictMerge.FindInvalidTrimHeights(trimHeights, minImageHeight);
-            if (invalidTrimHeights.Length > 0)
+            List<KeyValuePair<String, int>> imageHeights = global::Cheetos.PictMerge.GetImageHeights(pm_SourceFolderPath.Text, pm_SourceFile1Prefix.Text, targetFileNames);
+            String invalidTrimHeightsMessage = global::Cheetos.PictMerge.BuildInvalidTrimHeightsMessage(trimHeights, imageHeights);
+            if (invalidTrimHeightsMessage != String.Empty)
             {
-                DialogResult dr = MessageBox.Show("フォーマットが不正な行(「開始,終了」の形でない・開始が負の数・終了が開始より小さい・終了が画像の高さより大きい)があります。" + Environment.NewLine
-                    + "[" + String.Join("] [", invalidTrimHeights) + "]" + Environment.NewLine
-                    + "不正な行を飛ばして結合しますか？",
+                DialogResult dr = MessageBox.Show(invalidTrimHeightsMessage,
                     "Error",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Error);
