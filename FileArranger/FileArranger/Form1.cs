@@ -18,7 +18,7 @@ namespace FileArranger
         // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
         private const String _appName = "FileArranger";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private readonly String _userDataFolder;
         private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
         private static readonly String[] _renameDirColumns = { "変更前", "変更後" };
@@ -61,8 +61,16 @@ namespace FileArranger
         private readonly CoalescedAction _renameSelectionUpdate;
         private readonly CoalescedAction _partitionSelectionUpdate;
 
-        public FileArranger()
+        public FileArranger() : this(StandardTemplate.UserDataLocation.GetUserDataFolder(_appName))
         {
+        }
+
+        // テスト用に、データ保存先を差し替えられるようにしてある(ユーザーの実データフォルダに触れないため。WPF版と同じ)。
+        // dataFolderは作成済みであること(GetUserDataFolderは作成してから返す)
+        internal FileArranger(String dataFolder)
+        {
+            _userDataFolder = dataFolder;
+
             InitializeComponent();
             InitializeCommonSettings(Properties.Resources.FileArranger);
 

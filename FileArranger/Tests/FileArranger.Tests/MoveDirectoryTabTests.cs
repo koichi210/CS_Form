@@ -44,6 +44,14 @@ namespace FileArranger.Tests
             method.Invoke(form, new object[] { form, EventArgs.Empty });
         }
 
+        // 本物のデータフォルダ(%LOCALAPPDATA%\FileArranger)のプロファイルを読まないよう、一時フォルダの中をデータフォルダにする
+        private global::FileArranger.FileArranger NewForm()
+        {
+            string dataFolder = Path.Combine(tempDirectory, "data");
+            Directory.CreateDirectory(dataFolder);
+            return new global::FileArranger.FileArranger(dataFolder);
+        }
+
         [TestMethod]
         public void 親フォルダと子フォルダを両方選んで削除しても例外にならず両方消える()
         {
@@ -55,7 +63,7 @@ namespace FileArranger.Tests
             File.WriteAllText(Path.Combine(source, @"A\B\b.txt"), "dummy");
             File.WriteAllText(Path.Combine(source, @"keep.txt"), "dummy");
 
-            using (global::FileArranger.FileArranger form = new global::FileArranger.FileArranger())
+            using (global::FileArranger.FileArranger form = NewForm())
             {
                 form.md_textBox_SourceDir.Text = source;
                 form.md_comboBox_TargetDir.Text = target;
@@ -85,7 +93,7 @@ namespace FileArranger.Tests
             Directory.CreateDirectory(target);
             File.WriteAllText(Path.Combine(source, @"A\a.txt"), "dummy");
 
-            using (global::FileArranger.FileArranger form = new global::FileArranger.FileArranger())
+            using (global::FileArranger.FileArranger form = NewForm())
             {
                 form.md_textBox_SourceDir.Text = source;
                 form.md_comboBox_TargetDir.Text = target;
@@ -115,7 +123,7 @@ namespace FileArranger.Tests
             File.WriteAllText(Path.Combine(source, @"A\a.txt"), "dummy");
             File.WriteAllText(Path.Combine(other, @"A\a.txt"), "dummy");
 
-            using (global::FileArranger.FileArranger form = new global::FileArranger.FileArranger())
+            using (global::FileArranger.FileArranger form = NewForm())
             {
                 form.md_textBox_SourceDir.Text = source;
                 form.md_comboBox_TargetDir.Text = target;

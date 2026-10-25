@@ -38,9 +38,12 @@ namespace FileArranger.Tests
             }
         }
 
-        private static global::FileArranger.FileArranger NewForm()
+        // 本物のデータフォルダ(%LOCALAPPDATA%\FileArranger)のプロファイルを読まないよう、一時フォルダの中をデータフォルダにする
+        private global::FileArranger.FileArranger NewForm()
         {
-            return new global::FileArranger.FileArranger();
+            string dataFolder = Path.Combine(tempDirectory, "data");
+            Directory.CreateDirectory(dataFolder);
+            return new global::FileArranger.FileArranger(dataFolder);
         }
 
         private static SaveRestore NewSaveRestore(global::FileArranger.FileArranger form)
@@ -353,6 +356,23 @@ namespace FileArranger.Tests
                     Assert.AreEqual("_suffix", reader.cmn_textBox_AddListSuffix.Text);
                     CollectionAssert.AreEqual(new[] { @"D:\ref\a", @"D:\ref\b" }, reader.ReferenceCandidateFolders);
                 }
+            }
+        }
+
+        [TestMethod]
+        public void 起動時は渡したデータフォルダの既定の設定ファイルを読み込む()
+        {
+            // 以前はテストでも本物のデータフォルダ(%LOCALAPPDATA%\FileArranger)のプロファイルを読み込んでいた
+            string dataFolder = Path.Combine(tempDirectory, "data");
+            using (global::FileArranger.FileArranger writer = NewForm())
+            {
+                writer.cmn_textBox_Reference.Text = @"D:\from_data_folder";
+                Assert.IsTrue(NewSaveRestore(writer).SaveJsonFile(Path.Combine(dataFolder, "FileArranger.json"), writer));
+            }
+
+            using (global::FileArranger.FileArranger reader = NewForm())
+            {
+                Assert.AreEqual(@"D:\from_data_folder", reader.cmn_textBox_Reference.Text);
             }
         }
 

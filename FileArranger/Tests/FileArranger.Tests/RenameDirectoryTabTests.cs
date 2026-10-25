@@ -44,13 +44,21 @@ namespace FileArranger.Tests
             method.Invoke(form, new object[] { form, EventArgs.Empty });
         }
 
+        // 本物のデータフォルダ(%LOCALAPPDATA%\FileArranger)のプロファイルを読まないよう、一時フォルダの中をデータフォルダにする
+        private global::FileArranger.FileArranger NewForm()
+        {
+            string dataFolder = Path.Combine(tempDirectory, "data");
+            Directory.CreateDirectory(dataFolder);
+            return new global::FileArranger.FileArranger(dataFolder);
+        }
+
         // 格納元の直下に1つだけフォルダを作ってリストアップし、[変更後]をdestNameにしてリネームを実行する
         private string[] RenameOnlyFolder(string srcName, string destName, bool restore = false)
         {
             string parent = Path.Combine(tempDirectory, "parent");
             Directory.CreateDirectory(Path.Combine(parent, srcName));
 
-            using (global::FileArranger.FileArranger form = new global::FileArranger.FileArranger())
+            using (global::FileArranger.FileArranger form = NewForm())
             {
                 form.rd_comboBox_RenameDir.Text = parent;
                 InvokeHandler(form, "rd_button_Listup_Target_Click");
