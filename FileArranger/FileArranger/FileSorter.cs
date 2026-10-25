@@ -38,10 +38,19 @@ namespace FileArranger
                 _processMemory.AddRestoreItem(files[i], tempNames[i]);
             }
 
+            // "000.txt"のような名前のサブフォルダがあると(GetFilesはファイルしか返さないので一時名にならず残る)、
+            // 最終名へのリネームでぶつかって例外になっていた。同じ名前のフォルダ(やファイル)がある番号は飛ばして、
+            // 次の番号を使う(そのぶん番号は連番でなくなり、後ろのファイルも1つずつずれる)
+            int number = 0;
             for (int i = 0; i < files.Length; i++)
             {
                 String ext = Path.GetExtension(files[i]);
-                String destName = folderPath + @"\" + String.Format("{0:D3}", i) + ext;
+                String destName;
+                do
+                {
+                    destName = folderPath + @"\" + String.Format("{0:D3}", number) + ext;
+                    number++;
+                } while (Directory.Exists(destName) || File.Exists(destName));
                 File.Move(tempNames[i], destName);
                 _processMemory.AddRestoreItem(tempNames[i], destName);
             }
