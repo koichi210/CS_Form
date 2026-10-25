@@ -59,8 +59,8 @@ namespace ChotChotChat.Tests
 
                 Task<String> receive = Task.Run(() => _server.Receive());
                 NetworkStream ns = client.GetStream();
-                byte[] sendBytes = Encoding.UTF8.GetBytes("こんにちは\n");
-                ns.Write(sendBytes, 0, sendBytes.Length);
+                // メッセージは「バイト数\n」+本文 の形で送る(Client.Sendと同じ)
+                NetworkStreamReader.WriteMessage(ns, Encoding.UTF8.GetBytes("こんにちは\n"));
 
                 Assert.IsTrue(receive.Wait(_waitMsec), "受信が終わらない");
                 Assert.AreEqual("こんにちは\n", receive.Result);
@@ -69,6 +69,51 @@ namespace ChotChotChat.Tests
                 {
                     Assert.AreEqual("6", reader.ReadLine(), "受信した文字数(改行込み)を応答する");
                 }
+            }
+        }
+
+        [TestMethod]
+        public void 改行を含むメッセージが途中の改行で分かれて届いても1件で受け取る()
+        {
+            _server.Listen("127.0.0.1");
+            Task<String> accept = Task.Run(() => _server.Accept());
+
+            using (TcpClient client = new TcpClient())
+            {
+                client.Connect(IPAddress.Loopback, _port);
+                Assert.IsTrue(accept.Wait(_waitMsec), "接続を受け入れない");
+
+                Task<String> receive = Task.Run(() => _server.Receive());
+                NetworkStream ns = client.GetStream();
+                byte[] body = Encoding.UTF8.GetBytes("1行目\r\n2行目\r\n");
+                byte[] header = Encoding.ASCII.GetBytes(body.Length + "\n");
+
+                // 以前は「最後が\nで、まだ届いていないデータが無い」で終わりとみなしていたので、1行目だけで切れていた
+                ns.Write(header, 0, header.Length);
+                ns.Write(body, 0, 9);   // "1行目\r\n" まで
+                Thread.Sleep(300);
+                ns.Write(body, 9, body.Length - 9);
+
+                Assert.IsTrue(receive.Wait(_waitMsec), "受信が終わらない");
+                Assert.AreEqual("1行目\r\n2行目\r\n", receive.Result);
+            }
+        }
+
+        [TestMethod]
+        public void メッセージの先頭にバイト数が無ければ通信エラー()
+        {
+            _server.Listen("127.0.0.1");
+            Task<String> accept = Task.Run(() => _server.Accept());
+
+            using (TcpClient client = new TcpClient())
+            {
+                client.Connect(IPAddress.Loopback, _port);
+                Assert.IsTrue(accept.Wait(_waitMsec), "接続を受け入れない");
+
+                byte[] sendBytes = Encoding.UTF8.GetBytes("こんにちは\n");
+                client.GetStream().Write(sendBytes, 0, sendBytes.Length);
+
+                Assert.ThrowsException<IOException>(() => _server.Receive());
             }
         }
 
