@@ -243,20 +243,35 @@ namespace Cheetos
             Draw();
         }
 
-        // ↑/↓キーで数値を増減する。値が変わればTextChangedで再描画される
+        // ↑/↓キーで数値を増減する
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginX.Text = Logic.StepValueByArrowKey(textBox_OriginX.Text, e);
+            StepTextBoxValueByArrowKey(textBox_OriginX, e);
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_OriginY.Text = Logic.StepValueByArrowKey(textBox_OriginY.Text, e);
+            StepTextBoxValueByArrowKey(textBox_OriginY, e);
         }
 
         private void textBox_Angle_KeyDown(object sender, KeyEventArgs e)
         {
-            textBox_angle.Text = Logic.StepValueByArrowKey(textBox_angle.Text, e);
+            StepTextBoxValueByArrowKey(textBox_angle, e);
+        }
+
+        // 以前は↑↓以外のキーでも毎回書き換えていたので、「05」が「5」になり、値が変わるとキャレットが先頭に戻っていた。
+        // ↑↓キーのときだけ書き換え、キャレットは末尾に置く(WPF版と同じ)
+        private void StepTextBoxValueByArrowKey(TextBox ctrl, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
+            {
+                return;
+            }
+
+            // 値が変わればTextChangedで再描画される
+            ctrl.Text = Logic.StepValueByArrowKey(ctrl.Text, e);
+            ctrl.SelectionStart = ctrl.Text.Length;
+            e.Handled = true;
         }
 
         private void buttonOk_Click(object sender, EventArgs e)
