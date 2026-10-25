@@ -89,7 +89,7 @@ namespace Mailer
             this.Disposed += (s, e) => toolTip.Dispose();
 
             toolTip.SetToolTip(textBox_BrowserPath, "Gmailの作成画面を開くブラウザのexe。PATHが通っていればファイル名だけでも可。Enterキーで起動する");
-            toolTip.SetToolTip(textBox_MailSubject, "%%today%% %%tomorrow%% %%weekend%%(今週の金曜)は実行日、%%usersday%% %%dayofweek%%は起点日の日付・曜日に置き換わる。大文字で書くと年付きの日付/曜日の正式名になる");
+            toolTip.SetToolTip(textBox_MailSubject, "%%today%% %%tomorrow%% %%weekend%%(次の金曜。金曜なら当日)は実行日、%%usersday%% %%dayofweek%%は起点日の日付・曜日に置き換わる。大文字で書くと年付きの日付/曜日の正式名になる");
             toolTip.SetToolTip(textBox_MailBody, "件名の置換記号(%%today%%等)は本文では置き換わらない");
             toolTip.SetToolTip(button_OpenBrowse, "入力内容を埋めたGmailの新規作成画面をブラウザで開く。送信まではしない");
             toolTip.SetToolTip(comboBox_LoadSetting, "保存済みのプロファイル。選ぶとその内容を読み込む");
@@ -157,12 +157,16 @@ namespace Mailer
             var dayOffsets = Logic.GetLoopList(_param.CreateNum, check_BoxReverse.Checked);
             foreach (var dayOffset in dayOffsets)
             {
-                OpenBrowser(dayOffset);
+                if (!OpenBrowser(dayOffset))
+                {
+                    return;
+                }
                 System.Threading.Thread.Sleep(_param.IntervalMsec);
             }
         }
 
-        private void OpenBrowser(int daysOffset = 0)
+        // URLが長すぎてブラウザを開けなかったときはfalse
+        private Boolean OpenBrowser(int daysOffset = 0)
         {
             String browseUrl = _mailUrl;
             if (textBox_MailTo.Text != String.Empty)
@@ -190,10 +194,19 @@ namespace Mailer
                 browseUrl += "&body=" + Logic.EscapeUrlParam(textBox_MailBody.Text);
             }
 
+            // 長すぎるとブラウザを起動できない(以前は例外で落ちていた)
+            if (Logic.IsUrlTooLong(browseUrl))
+            {
+                MessageBox.Show(String.Format("宛先・件名・本文が長すぎて、ブラウザに渡せません(URLにすると{0}文字、{1}文字まで)。" + Environment.NewLine
+                    + "本文などを短くしてください。", browseUrl.Length, Logic.MaxUrlLength));
+                return false;
+            }
+
             // 起動したプロセスのハンドルは使わないので、すぐに解放する
             using (_util.ExecuteProcess(textBox_BrowserPath.Text, browseUrl))
             {
             }
+            return true;
         }
 
         // 画面の入力値を_paramへ読み込む。ブラウザが見つからなければfalse
