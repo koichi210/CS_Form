@@ -33,7 +33,7 @@ namespace FileArranger
         {
             if (md_listBox_Listup.SelectedItems.Count > 0)
             {
-                _util.ExecutePath(Path.Combine(md_textBox_SourceDir.Text, md_listBox_Listup.SelectedItem.ToString()));
+                _util.ExecutePath(Path.Combine(_mdListedDir, md_listBox_Listup.SelectedItem.ToString()));
             }
         }
 
@@ -56,10 +56,17 @@ namespace FileArranger
                 return;
             }
 
-            foreach (String selectedName in Utils.GetSelectedNames(md_listBox_Listup))
+            // 中身ごと完全に消える(ごみ箱にも入らない)ので、実行前に確認する
+            List<String> selectedNames = Utils.GetSelectedNames(md_listBox_Listup);
+            if (!ConfirmDelete("選択した" + selectedNames.Count + "個のフォルダを中身ごと削除します。ごみ箱には入りません。よろしいですか？"))
+            {
+                return;
+            }
+
+            foreach (String selectedName in selectedNames)
             {
                 // 親フォルダ("A")と子フォルダ("A\B")を両方選んだ場合、親を消した時点で子も無くなっているので飛ばす
-                String deletePath = Path.Combine(md_textBox_SourceDir.Text, selectedName);
+                String deletePath = Path.Combine(_mdListedDir, selectedName);
                 if (!Directory.Exists(deletePath))
                 {
                     continue;
@@ -86,7 +93,7 @@ namespace FileArranger
                 String sourceTargetName = isMoveTopDir ? _fio.GetFirstPathName(selectedNames[i]) : selectedNames[i];
                 String destTargetName = isMoveTopDir ? sourceTargetName : _fio.GetLastPathName(selectedNames[i]);
 
-                String sourcePath = Path.Combine(md_textBox_SourceDir.Text, sourceTargetName);
+                String sourcePath = Path.Combine(_mdListedDir, sourceTargetName);
                 String destPath = Path.Combine(md_comboBox_TargetDir.Text, destTargetName);
 
                 // Top階層ごと移動した場合などで、すでにDirectoryが存在しないケースをcare
@@ -122,6 +129,7 @@ namespace FileArranger
 
             if (directories != null)
             {
+                _mdListedDir = md_textBox_SourceDir.Text;
                 md_listBox_Listup.TopIndex = topIndex;
             }
         }
