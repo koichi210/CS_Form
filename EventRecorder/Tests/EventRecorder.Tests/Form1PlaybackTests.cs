@@ -156,32 +156,112 @@ namespace EventRecorder.Tests
             }
         }
 
+        // 再生で送る入力イベントの中身だけを確かめる(SendInputは呼ばない。InputSimulatorTestsと同じ方針)
+        private const int MouseeventfMove = 0x0001;
+        private const int MouseeventfXDown = 0x0080;
+        private const int MouseeventfXUp = 0x0100;
+        private const int MouseeventfWheel = 0x0800;
+        private const int MouseeventfAbsoluteVirtualDesk = 0x8000 | 0x4000;
+        private const int KeyeventfKeyUp = 0x0002;
+
         [TestMethod]
-        public void 再生時に飛ばされる行は種類ごとに行番号付きでまとめる()
+        public void ホイールの行はクリックと同じ座標で1ノッチ分のWHEELを送る()
         {
-            List<String> types = new List<String> { "LEFT_DOWN", "SYSKEY_DOWN", "WAIT_MS", "SYSKEY_UP", "KEY_DOWN", "X1_DOWN" };
-            for (int i = 0; i < 7; i++)
+            InputSimulation.InputSimulator.Input click = Form1.BuildPlaybackInputs("LEFT_DOWN", "100", "200", "").Single();
+            InputSimulation.InputSimulator.Input wheelUp = Form1.BuildPlaybackInputs("WHEEL_UP", "100", "200", "").Single();
+            InputSimulation.InputSimulator.Input wheelDown = Form1.BuildPlaybackInputs("WHEEL_DOWN", "100", "200", "").Single();
+
+            foreach (InputSimulation.InputSimulator.Input input in new[] { wheelUp, wheelDown })
             {
-                types.Add("WHEEL_DOWN");
+                Assert.AreEqual(0, input.Type, "マウス入力は Type=0");
+                Assert.AreEqual(MouseeventfMove | MouseeventfWheel | MouseeventfAbsoluteVirtualDesk, input.Mouse.Flags);
+                Assert.AreEqual(click.Mouse.X, input.Mouse.X);
+                Assert.AreEqual(click.Mouse.Y, input.Mouse.Y);
             }
 
-            List<String> lines = Form1.SummarizeUnsupportedRowsForPlayback(types);
-
-            CollectionAssert.AreEqual(new[]
-            {
-                "SYSKEY_DOWN: 1行(行1)",
-                "SYSKEY_UP: 1行(行3)",
-                "X1_DOWN: 1行(行5)",
-                "WHEEL_DOWN: 7行(行6, 行7, 行8, 行9, 行10, …)",
-            }, lines);
+            // 奥へ回す(WHEEL_UP)が+、手前へ回す(WHEEL_DOWN)が-。回転量は記録していないので1ノッチ(WHEEL_DELTA=120)
+            Assert.AreEqual(120, wheelUp.Mouse.Data);
+            Assert.AreEqual(-120, wheelDown.Mouse.Data);
         }
 
         [TestMethod]
-        public void 再生できる行だけなら飛ばされる行のまとめは空()
+        public void X1とX2ボタンの行はクリックと同じ座標でXDOWNとXUPをボタン番号付きで送る()
         {
-            List<String> types = new List<String> { "LEFT_DOWN", "LEFT_UP", "KEY_DOWN", "KEY_UP", "WAIT_MS", "MIDDLE_DOWN" };
+            InputSimulation.InputSimulator.Input click = Form1.BuildPlaybackInputs("LEFT_DOWN", "-50", "30", "").Single();
+            String[] types = { "X1_DOWN", "X1_UP", "X2_DOWN", "X2_UP" };
+            int[] expectedButtonFlags = { MouseeventfXDown, MouseeventfXUp, MouseeventfXDown, MouseeventfXUp };
+            int[] expectedData = { 1, 1, 2, 2 };   // XBUTTON1 / XBUTTON2
 
-            Assert.AreEqual(0, Form1.SummarizeUnsupportedRowsForPlayback(types).Count);
+            for (int i = 0; i < types.Length; i++)
+            {
+                InputSimulation.InputSimulator.Input input = Form1.BuildPlaybackInputs(types[i], "-50", "30", "").Single();
+
+                Assert.AreEqual(0, input.Type, types[i]);
+                Assert.AreEqual(MouseeventfMove | expectedButtonFlags[i] | MouseeventfAbsoluteVirtualDesk, input.Mouse.Flags, types[i]);
+                Assert.AreEqual(expectedData[i], input.Mouse.Data, types[i]);
+                Assert.AreEqual(click.Mouse.X, input.Mouse.X, types[i]);
+                Assert.AreEqual(click.Mouse.Y, input.Mouse.Y, types[i]);
+            }
+        }
+
+        [TestMethod]
+        public void SYSKEYの行は普通のキーとして送りAlt付きの組み合わせもそのまま送れる()
+        {
+            // Alt+F4を記録した時の並び(Altを押している間のキーはSYSKEY_DOWN/UPになる)
+            String[][] rows =
+            {
+                new[] { "SYSKEY_DOWN", "LMenu" },
+                new[] { "SYSKEY_DOWN", "F4" },
+                new[] { "SYSKEY_UP", "F4" },
+                new[] { "KEY_UP", "LMenu" },
+                new[] { "SYSKEY_DOWN", "F10" },   // F10単独もSYSKEY
+                new[] { "SYSKEY_UP", "F10" },
+            };
+            Keys[] expectedKeys = { Keys.LMenu, Keys.F4, Keys.F4, Keys.LMenu, Keys.F10, Keys.F10 };
+            Boolean[] expectedUp = { false, false, true, true, false, true };
+
+            for (int i = 0; i < rows.Length; i++)
+            {
+                InputSimulation.InputSimulator.Input input = Form1.BuildPlaybackInputs(rows[i][0], "", "", rows[i][1]).Single();
+
+                Assert.AreEqual(1, input.Type, "キーボード入力は Type=1");
+                Assert.AreEqual((short)expectedKeys[i], input.Keyboard.VirtualKey, rows[i][0] + ":" + rows[i][1]);
+                Assert.AreEqual(expectedUp[i] ? KeyeventfKeyUp : 0, input.Keyboard.Flags & KeyeventfKeyUp, rows[i][0] + ":" + rows[i][1]);
+
+                // 送る中身は普通のKEY_DOWN/KEY_UPの行と同じ
+                String keyType = expectedUp[i] ? "KEY_UP" : "KEY_DOWN";
+                InputSimulation.InputSimulator.Input asKey = Form1.BuildPlaybackInputs(keyType, "", "", rows[i][1]).Single();
+                Assert.AreEqual(asKey.Keyboard.Flags, input.Keyboard.Flags);
+                Assert.AreEqual(asKey.Keyboard.ScanCode, input.Keyboard.ScanCode);
+            }
+        }
+
+        [TestMethod]
+        public void 再生しない行は何も送らない()
+        {
+            Assert.AreEqual(0, Form1.BuildPlaybackInputs("WAIT_MS", "", "", "").Count);
+            Assert.AreEqual(0, Form1.BuildPlaybackInputs("TYPO", "1", "2", "A").Count);
+            Assert.AreEqual(0, Form1.BuildPlaybackInputs("SYSKEY_DOWN", "", "", "NoSuchKey").Count);
+        }
+
+        [TestMethod]
+        public void ホイールとXボタンとSYSKEYの行もマウス行やキー行として再生前チェックの対象になる()
+        {
+            // 再生前チェック(IsRowInvalidForPlayback)・Keyが無視される警告(IsKeyIgnoredOnMouseRow)はこの判定で振り分ける
+            InputSimulation.InputSimulator.MouseStroke mouseStroke;
+            int data;
+            foreach (String type in new[] { "WHEEL_UP", "WHEEL_DOWN", "X1_DOWN", "X1_UP", "X2_DOWN", "X2_UP", "LEFT_DOWN" })
+            {
+                Assert.IsTrue(Form1.TryGetPlaybackMouseStroke(type, out mouseStroke, out data), type);
+            }
+            Assert.IsFalse(Form1.TryGetPlaybackMouseStroke("SYSKEY_DOWN", out mouseStroke, out data));
+
+            InputSimulation.InputSimulator.KeyboardStroke keyStroke;
+            Assert.IsTrue(Form1.TryGetPlaybackKeyboardStroke("SYSKEY_DOWN", out keyStroke));
+            Assert.AreEqual(InputSimulation.InputSimulator.KeyboardStroke.KEY_DOWN, keyStroke);
+            Assert.IsTrue(Form1.TryGetPlaybackKeyboardStroke("SYSKEY_UP", out keyStroke));
+            Assert.AreEqual(InputSimulation.InputSimulator.KeyboardStroke.KEY_UP, keyStroke);
+            Assert.IsFalse(Form1.TryGetPlaybackKeyboardStroke("WHEEL_UP", out keyStroke));
         }
 
         [TestMethod]

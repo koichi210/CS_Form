@@ -644,9 +644,6 @@ namespace EventRecorder
         // 終わったら(停止・エラーでも)、全体ループ欄(textBox_Loop)を再生前の値(loopTextBeforeRun)に戻す
         private void PlaylistPlayLoop(List<PlaylistEntry> entries, int overallLoopCount, String loopTextBeforeRun)
         {
-            // 再生に対応していない行の確認を済ませたファイル(全体ループで同じファイルを何度も確認しないように)
-            HashSet<String> confirmedFiles = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
-
             Boolean isCompleted = false;
             try
             {
@@ -677,13 +674,6 @@ namespace EventRecorder
                             // 読み込んだファイルに再生できない行が無いか確認する。あればプレイリスト
                             // 全体を停止する(rowsはnullのまま=このエントリは再生しない)
                             if (!ValidateEventsForPlayback())
-                            {
-                                _stopPlayRequested = true;
-                                return;
-                            }
-
-                            // 再生時に飛ばされる行があれば知らせる(1回の実行で同じファイルは最初の1回だけ)。やめたら全体を停止する
-                            if (confirmedFiles.Add(entry.FileName) && !ConfirmUnsupportedEventsForPlayback())
                             {
                                 _stopPlayRequested = true;
                                 return;

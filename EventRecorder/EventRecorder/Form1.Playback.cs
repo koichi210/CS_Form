@@ -49,7 +49,7 @@ namespace EventRecorder
         // レコードグループの記録データ(dataGridView_Events)を単発再生する
         private void StartSinglePlayback()
         {
-            if (!ValidateEventsForPlayback() || !ConfirmUnsupportedEventsForPlayback())
+            if (!ValidateEventsForPlayback())
             {
                 return;
             }
@@ -792,7 +792,7 @@ namespace EventRecorder
             String eventType = Convert.ToString(row.Cells[col_Type.Index].Value);
             String keyValue = Convert.ToString(row.Cells[col_Key.Index].Value);
 
-            Boolean isMouseRow = Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(eventType, out _);
+            Boolean isMouseRow = TryGetPlaybackMouseStroke(eventType, out _, out _);
 
             if (isMouseRow && !String.IsNullOrEmpty(keyValue))
             {
@@ -822,7 +822,7 @@ namespace EventRecorder
                     message = "WAIT_MS行の待機時間(" + wait + ")が数値として読み取れないよ";
                 }
             }
-            else if (Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(type, out _))
+            else if (TryGetPlaybackMouseStroke(type, out _, out _))
             {
                 String x = Convert.ToString(row.Cells[col_X.Index].Value);
                 String y = Convert.ToString(row.Cells[col_Y.Index].Value);
@@ -831,7 +831,7 @@ namespace EventRecorder
                     message = "マウスイベント(" + type + ")のX/Y(" + x + ", " + y + ")が数値として読み取れないよ";
                 }
             }
-            else if (Enum.TryParse<InputSimulation.InputSimulator.KeyboardStroke>(type, out _))
+            else if (TryGetPlaybackKeyboardStroke(type, out _))
             {
                 String key = Convert.ToString(row.Cells[col_Key.Index].Value);
                 if (!Enum.TryParse<Keys>(key, out _))
@@ -909,69 +909,90 @@ namespace EventRecorder
             return false;
         }
 
-        // 記録はされるが、再生時は(まだ再生に対応していないため)飛ばされるイベントの種類。
-        // Altを押しながらのキー・F10(SYSKEY)、マウスのホイール、マウスのX1/X2(サイド)ボタン
-        private static readonly HashSet<String> _unsupportedPlaybackEventTypes = new HashSet<String>
+        // ホイール1ノッチ分の回転量(Win32のWHEEL_DELTA)
+        internal const int WheelDelta = 120;
+
+        // Win32のXBUTTON1/XBUTTON2(MOUSEEVENTF_XDOWN/XUPのmouseDataに入れる、どちらのサイドボタンか)
+        internal const int XButton1 = 0x0001;
+        internal const int XButton2 = 0x0002;
+
+        // 記録したEvent列の名前がInputSimulatorのMouseStrokeと違うマウス操作(ホイール・X1/X2(サイド)ボタン)の、
+        // 送るときのMOUSEEVENTF_*とmouseData。ホイールの回転量は記録していないので、1行=1ノッチ(WHEEL_DELTA)で送る
+        // (記録時のフックはノッチごとに1回来るので、普通のマウスなら記録どおりの量になる)
+        private static readonly Dictionary<String, KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>> _renamedMouseStrokes
+            = new Dictionary<String, KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>>
         {
-            GlobalHook.KeyboardHook.Stroke.SYSKEY_DOWN.ToString(),
-            GlobalHook.KeyboardHook.Stroke.SYSKEY_UP.ToString(),
-            GlobalHook.MouseHook.Stroke.WHEEL_DOWN.ToString(),
-            GlobalHook.MouseHook.Stroke.WHEEL_UP.ToString(),
-            GlobalHook.MouseHook.Stroke.X1_DOWN.ToString(),
-            GlobalHook.MouseHook.Stroke.X1_UP.ToString(),
-            GlobalHook.MouseHook.Stroke.X2_DOWN.ToString(),
-            GlobalHook.MouseHook.Stroke.X2_UP.ToString(),
+            { GlobalHook.MouseHook.Stroke.WHEEL_UP.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.WHEEL, WheelDelta) },
+            { GlobalHook.MouseHook.Stroke.WHEEL_DOWN.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.WHEEL, -WheelDelta) },
+            { GlobalHook.MouseHook.Stroke.X1_DOWN.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_DOWN, XButton1) },
+            { GlobalHook.MouseHook.Stroke.X1_UP.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_UP, XButton1) },
+            { GlobalHook.MouseHook.Stroke.X2_DOWN.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_DOWN, XButton2) },
+            { GlobalHook.MouseHook.Stroke.X2_UP.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_UP, XButton2) },
         };
 
-        // 再生時に飛ばされる行を、種類ごとに「WHEEL_DOWN: 12行(行3, 5, …)」の形でまとめる(無ければ空のリスト)。
-        // 以前は再生前チェックでも何も言わずに飛ばしていた。typesは各行のEvent列。行番号は種類ごとに先頭の数件だけ
-        // (internal static: Form1を生成せずにテストできるようにするため。WPF版と同じ)
-        internal static List<String> SummarizeUnsupportedRowsForPlayback(IList<String> types)
+        // 再生でマウス操作として送る行なら、送るMOUSEEVENTF_*(stroke)とmouseData(ホイールの回転量・どのXボタンか)を返す。
+        // 以前はホイールとX1/X2ボタンの行を再生で飛ばしていた(WPF版と同じ)
+        internal static Boolean TryGetPlaybackMouseStroke(String type, out InputSimulation.InputSimulator.MouseStroke stroke, out int data)
         {
-            const int maxListedRows = 5;
-
-            List<String> lines = new List<String>();
-            foreach (IGrouping<String, int> group in Enumerable.Range(0, types.Count)
-                .Where(i => _unsupportedPlaybackEventTypes.Contains(types[i]))
-                .GroupBy(i => types[i]))
+            KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int> renamed;
+            if (type != null && _renamedMouseStrokes.TryGetValue(type, out renamed))
             {
-                List<int> indexes = group.ToList();
-                String listed = String.Join(", ", indexes.Take(maxListedRows).Select(i => "行" + i));
-                if (indexes.Count > maxListedRows)
-                {
-                    listed += ", …";
-                }
-                lines.Add(group.Key + ": " + indexes.Count + "行(" + listed + ")");
-            }
-
-            return lines;
-        }
-
-        // 記録はされるが再生時は飛ばされる行(Altを押しながらのキー・F10、ホイール、マウスのサイドボタン。
-        // まだ再生に対応していない)があれば、知らせてから再生するか確かめる。やめるならfalseを返す
-        // (以前は再生前チェックでも何も言わずに飛ばしていたため、再生しても途中の操作が抜けていることに気付けなかった)
-        private Boolean ConfirmUnsupportedEventsForPlayback()
-        {
-            List<String> types = dataGridView_Events.Rows.Cast<DataGridViewRow>()
-                .Where(r => !r.IsNewRow)
-                .Select(r => Convert.ToString(r.Cells[col_Type.Index].Value))
-                .ToList();
-            List<String> lines = SummarizeUnsupportedRowsForPlayback(types);
-            if (lines.Count == 0)
-            {
+                stroke = renamed.Key;
+                data = renamed.Value;
                 return true;
             }
 
-            DialogResult result = MessageBox.Show(
-                "再生に対応していない行があるよ。この行は再生時に飛ばされるよ" + Environment.NewLine
-                    + "(Altを押しながらのキー・F10、マウスのホイール・サイドボタン)" + Environment.NewLine + Environment.NewLine
-                    + String.Join(Environment.NewLine, lines) + Environment.NewLine + Environment.NewLine
-                    + "このまま再生する？",
-                "EventRecorder - 再生前チェック",
-                MessageBoxButtons.OKCancel,
-                MessageBoxIcon.Warning);
+            data = 0;
+            return Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(type, out stroke);
+        }
 
-            return result == DialogResult.OK;
+        // 再生でキー操作として送る行なら、送るKEY_DOWN/KEY_UPを返す。
+        // SYSKEY(Altを押しながらのキー・F10)も普通のキーとして送る(Altの押下も行として記録されているので、
+        // Alt+F4などは送った側でも元どおりSYSKEYになる)。以前はSYSKEYの行を再生で飛ばしていた(WPF版と同じ)
+        internal static Boolean TryGetPlaybackKeyboardStroke(String type, out InputSimulation.InputSimulator.KeyboardStroke stroke)
+        {
+            if (type == GlobalHook.KeyboardHook.Stroke.SYSKEY_DOWN.ToString())
+            {
+                stroke = InputSimulation.InputSimulator.KeyboardStroke.KEY_DOWN;
+                return true;
+            }
+            if (type == GlobalHook.KeyboardHook.Stroke.SYSKEY_UP.ToString())
+            {
+                stroke = InputSimulation.InputSimulator.KeyboardStroke.KEY_UP;
+                return true;
+            }
+
+            return Enum.TryParse<InputSimulation.InputSimulator.KeyboardStroke>(type, out stroke);
+        }
+
+        // 記録した1行分を、SendInputに渡す入力イベントに組み立てる(送るのは呼び出し側。再生しない行なら空のリスト)。
+        // マウス操作は、クリックと同じく記録した座標(絶対座標)へ移動させてから行う。
+        // 値が読めない行は再生前チェックで止めている前提(X/Yが数値でなければ例外になる)
+        // (internal static: Form1を生成せずにテストできるようにするため。WPF版と同じ)
+        internal static List<InputSimulation.InputSimulator.Input> BuildPlaybackInputs(String type, String x, String y, String key)
+        {
+            List<InputSimulation.InputSimulator.Input> inputs = new List<InputSimulation.InputSimulator.Input>();
+
+            InputSimulation.InputSimulator.MouseStroke mouseStroke;
+            int mouseData;
+            if (TryGetPlaybackMouseStroke(type, out mouseStroke, out mouseData))
+            {
+                List<InputSimulation.InputSimulator.MouseStroke> flags = new List<InputSimulation.InputSimulator.MouseStroke>();
+                flags.Add(InputSimulation.InputSimulator.MouseStroke.MOVE);
+                flags.Add(mouseStroke);
+
+                InputSimulation.InputSimulator.AddMouseInput(ref inputs, flags, mouseData, true, int.Parse(x), int.Parse(y));
+                return inputs;
+            }
+
+            InputSimulation.InputSimulator.KeyboardStroke keyStroke;
+            Keys keyCode;
+            if (TryGetPlaybackKeyboardStroke(type, out keyStroke) && Enum.TryParse<Keys>(key, out keyCode))
+            {
+                InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, keyStroke, keyCode);
+            }
+
+            return inputs;
         }
 
         // Detail列とX/Y/Key列(非表示)を相互に同期させている最中、再帰的な同期を防ぐためのフラグ
@@ -1139,35 +1160,32 @@ namespace EventRecorder
             return detail.EndsWith("ms") ? detail.Substring(0, detail.Length - 2) : detail;
         }
 
-        // 記録した1イベント分をSendInputで再現する
-        // ※ マウスのX(サイド)ボタン/ホイールとキーボードのSYSKEYは、
-        //    HiMacroEx相当を作る段階では未対応(将来の機能拡張項目)
+        // 記録した1イベント分をSendInputで再現する。
+        // マウスのホイール・X(サイド)ボタン、キーボードのSYSKEY(Altを押しながらのキー・F10)も再生する
+        // (以前は飛ばしていた。送る中身はBuildPlaybackInputsで組み立てる)
         private void PlayOneEvent(String type, String x, String y, String key)
         {
-            List<InputSimulation.InputSimulator.Input> inputs = new List<InputSimulation.InputSimulator.Input>();
+            List<InputSimulation.InputSimulator.Input> inputs = BuildPlaybackInputs(type, x, y, key);
+            if (inputs.Count == 0)
+            {
+                return;
+            }
+
+            InputSimulation.InputSimulator.SendInput(inputs);
 
             InputSimulation.InputSimulator.MouseStroke mouseStroke;
-            if (Enum.TryParse<InputSimulation.InputSimulator.MouseStroke>(type, out mouseStroke))
+            int mouseData;
+            if (TryGetPlaybackMouseStroke(type, out mouseStroke, out mouseData))
             {
-                List<InputSimulation.InputSimulator.MouseStroke> flags = new List<InputSimulation.InputSimulator.MouseStroke>();
-                flags.Add(InputSimulation.InputSimulator.MouseStroke.MOVE);
-                flags.Add(mouseStroke);
-
-                int ix = _util.GetInteger(x);
-                int iy = _util.GetInteger(y);
-                InputSimulation.InputSimulator.AddMouseInput(ref inputs, flags, 0, true, ix, iy);
-                InputSimulation.InputSimulator.SendInput(inputs);
-                TrackPressedMouseButton(mouseStroke);
+                TrackPressedMouseButton(mouseStroke, mouseData);
                 return;
             }
 
             InputSimulation.InputSimulator.KeyboardStroke keyStroke;
             Keys keyCode;
-            if (Enum.TryParse<InputSimulation.InputSimulator.KeyboardStroke>(type, out keyStroke)
+            if (TryGetPlaybackKeyboardStroke(type, out keyStroke)
                 && Enum.TryParse<Keys>(key, out keyCode))
             {
-                InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, keyStroke, keyCode);
-                InputSimulation.InputSimulator.SendInput(inputs);
                 TrackPressedKey(keyStroke, keyCode);
             }
         }
@@ -1178,6 +1196,9 @@ namespace EventRecorder
         private readonly HashSet<Keys> _playbackPressedKeys = new HashSet<Keys>();
         private readonly HashSet<InputSimulation.InputSimulator.MouseStroke> _pressedMouseUpStrokes
             = new HashSet<InputSimulation.InputSimulator.MouseStroke>();
+
+        // Xボタンは1つのX_UPをmouseData(XBUTTON1/XBUTTON2)で区別するので、押したままのボタンの番号で覚える
+        private readonly HashSet<int> _pressedXButtons = new HashSet<int>();
 
         private void TrackPressedKey(InputSimulation.InputSimulator.KeyboardStroke stroke, Keys keyCode)
         {
@@ -1192,10 +1213,16 @@ namespace EventRecorder
         }
 
         // ボタンごとに「Down→対応するUp」の組で管理する。Downなら解除用のUpを登録、Upなら登録を外す
-        private void TrackPressedMouseButton(InputSimulation.InputSimulator.MouseStroke stroke)
+        private void TrackPressedMouseButton(InputSimulation.InputSimulator.MouseStroke stroke, int data)
         {
             switch (stroke)
             {
+                case InputSimulation.InputSimulator.MouseStroke.X_DOWN:
+                    _pressedXButtons.Add(data);
+                    break;
+                case InputSimulation.InputSimulator.MouseStroke.X_UP:
+                    _pressedXButtons.Remove(data);
+                    break;
                 case InputSimulation.InputSimulator.MouseStroke.LEFT_DOWN:
                     _pressedMouseUpStrokes.Add(InputSimulation.InputSimulator.MouseStroke.LEFT_UP);
                     break;
@@ -1227,12 +1254,18 @@ namespace EventRecorder
                 InputSimulation.InputSimulator.AddMouseInput(ref inputs, upStroke, 0, false, 0, 0);
             }
 
+            foreach (int xButton in _pressedXButtons)
+            {
+                InputSimulation.InputSimulator.AddMouseInput(ref inputs, InputSimulation.InputSimulator.MouseStroke.X_UP, xButton, false, 0, 0);
+            }
+
             foreach (Keys keyCode in _playbackPressedKeys)
             {
                 InputSimulation.InputSimulator.AddKeyboardInput(ref inputs, InputSimulation.InputSimulator.KeyboardStroke.KEY_UP, keyCode);
             }
 
             _pressedMouseUpStrokes.Clear();
+            _pressedXButtons.Clear();
             _playbackPressedKeys.Clear();
 
             if (inputs.Count > 0)
