@@ -146,6 +146,15 @@ namespace Cheetos
             pr_BaseY.Text = Logic.KeepIfInteger(pr_BaseY.Text);
             pr_Angle.Text = Logic.KeepIfInteger(pr_Angle.Text);
 
+            // 空欄のまま始めると、DoWorkのint.Parse("")で例外になっていた
+            int value;
+            if (!TryGetIntWithMessage(pr_BaseX, "原点(X)", int.MinValue, out value)
+                || !TryGetIntWithMessage(pr_BaseY, "原点(Y)", int.MinValue, out value)
+                || !TryGetIntWithMessage(pr_Angle, "角度", int.MinValue, out value))
+            {
+                return;
+            }
+
             InitProgressBar(pr_ListBox_ListUp.SelectedItems.Count);
 
             // 別スレッドを非同期実行
@@ -196,8 +205,8 @@ namespace Cheetos
                 rt.BackUpTargetFile();
                 rt.RotateExecute();
 
-                // 進捗率
-                worker.ReportProgress(itemIdx);      // ⇒ProgressChanged()
+                // 進捗率(終わった件数)
+                worker.ReportProgress(itemIdx + 1);      // ⇒ProgressChanged()
 
                 // キャンセルされてないかチェック
                 if (worker.CancellationPending)

@@ -180,5 +180,61 @@ namespace Cheetos.Tests
 
             Assert.AreEqual("-2", result);
         }
+
+        // ------------------------------------------------------------------
+        // CalcExpectEndTime / TryParseInt / GetNonConflictFilePath / KeepIfInteger
+        // ------------------------------------------------------------------
+
+        [TestMethod]
+        public void CalcExpectEndTime_終わった件数で割って全件分の時刻を返す()
+        {
+            DateTime start = new DateTime(2026, 1, 1, 0, 0, 0);
+
+            // 2件で10秒 → 1件5秒 → 10件で50秒
+            DateTime result = Logic.CalcExpectEndTime(start, start.AddSeconds(10), 2, 10);
+
+            Assert.AreEqual(start.AddSeconds(50), result);
+        }
+
+        [TestMethod]
+        public void TryParseInt_空欄や数値以外や下限未満はfalse()
+        {
+            int value;
+            Assert.IsFalse(Logic.TryParseInt("", 1, out value));
+            Assert.IsFalse(Logic.TryParseInt("abc", 1, out value));
+            Assert.IsFalse(Logic.TryParseInt("0", 1, out value));
+            Assert.IsTrue(Logic.TryParseInt("30", 1, out value));
+            Assert.AreEqual(30, value);
+            Assert.IsTrue(Logic.TryParseInt("-5", int.MinValue, out value));
+            Assert.AreEqual(-5, value);
+        }
+
+        [TestMethod]
+        public void GetNonConflictFilePath_同名が無ければそのまま返す()
+        {
+            string path = Path.Combine(tempDirectory, "a.png");
+
+            Assert.AreEqual(path, Logic.GetNonConflictFilePath(path));
+        }
+
+        [TestMethod]
+        public void GetNonConflictFilePath_同名があれば拡張子の前に連番を付ける()
+        {
+            File.WriteAllText(Path.Combine(tempDirectory, "a.png"), "x");
+            File.WriteAllText(Path.Combine(tempDirectory, "a (2).png"), "x");
+
+            string result = Logic.GetNonConflictFilePath(Path.Combine(tempDirectory, "a.png"));
+
+            Assert.AreEqual(Path.Combine(tempDirectory, "a (3).png"), result);
+        }
+
+        [TestMethod]
+        public void KeepIfInteger_マイナスだけはallowMinusSignのときだけ残す()
+        {
+            Assert.AreEqual("-", Logic.KeepIfInteger("-", true));
+            Assert.AreEqual("", Logic.KeepIfInteger("-"));
+            Assert.AreEqual("-5", Logic.KeepIfInteger("-5", true));
+            Assert.AreEqual("", Logic.KeepIfInteger("abc", true));
+        }
     }
 }

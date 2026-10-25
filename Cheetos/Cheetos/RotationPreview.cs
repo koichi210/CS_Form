@@ -292,9 +292,10 @@ namespace Cheetos
                 return false;
             }
 
-            textBox_OriginX.Text = Logic.KeepIfInteger(textBox_OriginX.Text);
-            textBox_OriginY.Text = Logic.KeepIfInteger(textBox_OriginY.Text);
-            textBox_angle.Text = Logic.KeepIfInteger(textBox_angle.Text);
+            // 入力のたびに呼ばれるので、「-」は負の数の入力途中として残す(描画では0として扱う)
+            textBox_OriginX.Text = Logic.KeepIfInteger(textBox_OriginX.Text, true);
+            textBox_OriginY.Text = Logic.KeepIfInteger(textBox_OriginY.Text, true);
+            textBox_angle.Text = Logic.KeepIfInteger(textBox_angle.Text, true);
 
             return true;
         }

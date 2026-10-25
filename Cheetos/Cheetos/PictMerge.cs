@@ -98,7 +98,20 @@ namespace Cheetos
             string[] heightRange = line.Split(_trimHeightSeparator, StringSplitOptions.None);
             int height;
             return heightRange.Length == 2
-                && heightRange.All(text => text == "-" || int.TryParse(text, out height));
+                && heightRange.All(text => text == "-" || int.TryParse(text, out height))
+                && !IsEndBeforeStart(heightRange);
+        }
+
+        // 終了が数値で、開始("-"は0)より小さいか。以前は高さがマイナスの矩形のまま描いていた
+        // (終了が"-"(画像の高さ)の場合は、開始が画像より下なら結合時に打ち切る)
+        private static bool IsEndBeforeStart(String[] heightRange)
+        {
+            if (heightRange[1] == "-")
+            {
+                return false;
+            }
+            int startHeight = (heightRange[0] == "-") ? 0 : int.Parse(heightRange[0]);
+            return int.Parse(heightRange[1]) < startHeight;
         }
 
         public bool MergeExecute()
@@ -178,7 +191,7 @@ namespace Cheetos
             String[] invalidTrimHeights = global::Cheetos.PictMerge.FindInvalidTrimHeights(trimHeights);
             if (invalidTrimHeights.Length > 0)
             {
-                DialogResult dr = MessageBox.Show("フォーマットが不正な行があります。" + Environment.NewLine
+                DialogResult dr = MessageBox.Show("フォーマットが不正な行(「開始,終了」の形でない・終了が開始より小さい)があります。" + Environment.NewLine
                     + "[" + String.Join("] [", invalidTrimHeights) + "]" + Environment.NewLine
                     + "不正な行を飛ばして結合しますか？",
                     "Error",
@@ -243,6 +256,14 @@ namespace Cheetos
 
             for (int itemIdx = 0; itemIdx < targetFileNames.Length; itemIdx++)
             {
+                // キャンセルされてないかチェック。結合した項目のあとでだけ見ていたため、
+                // 飛ばす項目(対象外・ファイルが無い)が続く間は中断できなかった。各項目の前で見る
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+
                 if (!pm.SetTargetFileName(targetFileNames[itemIdx]))
                 {
                     continue;
@@ -264,12 +285,7 @@ namespace Cheetos
                 }
 
                 pm.MergeExecute();
-                worker.ReportProgress(itemIdx);      // ⇒ProgressChanged()
-                if (worker.CancellationPending)
-                {
-                    e.Cancel = true;
-                    break;
-                }
+                worker.ReportProgress(itemIdx + 1);      // ⇒ProgressChanged()(終わった件数)
             }
             e.Result = pm.GetErrorMessage();
             worker.ReportProgress(targetFileNames.Length);      // ⇒ProgressChanged()

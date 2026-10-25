@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Picture;
 
@@ -117,6 +118,39 @@ namespace Cheetos
         }
 
         /// <summary>
+        /// 予想終了時間を求める。開始からnowまででdoneCount件終わったとして、totalCount件分かかる時刻を返す。
+        /// </summary>
+        public static DateTime CalcExpectEndTime(DateTime start, DateTime now, int doneCount, int totalCount)
+        {
+            long elapsedTicks = now.Ticks - start.Ticks;
+            return new DateTime(start.Ticks + elapsedTicks * totalCount / doneCount);
+        }
+
+        /// <summary>
+        /// 整数として読めて、minValue以上ならtrue(数値欄の入力チェック用。int.Parseは空欄・数値以外で例外になる)。
+        /// </summary>
+        public static bool TryParseInt(String text, int minValue, out int value)
+        {
+            return Int32.TryParse(text, out value) && minValue <= value;
+        }
+
+        /// <summary>
+        /// filePathと同名のファイル/フォルダがあれば、拡張子の前に「 (2)」「 (3)」…と連番を付けた、まだ無いパスを返す。
+        /// </summary>
+        public static String GetNonConflictFilePath(String filePath)
+        {
+            String candidate = filePath;
+            String directoryPath = Path.GetDirectoryName(filePath);
+            String nameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
+            String extension = Path.GetExtension(filePath);
+            for (int number = 2; File.Exists(candidate) || Directory.Exists(candidate); number++)
+            {
+                candidate = Path.Combine(directoryPath, nameWithoutExt + " (" + number + ")" + extension);
+            }
+            return candidate;
+        }
+
+        /// <summary>
         /// テキストボックスの数値を、上下キーで+1/-1する。数値でなければ変更しない。
         /// </summary>
         public static String StepValueByArrowKey(String baseValue, KeyEventArgs e)
@@ -143,10 +177,16 @@ namespace Cheetos
         /// <summary>
         /// 整数として読める文字列ならそのまま、読めなければ空文字を返す
         /// (回転タブとRotationPreviewの入力欄の補正で共通)。
+        /// allowMinusSign=trueなら「-」だけの状態は負の数の入力途中として残す
+        /// (RotationPreviewは入力のたびに補正するため、「-5」が「-」の時点で消されて打てなかった)。
         /// </summary>
-        public static String KeepIfInteger(String text)
+        public static String KeepIfInteger(String text, Boolean allowMinusSign = false)
         {
             int val;
+            if (allowMinusSign && text == "-")
+            {
+                return text;
+            }
             return Int32.TryParse(text, out val) ? text : "";
         }
     }

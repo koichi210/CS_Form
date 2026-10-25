@@ -48,20 +48,23 @@ namespace Cheetos
             }
             _ptTargetIsPointOfEnd = isPointOfEnd;
 
-            Point target = new Point();
-            if (isPointOfEnd)
-            {
-                target.X = int.Parse(pt_TargetX.Text) + int.Parse(pt_BaseX.Text);
-                target.Y = int.Parse(pt_TargetY.Text) + int.Parse(pt_BaseY.Text);
-            }
-            else // (pt_Radio_SelectSizeOfEnd.Checked == true)
-            {
-                target.X = int.Parse(pt_TargetX.Text) - int.Parse(pt_BaseX.Text);
-                target.Y = int.Parse(pt_TargetY.Text) - int.Parse(pt_BaseY.Text);
-            }
+            // 終点指定になったら(サイズ→終点なので)基点を足し、サイズ指定になったら引く
+            int sign = isPointOfEnd ? 1 : -1;
+            ConvertPictTrimTarget(pt_TargetX, pt_BaseX, sign);
+            ConvertPictTrimTarget(pt_TargetY, pt_BaseY, sign);
+        }
 
-            pt_TargetX.Text = target.X.ToString();
-            pt_TargetY.Text = target.Y.ToString();
+        // targetCtrlの値にsign×基点を足す。どちらかが空欄・数値以外なら換算しない
+        // (以前はint.Parse("")で例外になっていた)
+        private void ConvertPictTrimTarget(TextBox targetCtrl, TextBox baseCtrl, int sign)
+        {
+            int target;
+            int baseValue;
+            if (!Int32.TryParse(targetCtrl.Text, out target) || !Int32.TryParse(baseCtrl.Text, out baseValue))
+            {
+                return;
+            }
+            targetCtrl.Text = (target + sign * baseValue).ToString();
         }
 
         private void ListUpTrim()
@@ -93,17 +96,36 @@ namespace Cheetos
                 return;
             }
 
+            int baseX;
+            int baseY;
+            int targetX;
+            int targetY;
+            if (!TryGetIntWithMessage(pt_BaseX, "原点(X)", int.MinValue, out baseX)
+                || !TryGetIntWithMessage(pt_BaseY, "原点(Y)", int.MinValue, out baseY)
+                || !TryGetIntWithMessage(pt_TargetX, "X", int.MinValue, out targetX)
+                || !TryGetIntWithMessage(pt_TargetY, "Y", int.MinValue, out targetY))
+            {
+                return;
+            }
+
             int targetWidth;
             int targetHeight;
             if (pt_Radio_SelectPointOfEnd.Checked)
             {
-                targetWidth = int.Parse(pt_TargetX.Text) - int.Parse(pt_BaseX.Text);
-                targetHeight = int.Parse(pt_TargetY.Text) - int.Parse(pt_BaseY.Text);
+                targetWidth = targetX - baseX;
+                targetHeight = targetY - baseY;
             }
             else // pt_Radio_SelectSizeOfEnd
             {
-                targetWidth = int.Parse(pt_TargetX.Text);
-                targetHeight = int.Parse(pt_TargetY.Text);
+                targetWidth = targetX;
+                targetHeight = targetY;
+            }
+
+            // 幅・高さが0以下だとキャンバスを作れず、1件目のバックアップ後にエラーで止まっていた
+            if (targetWidth <= 0 || targetHeight <= 0)
+            {
+                MessageBox.Show("切り取るサイズが0以下です(幅=" + targetWidth + "、高さ=" + targetHeight + ")");
+                return;
             }
 
             InitProgressBar(pt_ListBox_ListUp.SelectedItems.Count);
@@ -171,8 +193,8 @@ namespace Cheetos
                     trm.SaveCanvas(filePath);
                 }
 
-                // 進捗率
-                worker.ReportProgress(itemIdx);      // ⇒ProgressChanged()
+                // 進捗率(終わった件数)
+                worker.ReportProgress(itemIdx + 1);      // ⇒ProgressChanged()
 
                 // キャンセルされてないかチェック
                 if (worker.CancellationPending)

@@ -25,6 +25,13 @@ namespace Cheetos
                 return;
             }
 
+            int whiteLength;
+            int whiteCoef;
+            if (!TryGetDistOrientParams(out whiteLength, out whiteCoef))
+            {
+                return;
+            }
+
             if (!_fio.EnsureDirectory(do_DestPortFolderPath.Text))
             {
                 MessageBox.Show("無効なフォルダパスです。\n" + do_DestPortFolderPath.Text);
@@ -40,8 +47,8 @@ namespace Cheetos
             String[] files = Directory.GetFiles(do_SourceFolderPath.Text, do_TargetFileName.Text, SearchOption.TopDirectoryOnly);
             OrientWorkerParam param = new OrientWorkerParam
             {
-                WhiteLength = int.Parse(do_WhiteLength.Text),
-                WhiteCoef = int.Parse(do_WhiteCoef.Text),
+                WhiteLength = whiteLength,
+                WhiteCoef = whiteCoef,
                 DestPortFolderPath = do_DestPortFolderPath.Text,
                 DestLandFolderPath = do_DestLandFolderPath.Text,
                 Files = files,
@@ -62,7 +69,23 @@ namespace Cheetos
                 return;
             }
 
-            Logic.IsPortrait(do_SampleFilePath.Text, int.Parse(do_WhiteLength.Text), int.Parse(do_WhiteCoef.Text), true);
+            int whiteLength;
+            int whiteCoef;
+            if (!TryGetDistOrientParams(out whiteLength, out whiteCoef))
+            {
+                return;
+            }
+
+            Logic.IsPortrait(do_SampleFilePath.Text, whiteLength, whiteCoef, true);
+        }
+
+        // 白判定の長さ・係数を読む。どちらも1以上の整数でなければメッセージを出してfalseを返す
+        // (長さ0は幅0の切り出しで例外、係数0はLogic.IsPortraitでゼロ除算になっていた)
+        private Boolean TryGetDistOrientParams(out int whiteLength, out int whiteCoef)
+        {
+            whiteCoef = 0;
+            return TryGetIntWithMessage(do_WhiteLength, "白判定の長さ", 1, out whiteLength)
+                && TryGetIntWithMessage(do_WhiteCoef, "白判定の係数", 1, out whiteCoef);
         }
         private void bkgWorkerOrient_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -89,8 +112,8 @@ namespace Cheetos
                     errors.Append("Move ").Append(files[i]).Append(" ").Append(destName).AppendLine();
                 }
 
-                // 進捗率の表示
-                worker.ReportProgress(i);      // ⇒ProgressChanged()
+                // 進捗率の表示(終わった件数)
+                worker.ReportProgress(i + 1);      // ⇒ProgressChanged()
 
                 // キャンセルされてないかチェック
                 if (worker.CancellationPending)
