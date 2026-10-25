@@ -49,7 +49,7 @@ namespace EventRecorder
         // レコードグループの記録データ(dataGridView_Events)を単発再生する
         private void StartSinglePlayback()
         {
-            if (!ValidateEventsForPlayback())
+            if (!ValidateEventsForPlayback() || !ConfirmUnsupportedEventsForPlayback())
             {
                 return;
             }
@@ -907,6 +907,71 @@ namespace EventRecorder
                 MessageBoxIcon.Warning);
 
             return false;
+        }
+
+        // 記録はされるが、再生時は(まだ再生に対応していないため)飛ばされるイベントの種類。
+        // Altを押しながらのキー・F10(SYSKEY)、マウスのホイール、マウスのX1/X2(サイド)ボタン
+        private static readonly HashSet<String> _unsupportedPlaybackEventTypes = new HashSet<String>
+        {
+            GlobalHook.KeyboardHook.Stroke.SYSKEY_DOWN.ToString(),
+            GlobalHook.KeyboardHook.Stroke.SYSKEY_UP.ToString(),
+            GlobalHook.MouseHook.Stroke.WHEEL_DOWN.ToString(),
+            GlobalHook.MouseHook.Stroke.WHEEL_UP.ToString(),
+            GlobalHook.MouseHook.Stroke.X1_DOWN.ToString(),
+            GlobalHook.MouseHook.Stroke.X1_UP.ToString(),
+            GlobalHook.MouseHook.Stroke.X2_DOWN.ToString(),
+            GlobalHook.MouseHook.Stroke.X2_UP.ToString(),
+        };
+
+        // 再生時に飛ばされる行を、種類ごとに「WHEEL_DOWN: 12行(行3, 5, …)」の形でまとめる(無ければ空のリスト)。
+        // 以前は再生前チェックでも何も言わずに飛ばしていた。typesは各行のEvent列。行番号は種類ごとに先頭の数件だけ
+        // (internal static: Form1を生成せずにテストできるようにするため。WPF版と同じ)
+        internal static List<String> SummarizeUnsupportedRowsForPlayback(IList<String> types)
+        {
+            const int maxListedRows = 5;
+
+            List<String> lines = new List<String>();
+            foreach (IGrouping<String, int> group in Enumerable.Range(0, types.Count)
+                .Where(i => _unsupportedPlaybackEventTypes.Contains(types[i]))
+                .GroupBy(i => types[i]))
+            {
+                List<int> indexes = group.ToList();
+                String listed = String.Join(", ", indexes.Take(maxListedRows).Select(i => "行" + i));
+                if (indexes.Count > maxListedRows)
+                {
+                    listed += ", …";
+                }
+                lines.Add(group.Key + ": " + indexes.Count + "行(" + listed + ")");
+            }
+
+            return lines;
+        }
+
+        // 記録はされるが再生時は飛ばされる行(Altを押しながらのキー・F10、ホイール、マウスのサイドボタン。
+        // まだ再生に対応していない)があれば、知らせてから再生するか確かめる。やめるならfalseを返す
+        // (以前は再生前チェックでも何も言わずに飛ばしていたため、再生しても途中の操作が抜けていることに気付けなかった)
+        private Boolean ConfirmUnsupportedEventsForPlayback()
+        {
+            List<String> types = dataGridView_Events.Rows.Cast<DataGridViewRow>()
+                .Where(r => !r.IsNewRow)
+                .Select(r => Convert.ToString(r.Cells[col_Type.Index].Value))
+                .ToList();
+            List<String> lines = SummarizeUnsupportedRowsForPlayback(types);
+            if (lines.Count == 0)
+            {
+                return true;
+            }
+
+            DialogResult result = MessageBox.Show(
+                "再生に対応していない行があるよ。この行は再生時に飛ばされるよ" + Environment.NewLine
+                    + "(Altを押しながらのキー・F10、マウスのホイール・サイドボタン)" + Environment.NewLine + Environment.NewLine
+                    + String.Join(Environment.NewLine, lines) + Environment.NewLine + Environment.NewLine
+                    + "このまま再生する？",
+                "EventRecorder - 再生前チェック",
+                MessageBoxButtons.OKCancel,
+                MessageBoxIcon.Warning);
+
+            return result == DialogResult.OK;
         }
 
         // Detail列とX/Y/Key列(非表示)を相互に同期させている最中、再帰的な同期を防ぐためのフラグ

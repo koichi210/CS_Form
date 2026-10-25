@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace EventRecorder
@@ -23,9 +25,13 @@ namespace EventRecorder
             dataGridView_Events.Rows.Clear();
         }
 
-        // 現在の記録中/再生中の状態をタイトルバーに反映する
+        // 現在の記録中/再生中の状態をタイトルバーに反映する。
+        // あわせて、記録中・再生中はプロファイルのプルダウンを無効にする(切り替えると読み込みが走り、
+        // 記録中・再生中の表とプレイリストが別のプロファイルの内容に差し替わってしまうため)
         private void UpdateTitle()
         {
+            comboBox_Profile.Enabled = !_isRecording && !_isPlaying;
+
             if (_isRecording)
             {
                 this.Text = _baseTitle + " - 記録中";
@@ -60,6 +66,15 @@ namespace EventRecorder
                 GlobalHook.MouseHook.Stop();
                 _gridFlushTimer.Stop();
                 FlushPendingRows();
+
+                // Ctrl+F5のような修飾キー付きのホットキーで止めた時に、修飾キーのDownだけが残って
+                // 再生後も押されたままにならないよう片付ける(WPF版と同じ)
+                if (ReleaseUnpairedModifierKeys(dataGridView_Events, col_Type, col_X, col_Y, col_Key, col_Wait, _pressedKeys))
+                {
+                    HighlightEventRow(dataGridView_Events.Rows.Count - 1);
+                }
+                _pressedKeys.Clear();
+
                 _isRecording = false;
                 button_Record.Text = "記録";
                 UpdateTitle();
@@ -178,6 +193,84 @@ namespace EventRecorder
             }
 
             QueueRow(s.Stroke.ToString(), "", "", s.Key.ToString(), TakeElapsedMsAndReset());
+        }
+
+        // Ctrl/Shift/Alt(左右の区別ありも含む)
+        private static readonly HashSet<Keys> _modifierKeys = new HashSet<Keys>
+        {
+            Keys.ControlKey, Keys.LControlKey, Keys.RControlKey,
+            Keys.ShiftKey, Keys.LShiftKey, Keys.RShiftKey,
+            Keys.Menu, Keys.LMenu, Keys.RMenu,
+        };
+
+        // 記録停止時に、対になるUpが記録されていない修飾キー(Ctrl/Shift/Alt)のDown行を片付ける。行を変えたらtrue。
+        // Ctrl+F5のような修飾キー付きのホットキーで記録を止めると、CtrlのDownだけが記録され(Upは停止後なので記録されない)、
+        // 再生後もCtrlが押されたままになっていた。pressedKeysは記録中にDownしてまだUpしていないキー。
+        // ・後ろにWAIT_MS行(と同じく片付け対象の修飾キーのDown行)しか無い: ホットキーのために押しただけなのでDown行を消す
+        // ・後ろに他の操作がある(Ctrlを押したままクリックした等): Ctrl+クリックの意味を残すため、末尾に対のUp行を足す
+        // (internal static: Form1を生成せずにテストできるようにするため)
+        internal static Boolean ReleaseUnpairedModifierKeys(
+            DataGridView grid,
+            DataGridViewColumn colType, DataGridViewColumn colX, DataGridViewColumn colY,
+            DataGridViewColumn colKey, DataGridViewColumn colWait,
+            IEnumerable<Keys> pressedKeys)
+        {
+            HashSet<String> unpairedKeys = new HashSet<String>(pressedKeys.Where(k => _modifierKeys.Contains(k)).Select(k => k.ToString()));
+            if (unpairedKeys.Count == 0)
+            {
+                return false;
+            }
+
+            Boolean changed = false;
+            for (int i = grid.Rows.Count - 1; i >= 0; i--)
+            {
+                DataGridViewRow row = grid.Rows[i];
+                String type = Convert.ToString(row.Cells[colType.Index].Value);
+                if (IsWaitEventType(type))
+                {
+                    continue;
+                }
+
+                if (GetPairedKeyUpType(type) == null || !unpairedKeys.Remove(Convert.ToString(row.Cells[colKey.Index].Value)))
+                {
+                    break;
+                }
+
+                grid.Rows.RemoveAt(i);
+                changed = true;
+            }
+
+            foreach (String key in unpairedKeys)
+            {
+                for (int i = grid.Rows.Count - 1; i >= 0; i--)
+                {
+                    DataGridViewRow row = grid.Rows[i];
+                    String upType = GetPairedKeyUpType(Convert.ToString(row.Cells[colType.Index].Value));
+                    if (upType != null && Convert.ToString(row.Cells[colKey.Index].Value) == key)
+                    {
+                        DataGridViewRow upRow = grid.Rows[grid.Rows.Add()];
+                        EventRowMapper.ApplyToRow(upRow, colType, colX, colY, colKey, colWait, new String[] { upType, "", "", key, "0" });
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            return changed;
+        }
+
+        // KeyDown/SysKeyDownの行の種類なら、対になるKeyUp/SysKeyUpの種類を返す。それ以外はnull
+        private static String GetPairedKeyUpType(String downType)
+        {
+            if (downType == GlobalHook.KeyboardHook.Stroke.KEY_DOWN.ToString())
+            {
+                return GlobalHook.KeyboardHook.Stroke.KEY_UP.ToString();
+            }
+            if (downType == GlobalHook.KeyboardHook.Stroke.SYSKEY_DOWN.ToString())
+            {
+                return GlobalHook.KeyboardHook.Stroke.SYSKEY_UP.ToString();
+            }
+            return null;
         }
 
         // 直前のイベント(前回この関数を呼んだ時点)からの経過msを返し、基準時刻(_lastEventTick)を今に更新する。

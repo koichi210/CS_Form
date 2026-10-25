@@ -292,8 +292,7 @@ namespace EventRecorder
                         return;
                     }
 
-                    UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(overwriteFileName));
-                    SyncPlaylistFileItems();
+                    AfterProfileSaved(overwriteFileName);
                     return;
                 }
             }
@@ -317,8 +316,35 @@ namespace EventRecorder
                 return;
             }
 
-            UpdateProfileListAllWithoutReload(System.IO.Path.GetFileName(saveFileName));
+            AfterProfileSaved(saveFileName);
+        }
+
+        // 保存したファイルをプルダウンで選択状態にして(読み直しはしない)、プレイリストの選択肢も最新にする。
+        // _userDataFolderの外に保存した場合は一覧に載らないので、一覧も今の選択もそのままにする
+        // (以前はファイル名だけで選び直していたため、サブフォルダに保存すると先頭の項目、別の場所に保存すると
+        // 同名の別ファイルや先頭の項目が選ばれ、次に「上書き」するとその別のファイルへ今の画面の内容を書き込んでしまっていた。WPF版と同じ)
+        private void AfterProfileSaved(String savedFilePath)
+        {
+            String relativeName = ToProfileName(savedFilePath);
+            if (relativeName == null)
+            {
+                return;
+            }
+
+            UpdateProfileListAllWithoutReload(relativeName);
             SyncPlaylistFileItems();
+        }
+
+        // 保存先のフルパスを、プルダウンに並べる名前(_userDataFolderからの相対パス)に直す。
+        // _userDataFolderの外に保存した場合はnull
+        private String ToProfileName(String fullPath)
+        {
+            String folder = _userDataFolder.TrimEnd('\\') + "\\";
+            if (fullPath.StartsWith(folder, StringComparison.OrdinalIgnoreCase))
+            {
+                return fullPath.Substring(folder.Length);
+            }
+            return null;
         }
     }
 }
