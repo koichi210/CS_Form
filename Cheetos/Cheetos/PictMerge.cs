@@ -87,31 +87,80 @@ namespace Cheetos
         }
 
         // 「開始,終了」(各値は数値か"-")の形になっていない行を返す。空行は対象外。
+        // imageHeightを渡すと、終了がその高さより大きい行も返す(省略時は高さでは判定しない)。
         // 確認ダイアログはバックグラウンドから出せないため、結合開始前にUIスレッドで使う
-        public static String[] FindInvalidTrimHeights(String[] trimHeights)
+        public static String[] FindInvalidTrimHeights(String[] trimHeights, int imageHeight = int.MaxValue)
         {
-            return trimHeights.Where(line => line != String.Empty && !IsValidTrimHeight(line)).ToArray();
+            return trimHeights.Where(line => line != String.Empty && !IsValidTrimHeight(line, imageHeight)).ToArray();
         }
 
-        private static bool IsValidTrimHeight(String line)
+        // 選択された結合対象(接頭辞1が付いたもの)のうち、いちばん低い画像の高さ。
+        // 開始前の確認(終了が画像の高さより大きい行)に使う。対象が無い・読めなければint.MaxValue
+        public static int GetMinImageHeight(String sourceFolderPath, String sourceFile1Prefix, String[] targetFileNames)
+        {
+            PictMerge pm = new PictMerge
+            {
+                SourceFolderPath = sourceFolderPath,
+                SourceFile1Prefix = sourceFile1Prefix,
+            };
+            int minHeight = int.MaxValue;
+            foreach (String targetFileName in targetFileNames)
+            {
+                if (!pm.SetTargetFileName(targetFileName) || !pm.IsProcTarget())
+                {
+                    continue;
+                }
+                String filePath = sourceFolderPath + @"\" + targetFileName;
+                if (!File.Exists(filePath))
+                {
+                    continue;
+                }
+                try
+                {
+                    // 高さだけ分かればよいので、画像データの検証はしない(ヘッダだけ読む)
+                    using (FileStream fs = File.OpenRead(filePath))
+                    using (Image img = Image.FromStream(fs, false, false))
+                    {
+                        minHeight = Math.Min(minHeight, img.Height);
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // 画像でないファイルは結合時のエラーに任せる
+                }
+                catch (IOException)
+                {
+                    // 読めないファイルは結合時のエラーに任せる
+                }
+            }
+            return minHeight;
+        }
+
+        private static bool IsValidTrimHeight(String line, int imageHeight)
         {
             string[] heightRange = line.Split(_trimHeightSeparator, StringSplitOptions.None);
             int height;
             return heightRange.Length == 2
                 && heightRange.All(text => text == "-" || int.TryParse(text, out height))
-                && !IsEndBeforeStart(heightRange);
+                && !IsOutOfRange(heightRange, imageHeight);
         }
 
-        // 終了が数値で、開始("-"は0)より小さいか。以前は高さがマイナスの矩形のまま描いていた
+        // 開始が負の数、終了が数値で開始("-"は0)より小さい、終了が画像の高さより大きい、のどれかか。
+        // 以前は高さがマイナスの矩形や、画像からはみ出した矩形のまま描いていた
         // (終了が"-"(画像の高さ)の場合は、開始が画像より下なら結合時に打ち切る)
-        private static bool IsEndBeforeStart(String[] heightRange)
+        private static bool IsOutOfRange(String[] heightRange, int imageHeight)
         {
+            int startHeight = (heightRange[0] == "-") ? 0 : int.Parse(heightRange[0]);
+            if (startHeight < 0)
+            {
+                return true;
+            }
             if (heightRange[1] == "-")
             {
                 return false;
             }
-            int startHeight = (heightRange[0] == "-") ? 0 : int.Parse(heightRange[0]);
-            return int.Parse(heightRange[1]) < startHeight;
+            int endHeight = int.Parse(heightRange[1]);
+            return endHeight < startHeight || imageHeight < endHeight;
         }
 
         public bool MergeExecute()
@@ -125,7 +174,7 @@ namespace Cheetos
                 foreach (String line in TrimHeightAry)
                 {
                     // 不正な行は開始前にUIスレッドで確認済み(FindInvalidTrimHeights)なので、ここでは飛ばすだけ
-                    if (line == String.Empty || !IsValidTrimHeight(line))
+                    if (line == String.Empty || !IsValidTrimHeight(line, sz.Height))
                     {
                         continue;
                     }
@@ -186,12 +235,17 @@ namespace Cheetos
                 return;
             }
 
+            // ListBoxの値を配列で取得
+            String[] targetFileNames = _util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
+
             // 切断基準となる高さ。書式の確認はバックグラウンドでは聞けないため、開始前にここで1回だけ行う
+            // (終了が画像の高さより大きい行も不正とするため、選択された画像のうちいちばん低い高さで確認する)
             String[] trimHeights = pm_TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            String[] invalidTrimHeights = global::Cheetos.PictMerge.FindInvalidTrimHeights(trimHeights);
+            int minImageHeight = global::Cheetos.PictMerge.GetMinImageHeight(pm_SourceFolderPath.Text, pm_SourceFile1Prefix.Text, targetFileNames);
+            String[] invalidTrimHeights = global::Cheetos.PictMerge.FindInvalidTrimHeights(trimHeights, minImageHeight);
             if (invalidTrimHeights.Length > 0)
             {
-                DialogResult dr = MessageBox.Show("フォーマットが不正な行(「開始,終了」の形でない・終了が開始より小さい)があります。" + Environment.NewLine
+                DialogResult dr = MessageBox.Show("フォーマットが不正な行(「開始,終了」の形でない・開始が負の数・終了が開始より小さい・終了が画像の高さより大きい)があります。" + Environment.NewLine
                     + "[" + String.Join("] [", invalidTrimHeights) + "]" + Environment.NewLine
                     + "不正な行を飛ばして結合しますか？",
                     "Error",
@@ -220,9 +274,7 @@ namespace Cheetos
             _debugLog.WriteData("Prefix2 = " + pm_SourceFile2Prefix.Text);
 
             param.TrimHeightAry = trimHeights;
-
-            // ListBoxの値を配列で取得
-            param.TargetFileNames = _util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
+            param.TargetFileNames = targetFileNames;
 
             SetStartTime();
             pm_Button_Merge.Text = "中断";
@@ -258,10 +310,11 @@ namespace Cheetos
             {
                 // キャンセルされてないかチェック。結合した項目のあとでだけ見ていたため、
                 // 飛ばす項目(対象外・ファイルが無い)が続く間は中断できなかった。各項目の前で見る
+                // (breakだとループ後の全件分の報告まで進み、中断しても「N/N」と出ていた。Trim/Orientと同じくreturnする)
                 if (worker.CancellationPending)
                 {
                     e.Cancel = true;
-                    break;
+                    return;
                 }
 
                 if (!pm.SetTargetFileName(targetFileNames[itemIdx]))

@@ -124,7 +124,7 @@ namespace Cheetos
             this.textBox_OriginX.TabIndex = 4;
             this.textBox_OriginX.Text = "0";
             this.textBox_OriginX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_OriginX_KeyDown);
-            this.textBox_OriginX.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_OriginX_KeyPress);
+            this.textBox_OriginX.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
             // 
             // label4
             // 
@@ -143,7 +143,7 @@ namespace Cheetos
             this.textBox_OriginY.TabIndex = 6;
             this.textBox_OriginY.Text = "0";
             this.textBox_OriginY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_OriginY_KeyDown);
-            this.textBox_OriginY.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_OriginY_KeyPress);
+            this.textBox_OriginY.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
             // 
             // label3
             // 
@@ -171,7 +171,7 @@ namespace Cheetos
             this.textBox_angle.TabIndex = 8;
             this.textBox_angle.Text = "0";
             this.textBox_angle.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_Angle_KeyDown);
-            this.textBox_angle.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_Angle_KeyPress);
+            this.textBox_angle.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
             // 
             // RotationPreview
             // 
@@ -236,37 +236,27 @@ namespace Cheetos
             Draw();
         }
 
-        private void textBox_OriginX_KeyPress(object sender, KeyPressEventArgs e)
+        // 以前はKeyPress/KeyDownで再描画していたが、どちらも文字が入る前に呼ばれるため、
+        // プレビューが常にひとつ前の値で描かれていた。入力が反映された後のTextChangedで描画する(WPF版と同じ)
+        private void textBox_Param_TextChanged(object sender, EventArgs e)
         {
             Draw();
         }
 
-        private void textBox_OriginY_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            Draw();
-        }
-
-        private void textBox_Angle_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            Draw();
-        }
-
+        // ↑/↓キーで数値を増減する。値が変わればTextChangedで再描画される
         private void textBox_OriginX_KeyDown(object sender, KeyEventArgs e)
         {
             textBox_OriginX.Text = Logic.StepValueByArrowKey(textBox_OriginX.Text, e);
-            Draw();
         }
 
         private void textBox_OriginY_KeyDown(object sender, KeyEventArgs e)
         {
             textBox_OriginY.Text = Logic.StepValueByArrowKey(textBox_OriginY.Text, e);
-            Draw();
         }
 
         private void textBox_Angle_KeyDown(object sender, KeyEventArgs e)
         {
             textBox_angle.Text = Logic.StepValueByArrowKey(textBox_angle.Text, e);
-            Draw();
         }
 
         private void buttonOk_Click(object sender, EventArgs e)
