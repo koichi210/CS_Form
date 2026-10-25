@@ -501,7 +501,8 @@ namespace Othello
 
                 RedrawBoard();
 
-                if (!ok)
+                // 途中の手で中断した場合(それまでの手は反映済み)もメッセージを出す
+                if (!ok || errorMessage != null)
                 {
                     MessageBox.Show(errorMessage ?? "棋譜を読み込めなかったよ。", "棋譜の読込", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
