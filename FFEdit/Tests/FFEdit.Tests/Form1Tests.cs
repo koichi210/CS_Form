@@ -37,5 +37,26 @@ namespace FFEdit.Tests
                 Assert.AreEqual(string.Empty, errorList);
             }
         }
+
+        // 実行前の「最初の値」チェック。整数でない場合はメッセージボックスが出るため、
+        // ここでは通る場合(連番モードで整数・連番モード以外で空欄)だけを確認する
+        [TestMethod]
+        public void IsFirstNumberValidは連番モードで整数なら通し連番モード以外なら空欄でも通す()
+        {
+            using (var form = new Form1())
+            {
+                var radioButtonChangeNumber = (RadioButton)FormReflection.GetField(form, "radioButton_ChangeNumber");
+                var radioButtonChangeAdd = (RadioButton)FormReflection.GetField(form, "radioButton_ChangeAdd");
+                var textBoxFirstVal = (TextBox)FormReflection.GetField(form, "textBox_ChangeNumber_FirstVal");
+
+                radioButtonChangeNumber.Checked = true;
+                textBoxFirstVal.Text = "-3";
+                Assert.AreEqual(true, FormReflection.InvokeMethod(form, "IsFirstNumberValid"));
+
+                radioButtonChangeAdd.Checked = true;
+                textBoxFirstVal.Text = "";
+                Assert.AreEqual(true, FormReflection.InvokeMethod(form, "IsFirstNumberValid"));
+            }
+        }
     }
 }
