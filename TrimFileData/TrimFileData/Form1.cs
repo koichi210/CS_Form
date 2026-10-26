@@ -20,7 +20,7 @@ namespace TrimFileData
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
         private const string _appName = "TrimFileData";
-        private readonly string _userDataFolder = UserDataLocation.GetUserDataFolder(_appName);
+        private string _userDataFolder =UserDataLocation.GetUserDataFolder(_appName);
 
         private static bool IsJsonFile(string filePath)
         {
@@ -50,6 +50,12 @@ namespace TrimFileData
             InitializeToolTips();
 
             _sr.RegisterItem(this);
+            LoadUserData();
+        }
+
+        // 保存先フォルダの既定設定とプロファイル一覧を読み込む(起動時と、保存先変更の直後に使う)
+        private void LoadUserData()
+        {
             string defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
             string defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
@@ -95,7 +101,13 @@ namespace TrimFileData
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
                 DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName),
+                    newFolder =>
+                    {
+                        // 再起動なしで新しい保存先のプロファイルを読み込み直す
+                        _userDataFolder = newFolder;
+                        LoadUserData();
+                    });
                 return;
             }
 

@@ -48,7 +48,7 @@ namespace FFEdit
         // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
         private const String _appName = "FFEdit";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         public Form1()
         {
@@ -59,10 +59,7 @@ namespace FFEdit
             InitializeToolTips();
 
             _sr.RegisterItem(this);
-            JsonSaveRestore.LoadWithMigration(_sr,
-                Path.Combine(_userDataFolder, _settingFileName),
-                Path.Combine(_userDataFolder, _legacySettingFileName),
-                path => _sr.LoadProc(path, this));
+            LoadDefaultSetting();
 
             // 桁の選択肢を生成
             comboBox_ChangeNumber_Digit.Items.Clear();
@@ -73,6 +70,20 @@ namespace FFEdit
             comboBox_TimeSpan.Items.Clear();
             comboBox_TimeSpan.Items.AddRange(_timeSpanItems);
             comboBox_TimeSpan.SelectedIndex = 1;
+        }
+
+        // 保存先フォルダの設定ファイルを読み込む(起動時と、保存先変更の直後に使う)
+        private void LoadDefaultSetting()
+        {
+            // 履歴コンボは項目しか読み込み側で戻らず、入力中の文字が前の保存先の状態のまま残るので空にする
+            comboBox_TargetDir.Text = "";
+            comboBox_String1.Text = "";
+            comboBox_String2.Text = "";
+
+            JsonSaveRestore.LoadWithMigration(_sr,
+                Path.Combine(_userDataFolder, _settingFileName),
+                Path.Combine(_userDataFolder, _legacySettingFileName),
+                path => _sr.LoadProc(path, this));
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -275,7 +286,13 @@ namespace FFEdit
         {
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
-                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder, MoveSettingFile);
+                DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder, MoveSettingFile,
+                    newFolder =>
+                    {
+                        // 再起動なしで新しい保存先の設定を読み込み直す
+                        _userDataFolder = newFolder;
+                        LoadDefaultSetting();
+                    });
                 return;
             }
 

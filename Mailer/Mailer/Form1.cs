@@ -20,7 +20,7 @@ namespace Mailer
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
         private const String _appName = "Mailer";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         private static Boolean IsJsonFile(String filePath)
         {
@@ -60,6 +60,13 @@ namespace Mailer
             InitializeToolTips();
 
             _sr.RegisterItem(this);
+            LoadUserData();
+        }
+
+        // 保存先フォルダの既定設定ファイルとプロファイル一覧を読み込む
+        // (起動時と、データ保存先の変更直後に呼ぶ)
+        private void LoadUserData()
+        {
             String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
             String defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
@@ -114,7 +121,12 @@ namespace Mailer
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
                 DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName),
+                    newFolder =>
+                    {
+                        _userDataFolder = newFolder;
+                        LoadUserData();
+                    });
                 return;
             }
 

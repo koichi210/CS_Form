@@ -23,7 +23,7 @@ namespace VisualStudioBuilder
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
         private const String _appName = "VisualStudioBuilder";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private String _userDataFolder =StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         private static Boolean IsJsonFile(String filePath)
         {
@@ -84,6 +84,17 @@ namespace VisualStudioBuilder
             checkBox_DeleteDirectory.Enabled = true;
 
             _sr.RegisterItem(this);
+            LoadUserData();
+        }
+
+        // 保存先フォルダの既定設定とプロファイル一覧を読み込む(起動時と、保存先変更の直後に使う)
+        private void LoadUserData()
+        {
+            // 表は読み込み側(RowCount=1)では1行目のセルの中身が残るため、先に空にする
+            // (新しい保存先に設定ファイルが無い場合でも、起動直後と同じ空の1行になる)
+            dataGridView.Rows.Clear();
+            dataGridView.RowCount = 1;
+
             String defaultJsonPath = Path.Combine(_userDataFolder, _defaultSettingFileName);
             String defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
@@ -157,7 +168,13 @@ namespace VisualStudioBuilder
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
                 DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName),
+                    newFolder =>
+                    {
+                        // 再起動なしで新しい保存先のプロファイルを読み込み直す
+                        _userDataFolder = newFolder;
+                        LoadUserData();
+                    });
                 return;
             }
 

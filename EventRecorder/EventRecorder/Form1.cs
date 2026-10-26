@@ -95,7 +95,7 @@ namespace EventRecorder
         // その場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common\UserDataLocation.cs]])
         private const String _appName = "EventRecorder";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         // 最小化する瞬間、OSから一時的にクライアント領域が極小サイズのリサイズ通知が来ることがあり、
         // Anchor/Fillでの再レイアウトがその極小サイズを基準に確定してしまい、元に戻した時に
@@ -219,6 +219,29 @@ namespace EventRecorder
             _sr.RegisterItem(this);
             _playbackLoader.RegisterItemForPlayback(this);
 
+            LoadStartupProfile();
+
+            // 各グループボックス内のコントロールを触ったら、同じ名前(Record/Playback)の
+            // ラジオボタンへ自動でモードを切り替える
+            SetupGroupBoxRadioSync();
+        }
+
+        // 起動時と、データ保存先フォルダの変更直後に行う、保存先フォルダからのプロファイル読み込み。
+        // 変更直後は前の保存先の内容が表に残っているため、先に空にしてから読む
+        // (新しい保存先にプロファイルが無ければ、再起動した時と同じ空の状態になる)
+        private void LoadStartupProfile()
+        {
+            dataGridView_Events.Rows.Clear();
+            dataGridView_Events.ClearUndoHistory();
+            dataGridView_Playlist.Rows.Clear();
+            dataGridView_Playlist.ClearUndoHistory();
+
+            // プロファイルに含まれる表以外の項目(ループ回数・最小化チェック)も、
+            // 新しい保存先にプロファイルが無い時に前の値が残らないよう既定値へ戻す
+            // (モードのラジオボタンはこの下でプロファイルが無い時に「レコード」へ戻している)
+            textBox_Loop.Text = "1";
+            checkBox_MinimizeOnPlay.Checked = false;
+
             // _userDataFolder(exe直下ではない)配下のプロファイル一覧をコンボボックスに表示する。
             // 「デフォルトで読み込むプロファイル」という特別な予約ファイル名は用意しておらず、
             // 一覧に一致するものが無い(=""を渡す)と_util.SetComboBoxTextが一覧の先頭を選ぶ
@@ -257,10 +280,6 @@ namespace EventRecorder
             {
                 radioButton_Record.Checked = true;
             }
-
-            // 各グループボックス内のコントロールを触ったら、同じ名前(Record/Playback)の
-            // ラジオボタンへ自動でモードを切り替える
-            SetupGroupBoxRadioSync();
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -460,9 +479,8 @@ namespace EventRecorder
         }
 
         // 保存先フォルダを選び直し、exe直下のポインタファイル(DataFolder.txt)を書き換える。
-        // 実行中の_userDataFolder(readonly)はその場では切り替えない
-        // (記録中のプレイリスト等、今のセッションの状態と食い違うと事故のもとになるため)。
-        // 変更は次回起動時から反映される、シンプルで安全な方式にしている
+        // 記録中/再生中は今のセッションの状態と食い違うと事故のもとになるため受け付けず、
+        // 変更後は再起動せずに、新しい保存先からアプリ設定とプロファイルを読み込み直す
         private void ChangeDataFolder()
         {
             if (_isRecording || _isPlaying)
@@ -477,7 +495,14 @@ namespace EventRecorder
 
             // EventRecorder.json(アプリの設定ファイル、プロファイルではない)は引っ越し対象から外す
             DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName, IsAppSettingsFile));
+                (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName, IsAppSettingsFile),
+                newFolder =>
+                {
+                    // 再起動せずに、新しい保存先のアプリ設定(ホットキー等)とプロファイルを読み込み直す
+                    _userDataFolder = newFolder;
+                    LoadAppSettings();
+                    LoadStartupProfile();
+                });
         }
 
         // 今選択中のモードのグループボックスだけ背景色をハイライトする。
@@ -651,6 +676,11 @@ namespace EventRecorder
         // 呼び出し側のコメント参照)
         private void LoadAppSettings()
         {
+            // 保存先の変更直後に呼ばれた時、新しい保存先にEventRecorder.jsonが無いのに
+            // 前の保存先のホットキーが残らないよう、先に既定値へ戻す(起動時は元々既定値なので変わらない)
+            _hotkeyToggleRecord = HotkeyDefaults.Record;
+            _hotkeyTogglePlay = HotkeyDefaults.Play;
+
             String path = AppSettingsFilePath;
 
             AppSettings settings;

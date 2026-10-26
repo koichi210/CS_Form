@@ -18,7 +18,7 @@ namespace FileArranger
         // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
         private const String _appName = "FileArranger";
-        private readonly String _userDataFolder;
+        private String _userDataFolder;
         private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
         private static readonly String[] _renameDirColumns = { "変更前", "変更後" };
@@ -86,8 +86,32 @@ namespace FileArranger
 
             _sr.RegisterLoadItem(this);
 
-            // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
-            // ([[_Common/JsonSaveRestore.cs]])
+            LoadStartupProfile();
+        }
+
+        // 起動時と、データ保存先フォルダの変更直後に行う、保存先フォルダからの読み込み。
+        // JSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
+        // ([[_Common/JsonSaveRestore.cs]])
+        private void LoadStartupProfile()
+        {
+            // 新しい保存先に設定ファイルが無い場合、LoadProcは何もせず戻るため、登録コントロール以外の
+            // 状態(リファレンス候補・そこから作る候補コンボ・各タブの一覧)が前の保存先のまま残る。
+            // 起動直後と同じ状態に戻してから読み込む
+            ReferenceCandidateFolders = null;
+            rd_comboBox_MergeWord.Items.Clear();
+            pf_comboBox_MoveDestDirName.Items.Clear();
+            pf_comboBox_MoveDestDirName.Text = "";
+            md_listBox_Listup.Items.Clear();
+            mf_listBox_Target.Items.Clear();
+            sf_listBox_Target.Items.Clear();
+            rd_listView_Target.Items.Clear();
+            pf_listView_Target.Items.Clear();
+            _mdListedDir = "";
+            _rdListedDir = "";
+            _sfListedDir = "";
+            _mfListedDir = "";
+            _pfListedDir = "";
+
             String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileNameJson);
             String defaultXmlPath = Path.Combine(_userDataFolder, _settingFileNameXml);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
@@ -444,7 +468,13 @@ namespace FileArranger
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
                 DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName),
+                    newFolder =>
+                    {
+                        // 再起動せずに、新しい保存先のプロファイルを読み込み直す
+                        _userDataFolder = newFolder;
+                        LoadStartupProfile();
+                    });
                 return;
             }
 

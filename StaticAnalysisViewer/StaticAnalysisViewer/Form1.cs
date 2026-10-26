@@ -25,7 +25,7 @@ namespace StaticAnalysisViewer
         // (既定)にあり、exe直下にはその場所を示す小さな案内板ファイル(DataFolder.txt)だけを置く
         // 2段構成にしてある([[_Common/UserDataLocation.cs]]、Cheetos/FileArrangerと同じ仕組み)
         private const String _appName = "StaticAnalysisViewer";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
 
         private static Boolean IsJsonFile(String filePath)
         {
@@ -57,11 +57,48 @@ namespace StaticAnalysisViewer
             InitializeToolTips();
 
             _sr.RegisterItem(this);
+            LoadUserData();
+        }
+
+        // 保存先フォルダの既定設定ファイルとプロファイル一覧を読み込む
+        // (起動時と、データ保存先の変更直後に呼ぶ)
+        private void LoadUserData()
+        {
+            ClearLoadedResult();
+
             String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileName);
             String defaultXmlPath = Path.Combine(_userDataFolder, _legacySettingFileName);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath,
                 path => _sr.LoadProc(path, this));
             _util.UpdateProfileList(comboBox_Profile, _profileExtensions, "", _userDataFolder);
+        }
+
+        // 前の保存先のプロファイルで読み込んだCSVの集計結果(DB・コンボ・ランキング・グラフ)と
+        // ヘルプリンクを、起動直後と同じ空の状態に戻す。
+        // HelpLinkはJSONのプロファイルには含まれないため、読み込み側では戻らない
+        private void ClearLoadedResult()
+        {
+            HelpLink = "";
+            _db.Initialize();
+
+            // Itemsを空にした時に選択変更イベントが飛んで「表示するデータがありません」の警告が出ないよう外す
+            Combo_RankingWeekly.SelectedIndexChanged -= Combo_RankingWeekly_SelectedIndexChanged;
+            try
+            {
+                Combo_SortCategory.Items.Clear();
+                Combo_RankingWeekly.Items.Clear();
+            }
+            finally
+            {
+                Combo_RankingWeekly.SelectedIndexChanged += Combo_RankingWeekly_SelectedIndexChanged;
+            }
+
+            TextBox_Ranking.Text = "";
+            TextBox_CountLineTotal.Text = "";
+            TextBox_FileNumTotal.Text = "";
+            Chart_Result.Controls.Clear();
+            Chart_Result.Visible = false;
+            ProgressBar_LoadStatus.Value = 0;
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
@@ -102,7 +139,12 @@ namespace StaticAnalysisViewer
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
                 DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName),
+                    newFolder =>
+                    {
+                        _userDataFolder = newFolder;
+                        LoadUserData();
+                    });
                 return;
             }
 

@@ -62,7 +62,7 @@ namespace Cheetos
         // 小さな案内板ファイル(DataFolder.txt)だけを置く2段構成にしてある
         // ([[_Common/UserDataLocation.cs]]、EventRecorderと同じ仕組み)
         private const String _appName = "Cheetos";
-        private readonly String _userDataFolder = StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
+        private String _userDataFolder =StandardTemplate.UserDataLocation.GetUserDataFolder(_appName);
         private static readonly String[] _profileExtensions = { "*.json", "*.xml" };
 
         private const String _settingFileNameXml = @"Cheetos.xml";
@@ -88,8 +88,23 @@ namespace Cheetos
 
             _sr.RegisterItem(this);
 
-            // 起動時はJSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
-            // ([[_Common/JsonSaveRestore.cs]])
+            LoadStartupProfile();
+        }
+
+        // 起動時と、データ保存先フォルダの変更直後に行う、保存先フォルダからの読み込み。
+        // JSONを読む。旧XMLしか無ければ読み込んでJSONへ保存し直し、旧XMLは削除する
+        // ([[_Common/JsonSaveRestore.cs]])
+        private void LoadStartupProfile()
+        {
+            // 新しい保存先に設定ファイルが無い場合でも前の保存先の内容が残らないよう、読み込む前に
+            // 登録コントロールで戻らないもの(表・フォルダ一覧)を、起動直後と同じ状態へ戻す
+            // (登録コントロール自体は、読み込み側のResetCtrlsToDefaultが既定値に戻す)
+            cw_dataGridView.Rows.Clear();
+            cw_dataGridView.RowCount = 1;
+            pt_ListBox_ListUp.Items.Clear();
+            pr_ListBox_ListUp.Items.Clear();
+            pm_ListBox_ListUp.Items.Clear();
+
             String defaultJsonPath = Path.Combine(_userDataFolder, _settingFileNameJson);
             String defaultXmlPath = Path.Combine(_userDataFolder, _settingFileNameXml);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
@@ -329,7 +344,13 @@ namespace Cheetos
             if (DataFolderMenu.IsChangeDataFolderCommand(m))
             {
                 DataFolderMenu.ChangeDataFolder(_appName, _userDataFolder,
-                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName));
+                    (oldFolder, newFolder) => DataFolderMenu.MoveProfiles(oldFolder, newFolder, _appName),
+                    newFolder =>
+                    {
+                        // 再起動せずに、新しい保存先のプロファイルを読み込み直す
+                        _userDataFolder = newFolder;
+                        LoadStartupProfile();
+                    });
                 return;
             }
 
