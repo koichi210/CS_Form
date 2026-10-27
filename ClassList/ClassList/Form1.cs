@@ -75,7 +75,13 @@ namespace ClassList
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            int count = int.Parse(textBox_num.Text);
+            int count;
+            if (!int.TryParse(textBox_num.Text, out count) || count < 0)
+            {
+                MessageBox.Show("追加する数は0以上の整数で入力してください");
+                return;
+            }
+
             for (int i = 0; i < count; i++)
             {
                 AddList(_allList, i);

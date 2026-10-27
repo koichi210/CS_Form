@@ -30,15 +30,23 @@ namespace Thumbnail
             }
 
             // 画像ファイルは1回だけ読み込み、使い終わったら破棄する(Disposeしないとファイルがロックされたままになる)
-            using (Bitmap bmp = new Bitmap(textBox_FilePath.Text))
+            try
             {
-                // プレビュー
-                pictureBox_Image.Image?.Dispose();
-                pictureBox_Image.Image = new Bitmap(bmp, pictureBox_Image.Width, pictureBox_Image.Height);
+                using (Bitmap bmp = new Bitmap(textBox_FilePath.Text))
+                {
+                    // プレビュー
+                    pictureBox_Image.Image?.Dispose();
+                    pictureBox_Image.Image = new Bitmap(bmp, pictureBox_Image.Width, pictureBox_Image.Height);
 
-                // サムネイル
-                pictureBox_Thumbnail.Image?.Dispose();
-                pictureBox_Thumbnail.Image = bmp.GetThumbnailImage(pictureBox_Thumbnail.Width, pictureBox_Thumbnail.Height, null, IntPtr.Zero);
+                    // サムネイル
+                    pictureBox_Thumbnail.Image?.Dispose();
+                    pictureBox_Thumbnail.Image = bmp.GetThumbnailImage(pictureBox_Thumbnail.Width, pictureBox_Thumbnail.Height, null, IntPtr.Zero);
+                }
+            }
+            catch (ArgumentException)
+            {
+                // 画像として読めないファイル(画像以外・壊れたファイル)を指定した場合
+                MessageBox.Show("画像として読み込めません。" + textBox_FilePath.Text);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.IO;
@@ -24,44 +25,76 @@ namespace PictTrimming
 
         private void Button_Trim_Click(object sender, RoutedEventArgs e)
         {
-            int targetWidth;
-            int targetHeight;
-
-            if (Radio_SelectPointOfEnd.IsChecked.Value)
-            {
-                targetWidth = int.Parse(TargetX.Text) - int.Parse(BaseX.Text);
-                targetHeight = int.Parse(TargetY.Text) - int.Parse(BaseY.Text);
-            }
-            else // if ( Radio_SelectSizeOfEnd.IsChecked.Value )
-            {
-                targetWidth = int.Parse(TargetX.Text);
-                targetHeight = int.Parse(TargetY.Text);
-            }
-
             if (ListBox_ListUp.SelectedItems.Count == 0)
             {
                 return;
             }
 
-            // 原点はファイルごとに変わらないので、ループの前に1回だけ読み取る
-            int baseX = int.Parse(BaseX.Text);
-            int baseY = int.Parse(BaseY.Text);
+            int baseX;
+            int baseY;
+            int targetX;
+            int targetY;
+            if (!int.TryParse(BaseX.Text, out baseX) || !int.TryParse(BaseY.Text, out baseY) ||
+                !int.TryParse(TargetX.Text, out targetX) || !int.TryParse(TargetY.Text, out targetY))
+            {
+                MessageBox.Show("座標は整数で入力してください");
+                return;
+            }
+
+            int targetWidth;
+            int targetHeight;
+            if (Radio_SelectPointOfEnd.IsChecked.Value)
+            {
+                targetWidth = targetX - baseX;
+                targetHeight = targetY - baseY;
+            }
+            else // if ( Radio_SelectSizeOfEnd.IsChecked.Value )
+            {
+                targetWidth = targetX;
+                targetHeight = targetY;
+            }
+
+            // 幅・高さが0以下だとBitmapの作成で例外になるため、先に弾く
+            if (targetWidth <= 0 || targetHeight <= 0)
+            {
+                MessageBox.Show("切り取る範囲の幅と高さが0以下です");
+                return;
+            }
 
             // バックアップ先(org)が無いとFile.Copyが失敗するため、先に作っておく
             String backupFolderPath = SourceFolderPath.Text + @"\" + @"org";
             Directory.CreateDirectory(backupFolderPath);
 
+            List<String> failedFiles = new List<String>();
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
                 String fileName = ListBox_ListUp.SelectedItems[i].ToString();
                 String filePath = SourceFolderPath.Text + @"\" + fileName;
                 String backupFilePath = backupFolderPath + @"\" + fileName;
 
-                // オリジナルファイルをバックアップ
-                File.Copy(filePath, backupFilePath, true);
+                try
+                {
+                    // オリジナルファイルをバックアップ。既にバックアップがある時は上書きしない
+                    // (2回目以降に上書きすると、トリミング済みの画像がオリジナルとして残ってしまう)。
+                    // トリミングは常にバックアップ(=オリジナル)を元に行う
+                    if (!File.Exists(backupFilePath))
+                    {
+                        File.Copy(filePath, backupFilePath);
+                    }
 
-                // トリミング
-                Logic.Trim(filePath, backupFilePath, baseX, baseY, targetWidth, targetHeight);
+                    // トリミング
+                    Logic.Trim(filePath, backupFilePath, baseX, baseY, targetWidth, targetHeight);
+                }
+                catch (Exception ex)
+                {
+                    // 画像でないファイルなどで1件失敗しても、残りのファイルは処理を続ける
+                    failedFiles.Add(fileName + " (" + ex.Message + ")");
+                }
+            }
+
+            if (failedFiles.Count > 0)
+            {
+                MessageBox.Show("次のファイルは処理できませんでした\n" + String.Join("\n", failedFiles));
             }
         }
 
