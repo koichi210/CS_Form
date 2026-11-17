@@ -32,7 +32,7 @@ namespace PictMerge
 
         // 2枚の画像を切断位置で横に区切り、帯ごとに交互に組み合わせた(入れ子にした)画像を作る。
         // 一番上の帯はfirstFile、次の帯はsecondFile、その次はまたfirstFile…の順。
-        // trimHeightsは小さい順に並んでいること(ParseTrimHeightsで並べ替え済み)
+        // trimHeightsは小さい順に並んでいること(TrimHeights.Parseで並べ替え済み)
         private void MergeImage(String targetFile, String firstFile, String secondFile, List<int> trimHeights)
         {
             // 入力値の変換は画像を開く前に行う(途中で失敗しても画像ファイルがロックされたまま残らないように)
@@ -68,23 +68,6 @@ namespace PictMerge
             }
         }
 
-        // 切断基準となる高さの入力(1行に1つ)を数値の一覧にする。空行は無視し、小さい順に並べる
-        // (上から順に帯の境目として使うので、入力した行の順番には左右されない)
-        private static List<int> ParseTrimHeights(String text)
-        {
-            List<int> trimHeights = new List<int>();
-            foreach (String line in text.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-            {
-                if (String.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-                trimHeights.Add(int.Parse(line.Trim()));
-            }
-            trimHeights.Sort();
-            return trimHeights;
-        }
-
         private void ListUp_Click(object sender, RoutedEventArgs e)
         {
             if (SourceFolderPath.Text.Equals(""))
@@ -112,7 +95,16 @@ namespace PictMerge
         private void MergeSelectedFiles()
         {
             // 切断基準となる高さ(入力の変換はファイルを触る前に済ませる)
-            List<int> trimHeights = ParseTrimHeights(TrimmingHeight.Text);
+            List<int> trimHeights;
+            try
+            {
+                trimHeights = TrimHeights.Parse(TrimmingHeight.Text);
+            }
+            catch (Exception ex) when (ex is FormatException || ex is OverflowException)
+            {
+                MessageBox.Show("切断位置には数字を入力してください（1行に1つ、またはカンマ区切り）");
+                return;
+            }
             if (trimHeights.Count == 0)
             {
                 return;
