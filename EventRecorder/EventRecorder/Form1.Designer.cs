@@ -447,11 +447,13 @@ namespace EventRecorder
             this.dataGridView_Playlist.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dataGridView_Playlist_DataError);
             this.dataGridView_Playlist.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dataGridView_Events_RowPostPaint);
             this.dataGridView_Playlist.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridView_Playlist_DragDrop);
+            this.dataGridView_Playlist.DragLeave += new System.EventHandler(this.dataGridView_Playlist_DragLeave);
             this.dataGridView_Playlist.DragOver += new System.Windows.Forms.DragEventHandler(this.dataGridView_Playlist_DragOver);
             this.dataGridView_Playlist.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dataGridView_Playlist_EditingControlShowing);
             this.dataGridView_Playlist.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView_Playlist_KeyDown);
             this.dataGridView_Playlist.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dataGridView_Playlist_MouseDown);
             this.dataGridView_Playlist.MouseMove += new System.Windows.Forms.MouseEventHandler(this.dataGridView_Playlist_MouseMove);
+            this.dataGridView_Playlist.Paint += new System.Windows.Forms.PaintEventHandler(this.dataGridView_Playlist_Paint);
             // 
             // col_PlaylistEnabled
             // 

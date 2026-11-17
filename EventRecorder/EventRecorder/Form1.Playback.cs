@@ -831,7 +831,7 @@ namespace EventRecorder
                 {
                     message = "マウスイベント(" + type + ")のX/Y(" + x + ", " + y + ")が数値として読み取れないよ";
                 }
-                else if (mouseStroke == InputSimulation.InputSimulator.MouseStroke.WHEEL && !String.IsNullOrEmpty(delta) && !TryParseWheelDelta(delta, out _))
+                else if (IsWheelStroke(mouseStroke) && !String.IsNullOrEmpty(delta) && !TryParseWheelDelta(delta, out _))
                 {
                     message = "ホイールの回転量(" + delta + ")が正の数値として読み取れないよ";
                 }
@@ -923,12 +923,15 @@ namespace EventRecorder
 
         // 記録したEvent列の名前がInputSimulatorのMouseStrokeと違うマウス操作(ホイール・X1/X2(サイド)ボタン)の、
         // 送るときのMOUSEEVENTF_*とmouseData。ホイールはここでは1ノッチ(WHEEL_DELTA)の向きだけを決め、
-        // 記録した回転量(Delta)があればBuildPlaybackInputsでその量に置き換える(無い行は1行=1ノッチ)
+        // 記録した回転量(Delta)があればBuildPlaybackInputsでその量に置き換える(無い行は1行=1ノッチ)。
+        // 横ホイール(WHEEL_LEFT/WHEEL_RIGHT)はMOUSEEVENTF_HWHEELで送り、右が+・左が-(WM_MOUSEHWHEELと同じ向き)
         private static readonly Dictionary<String, KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>> _renamedMouseStrokes
             = new Dictionary<String, KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>>
         {
             { GlobalHook.MouseHook.Stroke.WHEEL_UP.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.WHEEL, WheelDelta) },
             { GlobalHook.MouseHook.Stroke.WHEEL_DOWN.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.WHEEL, -WheelDelta) },
+            { GlobalHook.MouseHook.Stroke.WHEEL_RIGHT.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.HWHEEL, WheelDelta) },
+            { GlobalHook.MouseHook.Stroke.WHEEL_LEFT.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.HWHEEL, -WheelDelta) },
             { GlobalHook.MouseHook.Stroke.X1_DOWN.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_DOWN, XButton1) },
             { GlobalHook.MouseHook.Stroke.X1_UP.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_UP, XButton1) },
             { GlobalHook.MouseHook.Stroke.X2_DOWN.ToString(), new KeyValuePair<InputSimulation.InputSimulator.MouseStroke, int>(InputSimulation.InputSimulator.MouseStroke.X_DOWN, XButton2) },
@@ -991,7 +994,7 @@ namespace EventRecorder
             if (TryGetPlaybackMouseStroke(type, out mouseStroke, out mouseData))
             {
                 int deltaValue;
-                if (mouseStroke == InputSimulation.InputSimulator.MouseStroke.WHEEL && TryParseWheelDelta(delta, out deltaValue))
+                if (IsWheelStroke(mouseStroke) && TryParseWheelDelta(delta, out deltaValue))
                 {
                     mouseData = Math.Sign(mouseData) * deltaValue;
                 }
@@ -1014,7 +1017,20 @@ namespace EventRecorder
             return inputs;
         }
 
-        // ホイールの回転量(Delta)の文字列を読む。向きはWHEEL_UP/WHEEL_DOWNで表すので、正の数だけを受け付ける
+        // 送るMOUSEEVENTF_*が縦・横どちらかのホイールか(回転量(Delta)を使う行か)
+        internal static Boolean IsWheelStroke(InputSimulation.InputSimulator.MouseStroke stroke)
+        {
+            return stroke == InputSimulation.InputSimulator.MouseStroke.WHEEL || stroke == InputSimulation.InputSimulator.MouseStroke.HWHEEL;
+        }
+
+        // 記録時のフックの操作が縦・横どちらかのホイールか(回転量(Delta)を記録する行か)
+        internal static Boolean IsWheelHookStroke(GlobalHook.MouseHook.Stroke stroke)
+        {
+            return stroke == GlobalHook.MouseHook.Stroke.WHEEL_UP || stroke == GlobalHook.MouseHook.Stroke.WHEEL_DOWN
+                || stroke == GlobalHook.MouseHook.Stroke.WHEEL_LEFT || stroke == GlobalHook.MouseHook.Stroke.WHEEL_RIGHT;
+        }
+
+        // ホイールの回転量(Delta)の文字列を読む。向きはWHEEL_UP/WHEEL_DOWN(横はWHEEL_LEFT/WHEEL_RIGHT)で表すので、正の数だけを受け付ける
         internal static Boolean TryParseWheelDelta(String delta, out int value)
         {
             return int.TryParse(delta, out value) && value > 0;

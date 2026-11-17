@@ -161,6 +161,7 @@ namespace EventRecorder.Tests
         private const int MouseeventfXDown = 0x0080;
         private const int MouseeventfXUp = 0x0100;
         private const int MouseeventfWheel = 0x0800;
+        private const int MouseeventfHWheel = 0x1000;
         private const int MouseeventfAbsoluteVirtualDesk = 0x8000 | 0x4000;
         private const int KeyeventfKeyUp = 0x0002;
 
@@ -197,6 +198,44 @@ namespace EventRecorder.Tests
 
             // ホイール以外の行のmouseData(Xボタンの番号)は回転量で変えない
             Assert.AreEqual(2, Form1.BuildPlaybackInputs("X2_DOWN", "100", "200", "", "30").Single().Mouse.Data);
+        }
+
+        [TestMethod]
+        public void 横ホイールの行はクリックと同じ座標でHWHEELを右が正_左が負で送る()
+        {
+            InputSimulation.InputSimulator.Input click = Form1.BuildPlaybackInputs("LEFT_DOWN", "100", "200", "").Single();
+            InputSimulation.InputSimulator.Input wheelRight = Form1.BuildPlaybackInputs("WHEEL_RIGHT", "100", "200", "").Single();
+            InputSimulation.InputSimulator.Input wheelLeft = Form1.BuildPlaybackInputs("WHEEL_LEFT", "100", "200", "").Single();
+
+            foreach (InputSimulation.InputSimulator.Input input in new[] { wheelRight, wheelLeft })
+            {
+                Assert.AreEqual(0, input.Type, "マウス入力は Type=0");
+                Assert.AreEqual(MouseeventfMove | MouseeventfHWheel | MouseeventfAbsoluteVirtualDesk, input.Mouse.Flags);
+                Assert.AreEqual(click.Mouse.X, input.Mouse.X);
+                Assert.AreEqual(click.Mouse.Y, input.Mouse.Y);
+            }
+
+            // 回転量の無い行は1ノッチ。記録した回転量があればその量(向きはEvent列で決まる)
+            Assert.AreEqual(120, wheelRight.Mouse.Data);
+            Assert.AreEqual(-120, wheelLeft.Mouse.Data);
+            Assert.AreEqual(30, Form1.BuildPlaybackInputs("WHEEL_RIGHT", "100", "200", "", "30").Single().Mouse.Data);
+            Assert.AreEqual(-240, Form1.BuildPlaybackInputs("WHEEL_LEFT", "100", "200", "", "240").Single().Mouse.Data);
+        }
+
+        [TestMethod]
+        public void 縦横のホイールだけが回転量を記録_再生する操作として扱われる()
+        {
+            foreach (GlobalHook.MouseHook.Stroke stroke in new[] { GlobalHook.MouseHook.Stroke.WHEEL_UP, GlobalHook.MouseHook.Stroke.WHEEL_DOWN,
+                GlobalHook.MouseHook.Stroke.WHEEL_LEFT, GlobalHook.MouseHook.Stroke.WHEEL_RIGHT })
+            {
+                Assert.IsTrue(Form1.IsWheelHookStroke(stroke), stroke.ToString());
+            }
+            Assert.IsFalse(Form1.IsWheelHookStroke(GlobalHook.MouseHook.Stroke.LEFT_DOWN));
+            Assert.IsFalse(Form1.IsWheelHookStroke(GlobalHook.MouseHook.Stroke.X1_DOWN));
+
+            Assert.IsTrue(Form1.IsWheelStroke(InputSimulation.InputSimulator.MouseStroke.WHEEL));
+            Assert.IsTrue(Form1.IsWheelStroke(InputSimulation.InputSimulator.MouseStroke.HWHEEL));
+            Assert.IsFalse(Form1.IsWheelStroke(InputSimulation.InputSimulator.MouseStroke.X_DOWN));
         }
 
         [TestMethod]
@@ -303,7 +342,7 @@ namespace EventRecorder.Tests
             // 再生前チェック(IsRowInvalidForPlayback)・Keyが無視される警告(IsKeyIgnoredOnMouseRow)はこの判定で振り分ける
             InputSimulation.InputSimulator.MouseStroke mouseStroke;
             int data;
-            foreach (String type in new[] { "WHEEL_UP", "WHEEL_DOWN", "X1_DOWN", "X1_UP", "X2_DOWN", "X2_UP", "LEFT_DOWN" })
+            foreach (String type in new[] { "WHEEL_UP", "WHEEL_DOWN", "WHEEL_LEFT", "WHEEL_RIGHT", "X1_DOWN", "X1_UP", "X2_DOWN", "X2_UP", "LEFT_DOWN" })
             {
                 Assert.IsTrue(Form1.TryGetPlaybackMouseStroke(type, out mouseStroke, out data), type);
             }

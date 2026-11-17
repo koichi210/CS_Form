@@ -109,9 +109,8 @@ namespace EventRecorder
                 return;
             }
 
-            // ホイールは回転量(mouseDataの上位ワード)も残す。以前は残しておらず、再生は1行=1ノッチ固定だった
-            Boolean isWheel = s.Stroke == GlobalHook.MouseHook.Stroke.WHEEL_UP || s.Stroke == GlobalHook.MouseHook.Stroke.WHEEL_DOWN;
-            String delta = isWheel ? FormatWheelDelta(s.Data) : "";
+            // ホイール(縦・横)は回転量(mouseDataの上位ワード)も残す。以前は残しておらず、再生は1行=1ノッチ固定だった
+            String delta = IsWheelHookStroke(s.Stroke) ? FormatWheelDelta(s.Data) : "";
 
             QueueRow(s.Stroke.ToString(), s.X.ToString(), s.Y.ToString(), "", TakeElapsedMsAndReset(), delta);
         }

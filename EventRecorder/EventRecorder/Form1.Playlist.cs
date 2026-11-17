@@ -237,6 +237,15 @@ namespace EventRecorder
         private int _dragStartPlaylistRowIndex = -1;
         private Point _dragStartPlaylistPoint;
 
+        // ドラッグ中に「離すとここへ入る」位置へ線を引く行(-1なら引かない)と、その行の下側に引くかどうか
+        private int _playlistDropLineRowIndex = -1;
+        private Boolean _isPlaylistDropLineBelow;
+
+        // ドラッグ中にグリッドの上端・下端へ近づけた時の自動スクロールの間隔(ms)。
+        // DragOverはマウスを止めていても繰り返し来るので、間隔を空けないと一気に端まで流れてしまう
+        private const int _playlistDragScrollIntervalMs = 80;
+        private int _lastPlaylistDragScrollTick;
+
         private void dataGridView_Playlist_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left || _isRecording || _isPlaying)
@@ -264,71 +273,240 @@ namespace EventRecorder
                 return;
             }
 
-            dataGridView_Playlist.DoDragDrop(_dragStartPlaylistRowIndex, DragDropEffects.Move);
+            int sourceIndex = _dragStartPlaylistRowIndex;
             _dragStartPlaylistRowIndex = -1;
+
+            // 編集中のセル(ループ数の入力中など)は先に確定させる。確定できない値ならドラッグしない
+            if (dataGridView_Playlist.IsCurrentCellInEditMode && !dataGridView_Playlist.EndEdit())
+            {
+                return;
+            }
+
+            try
+            {
+                dataGridView_Playlist.DoDragDrop(sourceIndex, DragDropEffects.Move);
+            }
+            finally
+            {
+                // Escでのキャンセル・グリッドの外でのドロップでも、位置を示す線は必ず消す
+                SetPlaylistDropLine(-1, false);
+            }
         }
 
         private void dataGridView_Playlist_DragOver(object sender, DragEventArgs e)
         {
-            e.Effect = e.Data.GetDataPresent(typeof(int)) ? DragDropEffects.Move : DragDropEffects.None;
+            if (!e.Data.GetDataPresent(typeof(int)))
+            {
+                e.Effect = DragDropEffects.None;
+                SetPlaylistDropLine(-1, false);
+                return;
+            }
+
+            e.Effect = DragDropEffects.Move;
+
+            Point clientPoint = dataGridView_Playlist.PointToClient(new Point(e.X, e.Y));
+            ScrollPlaylistWhileDragging(clientPoint.Y);
+
+            int sourceIndex = (int)e.Data.GetData(typeof(int));
+            int targetIndex = GetPlaylistDropTargetIndex(clientPoint);
+            if (targetIndex < 0 || targetIndex == sourceIndex)
+            {
+                SetPlaylistDropLine(-1, false);
+                return;
+            }
+
+            // 下へ動かす時はドロップ先の行の下に、上へ動かす時は上に入る(MoveGridRowの動き)ので、線もそちらに引く
+            SetPlaylistDropLine(targetIndex, targetIndex > sourceIndex);
+        }
+
+        private void dataGridView_Playlist_DragLeave(object sender, EventArgs e)
+        {
+            SetPlaylistDropLine(-1, false);
         }
 
         private void dataGridView_Playlist_DragDrop(object sender, DragEventArgs e)
         {
+            SetPlaylistDropLine(-1, false);
+
             if (!e.Data.GetDataPresent(typeof(int)))
             {
                 return;
             }
 
             int sourceIndex = (int)e.Data.GetData(typeof(int));
-
             Point clientPoint = dataGridView_Playlist.PointToClient(new Point(e.X, e.Y));
-            DataGridView.HitTestInfo hit = dataGridView_Playlist.HitTest(clientPoint.X, clientPoint.Y);
-            int targetIndex = hit.RowIndex;
-
-            MovePlaylistRow(sourceIndex, targetIndex);
+            MovePlaylistRow(sourceIndex, GetPlaylistDropTargetIndex(clientPoint));
         }
 
-        // dataGridView_PlaylistのsourceIndex行をtargetIndexの位置へ移動する。
-        // DataGridViewは行そのものを並べ替える機能を持たないため、セルの値を丸ごとコピーして
-        // 元の行を消し、新しい位置に作り直す形で実現する
-        private void MovePlaylistRow(int sourceIndex, int targetIndex)
+        // ドラッグ中の位置(グリッドのクライアント座標)から、移動先の行を決める(移動できない位置なら-1)
+        private int GetPlaylistDropTargetIndex(Point clientPoint)
         {
-            if (sourceIndex < 0 || sourceIndex >= dataGridView_Playlist.Rows.Count
-                || targetIndex < 0 || targetIndex >= dataGridView_Playlist.Rows.Count
-                || sourceIndex == targetIndex)
+            DataGridView grid = dataGridView_Playlist;
+
+            // 列の右側の余白の上で離しても、その高さの行へ入れられるよう、横位置は行ヘッダーの上で調べる
+            int probeX = grid.RowHeadersVisible ? grid.RowHeadersWidth / 2 : clientPoint.X;
+            DataGridView.HitTestInfo hit = grid.HitTest(probeX, clientPoint.Y);
+
+            // 最後の行より下の空白で離したら末尾へ入れる(以前は何も起きなかった)。
+            // 「チェックONのみ表示」中は、見えている最後の行の後ろに入れる
+            int lastVisibleRowIndex = grid.Rows.GetLastRow(DataGridViewElementStates.Visible);
+            Boolean isBelowLastRow = false;
+            if (hit.RowIndex < 0 && lastVisibleRowIndex >= 0)
+            {
+                Rectangle lastRowBounds = grid.GetRowDisplayRectangle(lastVisibleRowIndex, false);
+                isBelowLastRow = !lastRowBounds.IsEmpty && clientPoint.Y >= lastRowBounds.Bottom;
+            }
+
+            return ResolvePlaylistDropIndex(hit.RowIndex, isBelowLastRow, lastVisibleRowIndex);
+        }
+
+        // ドロップ先の行を決める。行の上ならその行、最後の行より下の空白なら見えている最後の行、
+        // それ以外(列ヘッダー・スクロールバーの上など)は-1(移動しない)
+        // (internal static: Form1を生成せずにテストできるようにするため)
+        internal static int ResolvePlaylistDropIndex(int hitRowIndex, Boolean isBelowLastRow, int lastVisibleRowIndex)
+        {
+            if (hitRowIndex >= 0)
+            {
+                return hitRowIndex;
+            }
+
+            return isBelowLastRow ? lastVisibleRowIndex : -1;
+        }
+
+        // ドラッグ中、グリッドの上端・下端の1行分に入ったら1行ずつスクロールする(見えていない位置へも運べるように)
+        private void ScrollPlaylistWhileDragging(int clientY)
+        {
+            DataGridView grid = dataGridView_Playlist;
+            int firstIndex = grid.FirstDisplayedScrollingRowIndex;
+            if (firstIndex < 0)
             {
                 return;
             }
 
-            DataGridViewRow sourceRow = dataGridView_Playlist.Rows[sourceIndex];
-            Object[] values = new Object[dataGridView_Playlist.Columns.Count];
-            for (int c = 0; c < values.Length; c++)
+            int tick = Environment.TickCount;
+            if (unchecked(tick - _lastPlaylistDragScrollTick) < _playlistDragScrollIntervalMs)
             {
-                values[c] = sourceRow.Cells[c].Value;
+                return;
             }
 
-            dataGridView_Playlist.Rows.RemoveAt(sourceIndex);
+            int margin = grid.Rows[firstIndex].Height;
+            int top = grid.ColumnHeadersVisible ? grid.ColumnHeadersHeight : 0;
+            int nextFirstIndex = -1;
 
-            // Insert(index)は「削除後の並びのindex番目の手前に挿入する」動きなので、
-            // targetIndexをそのまま使えばドロップ先の行の位置に割り込む形になる
-            // (下方向への移動時は元の配列基準の値をそのまま使うのが正しく、
-            // 1引く補正を入れると1行分行き過ぎてしまっていた)
-            int insertAt = targetIndex;
-
-            dataGridView_Playlist.Rows.Insert(insertAt, 1);
-            DataGridViewRow newRow = dataGridView_Playlist.Rows[insertAt];
-            for (int c = 0; c < values.Length; c++)
+            if (clientY < top + margin)
             {
-                newRow.Cells[c].Value = values[c];
+                nextFirstIndex = grid.Rows.GetPreviousRow(firstIndex, DataGridViewElementStates.Visible);
+            }
+            else if (clientY > grid.ClientSize.Height - margin)
+            {
+                // 最後の行が欠けずに見えていれば、もう下へはスクロールできない
+                int lastVisibleRowIndex = grid.Rows.GetLastRow(DataGridViewElementStates.Visible);
+                Boolean isLastRowFullyShown = lastVisibleRowIndex >= 0
+                    && grid.GetRowDisplayRectangle(lastVisibleRowIndex, true).Height >= grid.Rows[lastVisibleRowIndex].Height;
+                if (!isLastRowFullyShown)
+                {
+                    nextFirstIndex = grid.Rows.GetNextRow(firstIndex, DataGridViewElementStates.Visible);
+                }
             }
 
+            if (nextFirstIndex < 0)
+            {
+                return;
+            }
+
+            grid.FirstDisplayedScrollingRowIndex = nextFirstIndex;
+            _lastPlaylistDragScrollTick = tick;
+        }
+
+        // 位置を示す線を引き直す(変わった時だけ再描画する。DragOverは何度も来るため)
+        private void SetPlaylistDropLine(int rowIndex, Boolean isBelow)
+        {
+            if (_playlistDropLineRowIndex == rowIndex && _isPlaylistDropLineBelow == isBelow)
+            {
+                return;
+            }
+
+            _playlistDropLineRowIndex = rowIndex;
+            _isPlaylistDropLineBelow = isBelow;
+            dataGridView_Playlist.Invalidate();
+        }
+
+        private void dataGridView_Playlist_Paint(object sender, PaintEventArgs e)
+        {
+            if (_playlistDropLineRowIndex < 0 || _playlistDropLineRowIndex >= dataGridView_Playlist.Rows.Count)
+            {
+                return;
+            }
+
+            Rectangle bounds = dataGridView_Playlist.GetRowDisplayRectangle(_playlistDropLineRowIndex, false);
+            if (bounds.IsEmpty)
+            {
+                return;
+            }
+
+            int y = _isPlaylistDropLineBelow ? bounds.Bottom - 1 : bounds.Top;
+            using (Pen pen = new Pen(SystemColors.Highlight, 2))
+            {
+                e.Graphics.DrawLine(pen, bounds.Left, y, bounds.Right, y);
+            }
+        }
+
+        // dataGridView_PlaylistのsourceIndex行をtargetIndexの位置へ移動する。並べ替えた順番は、
+        // プロファイルを保存した時にそのまま保存される(BuildProfileFromGridsはグリッドの上から順に読む)
+        private void MovePlaylistRow(int sourceIndex, int targetIndex)
+        {
+            if (dataGridView_Playlist.IsCurrentCellInEditMode && !dataGridView_Playlist.EndEdit())
+            {
+                return;
+            }
+
+            int currentColumnIndex = dataGridView_Playlist.CurrentCell != null ? dataGridView_Playlist.CurrentCell.ColumnIndex : -1;
+
+            if (!MoveGridRow(dataGridView_Playlist, sourceIndex, targetIndex))
+            {
+                return;
+            }
+
+            // 動かした行を選択し直す(キー操作もその行から続けられるよう、カレントセルも移す)
+            DataGridViewRow movedRow = dataGridView_Playlist.Rows[targetIndex];
             dataGridView_Playlist.ClearSelection();
-            newRow.Selected = true;
+            if (currentColumnIndex >= 0 && dataGridView_Playlist.Columns[currentColumnIndex].Visible)
+            {
+                dataGridView_Playlist.CurrentCell = movedRow.Cells[currentColumnIndex];
+            }
+            movedRow.Selected = true;
+        }
 
-            // 行を作り直しているため、移動前のセルに付いていたStyle(ファイル不在の
-            // ピンク表示等)は引き継がれない。作り直した行に対して計算し直す
-            UpdatePlaylistMissingFileHighlights();
+        // gridのsourceIndex行をtargetIndexの位置へ移動する(ドロップ先の行の位置に割り込む。下へ動かした時はその行の下、
+        // 上へ動かした時はその行の上に入る)。動かせない指定なら何もせずfalse。
+        // 以前はセルの値を新しい行へコピーして作り直していたため、設定ファイル列を入れ直した時点で
+        // 「ファイルを選んだらループ数を自動セット」が走ってファイルを読みに行き、入れ直した値がUndo履歴にも積まれて、
+        // 並べ替え直後のCtrl+Zで動かした行のセルが空になっていた。行そのものを抜いて差し込み直すので、
+        // 実行チェック・ループ数・ファイル不在のピンク表示もそのまま行と一緒に動き、値の変更イベントも起きない
+        // (internal static: Form1を生成せずにテストできるようにするため)
+        internal static Boolean MoveGridRow(DataGridView grid, int sourceIndex, int targetIndex)
+        {
+            int rowCount = grid.Rows.Count - (grid.AllowUserToAddRows ? 1 : 0);
+            if (sourceIndex < 0 || sourceIndex >= rowCount
+                || targetIndex < 0 || targetIndex >= rowCount
+                || sourceIndex == targetIndex)
+            {
+                return false;
+            }
+
+            DataGridViewRow row = grid.Rows[sourceIndex];
+            grid.Rows.RemoveAt(sourceIndex);
+            grid.Rows.Insert(targetIndex, row);
+
+            // DataGridViewExは行の削除・途中への挿入でUndo履歴を消すが、末尾へ差し込んだ時は差し込んだ行の値を
+            // 空として覚えてしまう(次にその行を編集してからUndoすると空に戻ってしまう)ので、今の値で覚え直させる
+            DataGridViewEx gridEx = grid as DataGridViewEx;
+            if (gridEx != null)
+            {
+                gridEx.ClearUndoHistory();
+            }
+
+            return true;
         }
 
         private void contextMenuStrip_Playlist_Opening(object sender, System.ComponentModel.CancelEventArgs e)
