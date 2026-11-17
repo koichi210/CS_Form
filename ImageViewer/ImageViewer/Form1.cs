@@ -46,7 +46,9 @@ namespace ImageViewer
             InitializePlaceholders();
             InitializeToolTips();
             textBox_FolderPath.Text = @"C:\tmp";
-            textBox_Extension.Text = @"*.png";  // TODO：動画も先頭フレームを表示するようにして対応したい。
+            // 既定は従来どおりpngだけ。動画(mp4/mov/avi/wmv/mkv等)は"*.mp4"や"*.png;*.mp4"のように
+            // 指定すると、Windowsのシェルが作る先頭付近のフレームのサムネイルで表示する([[Preview.cs]])
+            textBox_Extension.Text = @"*.png";
 
             hScrollBar_Scaling.Minimum = 2;
             hScrollBar_Scaling.Maximum = 256;
@@ -80,7 +82,7 @@ namespace ImageViewer
         private void InitializePlaceholders()
         {
             textBox_FolderPath.PlaceholderText = @"例: C:\tmp";
-            textBox_Extension.PlaceholderText = "例: *.png";
+            textBox_Extension.PlaceholderText = "例: *.png;*.mp4";
         }
 
         // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
@@ -91,7 +93,8 @@ namespace ImageViewer
             this.Disposed += (s, e) => toolTip.Dispose();
 
             toolTip.SetToolTip(textBox_FolderPath, "画像を探すフォルダ。Enterキーでそのフォルダを開く");
-            toolTip.SetToolTip(textBox_Extension, "表示するファイルの絞り込み条件。ワイルドカード(*や?)を使ったパターンを1つだけ指定する");
+            toolTip.SetToolTip(textBox_Extension, "表示するファイルの絞り込み条件。ワイルドカード(*や?)を使ったパターンを指定する。" +
+                "複数は;で区切る(例: *.png;*.mp4)。動画は先頭付近のフレームを表示し、取れない動画はサムネイル無しで並べる");
             toolTip.SetToolTip(hScrollBar_Scaling, "サムネイルの一辺の大きさ(ピクセル)。動かし終えると、フォルダが有効なら先頭の1枚だけで表示し直す");
             toolTip.SetToolTip(listView_Image, "サムネイルをダブルクリックすると、その画像を関連付けられたアプリで開く");
             toolTip.SetToolTip(comboBox_Profile, "保存済みの設定ファイル。選ぶとフォルダパスとファイル拡張子を読み込む");

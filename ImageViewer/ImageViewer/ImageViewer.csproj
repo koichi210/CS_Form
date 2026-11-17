@@ -62,6 +62,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Preview.cs" />
+    <Compile Include="ShellThumbnail.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>

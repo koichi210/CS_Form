@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 
@@ -9,6 +11,18 @@ namespace ImageViewer
     {
         private int _width;
         private int _height;
+
+        // 拡張子のパターンを複数書くときの区切り(例: "*.png;*.mp4")
+        private static readonly char[] _patternSeparators = { ';' };
+
+        // 動画として扱う拡張子。Image.FromFileでは読めないので、Windowsのシェルが作る
+        // サムネイル(先頭付近のフレーム)を表示する([[ShellThumbnail.cs]])。
+        // TypeScriptと被る.tsは誤判定を避けるため入れていない
+        private static readonly HashSet<String> _videoExtensions = new HashSet<String>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".mp4", ".m4v", ".mov", ".avi", ".wmv", ".asf", ".mkv", ".webm",
+            ".mpg", ".mpeg", ".m2ts", ".mts", ".flv", ".3gp", ".3g2",
+        };
 
         public void SetSize(int width)
         {
@@ -21,6 +35,45 @@ namespace ImageViewer
             _height = height;
         }
 
+        // 動画ファイル(シェルのサムネイルで表示する対象)か
+        public static Boolean IsVideoFile(String filePath)
+        {
+            return !String.IsNullOrEmpty(filePath) && _videoExtensions.Contains(Path.GetExtension(filePath));
+        }
+
+        // 表示対象のファイルを集める。パターンは";"区切りで複数書ける(例: "*.png;*.mp4")。
+        // 1つだけのときは従来どおりDirectory.GetFilesの順のまま返し、複数のときは
+        // 重複を除いてファイル名順に並べ直す(パターンごとに固まらず、画像と動画が名前順に混ざる)
+        public static String[] GetTargetFiles(String folderPath, String extension)
+        {
+            String[] patterns = (extension ?? String.Empty)
+                .Split(_patternSeparators, StringSplitOptions.RemoveEmptyEntries)
+                .Select(pattern => pattern.Trim())
+                .Where(pattern => pattern.Length != 0)
+                .ToArray();
+
+            if (patterns.Length <= 1)
+            {
+                return Directory.GetFiles(folderPath, patterns.Length == 1 ? patterns[0] : (extension ?? String.Empty));
+            }
+
+            return patterns
+                .SelectMany(pattern => Directory.GetFiles(folderPath, pattern))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(file => file, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        // サムネイルの元になる画像を読む。動画はシェルのサムネイルで代用し、取れなければnull
+        private Image LoadSourceImage(String filePath)
+        {
+            if (IsVideoFile(filePath))
+            {
+                return ShellThumbnail.GetThumbnail(filePath, _width, _height);
+            }
+            return Image.FromFile(filePath);
+        }
+
         public void View(ImageList imageList, ListView listView, String folderPath, String extension, bool isSample = false)
         {
             if (!Directory.Exists(folderPath))
@@ -29,7 +82,7 @@ namespace ImageViewer
                 return;
             }
 
-            String[] files = Directory.GetFiles(folderPath, extension);
+            String[] files = GetTargetFiles(folderPath, extension);
             imageList.ImageSize = new Size(_width, _height);
 
             // 前回表示した画像が残っていると、項目のImageIndex(0始まり)が古い画像を指してしまうので消しておく
@@ -44,15 +97,19 @@ namespace ImageViewer
             {
                 // 壊れた画像・読めないファイル(一覧作成後に消された・ロック中など)が1枚でもあると、
                 // Image.FromFileの例外でそこから先が表示されなかった。読めない画像はサムネイル無し(ImageIndex=-1)で並べる
-                // (ImageListに追加できた枚数とファイルの番号がずれるので、ImageIndexは追加した位置を使う)
+                // (ImageListに追加できた枚数とファイルの番号がずれるので、ImageIndexは追加した位置を使う)。
+                // 動画でサムネイルが取れなかったとき(コーデックが無い等)も同じくサムネイル無しで並べる
                 int imageIndex = -1;
                 try
                 {
-                    using (Image original = Image.FromFile(files[i]))
+                    using (Image original = LoadSourceImage(files[i]))
                     {
-                        imageList.Images.Add(original);
+                        if (original != null)
+                        {
+                            imageList.Images.Add(original);
+                            imageIndex = imageList.Images.Count - 1;
+                        }
                     }
-                    imageIndex = imageList.Images.Count - 1;
                 }
                 catch (Exception ex) when (ex is OutOfMemoryException || ex is IOException
                     || ex is UnauthorizedAccessException || ex is ArgumentException)
