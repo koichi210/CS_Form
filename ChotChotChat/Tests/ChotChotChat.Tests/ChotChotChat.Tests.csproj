@@ -52,6 +52,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientTests.cs" />
     <Compile Include="Form1Tests.cs" />
     <Compile Include="ServerTests.cs" />
   </ItemGroup>

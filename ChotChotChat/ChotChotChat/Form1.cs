@@ -99,7 +99,26 @@ namespace ChotChotChat
         private void button_Client_Click(object sender, EventArgs e)
         {
             String hostName = "127.0.0.1";
-            label_StatusBar.Text = _client.Connect(hostName);
+            if (_client.IsConnected)
+            {
+                MessageBox.Show("すでにサーバーと接続済みです");
+                return;
+            }
+
+            // サーバーが起動していない(待ち受けていない)と接続を拒否されて SocketException になる
+            try
+            {
+                label_StatusBar.Text = _client.Connect(hostName);
+            }
+            catch (SocketException ex)
+            {
+                label_StatusBar.Text = "サーバーと接続できませんでした。";
+                MessageBox.Show("サーバーと接続できませんでした。サーバーが起動しているか確認してください。"
+                    + Environment.NewLine + ex.Message,
+                    "Warning",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
         }
 
         private void button_Send_Click(object sender, EventArgs e)
@@ -110,10 +129,28 @@ namespace ChotChotChat
                 return;
             }
 
+            // 接続した後にサーバーが落ちた・切断された場合も、例外で落ちずにメッセージを出す
             try
             {
-                _client.Send(textBox_Message.Text);
-                textBox_Log.Text += textBox_Message.Text + Environment.NewLine;
+                if (_client.Send(textBox_Message.Text) == null)
+                {
+                    MessageBox.Show("Disconnect Server",
+                        "Warning",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    textBox_Log.Text += textBox_Message.Text + Environment.NewLine;
+                }
+            }
+            catch (Exception ex) when (IsNetworkError(ex))
+            {
+                MessageBox.Show("メッセージを送信できませんでした。サーバーとの接続が切れています。"
+                    + Environment.NewLine + ex.Message,
+                    "Warning",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
             }
             finally
             {

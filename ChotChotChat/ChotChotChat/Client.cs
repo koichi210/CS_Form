@@ -1,52 +1,95 @@
 ﻿using System;
+using System.IO;
 using System.Text;
-using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 
 namespace ChotChotChat
 {
-    class Client
+    /// <summary>
+    /// サーバーへ1件だけメッセージを送るTCPクライアント。
+    ///
+    /// 以前は中で MessageBox を出していて、サーバーが起動していない・途中で落ちた時は例外がそのまま上がって
+    /// アプリごと落ちていた。WPF版(CS_Wpf/ChotChotChat)・Serverと同じく、UIには触らず結果を戻り値・例外で返し、
+    /// 呼び出し側(Form1)が通信エラーを受け止めてメッセージを出す形にした。
+    /// </summary>
+    internal sealed class Client
     {
-        private const int _port = 8080;
         private const int _timeoutMsec = 100000;
+
+        private readonly int _port;
         private TcpClient _tcp;
 
-        public bool IsConnected { get; private set; }
+        public Client()
+            : this(Server.DefaultPort)
+        {
+        }
 
+        // テストでは8080以外(空いているポート)を使うため
+        internal Client(int port)
+        {
+            _port = port;
+        }
+
+        public bool IsConnected
+        {
+            get { return _tcp != null; }
+        }
+
+        /// <summary>
+        /// サーバーと接続する。サーバーが待っていなければ SocketException(接続していない状態のまま)。
+        /// </summary>
         public String Connect(String hostName)
         {
             if (IsConnected)
             {
-                MessageBox.Show("すでにサーバーと接続済みです");
-                return "";
+                throw new InvalidOperationException("すでにサーバーと接続済みです");
             }
 
-            //TcpClientを作成し、サーバーと接続する
-            _tcp = new TcpClient(hostName, _port);
-            IsConnected = true;
+            // TcpClientを作成し、サーバーと接続する(失敗したら _tcp は null のまま)
+            TcpClient tcp = new TcpClient(hostName, _port);
+            _tcp = tcp;
 
-            IPEndPoint remote = (IPEndPoint)_tcp.Client.RemoteEndPoint;
-            IPEndPoint local = (IPEndPoint)_tcp.Client.LocalEndPoint;
+            IPEndPoint remote = (IPEndPoint)tcp.Client.RemoteEndPoint;
+            IPEndPoint local = (IPEndPoint)tcp.Client.LocalEndPoint;
             return String.Format("サーバー({0}:{1})と接続しました({2}:{3})。",
                 remote.Address, remote.Port, local.Address, local.Port);
         }
 
         public String Disconnect()
         {
-            if (IsConnected)
+            if (_tcp != null)
             {
-                IsConnected = false;
                 _tcp.Close();
+                _tcp = null;
             }
             return "サーバーと切断しました。";
         }
 
-        public void Send(String sendText)
+        /// <summary>
+        /// メッセージを送信し、サーバーの応答(受信した文字数)を受け取って返す。
+        /// 応答の前にサーバーが切断したら null。
+        /// サーバーが落ちた・接続が切れた等の通信エラーは IOException / SocketException / ObjectDisposedException。
+        /// </summary>
+        public String Send(String sendText)
         {
-            //TODO:Try～CatchでサーバーDownを回避
-            //NetworkStreamを取得
-            using (NetworkStream ns = _tcp.GetStream())
+            if (_tcp == null)
+            {
+                throw new InvalidOperationException("先にサーバーと接続してください");
+            }
+
+            //NetworkStreamを取得(相手に切られてソケットが閉じていると InvalidOperationException になるので、通信エラーとして返す)
+            NetworkStream ns;
+            try
+            {
+                ns = _tcp.GetStream();
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new IOException("サーバーとの接続が切れています", ex);
+            }
+
+            using (ns)
             {
                 // タイムアウト
                 ns.ReadTimeout = _timeoutMsec;
@@ -56,14 +99,9 @@ namespace ChotChotChat
                 byte[] sendBytes = Encoding.UTF8.GetBytes(sendText + Environment.NewLine);
                 NetworkStreamReader.WriteMessage(ns, sendBytes);
 
-                //サーバーから送られたデータ(応答)を受信する。中身は使わない
-                if (NetworkStreamReader.ReceiveLine(ns) == null)
-                {
-                    MessageBox.Show("Disconnect Server",
-                        "Warning",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                }
+                //サーバーから送られたデータ(応答)を受信する
+                byte[] reply = NetworkStreamReader.ReceiveLine(ns);
+                return reply == null ? null : Encoding.UTF8.GetString(reply);
             }
         }
     }
