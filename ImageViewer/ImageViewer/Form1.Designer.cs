@@ -58,17 +58,17 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_FolderPath.Location = new System.Drawing.Point(99, 6);
             this.textBox_FolderPath.Name = "textBox_FolderPath";
-            this.textBox_FolderPath.Size = new System.Drawing.Size(295, 19);
+            this.textBox_FolderPath.Size = new System.Drawing.Size(342, 19);
             this.textBox_FolderPath.TabIndex = 1;
             this.textBox_FolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_FolderPath_KeyDown);
             // 
             // button_ListView
             // 
             this.button_ListView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ListView.Location = new System.Drawing.Point(327, 31);
+            this.button_ListView.Location = new System.Drawing.Point(374, 31);
             this.button_ListView.Name = "button_ListView";
             this.button_ListView.Size = new System.Drawing.Size(67, 22);
-            this.button_ListView.TabIndex = 2;
+            this.button_ListView.TabIndex = 6;
             this.button_ListView.Text = "一覧表示";
             this.button_ListView.UseVisualStyleBackColor = true;
             this.button_ListView.Click += new System.EventHandler(this.button_ListView_Click);
@@ -80,8 +80,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listView_Image.Location = new System.Drawing.Point(12, 56);
             this.listView_Image.Name = "listView_Image";
-            this.listView_Image.Size = new System.Drawing.Size(382, 220);
-            this.listView_Image.TabIndex = 3;
+            this.listView_Image.Size = new System.Drawing.Size(429, 220);
+            this.listView_Image.TabIndex = 7;
             this.listView_Image.UseCompatibleStateImageBehavior = false;
             this.listView_Image.DoubleClick += new System.EventHandler(this.listView_Image_DoubleClick);
             // 
@@ -95,8 +95,8 @@
             // 
             this.textBox_Extension.Location = new System.Drawing.Point(99, 31);
             this.textBox_Extension.Name = "textBox_Extension";
-            this.textBox_Extension.Size = new System.Drawing.Size(43, 19);
-            this.textBox_Extension.TabIndex = 5;
+            this.textBox_Extension.Size = new System.Drawing.Size(90, 19);
+            this.textBox_Extension.TabIndex = 3;
             // 
             // label2
             // 
@@ -104,17 +104,17 @@
             this.label2.Location = new System.Drawing.Point(12, 34);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(81, 12);
-            this.label2.TabIndex = 4;
+            this.label2.TabIndex = 2;
             this.label2.Text = "ファイル拡張子：";
             // 
             // hScrollBar_Scaling
             // 
             this.hScrollBar_Scaling.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.hScrollBar_Scaling.Location = new System.Drawing.Point(158, 31);
+            this.hScrollBar_Scaling.Location = new System.Drawing.Point(205, 31);
             this.hScrollBar_Scaling.Name = "hScrollBar_Scaling";
             this.hScrollBar_Scaling.Size = new System.Drawing.Size(78, 19);
-            this.hScrollBar_Scaling.TabIndex = 6;
+            this.hScrollBar_Scaling.TabIndex = 4;
             this.hScrollBar_Scaling.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar_Scaling_Scroll);
             // 
             // comboBox_Profile
@@ -125,18 +125,18 @@
             this.comboBox_Profile.FormattingEnabled = true;
             this.comboBox_Profile.Location = new System.Drawing.Point(12, 281);
             this.comboBox_Profile.Name = "comboBox_Profile";
-            this.comboBox_Profile.Size = new System.Drawing.Size(224, 20);
+            this.comboBox_Profile.Size = new System.Drawing.Size(271, 20);
             this.comboBox_Profile.Sorted = true;
-            this.comboBox_Profile.TabIndex = 7;
+            this.comboBox_Profile.TabIndex = 8;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
             // 
             // button_ProfileLoad
             // 
             this.button_ProfileLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ProfileLoad.Location = new System.Drawing.Point(242, 279);
+            this.button_ProfileLoad.Location = new System.Drawing.Point(289, 279);
             this.button_ProfileLoad.Name = "button_ProfileLoad";
             this.button_ProfileLoad.Size = new System.Drawing.Size(75, 23);
-            this.button_ProfileLoad.TabIndex = 8;
+            this.button_ProfileLoad.TabIndex = 9;
             this.button_ProfileLoad.Text = "設定読込";
             this.button_ProfileLoad.UseVisualStyleBackColor = true;
             this.button_ProfileLoad.Click += new System.EventHandler(this.button_ProfileLoad_Click);
@@ -144,10 +144,10 @@
             // button_ProfileSave
             // 
             this.button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ProfileSave.Location = new System.Drawing.Point(319, 279);
+            this.button_ProfileSave.Location = new System.Drawing.Point(366, 279);
             this.button_ProfileSave.Name = "button_ProfileSave";
             this.button_ProfileSave.Size = new System.Drawing.Size(75, 23);
-            this.button_ProfileSave.TabIndex = 9;
+            this.button_ProfileSave.TabIndex = 10;
             this.button_ProfileSave.Text = "設定保存";
             this.button_ProfileSave.UseVisualStyleBackColor = true;
             this.button_ProfileSave.Click += new System.EventHandler(this.button_ProfileSave_Click);
@@ -155,10 +155,10 @@
             // button_SampleView
             // 
             this.button_SampleView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_SampleView.Location = new System.Drawing.Point(242, 31);
+            this.button_SampleView.Location = new System.Drawing.Point(289, 31);
             this.button_SampleView.Name = "button_SampleView";
             this.button_SampleView.Size = new System.Drawing.Size(79, 22);
-            this.button_SampleView.TabIndex = 2;
+            this.button_SampleView.TabIndex = 5;
             this.button_SampleView.Text = "サンプル表示";
             this.button_SampleView.UseVisualStyleBackColor = true;
             this.button_SampleView.Click += new System.EventHandler(this.button_SampleView_Click);
@@ -167,7 +167,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(406, 311);
+            this.ClientSize = new System.Drawing.Size(453, 311);
             this.Controls.Add(this.comboBox_Profile);
             this.Controls.Add(this.button_ProfileLoad);
             this.Controls.Add(this.button_ProfileSave);
@@ -179,7 +179,7 @@
             this.Controls.Add(this.button_ListView);
             this.Controls.Add(this.textBox_FolderPath);
             this.Controls.Add(this.label1);
-            this.MinimumSize = new System.Drawing.Size(422, 349);
+            this.MinimumSize = new System.Drawing.Size(469, 349);
             this.Name = "Form1";
             this.Text = "ImageViewer";
             this.ResumeLayout(false);
