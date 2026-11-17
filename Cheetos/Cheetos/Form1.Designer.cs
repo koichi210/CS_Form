@@ -222,6 +222,8 @@
             this.cw_dataGridView.Size = new System.Drawing.Size(287, 140);
             this.cw_dataGridView.TabIndex = 11;
             this.cw_dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.cw_dataGridView_CellClick);
+            this.cw_dataGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.cw_dataGridView_CellDoubleClick);
+            this.cw_dataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cw_dataGridView_KeyDown);
             // 
             // cw_checkBox_AddTimeStamp
             // 

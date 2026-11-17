@@ -189,5 +189,14 @@ namespace Cheetos
             }
             return Int32.TryParse(text, out val) ? text : "";
         }
+
+        /// <summary>
+        /// 二択の値(〇/×など)を切り替える。今がfirstならsecond、それ以外(second・未設定・想定外の値)ならfirstを返す
+        /// (CaptureWindowタブの表で、Capture列をダブルクリック/Spaceキーで切り替えるときに使う)。
+        /// </summary>
+        public static String ToggleChoice(String current, String first, String second)
+        {
+            return (current == first) ? second : first;
+        }
     }
 }

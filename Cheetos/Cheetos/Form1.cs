@@ -39,7 +39,7 @@ namespace Cheetos
             new DataGridColumnDef() { HeaderName = _gridHeaderMouseXStr, Type = DataGridType.EditBox },
             new DataGridColumnDef() { HeaderName = _gridHeaderMouseYStr, Type = DataGridType.EditBox },
             new DataGridColumnDef() { HeaderName = _gridHeaderMouseActionStr, Type = DataGridType.DropDown },
-            new DataGridColumnDef() { HeaderName = _gridHeaderCaptureStr, Type = DataGridType.DropDown }
+            new DataGridColumnDef() { HeaderName = _gridHeaderCaptureStr, Type = DataGridType.CheckBox }
         };
 
         private readonly String[] _mouseEventItems = new String[] {
@@ -174,7 +174,7 @@ namespace Cheetos
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderMouseXStr)].ToolTipText = "マウスを動かす先のX座標(画面座標、px)。MouseX/MouseYのどちらかが空欄ならマウス操作をしない";
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderMouseYStr)].ToolTipText = "マウスを動かす先のY座標(画面座標、px)。MouseX/MouseYのどちらかが空欄ならマウス操作をしない";
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderMouseActionStr)].ToolTipText = "Move: 移動だけ。LeftDown(未設定も含む): 移動して左クリック(押して離す)";
-            cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderCaptureStr)].ToolTipText = "〇の行だけSleepの後にキャプチャする(×・未設定は撮らない)";
+            cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderCaptureStr)].ToolTipText = "〇の行だけSleepの後にキャプチャする(×・未設定は撮らない)。セルのダブルクリックかSpaceキーで〇/×を切り替える";
 
             // PictTrim
             toolTip.SetToolTip(pt_SourceFolderPath, readOnlyFolderTip);
@@ -531,6 +531,19 @@ namespace Cheetos
             for (int i = 0; i < _dataGridColumns.Length; i++)
             {
                 cw_dataGridView.Columns[i].HeaderText = _dataGridColumns[i].HeaderName;
+
+                // CheckBox型(〇/×の二択)の列はプルダウンを出さず、ダブルクリック/Spaceキーで切り替える
+                // (cw_dataGridView_CellDoubleClick / cw_dataGridView_KeyDown)。
+                // 手で編集させないよう読み取り専用にし、使えないプルダウンの▼も出さない
+                if (_dataGridColumns[i].Type == DataGridType.CheckBox)
+                {
+                    cw_dataGridView.Columns[i].ReadOnly = true;
+                    DataGridViewComboBoxColumn comboColumn = cw_dataGridView.Columns[i] as DataGridViewComboBoxColumn;
+                    if (comboColumn != null)
+                    {
+                        comboColumn.DisplayStyle = DataGridViewComboBoxDisplayStyle.Nothing;
+                    }
+                }
             }
 
             // 幅設定
@@ -552,12 +565,49 @@ namespace Cheetos
                     break;
 
                 case DataGridType.CheckBox:
-                    // TODO：ダブルクリックで値を設定したい
+                    // シングルクリックでは何もしない(ダブルクリックで切り替える。cw_dataGridView_CellDoubleClick)
                     break;
 
                 default:
                     break;
             }
+        }
+
+        // CheckBox型(Capture列)のセルをダブルクリックしたら〇/×を切り替える
+        private void cw_dataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            ToggleCheckBoxCell(e.RowIndex, e.ColumnIndex);
+        }
+
+        // CheckBox型(Capture列)のセルを選んでいる時は、Spaceキーでも〇/×を切り替える
+        // (プルダウンを出さなくしたので、キーボードだけでも変えられるようにしておく)
+        private void cw_dataGridView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData != Keys.Space || cw_dataGridView.CurrentCell == null)
+            {
+                return;
+            }
+
+            if (ToggleCheckBoxCell(cw_dataGridView.CurrentCell.RowIndex, cw_dataGridView.CurrentCell.ColumnIndex))
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        // CheckBox型の列のセルなら、〇(キャプチャする)と×(しない)を切り替えてtrueを返す。
+        // 未設定のセルは〇にする。CheckBox型以外の列・ヘッダ行なら何もせずfalseを返す
+        private Boolean ToggleCheckBoxCell(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < 0 || columnIndex < 0 || columnIndex >= _dataGridColumns.Length
+                || _dataGridColumns[columnIndex].Type != DataGridType.CheckBox)
+            {
+                return false;
+            }
+
+            String current = _util.GetDataGridCell(cw_dataGridView, rowIndex, columnIndex);
+            _util.SetDataGridCell(cw_dataGridView, rowIndex, columnIndex, Logic.ToggleChoice(current, _executeStr, _notExecuteStr));
+            return true;
         }
 
         private void cw_Button_AddLine_Click(object sender, EventArgs e)
