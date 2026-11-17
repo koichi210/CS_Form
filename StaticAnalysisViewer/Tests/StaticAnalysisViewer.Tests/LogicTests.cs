@@ -17,6 +17,37 @@ namespace StaticAnalysisViewer.Tests
         }
 
         [TestMethod]
+        public void CreateFileName_パスの最後の部分を引用符を外して取り出す()
+        {
+            string result = Logic.CreateFileName(new[] { "\"C:\\src\\app\\Form1.cs\"", "100", "80", "5" });
+
+            Assert.AreEqual("Form1.cs", result);
+        }
+
+        [TestMethod]
+        public void CreateChartLegendText_凡例は1相対の順位()
+        {
+            Assert.AreEqual("1位", Logic.CreateChartLegendText(0));
+            Assert.AreEqual("10位", Logic.CreateChartLegendText(9));
+        }
+
+        [TestMethod]
+        public void CreateChartToolTip_順位とファイル名と値を出す()
+        {
+            string result = Logic.CreateChartToolTip(2, "a.cs", "Cyclomatic\r", 12);
+
+            Assert.AreEqual("3位: a.cs (Cyclomatic: 12)", result, "列名の末尾の改行は落とす");
+        }
+
+        [TestMethod]
+        public void CreateChartToolTip_グラフのキーワードと誤解されないよう半角シャープは全角にする()
+        {
+            string result = Logic.CreateChartToolTip(0, "#VALY.cs", "CountLine", 1);
+
+            Assert.AreEqual("1位: ＃VALY.cs (CountLine: 1)", result);
+        }
+
+        [TestMethod]
         public void CreatePreRankingString_前回データが無ければNew()
         {
             var db = new DataBase();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -45,6 +46,10 @@ namespace StaticAnalysisViewer
 
         private const int _defaultCategorySortIdx = 3;
 
+        // 円グラフの凡例の文字(グラフ欄が狭いので画面の文字より小さめ。グラフを作り直すたびに作らないよう1つを使い回す)
+        private const float _chartLegendFontSize = 7.5F;
+        private Font _chartLegendFont;
+
         // ヘルプ
         public String HelpLink { get; set; } = "";
 
@@ -55,6 +60,9 @@ namespace StaticAnalysisViewer
 
             InitializePlaceholders();
             InitializeToolTips();
+
+            _chartLegendFont = new Font(Font.FontFamily, _chartLegendFontSize);
+            this.Disposed += (s, e) => _chartLegendFont.Dispose();
 
             _sr.RegisterItem(this);
             LoadUserData();
@@ -96,7 +104,7 @@ namespace StaticAnalysisViewer
             TextBox_Ranking.Text = "";
             TextBox_CountLineTotal.Text = "";
             TextBox_FileNumTotal.Text = "";
-            Chart_Result.Controls.Clear();
+            DisposeChildControls(Chart_Result);
             Chart_Result.Visible = false;
             ProgressBar_LoadStatus.Value = 0;
         }
@@ -350,11 +358,12 @@ namespace StaticAnalysisViewer
             DataBaseEntry array = _db.GetData(Combo_RankingWeekly.SelectedIndex);
             int topRankingNum = int.Parse(TextBox_TopRankingNum.Text);
             int categoryIdx = Combo_SortCategory.SelectedIndex;
+            string categoryName = Combo_SortCategory.Text;
 
-            // 表示を消す
+            // 表示を消す(前回のグラフは作り直すたびに溜まらないよう破棄する)
             Chart_Result.Series.Clear();
             Chart_Result.Legends.Clear();
-            Chart_Result.Controls.Clear();
+            DisposeChildControls(Chart_Result);
 
             Chart chart = new Chart();
             chart.Width = 150;
@@ -382,14 +391,24 @@ namespace StaticAnalysisViewer
                 DataPoint point = new DataPoint();
                 point.XValue = 0;
                 point.YValues = new double[] { yValue };
-                series.Points.Add(point);
 
-                // TODO：凡例を表示
-                //string[] Path = array.Data[i][CATEGORY_NAME_IDX].Split('\\');
-                //series.Name = Path[Path.Length - 1];
-                //chart.Name = Path[Path.Length - 1];
+                // 凡例は色と順位(ランキング欄のRank列と同じ番号)の対応。ファイル名と値はマウスを乗せると出す
+                point.LegendText = Logic.CreateChartLegendText(i);
+                point.ToolTip = Logic.CreateChartToolTip(i, Logic.CreateFileName(array.Data[i]), categoryName, yValue);
+                point.LegendToolTip = point.ToolTip;
+                series.Points.Add(point);
             }
             chart.Series.Add(series);
+
+            // 凡例は円グラフの下に、表の形で詰めて並べる(グラフ欄が狭いため小さめの文字にする)
+            Legend legend = new Legend();
+            legend.Docking = Docking.Bottom;
+            legend.Alignment = StringAlignment.Center;
+            legend.LegendStyle = LegendStyle.Table;
+            legend.TableStyle = LegendTableStyle.Wide;
+            legend.Font = _chartLegendFont;
+            legend.IsTextAutoFit = false;
+            chart.Legends.Add(legend);
 
             ChartArea area = new ChartArea();
             area.AxisX.IsLabelAutoFit = true;
@@ -399,6 +418,18 @@ namespace StaticAnalysisViewer
             Chart_Result.Controls.Add(chart);
 
             Chart_Result.Visible = true;
+        }
+
+        // 子コントロールを取り除いて破棄する(Controls.Clearだけでは破棄されずハンドルが残る)
+        private static void DisposeChildControls(Control parent)
+        {
+            Control[] children = new Control[parent.Controls.Count];
+            parent.Controls.CopyTo(children, 0);
+            parent.Controls.Clear();
+            foreach (Control child in children)
+            {
+                child.Dispose();
+            }
         }
 
         private void button_Help_Click(object sender, EventArgs e)

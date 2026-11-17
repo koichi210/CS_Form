@@ -30,6 +30,33 @@ namespace StaticAnalysisViewer
             return dirArray[dirArray.Length - 1];
         }
 
+        /// <summary>1行分のデータから、表示するファイル名(パスの最後の部分、CSVの「"」は外す)を作る。</summary>
+        public static string CreateFileName(string[] row)
+        {
+            string[] path = row[_categoryIdxFileName].Split('\\');
+            return path[path.Length - 1].Replace("\"", "");
+        }
+
+        /// <summary>
+        /// 円グラフの1切れに出す凡例の文字(順位)。ファイル名は長くて円グラフ横の狭い欄に収まらないので、
+        /// 凡例は順位だけにしてランキング欄のRank列と突き合わせて見る。rankIdxは0相対。
+        /// </summary>
+        public static string CreateChartLegendText(int rankIdx)
+        {
+            return string.Format("{0}位", rankIdx + 1);
+        }
+
+        /// <summary>
+        /// 円グラフの1切れ(と凡例)にマウスを乗せた時に出す説明。例: 「1位: a.cs (CountLine: 100)」。
+        /// グラフのツールチップは「#」で始まる語(#VALY等)を置き換えてしまうので、「#」は全角にしておく。
+        /// </summary>
+        public static string CreateChartToolTip(int rankIdx, string fileName, string categoryName, int value)
+        {
+            string text = string.Format("{0}: {1} ({2}: {3})",
+                CreateChartLegendText(rankIdx), fileName, categoryName.Trim(), value);
+            return text.Replace("#", "＃");
+        }
+
         public static int CreateCountNumTotal(DataBase db, DataBaseEntry array)
         {
             int countLineTotal = 0;
@@ -67,15 +94,13 @@ namespace StaticAnalysisViewer
                     continue;
                 }
 
-                string[] path = array.Data[i][_categoryIdxFileName].Split('\\');
-
                 int preRankNum = db.GetIdx(preArrayIdx, _categoryIdxFileName, array.Data[i][_categoryIdxFileName]);
                 string preRank = CreatePreRankingString(db, i, preRankNum);
 
                 result.AppendFormat("{0,4}\t{1,-8}\t{2,-15}\t{3,8}\t{4,10}  {5,8}" + Environment.NewLine,
                             i + 1,                                      // Idx
                             preRank,                                    // New!
-                            path[path.Length - 1].Replace("\"", ""),    // FileName
+                            CreateFileName(array.Data[i]),              // FileName
                             array.Data[i][_categoryIdxCountLine],       // CountLine
                             array.Data[i][_categoryIdxCountCode],       // CountCode
                             array.Data[i][_categoryIdxCyclomatic]      // Cyclomatic
