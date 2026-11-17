@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Drawing;
 using System.IO;
@@ -29,48 +30,59 @@ namespace PictMerge
             LoadSetting();
         }
 
-        private void MergeImage(String targetFile, String sourceFile, String mergeFile, int trimHeight)
+        // 2枚の画像を切断位置で横に区切り、帯ごとに交互に組み合わせた(入れ子にした)画像を作る。
+        // 一番上の帯はfirstFile、次の帯はsecondFile、その次はまたfirstFile…の順。
+        // trimHeightsは小さい順に並んでいること(ParseTrimHeightsで並べ替え済み)
+        private void MergeImage(String targetFile, String firstFile, String secondFile, List<int> trimHeights)
         {
             // 入力値の変換は画像を開く前に行う(途中で失敗しても画像ファイルがロックされたまま残らないように)
             int width = int.Parse(DestWidth.Text);
             int height = int.Parse(DestHeight.Text);
 
-            // 切り取る部分（上）
-            int lowerHeight = height - trimHeight;
-            System.Drawing.Rectangle srcRectUpper = new System.Drawing.Rectangle(0, 0, width, trimHeight);
-            System.Drawing.Rectangle srcRectLower = new System.Drawing.Rectangle(0, trimHeight, width, lowerHeight);
-
-            // 描画する部分
-            System.Drawing.Rectangle desRectUpper = new System.Drawing.Rectangle(0, 0, width, trimHeight);
-            System.Drawing.Rectangle desRectLower = new System.Drawing.Rectangle(0, 0, width, lowerHeight);
-
             using (Bitmap bmpTarget = new Bitmap(width, height))
             {
-                using (Bitmap bmpSource1 = new Bitmap(sourceFile))
-                using (Bitmap bmpSource2 = new Bitmap(mergeFile))
-                using (Bitmap targetUpper = new Bitmap(bmpSource1))
-                using (Bitmap targetLower = new Bitmap(bmpSource2))
+                using (Bitmap bmpFirst = new Bitmap(firstFile))
+                using (Bitmap bmpSecond = new Bitmap(secondFile))
+                using (Graphics g = Graphics.FromImage(bmpTarget))
                 {
-                    // 描画（上）
-                    using (Graphics g = Graphics.FromImage(targetUpper))
+                    int top = 0;
+                    bool useFirst = true;
+                    for (int i = 0; i <= trimHeights.Count; i++)
                     {
-                        g.DrawImage(bmpSource1, desRectUpper, srcRectUpper, GraphicsUnit.Pixel);
-                    }
+                        // 最後の帯は画像の下端まで。画像の外を指す切断位置は端に寄せる
+                        int bottom = (i < trimHeights.Count) ? trimHeights[i] : height;
+                        bottom = Math.Min(Math.Max(bottom, top), height);
 
-                    // 描画（下）
-                    using (Graphics g = Graphics.FromImage(targetLower))
-                    {
-                        g.DrawImage(bmpSource2, desRectLower, srcRectLower, GraphicsUnit.Pixel);
-                    }
+                        if (bottom > top)
+                        {
+                            // 同じ位置を元画像から同じ大きさのまま写す(解像度(DPI)の違いで拡大縮小されないようピクセル指定)
+                            System.Drawing.Rectangle band = new System.Drawing.Rectangle(0, top, width, bottom - top);
+                            g.DrawImage(useFirst ? bmpFirst : bmpSecond, band, band, GraphicsUnit.Pixel);
+                        }
 
-                    using (Graphics g = Graphics.FromImage(bmpTarget))
-                    {
-                        g.DrawImage(targetUpper, 0, 0);
-                        g.DrawImage(targetLower, 0, trimHeight);
+                        top = bottom;
+                        useFirst = !useFirst;
                     }
                 }
                 bmpTarget.Save(targetFile);
             }
+        }
+
+        // 切断基準となる高さの入力(1行に1つ)を数値の一覧にする。空行は無視し、小さい順に並べる
+        // (上から順に帯の境目として使うので、入力した行の順番には左右されない)
+        private static List<int> ParseTrimHeights(String text)
+        {
+            List<int> trimHeights = new List<int>();
+            foreach (String line in text.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+            {
+                if (String.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+                trimHeights.Add(int.Parse(line.Trim()));
+            }
+            trimHeights.Sort();
+            return trimHeights;
         }
 
         private void ListUp_Click(object sender, RoutedEventArgs e)
@@ -99,12 +111,16 @@ namespace PictMerge
 
         private void MergeSelectedFiles()
         {
-            // 切断基準となる高さ
-            string[] trimHeights = TrimmingHeight.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            // 切断基準となる高さ(入力の変換はファイルを触る前に済ませる)
+            List<int> trimHeights = ParseTrimHeights(TrimmingHeight.Text);
+            if (trimHeights.Count == 0)
+            {
+                return;
+            }
 
             for (int i = 0; i < ListBox_ListUp.SelectedItems.Count; i++)
             {
-                //　オリジナルファイル＆バックアップファイル(切断位置の行ごとには変わらないので、行のループの外で1回だけ求める)
+                //　オリジナルファイル＆バックアップファイル
                 String fileName = ListBox_ListUp.SelectedItems[i].ToString();
                 String backupFolderPath = SourceFolderPath.Text + @"\" + @"org";
                 String sourceFilePath = SourceFolderPath.Text + @"\" + fileName;
@@ -122,32 +138,14 @@ namespace PictMerge
                 String mergeFilePath = sourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
                 String backupMergeFilePath = backupSourceFilePath.Replace(SourceFile1Prefix.Text, SourceFile2Prefix.Text);
 
-                for (int j = 0; j < trimHeights.Length; j++)
-                {
-                    // 元ファイルをバックアップ(前の行でマージした結果を次の行の元にするため、行ごとに取り直す)
-                    File.Copy(sourceFilePath, backupSourceFilePath, true);
-                    File.Copy(mergeFilePath, backupMergeFilePath, true);
+                // 元ファイルをバックアップ。結合はこのバックアップ(=結合前の画像)から1回で作るので、
+                // orgフォルダには結合前の状態がそのまま残る
+                File.Copy(sourceFilePath, backupSourceFilePath, true);
+                File.Copy(mergeFilePath, backupMergeFilePath, true);
 
-                    if (trimHeights[j].Equals(""))
-                    {
-                        continue;
-                    }
-
-                    int trimHeight = int.Parse(trimHeights[j]);
-
-                    // TODO：入れ子にするための暫定
-                    // マージ実行
-                    if (j % 2 == 0)
-                    {
-                        MergeImage(sourceFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
-                        MergeImage(mergeFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
-                    }
-                    else
-                    {
-                        MergeImage(sourceFilePath, backupMergeFilePath, backupSourceFilePath, trimHeight);
-                        MergeImage(mergeFilePath, backupSourceFilePath, backupMergeFilePath, trimHeight);
-                    }
-                }
+                // マージ実行。どちらのファイルも一番上の帯は自分のまま、切断位置ごとに相手の画像と交互に入れ替える
+                MergeImage(sourceFilePath, backupSourceFilePath, backupMergeFilePath, trimHeights);
+                MergeImage(mergeFilePath, backupMergeFilePath, backupSourceFilePath, trimHeights);
             }
         }
 
