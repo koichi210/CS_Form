@@ -6,9 +6,9 @@ namespace Reminder.Tests
     /// Form1（構想メモ段階のプレースホルダープロジェクト。ハンドラは未実装）
     /// のテスト。
     ///
-    /// 現時点でこのプロジェクトにはInitializeComponent以外の実装が無く、
-    /// 抽出できるロジックも一切存在しない。将来ロジックが実装された際にすぐ
-    /// 気づけるよう、フォームの生成のみを確認するスモークテストを置いておく。
+    /// 画面のロジックは「毎月 第N 〇曜日」の繰り返し設定(次回の表示)だけで、
+    /// 日付計算はMonthlyNthWeekdayに切り出してMonthlyNthWeekdayTestsで確かめている。
+    /// ここではフォームの生成(繰り返し欄の初期化を含む)で例外が出ないことを確認する。
     /// </summary>
     [TestClass]
     public class Form1Tests

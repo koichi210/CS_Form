@@ -42,6 +42,9 @@
             this.textBox1 = new StandardTemplate.TextBoxEx();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.comboBox_RepeatWeek = new System.Windows.Forms.ComboBox();
+            this.comboBox_RepeatDayOfWeek = new System.Windows.Forms.ComboBox();
+            this.label_NextReminder = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.dateTimePicker_Time = new System.Windows.Forms.DateTimePicker();
             this.dateTimePicker_Days = new System.Windows.Forms.DateTimePicker();
@@ -85,6 +88,9 @@
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.textBox1);
             this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label_NextReminder);
+            this.groupBox1.Controls.Add(this.comboBox_RepeatDayOfWeek);
+            this.groupBox1.Controls.Add(this.comboBox_RepeatWeek);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.dateTimePicker_Time);
@@ -105,7 +111,7 @@
             this.textBox5.Multiline = true;
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(199, 54);
-            this.textBox5.TabIndex = 17;
+            this.textBox5.TabIndex = 15;
             // 
             // label10
             // 
@@ -113,7 +119,7 @@
             this.label10.Location = new System.Drawing.Point(154, 119);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(35, 12);
-            this.label10.TabIndex = 16;
+            this.label10.TabIndex = 14;
             this.label10.Text = "本文：";
             // 
             // textBox4
@@ -123,7 +129,7 @@
             this.textBox4.Location = new System.Drawing.Point(191, 91);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(199, 19);
-            this.textBox4.TabIndex = 15;
+            this.textBox4.TabIndex = 11;
             // 
             // label9
             // 
@@ -131,7 +137,7 @@
             this.label9.Location = new System.Drawing.Point(154, 94);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(35, 12);
-            this.label9.TabIndex = 14;
+            this.label9.TabIndex = 10;
             this.label9.Text = "件名：";
             // 
             // textBox3
@@ -141,7 +147,7 @@
             this.textBox3.Location = new System.Drawing.Point(191, 66);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(199, 19);
-            this.textBox3.TabIndex = 13;
+            this.textBox3.TabIndex = 8;
             // 
             // label8
             // 
@@ -149,7 +155,7 @@
             this.label8.Location = new System.Drawing.Point(154, 69);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(31, 12);
-            this.label8.TabIndex = 12;
+            this.label8.TabIndex = 7;
             this.label8.Text = "Bcc：";
             // 
             // textBox2
@@ -159,7 +165,7 @@
             this.textBox2.Location = new System.Drawing.Point(191, 41);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(199, 19);
-            this.textBox2.TabIndex = 11;
+            this.textBox2.TabIndex = 5;
             // 
             // label7
             // 
@@ -167,7 +173,7 @@
             this.label7.Location = new System.Drawing.Point(161, 44);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(25, 12);
-            this.label7.TabIndex = 10;
+            this.label7.TabIndex = 4;
             this.label7.Text = "Cc：";
             // 
             // textBox1
@@ -177,7 +183,7 @@
             this.textBox1.Location = new System.Drawing.Point(191, 16);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(199, 19);
-            this.textBox1.TabIndex = 9;
+            this.textBox1.TabIndex = 2;
             // 
             // label6
             // 
@@ -185,17 +191,45 @@
             this.label6.Location = new System.Drawing.Point(161, 19);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(24, 12);
-            this.label6.TabIndex = 8;
+            this.label6.TabIndex = 1;
             this.label6.Text = "To：";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(16, 83);
+            this.label5.Location = new System.Drawing.Point(16, 86);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(130, 12);
-            this.label5.TabIndex = 7;
-            this.label5.Text = "TODO：第1火曜等の設定";
+            this.label5.Size = new System.Drawing.Size(95, 12);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "繰り返し(毎月)：";
+            // 
+            // comboBox_RepeatWeek
+            // 
+            this.comboBox_RepeatWeek.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_RepeatWeek.FormattingEnabled = true;
+            this.comboBox_RepeatWeek.Location = new System.Drawing.Point(18, 101);
+            this.comboBox_RepeatWeek.Name = "comboBox_RepeatWeek";
+            this.comboBox_RepeatWeek.Size = new System.Drawing.Size(58, 20);
+            this.comboBox_RepeatWeek.TabIndex = 12;
+            this.comboBox_RepeatWeek.SelectedIndexChanged += new System.EventHandler(this.RepeatSetting_Changed);
+            // 
+            // comboBox_RepeatDayOfWeek
+            // 
+            this.comboBox_RepeatDayOfWeek.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_RepeatDayOfWeek.FormattingEnabled = true;
+            this.comboBox_RepeatDayOfWeek.Location = new System.Drawing.Point(80, 101);
+            this.comboBox_RepeatDayOfWeek.Name = "comboBox_RepeatDayOfWeek";
+            this.comboBox_RepeatDayOfWeek.Size = new System.Drawing.Size(62, 20);
+            this.comboBox_RepeatDayOfWeek.TabIndex = 13;
+            this.comboBox_RepeatDayOfWeek.SelectedIndexChanged += new System.EventHandler(this.RepeatSetting_Changed);
+            // 
+            // label_NextReminder
+            // 
+            this.label_NextReminder.Location = new System.Drawing.Point(16, 127);
+            this.label_NextReminder.Name = "label_NextReminder";
+            this.label_NextReminder.Size = new System.Drawing.Size(130, 40);
+            this.label_NextReminder.TabIndex = 16;
+            this.label_NextReminder.Text = "次回：";
             // 
             // label4
             // 
@@ -203,7 +237,7 @@
             this.label4.Location = new System.Drawing.Point(18, 19);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(59, 12);
-            this.label4.TabIndex = 5;
+            this.label4.TabIndex = 0;
             this.label4.Text = "起動時刻：";
             // 
             // dateTimePicker_Time
@@ -216,6 +250,7 @@
             this.dateTimePicker_Time.ShowUpDown = true;
             this.dateTimePicker_Time.Size = new System.Drawing.Size(124, 19);
             this.dateTimePicker_Time.TabIndex = 6;
+            this.dateTimePicker_Time.ValueChanged += new System.EventHandler(this.RepeatSetting_Changed);
             // 
             // dateTimePicker_Days
             // 
@@ -224,7 +259,8 @@
             this.dateTimePicker_Days.MinDate = new System.DateTime(1980, 1, 1, 0, 0, 0, 0);
             this.dateTimePicker_Days.Name = "dateTimePicker_Days";
             this.dateTimePicker_Days.Size = new System.Drawing.Size(124, 19);
-            this.dateTimePicker_Days.TabIndex = 5;
+            this.dateTimePicker_Days.TabIndex = 3;
+            this.dateTimePicker_Days.ValueChanged += new System.EventHandler(this.RepeatSetting_Changed);
             // 
             // label3
             // 
@@ -288,6 +324,9 @@
         private System.Windows.Forms.DateTimePicker dateTimePicker_Days;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox comboBox_RepeatWeek;
+        private System.Windows.Forms.ComboBox comboBox_RepeatDayOfWeek;
+        private System.Windows.Forms.Label label_NextReminder;
         private StandardTemplate.TextBoxEx textBox3;
         private System.Windows.Forms.Label label8;
         private StandardTemplate.TextBoxEx textBox2;
