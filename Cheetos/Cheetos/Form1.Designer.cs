@@ -100,6 +100,15 @@
             this.PictMerge = new System.Windows.Forms.TabPage();
             this.pm_TextBox_Status = new StandardTemplate.TextBoxEx();
             this.pm_TrimmingHeight = new StandardTemplate.TextBoxEx();
+            this.pm_Radio_TrimRange = new System.Windows.Forms.RadioButton();
+            this.pm_Radio_TrimStarts = new System.Windows.Forms.RadioButton();
+            this.pm_Radio_TrimPitch = new System.Windows.Forms.RadioButton();
+            this.pm_Label_PitchStart = new System.Windows.Forms.Label();
+            this.pm_PitchStart = new StandardTemplate.TextBoxEx();
+            this.pm_PitchInterval = new StandardTemplate.TextBoxEx();
+            this.pm_Label_PitchHeight = new System.Windows.Forms.Label();
+            this.pm_PitchHeight = new StandardTemplate.TextBoxEx();
+            this.pm_PitchCount = new StandardTemplate.TextBoxEx();
             this.label17 = new System.Windows.Forms.Label();
             this.pm_Button_Merge = new System.Windows.Forms.Button();
             this.pm_ListBox_ListUp = new System.Windows.Forms.ListBox();
@@ -920,6 +929,15 @@
             // 
             this.PictMerge.Controls.Add(this.pm_TextBox_Status);
             this.PictMerge.Controls.Add(this.pm_TrimmingHeight);
+            this.PictMerge.Controls.Add(this.pm_Radio_TrimRange);
+            this.PictMerge.Controls.Add(this.pm_Radio_TrimStarts);
+            this.PictMerge.Controls.Add(this.pm_Radio_TrimPitch);
+            this.PictMerge.Controls.Add(this.pm_Label_PitchStart);
+            this.PictMerge.Controls.Add(this.pm_PitchStart);
+            this.PictMerge.Controls.Add(this.pm_PitchInterval);
+            this.PictMerge.Controls.Add(this.pm_Label_PitchHeight);
+            this.PictMerge.Controls.Add(this.pm_PitchHeight);
+            this.PictMerge.Controls.Add(this.pm_PitchCount);
             this.PictMerge.Controls.Add(this.label17);
             this.PictMerge.Controls.Add(this.pm_Button_Merge);
             this.PictMerge.Controls.Add(this.pm_ListBox_ListUp);
@@ -946,29 +964,87 @@
             this.pm_TextBox_Status.Name = "pm_TextBox_Status";
             this.pm_TextBox_Status.ReadOnly = true;
             this.pm_TextBox_Status.Size = new System.Drawing.Size(155, 19);
-            this.pm_TextBox_Status.TabIndex = 11;
+            this.pm_TextBox_Status.TabIndex = 19;
             this.pm_TextBox_Status.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // pm_TrimmingHeight
             // 
             this.pm_TrimmingHeight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.pm_TrimmingHeight.Location = new System.Drawing.Point(115, 86);
+            this.pm_TrimmingHeight.Location = new System.Drawing.Point(115, 150);
             this.pm_TrimmingHeight.Multiline = true;
             this.pm_TrimmingHeight.Name = "pm_TrimmingHeight";
             this.pm_TrimmingHeight.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.pm_TrimmingHeight.Size = new System.Drawing.Size(100, 137);
-            this.pm_TrimmingHeight.TabIndex = 8;
+            this.pm_TrimmingHeight.Size = new System.Drawing.Size(100, 73);
+            this.pm_TrimmingHeight.TabIndex = 17;
             this.pm_TrimmingHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.pm_TrimmingHeight.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pm_TrimmingHeight_KeyDown);
+            this.pm_Radio_TrimRange.AutoSize = true;
+            this.pm_Radio_TrimRange.Checked = true;
+            this.pm_Radio_TrimRange.Location = new System.Drawing.Point(6, 84);
+            this.pm_Radio_TrimRange.Name = "pm_Radio_TrimRange";
+            this.pm_Radio_TrimRange.Size = new System.Drawing.Size(47, 16);
+            this.pm_Radio_TrimRange.TabIndex = 7;
+            this.pm_Radio_TrimRange.TabStop = true;
+            this.pm_Radio_TrimRange.Text = "範囲";
+            this.pm_Radio_TrimRange.UseVisualStyleBackColor = true;
+            this.pm_Radio_TrimRange.CheckedChanged += new System.EventHandler(this.pm_Radio_TrimMode_CheckedChanged);
+            this.pm_Radio_TrimStarts.AutoSize = true;
+            this.pm_Radio_TrimStarts.Location = new System.Drawing.Point(57, 84);
+            this.pm_Radio_TrimStarts.Name = "pm_Radio_TrimStarts";
+            this.pm_Radio_TrimStarts.Size = new System.Drawing.Size(71, 16);
+            this.pm_Radio_TrimStarts.TabIndex = 8;
+            this.pm_Radio_TrimStarts.Text = "開始位置";
+            this.pm_Radio_TrimStarts.UseVisualStyleBackColor = true;
+            this.pm_Radio_TrimStarts.CheckedChanged += new System.EventHandler(this.pm_Radio_TrimMode_CheckedChanged);
+            this.pm_Radio_TrimPitch.AutoSize = true;
+            this.pm_Radio_TrimPitch.Location = new System.Drawing.Point(132, 84);
+            this.pm_Radio_TrimPitch.Name = "pm_Radio_TrimPitch";
+            this.pm_Radio_TrimPitch.Size = new System.Drawing.Size(59, 16);
+            this.pm_Radio_TrimPitch.TabIndex = 9;
+            this.pm_Radio_TrimPitch.Text = "等間隔";
+            this.pm_Radio_TrimPitch.UseVisualStyleBackColor = true;
+            this.pm_Radio_TrimPitch.CheckedChanged += new System.EventHandler(this.pm_Radio_TrimMode_CheckedChanged);
+            this.pm_Label_PitchStart.AutoSize = true;
+            this.pm_Label_PitchStart.Location = new System.Drawing.Point(4, 107);
+            this.pm_Label_PitchStart.Name = "pm_Label_PitchStart";
+            this.pm_Label_PitchStart.Size = new System.Drawing.Size(65, 12);
+            this.pm_Label_PitchStart.TabIndex = 10;
+            this.pm_Label_PitchStart.Text = "開始・間隔：";
+            this.pm_PitchStart.Location = new System.Drawing.Point(115, 104);
+            this.pm_PitchStart.Name = "pm_PitchStart";
+            this.pm_PitchStart.Size = new System.Drawing.Size(48, 19);
+            this.pm_PitchStart.TabIndex = 11;
+            this.pm_PitchStart.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.pm_PitchInterval.Location = new System.Drawing.Point(167, 104);
+            this.pm_PitchInterval.Name = "pm_PitchInterval";
+            this.pm_PitchInterval.Size = new System.Drawing.Size(48, 19);
+            this.pm_PitchInterval.TabIndex = 12;
+            this.pm_PitchInterval.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.pm_Label_PitchHeight.AutoSize = true;
+            this.pm_Label_PitchHeight.Location = new System.Drawing.Point(4, 129);
+            this.pm_Label_PitchHeight.Name = "pm_Label_PitchHeight";
+            this.pm_Label_PitchHeight.Size = new System.Drawing.Size(65, 12);
+            this.pm_Label_PitchHeight.TabIndex = 13;
+            this.pm_Label_PitchHeight.Text = "高さ・回数：";
+            this.pm_PitchHeight.Location = new System.Drawing.Point(115, 126);
+            this.pm_PitchHeight.Name = "pm_PitchHeight";
+            this.pm_PitchHeight.Size = new System.Drawing.Size(48, 19);
+            this.pm_PitchHeight.TabIndex = 14;
+            this.pm_PitchHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.pm_PitchCount.Location = new System.Drawing.Point(167, 126);
+            this.pm_PitchCount.Name = "pm_PitchCount";
+            this.pm_PitchCount.Size = new System.Drawing.Size(48, 19);
+            this.pm_PitchCount.TabIndex = 15;
+            this.pm_PitchCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(4, 91);
+            this.label17.Location = new System.Drawing.Point(4, 153);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(98, 12);
-            this.label17.TabIndex = 7;
+            this.label17.TabIndex = 16;
             this.label17.Text = "切取る高さの範囲：";
             // 
             // pm_Button_Merge
@@ -977,7 +1053,7 @@
             this.pm_Button_Merge.Location = new System.Drawing.Point(383, 225);
             this.pm_Button_Merge.Name = "pm_Button_Merge";
             this.pm_Button_Merge.Size = new System.Drawing.Size(60, 23);
-            this.pm_Button_Merge.TabIndex = 12;
+            this.pm_Button_Merge.TabIndex = 20;
             this.pm_Button_Merge.Text = "結合";
             this.pm_Button_Merge.UseVisualStyleBackColor = true;
             this.pm_Button_Merge.Click += new System.EventHandler(this.MergeExec_Click);
@@ -995,7 +1071,7 @@
             this.pm_ListBox_ListUp.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.pm_ListBox_ListUp.Size = new System.Drawing.Size(222, 184);
             this.pm_ListBox_ListUp.Sorted = true;
-            this.pm_ListBox_ListUp.TabIndex = 9;
+            this.pm_ListBox_ListUp.TabIndex = 18;
             this.pm_ListBox_ListUp.SelectedIndexChanged += new System.EventHandler(this.pm_ListBox_ListUp_SelectedIndexChanged);
             this.pm_ListBox_ListUp.DoubleClick += new System.EventHandler(this.pm_ListBox_ListUp_DoubleClick);
             this.pm_ListBox_ListUp.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pm_ListBox_ListUp_KeyDown);
@@ -1375,6 +1451,15 @@
         private StandardTemplate.TextBoxEx TextBox_Status;
         public System.Windows.Forms.TabPage PictMerge;
         public StandardTemplate.TextBoxEx pm_TrimmingHeight;
+        public System.Windows.Forms.RadioButton pm_Radio_TrimRange;
+        public System.Windows.Forms.RadioButton pm_Radio_TrimStarts;
+        public System.Windows.Forms.RadioButton pm_Radio_TrimPitch;
+        public System.Windows.Forms.Label pm_Label_PitchStart;
+        public StandardTemplate.TextBoxEx pm_PitchStart;
+        public StandardTemplate.TextBoxEx pm_PitchInterval;
+        public System.Windows.Forms.Label pm_Label_PitchHeight;
+        public StandardTemplate.TextBoxEx pm_PitchHeight;
+        public StandardTemplate.TextBoxEx pm_PitchCount;
         public System.Windows.Forms.Label label17;
         public System.Windows.Forms.Button pm_Button_Merge;
         public System.Windows.Forms.ListBox pm_ListBox_ListUp;

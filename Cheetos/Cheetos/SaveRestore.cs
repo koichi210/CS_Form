@@ -44,9 +44,17 @@ namespace Cheetos
             RegisterCtrl("DistOrient", "do_SampleFilePath", parent.do_SampleFilePath);
 
             RegisterCtrl("PictMerge", "pm_SourceFolderPath", parent.pm_SourceFolderPath);
-            RegisterCtrl("PictMerge", "pm_SourceFile1Prefix", parent.pm_SourceFile1Prefix);
-            RegisterCtrl("PictMerge", "pm_SourceFile2Prefix", parent.pm_SourceFile2Prefix);
-            RegisterCtrl("PictMerge", "pm_TrimmingHeight", parent.pm_TrimmingHeight);
+            // 識別子と高さの欄は、設定ファイルが無いとき(初回起動)に例を入れておく
+            RegisterCtrl("PictMerge", "pm_SourceFile1Prefix", parent.pm_SourceFile1Prefix, "_1");
+            RegisterCtrl("PictMerge", "pm_SourceFile2Prefix", parent.pm_SourceFile2Prefix, "_2");
+            RegisterCtrl("PictMerge", "pm_TrimmingHeight", parent.pm_TrimmingHeight, "0,200");
+            RegisterCtrl("PictMerge", "pm_Radio_TrimRange", parent.pm_Radio_TrimRange, "True");
+            RegisterCtrl("PictMerge", "pm_Radio_TrimStarts", parent.pm_Radio_TrimStarts);
+            RegisterCtrl("PictMerge", "pm_Radio_TrimPitch", parent.pm_Radio_TrimPitch);
+            RegisterCtrl("PictMerge", "pm_PitchStart", parent.pm_PitchStart);
+            RegisterCtrl("PictMerge", "pm_PitchInterval", parent.pm_PitchInterval);
+            RegisterCtrl("PictMerge", "pm_PitchHeight", parent.pm_PitchHeight);
+            RegisterCtrl("PictMerge", "pm_PitchCount", parent.pm_PitchCount);
 
             RegisterCtrl("FileCollect", "fc_SourceFolderPath", parent.fc_SourceFolderPath);
             RegisterCtrl("FileCollect", "fc_DestFolderPath", parent.fc_DestFolderPath);

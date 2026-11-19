@@ -109,6 +109,7 @@ namespace Cheetos
             String defaultXmlPath = Path.Combine(_userDataFolder, _settingFileNameXml);
             JsonSaveRestore.LoadWithMigration(_sr, defaultJsonPath, defaultXmlPath, LoadProfileFromXml);
             SyncPictTrimEndMode();
+            UpdatePictMergeModeControls();
 
             UpdateProfileListAll("");
         }
@@ -139,6 +140,10 @@ namespace Cheetos
 
             pm_SourceFile1Prefix.PlaceholderText = "例: _1";
             pm_SourceFile2Prefix.PlaceholderText = "例: _2";
+            pm_PitchStart.PlaceholderText = "例: 530";
+            pm_PitchInterval.PlaceholderText = "例: 290";
+            pm_PitchHeight.PlaceholderText = "例: 45";
+            pm_PitchCount.PlaceholderText = "空=下端";
 
             fc_TargetFileName.PlaceholderText = "例: *.png";
             fc_DestFolderPath.PlaceholderText = @"例: C:\Collect";
@@ -215,9 +220,16 @@ namespace Cheetos
             // PictMerge
             toolTip.SetToolTip(pm_SourceFolderPath, readOnlyFolderTip);
             toolTip.SetToolTip(pm_Label_SourceFolderPath, readOnlyLabelTip);
-            toolTip.SetToolTip(pm_SourceFile1Prefix, "結合先のファイルを見分ける、拡張子の直前の文字列(例: 001_1.jpgなら_1)。このファイルに上書き保存し、元はBk_Mergeへコピーしておく");
-            toolTip.SetToolTip(pm_SourceFile2Prefix, "切り出し元のファイルを見分ける、拡張子の直前の文字列。結合先の名前のこの部分を置き換えたファイルを使い、結合後はBk_Mergeへ移動する");
-            toolTip.SetToolTip(pm_TrimmingHeight, "マージ元から結合先の同じ位置へ写す縦の範囲(px)を、1行に1つ「開始,終了」で書く。「-」は開始なら0、終了なら画像の下端の意味");
+            toolTip.SetToolTip(pm_SourceFile1Prefix, "結合先のファイルを見分ける、拡張子の直前の文字列(例: 001_1.jpgなら_1)。結合した画像はこの文字列を除いた名前(001.jpg)で保存し、元のファイルはCheetos\\BK\\yyyyMMdd_Mergeへ移す");
+            toolTip.SetToolTip(pm_SourceFile2Prefix, "切り出し元のファイルを見分ける、拡張子の直前の文字列。結合先の名前のこの部分を置き換えたファイルを使い、結合後はCheetos\\BK\\yyyyMMdd_Mergeへ移動する");
+            toolTip.SetToolTip(pm_TrimmingHeight, "範囲: マージ元から結合先の同じ位置へ写す縦の範囲(px)を、1行に1つ「開始,終了」で書く。「-」は開始なら0、終了なら画像の下端の意味。開始位置: 開始位置だけを改行かカンマ区切りで並べる");
+            toolTip.SetToolTip(pm_Radio_TrimRange, "下の欄に、写す縦の範囲(px)を1行に1つ「開始,終了」で書く(今までの書き方)");
+            toolTip.SetToolTip(pm_Radio_TrimStarts, "下の欄に開始位置だけを並べ(改行かカンマ区切り)、高さは「高さ」欄の共通の1つにする");
+            toolTip.SetToolTip(pm_Radio_TrimPitch, "開始位置から「間隔」ずつずらしながら、「高さ」の帯を「回数」個写す(例: 開始530・間隔290・高さ45)");
+            toolTip.SetToolTip(pm_PitchStart, "等間隔: 最初の帯の開始位置(px)");
+            toolTip.SetToolTip(pm_PitchInterval, "等間隔: 次の帯までずらす幅(px)");
+            toolTip.SetToolTip(pm_PitchHeight, "開始位置・等間隔: 1つの帯の高さ(px)");
+            toolTip.SetToolTip(pm_PitchCount, "等間隔: 帯の数。空欄なら、選んだ画像のうちいちばん低い画像の下端に収まるところまで並べる");
             toolTip.SetToolTip(pm_ListBox_ListUp, "選択したファイルのうち、マージ先の識別子を含むものだけ処理する(Ctrl+Aで全選択)。ダブルクリックで選択中のファイルを開く");
             toolTip.SetToolTip(pm_Button_Merge, "選択したファイルを結合する。処理中に押すと中断");
 
@@ -251,6 +263,7 @@ namespace Cheetos
                 _sr.LoadProc(filePath, this);
             }
             SyncPictTrimEndMode();
+            UpdatePictMergeModeControls();
         }
 
         // 旧XMLの読み込み(移行用)。JsonSaveRestore.LoadWithMigrationへ渡す
