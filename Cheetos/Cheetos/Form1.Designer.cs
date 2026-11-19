@@ -42,6 +42,8 @@
             this.cw_TextBox_SaveFilePrefix = new StandardTemplate.TextBoxEx();
             this.label23 = new System.Windows.Forms.Label();
             this.cw_TextBox_Loop = new StandardTemplate.TextBoxEx();
+            this.label30 = new System.Windows.Forms.Label();
+            this.cw_TextBox_Watchdog = new StandardTemplate.TextBoxEx();
             this.label18 = new System.Windows.Forms.Label();
             this.cw_TextBox_Sleep = new StandardTemplate.TextBoxEx();
             this.label6 = new System.Windows.Forms.Label();
@@ -140,6 +142,9 @@
             this.textBox_ExpectEndTime = new StandardTemplate.TextBoxEx();
             this.label29 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
+            this.label31 = new System.Windows.Forms.Label();
+            this.textBox_NextEventTime = new StandardTemplate.TextBoxEx();
+            this.label_CaptureWarning = new System.Windows.Forms.Label();
             this.bkgWorkerRotation = new System.ComponentModel.BackgroundWorker();
             this.TabPage.SuspendLayout();
             this.CaptureWindow.SuspendLayout();
@@ -182,6 +187,8 @@
             this.CaptureWindow.Controls.Add(this.cw_TextBox_SaveFilePrefix);
             this.CaptureWindow.Controls.Add(this.label23);
             this.CaptureWindow.Controls.Add(this.cw_TextBox_Loop);
+            this.CaptureWindow.Controls.Add(this.label30);
+            this.CaptureWindow.Controls.Add(this.cw_TextBox_Watchdog);
             this.CaptureWindow.Controls.Add(this.label18);
             this.CaptureWindow.Controls.Add(this.cw_TextBox_Sleep);
             this.CaptureWindow.Controls.Add(this.label6);
@@ -203,7 +210,7 @@
             this.cw_Button_DelLine.Location = new System.Drawing.Point(223, 229);
             this.cw_Button_DelLine.Name = "cw_Button_DelLine";
             this.cw_Button_DelLine.Size = new System.Drawing.Size(65, 23);
-            this.cw_Button_DelLine.TabIndex = 13;
+            this.cw_Button_DelLine.TabIndex = 15;
             this.cw_Button_DelLine.Text = "一行削除";
             this.cw_Button_DelLine.UseVisualStyleBackColor = true;
             this.cw_Button_DelLine.Click += new System.EventHandler(this.cw_Button_DelLine_Click);
@@ -214,7 +221,7 @@
             this.cw_Button_AddLine.Location = new System.Drawing.Point(156, 229);
             this.cw_Button_AddLine.Name = "cw_Button_AddLine";
             this.cw_Button_AddLine.Size = new System.Drawing.Size(65, 23);
-            this.cw_Button_AddLine.TabIndex = 12;
+            this.cw_Button_AddLine.TabIndex = 14;
             this.cw_Button_AddLine.Text = "一行追加";
             this.cw_Button_AddLine.UseVisualStyleBackColor = true;
             this.cw_Button_AddLine.Click += new System.EventHandler(this.cw_Button_AddLine_Click);
@@ -229,7 +236,7 @@
             this.cw_dataGridView.Name = "cw_dataGridView";
             this.cw_dataGridView.RowTemplate.Height = 21;
             this.cw_dataGridView.Size = new System.Drawing.Size(287, 140);
-            this.cw_dataGridView.TabIndex = 11;
+            this.cw_dataGridView.TabIndex = 13;
             this.cw_dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.cw_dataGridView_CellClick);
             this.cw_dataGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.cw_dataGridView_CellDoubleClick);
             this.cw_dataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cw_dataGridView_KeyDown);
@@ -250,7 +257,7 @@
             this.cw_TextBox_Status.Name = "cw_TextBox_Status";
             this.cw_TextBox_Status.ReadOnly = true;
             this.cw_TextBox_Status.Size = new System.Drawing.Size(106, 19);
-            this.cw_TextBox_Status.TabIndex = 10;
+            this.cw_TextBox_Status.TabIndex = 12;
             this.cw_TextBox_Status.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // cw_GroupBox_CaptureTarget
@@ -260,7 +267,7 @@
             this.cw_GroupBox_CaptureTarget.Controls.Add(this.cw_Radio_CurrentWindow);
             this.cw_GroupBox_CaptureTarget.Location = new System.Drawing.Point(14, 83);
             this.cw_GroupBox_CaptureTarget.Name = "cw_GroupBox_CaptureTarget";
-            this.cw_GroupBox_CaptureTarget.Size = new System.Drawing.Size(130, 83);
+            this.cw_GroupBox_CaptureTarget.Size = new System.Drawing.Size(130, 75);
             this.cw_GroupBox_CaptureTarget.TabIndex = 5;
             this.cw_GroupBox_CaptureTarget.TabStop = false;
             this.cw_GroupBox_CaptureTarget.Text = "Capture対象";
@@ -269,7 +276,7 @@
             // 
             this.cw_Radio_FullScreen.AutoSize = true;
             this.cw_Radio_FullScreen.Checked = true;
-            this.cw_Radio_FullScreen.Location = new System.Drawing.Point(9, 21);
+            this.cw_Radio_FullScreen.Location = new System.Drawing.Point(9, 17);
             this.cw_Radio_FullScreen.Name = "cw_Radio_FullScreen";
             this.cw_Radio_FullScreen.Size = new System.Drawing.Size(77, 16);
             this.cw_Radio_FullScreen.TabIndex = 0;
@@ -280,7 +287,7 @@
             // cw_Radio_CurrentScreen
             // 
             this.cw_Radio_CurrentScreen.AutoSize = true;
-            this.cw_Radio_CurrentScreen.Location = new System.Drawing.Point(9, 41);
+            this.cw_Radio_CurrentScreen.Location = new System.Drawing.Point(9, 35);
             this.cw_Radio_CurrentScreen.Name = "cw_Radio_CurrentScreen";
             this.cw_Radio_CurrentScreen.Size = new System.Drawing.Size(96, 16);
             this.cw_Radio_CurrentScreen.TabIndex = 1;
@@ -291,7 +298,7 @@
             // cw_Radio_CurrentWindow
             // 
             this.cw_Radio_CurrentWindow.AutoSize = true;
-            this.cw_Radio_CurrentWindow.Location = new System.Drawing.Point(9, 61);
+            this.cw_Radio_CurrentWindow.Location = new System.Drawing.Point(9, 53);
             this.cw_Radio_CurrentWindow.Name = "cw_Radio_CurrentWindow";
             this.cw_Radio_CurrentWindow.Size = new System.Drawing.Size(99, 16);
             this.cw_Radio_CurrentWindow.TabIndex = 2;
@@ -319,17 +326,28 @@
             // 
             // cw_TextBox_Loop
             // 
-            this.cw_TextBox_Loop.Location = new System.Drawing.Point(94, 204);
+            this.cw_TextBox_Loop.Location = new System.Drawing.Point(94, 186);
             this.cw_TextBox_Loop.Name = "cw_TextBox_Loop";
             this.cw_TextBox_Loop.Size = new System.Drawing.Size(50, 19);
             this.cw_TextBox_Loop.TabIndex = 9;
             this.cw_TextBox_Loop.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.cw_TextBox_Loop.EnableUpDownIncrement = true;
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(14, 212);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(77, 12);
+            this.label30.TabIndex = 10;
+            this.label30.Text = "自動復旧(秒)：";
+            this.cw_TextBox_Watchdog.Location = new System.Drawing.Point(94, 208);
+            this.cw_TextBox_Watchdog.Name = "cw_TextBox_Watchdog";
+            this.cw_TextBox_Watchdog.Size = new System.Drawing.Size(50, 19);
+            this.cw_TextBox_Watchdog.TabIndex = 11;
+            this.cw_TextBox_Watchdog.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(26, 204);
+            this.label18.Location = new System.Drawing.Point(26, 190);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(64, 12);
             this.label18.TabIndex = 8;
@@ -337,7 +355,7 @@
             // 
             // cw_TextBox_Sleep
             // 
-            this.cw_TextBox_Sleep.Location = new System.Drawing.Point(94, 179);
+            this.cw_TextBox_Sleep.Location = new System.Drawing.Point(94, 164);
             this.cw_TextBox_Sleep.Name = "cw_TextBox_Sleep";
             this.cw_TextBox_Sleep.Size = new System.Drawing.Size(50, 19);
             this.cw_TextBox_Sleep.TabIndex = 7;
@@ -346,7 +364,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 183);
+            this.label6.Location = new System.Drawing.Point(12, 168);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(78, 12);
             this.label6.TabIndex = 6;
@@ -378,7 +396,7 @@
             this.cw_Button_Capture.Location = new System.Drawing.Point(383, 229);
             this.cw_Button_Capture.Name = "cw_Button_Capture";
             this.cw_Button_Capture.Size = new System.Drawing.Size(60, 23);
-            this.cw_Button_Capture.TabIndex = 14;
+            this.cw_Button_Capture.TabIndex = 16;
             this.cw_Button_Capture.Text = "Capture";
             this.cw_Button_Capture.UseVisualStyleBackColor = true;
             this.cw_Button_Capture.Click += new System.EventHandler(this.Button_Capture_Click);
@@ -1251,7 +1269,7 @@
             // Button_ProfileSave
             // 
             this.Button_ProfileSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.Button_ProfileSave.Location = new System.Drawing.Point(389, 380);
+            this.Button_ProfileSave.Location = new System.Drawing.Point(389, 404);
             this.Button_ProfileSave.Name = "Button_ProfileSave";
             this.Button_ProfileSave.Size = new System.Drawing.Size(75, 23);
             this.Button_ProfileSave.TabIndex = 4;
@@ -1265,7 +1283,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Profile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Profile.FormattingEnabled = true;
-            this.Profile.Location = new System.Drawing.Point(3, 382);
+            this.Profile.Location = new System.Drawing.Point(3, 406);
             this.Profile.Name = "Profile";
             this.Profile.Size = new System.Drawing.Size(377, 20);
             this.Profile.TabIndex = 3;
@@ -1291,7 +1309,7 @@
             // 
             this.label_DebugMode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_DebugMode.Location = new System.Drawing.Point(5, 371);
+            this.label_DebugMode.Location = new System.Drawing.Point(5, 395);
             this.label_DebugMode.Name = "label_DebugMode";
             this.label_DebugMode.Size = new System.Drawing.Size(302, 10);
             this.label_DebugMode.TabIndex = 2;
@@ -1324,9 +1342,12 @@
             this.groupBox2.Controls.Add(this.ProgressBar_Status);
             this.groupBox2.Controls.Add(this.textBox_StartTime);
             this.groupBox2.Controls.Add(this.TextBox_Status);
+            this.groupBox2.Controls.Add(this.label31);
+            this.groupBox2.Controls.Add(this.textBox_NextEventTime);
+            this.groupBox2.Controls.Add(this.label_CaptureWarning);
             this.groupBox2.Location = new System.Drawing.Point(3, 297);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(461, 76);
+            this.groupBox2.Size = new System.Drawing.Size(461, 100);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "処理状況";
@@ -1357,6 +1378,27 @@
             this.label28.Size = new System.Drawing.Size(35, 12);
             this.label28.TabIndex = 0;
             this.label28.Text = "開始：";
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(14, 70);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(59, 12);
+            this.label31.TabIndex = 6;
+            this.label31.Text = "次の予定：";
+            this.textBox_NextEventTime.Location = new System.Drawing.Point(75, 66);
+            this.textBox_NextEventTime.Name = "textBox_NextEventTime";
+            this.textBox_NextEventTime.ReadOnly = true;
+            this.textBox_NextEventTime.Size = new System.Drawing.Size(115, 19);
+            this.textBox_NextEventTime.TabIndex = 7;
+            this.textBox_NextEventTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.label_CaptureWarning.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_CaptureWarning.AutoEllipsis = true;
+            this.label_CaptureWarning.Font = new System.Drawing.Font("MS UI Gothic", 9F, System.Drawing.FontStyle.Bold);
+            this.label_CaptureWarning.ForeColor = System.Drawing.Color.Red;
+            this.label_CaptureWarning.Location = new System.Drawing.Point(207, 70);
+            this.label_CaptureWarning.Name = "label_CaptureWarning";
+            this.label_CaptureWarning.Size = new System.Drawing.Size(240, 12);
+            this.label_CaptureWarning.TabIndex = 8;
             // 
             // bkgWorkerRotation
             // 
@@ -1370,13 +1412,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(467, 407);
+            this.ClientSize = new System.Drawing.Size(467, 431);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.Profile);
             this.Controls.Add(this.Button_ProfileSave);
             this.Controls.Add(this.TabPage);
             this.Controls.Add(this.label_DebugMode);
-            this.MinimumSize = new System.Drawing.Size(400, 445);
+            this.MinimumSize = new System.Drawing.Size(400, 469);
             this.Name = "Cheetos";
             this.Text = "Cheetos";
             this.TabPage.ResumeLayout(false);
@@ -1433,6 +1475,8 @@
         public System.Windows.Forms.ListBox pt_ListBox_ListUp;
         public System.Windows.Forms.Button pt_Button_Trim;
         public StandardTemplate.TextBoxEx cw_TextBox_Loop;
+        public System.Windows.Forms.Label label30;
+        public StandardTemplate.TextBoxEx cw_TextBox_Watchdog;
         public System.Windows.Forms.Label label18;
         public System.Windows.Forms.ProgressBar ProgressBar_Status;
         private StandardTemplate.ComboBoxEx Profile;
@@ -1499,6 +1543,9 @@
         private StandardTemplate.TextBoxEx textBox_ExpectEndTime;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label31;
+        private StandardTemplate.TextBoxEx textBox_NextEventTime;
+        private System.Windows.Forms.Label label_CaptureWarning;
         public System.Windows.Forms.CheckBox cw_checkBox_AddTimeStamp;
         public System.Windows.Forms.DataGridView cw_dataGridView;
         public System.Windows.Forms.Button cw_Button_AddLine;

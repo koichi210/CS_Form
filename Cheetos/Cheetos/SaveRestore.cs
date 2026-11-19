@@ -19,6 +19,7 @@ namespace Cheetos
             RegisterCtrl("CaptureWindow", "cw_Radio_CurrentWindow", parent.cw_Radio_CurrentWindow);
             RegisterCtrl("CaptureWindow", "cw_TextBox_Sleep", parent.cw_TextBox_Sleep,"2000");
             RegisterCtrl("CaptureWindow", "cw_TextBox_Loop", parent.cw_TextBox_Loop,"2");
+            RegisterCtrl("CaptureWindow", "cw_TextBox_Watchdog", parent.cw_TextBox_Watchdog);
             RegisterCtrl("DataGrid", "Cell", "RowCount", parent.cw_dataGridView);
 
             RegisterCtrl("PictTrim", "pt_SourceFolderPath", parent.pt_SourceFolderPath);

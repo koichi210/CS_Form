@@ -74,6 +74,7 @@
     <Compile Include="WorkerParams.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="LogicEx.cs" />
+    <Compile Include="CaptureRunner.cs" />
     <Compile Include="TrimHeightPattern.cs" />
     <Compile Include="PictMerge.cs">
       <SubType>Form</SubType>

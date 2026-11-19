@@ -77,8 +77,7 @@ namespace Cheetos
 
             InitializeCommonSettings(Properties.Resources.Cheetos);
 
-            // CurrentScreenキャプチャで「このウィンドウが今あるモニタ」を判定できるようにする
-            _captWindow.TargetWindow = this;
+            // CurrentScreenキャプチャで「このウィンドウが今あるモニタ」を判定するのは、Capture開始時にCaptureRunner.TargetWindowへ渡す
 
             // デバッグログに時間を表示
             _debugLog.UseTimeInLog = true;
@@ -127,6 +126,7 @@ namespace Cheetos
             cw_TextBox_SaveFilePrefix.PlaceholderText = "例: capture_";
             cw_TextBox_Sleep.PlaceholderText = "例: 2000";
             cw_TextBox_Loop.PlaceholderText = "例: 2";
+            cw_TextBox_Watchdog.PlaceholderText = "例: 60";
 
             pt_BaseX.PlaceholderText = "例: 0";
             pt_BaseY.PlaceholderText = "例: 0";
@@ -173,10 +173,12 @@ namespace Cheetos
             toolTip.SetToolTip(cw_checkBox_AddTimeStamp, "ファイル名の接頭辞の後に、Capture開始時刻(yyyy_MM_dd_HH_mm_ss)を付ける");
             toolTip.SetToolTip(cw_TextBox_Sleep, "Capture開始前に待つ時間(ミリ秒)。空欄なら待たない。実際は1秒単位に切り上げて待つ");
             toolTip.SetToolTip(cw_TextBox_Loop, "グリッドの全行を繰り返す回数。空欄なら1回。↑↓キーで1ずつ増減できる");
+            toolTip.SetToolTip(cw_TextBox_Watchdog, "次の行の予定時刻(下の「次の予定」)をこの秒数過ぎても動いていなければ、止まった行を飛ばして次の行から続ける(1回のCaptureで最大5回)。空欄か0なら自動復旧しない");
+            toolTip.SetToolTip(textBox_NextEventTime, "CaptureWindowの実行中、次の行を始める予定の時刻(今の行のSleepが終わる時刻)");
             toolTip.SetToolTip(cw_Radio_FullScreen, "Ctrl+PrintScreenで画面全体を撮る");
             toolTip.SetToolTip(cw_Radio_CurrentScreen, "このウィンドウが表示されているモニタ1枚だけを撮る");
             toolTip.SetToolTip(cw_Radio_CurrentWindow, "Alt+PrintScreenで、撮影時点でアクティブなウィンドウを撮る");
-            toolTip.SetToolTip(cw_Button_Capture, "グリッドの各行を上から順に実行(マウス操作→Sleep→キャプチャ)し、それを繰り返し数だけ行う。終了後はマウスカーソルを押した時の位置へ戻す。処理中に押すと中断");
+            toolTip.SetToolTip(cw_Button_Capture, "グリッドの各行を上から順に実行(マウス操作→Sleep→キャプチャ)し、それを繰り返し数だけ行う。保存先に同じ名前の画像があれば上書きしてよいか先に確認する。終了後はマウスカーソルを押した時の位置へ戻す。処理中に押すと中断");
             toolTip.SetToolTip(cw_Button_AddLine, "選択中の行の下に1行挿入する(MouseAction=Move、Capture=×)");
             toolTip.SetToolTip(cw_TextBox_Status, "このタブ上でマウスを動かすと、現在のマウス座標(画面座標)を表示する。この欄(かタブの余白)からマウスをドラッグして離すと、その位置の座標を表の選択中の行のMouseX/MouseYに入れる");
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderSleepStr)].ToolTipText = "マウス操作の後、キャプチャ前に待つ時間(ミリ秒、1秒単位に切り上げ)。空欄なら直前に使った待ち時間を引き継ぐ";
