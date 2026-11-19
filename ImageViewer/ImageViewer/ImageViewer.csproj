@@ -53,6 +53,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">
@@ -61,8 +63,18 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileSorter.cs" />
+    <Compile Include="FormLargeView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLargeView.Designer.cs">
+      <DependentUpon>FormLargeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GammaCorrection.cs" />
     <Compile Include="Preview.cs" />
     <Compile Include="ShellThumbnail.cs" />
+    <Compile Include="VideoFrameGrabber.cs" />
+    <Compile Include="VideoPosition.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="..\..\_Common\StcExceptionGuard.cs">
       <Link>StcExceptionGuard.cs</Link>

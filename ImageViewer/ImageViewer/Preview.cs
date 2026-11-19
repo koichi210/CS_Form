@@ -12,6 +12,10 @@ namespace ImageViewer
         private int _width;
         private int _height;
 
+        // 一覧の並び順(既定は名前順。名前順はエクスプローラーと同じく数字を数として比べる。[[FileSorter.cs]])
+        public FileSortOrder SortOrder { get; set; } = FileSortOrder.Name;
+        public bool SortDescending { get; set; }
+
         // 拡張子のパターンを複数書くときの区切り(例: "*.png;*.mp4")
         private static readonly char[] _patternSeparators = { ';' };
 
@@ -64,6 +68,36 @@ namespace ImageViewer
                 .ToArray();
         }
 
+        // 表示対象のファイルを集めて、SortOrder/SortDescendingの並び順にする
+        public String[] GetSortedTargetFiles(String folderPath, String extension)
+        {
+            return FileSorter.Sort(GetTargetFiles(folderPath, extension), SortOrder, SortDescending);
+        }
+
+        // 一覧に入れるサムネイル(SetSizeの大きさに縮めた画像)を作る。読めないファイル・サムネイルが取れない動画はnull。
+        // 画面に触らないので、読み込み用のスレッドから呼んでよい(元の画像はすぐ閉じるので、ファイルを握ったままにしない)
+        public Image LoadThumbnail(String filePath)
+        {
+            try
+            {
+                using (Image original = LoadSourceImage(filePath))
+                {
+                    if (original == null)
+                    {
+                        return null;
+                    }
+                    // ImageListに入れるとこの大きさに引き伸ばされるので、同じ大きさにしておく(大きな画像を持ち回らない)
+                    return new Bitmap(original, Math.Max(1, _width), Math.Max(1, _height));
+                }
+            }
+            catch (Exception ex) when (ex is OutOfMemoryException || ex is IOException
+                || ex is UnauthorizedAccessException || ex is ArgumentException)
+            {
+                // Image.FromFileは画像として読めないファイルにOutOfMemoryExceptionを投げる
+                return null;
+            }
+        }
+
         // サムネイルの元になる画像を読む。動画はシェルのサムネイルで代用し、取れなければnull
         private Image LoadSourceImage(String filePath)
         {
@@ -82,7 +116,7 @@ namespace ImageViewer
                 return;
             }
 
-            String[] files = GetTargetFiles(folderPath, extension);
+            String[] files = GetSortedTargetFiles(folderPath, extension);
             imageList.ImageSize = new Size(_width, _height);
 
             // 前回表示した画像が残っていると、項目のImageIndex(0始まり)が古い画像を指してしまうので消しておく

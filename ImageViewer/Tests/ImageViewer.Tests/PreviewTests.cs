@@ -268,5 +268,58 @@ namespace ImageViewer.Tests
             Assert.IsNull(ShellThumbnail.GetThumbnail("", 32, 32));
             Assert.IsNull(ShellThumbnail.GetThumbnail(null, 32, 32));
         }
+
+        [TestMethod]
+        public void Viewはサイズ順と降順の指定どおりに並べる()
+        {
+            using (var big = new Bitmap(40, 40)) { big.Save(Path.Combine(_tempDirectory, "a.png")); }
+            using (var small = new Bitmap(2, 2)) { small.Save(Path.Combine(_tempDirectory, "b.png")); }
+
+            var pv = new Preview { SortOrder = FileSortOrder.Size };
+            pv.SetSize(16);
+
+            using (var imageList = new ImageList())
+            using (var listView = new ListView())
+            {
+                pv.View(imageList, listView, _tempDirectory, "*.png");
+                Assert.AreEqual("b.png", Path.GetFileName(listView.Items[0].Text), "小さい順");
+
+                pv.SortDescending = true;
+                pv.View(imageList, listView, _tempDirectory, "*.png");
+                Assert.AreEqual("a.png", Path.GetFileName(listView.Items[0].Text), "降順なら大きい順");
+            }
+        }
+
+        [TestMethod]
+        public void LoadThumbnailはSetSizeの大きさの画像を返し読めなければnullを返す()
+        {
+            CreatePng("a.png");
+            File.WriteAllText(Path.Combine(_tempDirectory, "bad.png"), "これは画像ではない");
+
+            var pv = new Preview();
+            pv.SetSize(24, 18);
+
+            using (Image thumbnail = pv.LoadThumbnail(Path.Combine(_tempDirectory, "a.png")))
+            {
+                Assert.AreEqual(24, thumbnail.Width);
+                Assert.AreEqual(18, thumbnail.Height);
+            }
+            Assert.IsNull(pv.LoadThumbnail(Path.Combine(_tempDirectory, "bad.png")));
+            Assert.IsNull(pv.LoadThumbnail(Path.Combine(_tempDirectory, "missing.png")));
+        }
+
+        [TestMethod]
+        public void ガンマ補正した画像は中間の明るさが変わり元の画像は変わらない()
+        {
+            using (var source = new Bitmap(2, 2))
+            {
+                source.SetPixel(0, 0, Color.FromArgb(255, 64, 64, 64));
+                using (Bitmap result = FormLargeView.ApplyGamma(source, 2.0))
+                {
+                    Assert.AreEqual(128, result.GetPixel(0, 0).R);
+                    Assert.AreEqual(64, source.GetPixel(0, 0).R);
+                }
+            }
+        }
     }
 }

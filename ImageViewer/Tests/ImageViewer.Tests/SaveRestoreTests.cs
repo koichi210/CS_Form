@@ -44,6 +44,8 @@ namespace ImageViewer.Tests
             {
                 writer.textBox_FolderPath.Text = @"D:\photos";
                 writer.textBox_Extension.Text = "*.jpg";
+                writer.comboBox_SortOrder.SelectedIndex = 2;
+                writer.checkBox_SortDescending.Checked = true;
 
                 var sr = new SaveRestore();
                 sr.RegisterItem(writer);
@@ -58,6 +60,8 @@ namespace ImageViewer.Tests
 
                     Assert.AreEqual(@"D:\photos", reader.textBox_FolderPath.Text);
                     Assert.AreEqual("*.jpg", reader.textBox_Extension.Text);
+                    Assert.AreEqual(2, reader.comboBox_SortOrder.SelectedIndex, "並び順(更新日時順)も戻る");
+                    Assert.IsTrue(reader.checkBox_SortDescending.Checked);
                 }
             }
         }
