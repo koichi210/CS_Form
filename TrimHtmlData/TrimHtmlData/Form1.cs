@@ -90,7 +90,8 @@ namespace TrimHtmlData
             toolTip.SetToolTip(textBox_TrimLineNum, "ヒットした行から数えて取り出す行数(ヒット行を含む)。空欄・0は1行として扱う");
             toolTip.SetToolTip(checkBox_FirstWordOnly, "各URLで最初にヒットした箇所だけを取り出す");
             toolTip.SetToolTip(button_Execute, "各URLのHTMLを取得して該当行を取り出し、結果をクリップボードにもコピーする");
-            toolTip.SetToolTip(comboBox_LoadSetting, "選ぶと保存済みの設定を読み込み、各欄の内容が置き換わる");
+            toolTip.SetToolTip(comboBox_LoadSetting, "選ぶと保存済みの設定(検索文字・取得行数・大文字小文字の区別)を読み込む。取得元・取得値はプロファイルに含めないので変わらない");
+            toolTip.SetToolTip(progressBar_Fetch, "取得の進み具合(取得し終えたURLの数/全体のURLの数)");
         }
 
         // *******************************************************************************
@@ -185,6 +186,8 @@ namespace TrimHtmlData
             };
 
             SetFetching(true);
+            progressBar_Fetch.Maximum = Math.Max(1, job.Urls.Length);
+            progressBar_Fetch.Value = 0;
             FetchNext(job, 0);
         }
 
@@ -218,6 +221,7 @@ namespace TrimHtmlData
             string url = job.Urls[index];
             job.DestText.Append("◆").Append(url).Append(Environment.NewLine);
             this.Text = _appName + " - 取得中 (" + (index + 1) + "/" + job.Urls.Length + ")";
+            progressBar_Fetch.Value = index;
 
             Task.Factory.StartNew(() => DownloadHtmlSource(url))
                 .ContinueWith(task =>
@@ -259,6 +263,8 @@ namespace TrimHtmlData
 
         private void FinishFetch(TrimJob job)
         {
+            // 全件終わったらバーを満タンにする(次の実行の開始時に0へ戻す)
+            progressBar_Fetch.Value = progressBar_Fetch.Maximum;
             textBox_DestList.Text = job.DestText.ToString();
             SetFetching(false);
 

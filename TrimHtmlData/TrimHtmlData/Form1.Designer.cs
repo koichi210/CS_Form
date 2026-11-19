@@ -43,6 +43,7 @@
             this.checkBox_OrdinalCase = new System.Windows.Forms.CheckBox();
             this.checkBox_FirstWordOnly = new System.Windows.Forms.CheckBox();
             this.comboBox_LoadSetting = new StandardTemplate.ComboBoxEx();
+            this.progressBar_Fetch = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // textBox_SourceList
@@ -113,7 +114,7 @@
             this.button_Execute.Location = new System.Drawing.Point(628, 259);
             this.button_Execute.Name = "button_Execute";
             this.button_Execute.Size = new System.Drawing.Size(75, 45);
-            this.button_Execute.TabIndex = 13;
+            this.button_Execute.TabIndex = 12;
             this.button_Execute.Text = "実行";
             this.button_Execute.UseVisualStyleBackColor = true;
             this.button_Execute.Click += new System.EventHandler(this.button_Execute_Click);
@@ -201,11 +202,21 @@
             this.comboBox_LoadSetting.TabIndex = 14;
             this.comboBox_LoadSetting.SelectedIndexChanged += new System.EventHandler(this.comboBox_LoadSetting_SelectedIndexChanged);
             // 
+            // progressBar_Fetch
+            // 
+            this.progressBar_Fetch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar_Fetch.Location = new System.Drawing.Point(14, 323);
+            this.progressBar_Fetch.Name = "progressBar_Fetch";
+            this.progressBar_Fetch.Size = new System.Drawing.Size(689, 12);
+            this.progressBar_Fetch.TabIndex = 13;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(715, 366);
+            this.Controls.Add(this.progressBar_Fetch);
             this.Controls.Add(this.comboBox_LoadSetting);
             this.Controls.Add(this.checkBox_FirstWordOnly);
             this.Controls.Add(this.checkBox_OrdinalCase);
@@ -247,6 +258,7 @@
         public System.Windows.Forms.CheckBox checkBox_OrdinalCase;
         public System.Windows.Forms.CheckBox checkBox_FirstWordOnly;
         private StandardTemplate.ComboBoxEx comboBox_LoadSetting;
+        public System.Windows.Forms.ProgressBar progressBar_Fetch;
     }
 }
 
