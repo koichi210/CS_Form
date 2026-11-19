@@ -56,12 +56,17 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.button_AddAllSolution = new System.Windows.Forms.Button();
             this.comboBox_Profile = new StandardTemplate.ComboBoxEx();
+            this.label_DeleteTargetHint = new System.Windows.Forms.Label();
+            this.label_RowCount = new System.Windows.Forms.Label();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.textBox_BuildLog = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView
@@ -75,7 +80,7 @@
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.RowTemplate.Height = 21;
             this.dataGridView.Size = new System.Drawing.Size(432, 272);
-            this.dataGridView.TabIndex = 7;
+            this.dataGridView.TabIndex = 2;
             this.dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellClick);
             this.dataGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellDoubleClick);
             this.dataGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellEndEdit);
@@ -123,7 +128,7 @@
             this.label3.Location = new System.Drawing.Point(12, 12);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(86, 12);
-            this.label3.TabIndex = 6;
+            this.label3.TabIndex = 0;
             this.label3.Text = "プロジェクト一覧：";
             // 
             // button_Build
@@ -132,7 +137,7 @@
             this.button_Build.Location = new System.Drawing.Point(369, 305);
             this.button_Build.Name = "button_Build";
             this.button_Build.Size = new System.Drawing.Size(75, 23);
-            this.button_Build.TabIndex = 11;
+            this.button_Build.TabIndex = 6;
             this.button_Build.Text = "ビルド実行";
             this.button_Build.UseVisualStyleBackColor = true;
             this.button_Build.Click += new System.EventHandler(this.button_Build_Click);
@@ -143,7 +148,7 @@
             this.button_AddRow.Location = new System.Drawing.Point(12, 305);
             this.button_AddRow.Name = "button_AddRow";
             this.button_AddRow.Size = new System.Drawing.Size(75, 23);
-            this.button_AddRow.TabIndex = 8;
+            this.button_AddRow.TabIndex = 3;
             this.button_AddRow.Text = "一行追加";
             this.button_AddRow.UseVisualStyleBackColor = true;
             this.button_AddRow.Click += new System.EventHandler(this.button_AddRow_Click);
@@ -160,7 +165,7 @@
             this.button_RemoveRow.Location = new System.Drawing.Point(93, 305);
             this.button_RemoveRow.Name = "button_RemoveRow";
             this.button_RemoveRow.Size = new System.Drawing.Size(75, 23);
-            this.button_RemoveRow.TabIndex = 9;
+            this.button_RemoveRow.TabIndex = 4;
             this.button_RemoveRow.Text = "一行削除";
             this.button_RemoveRow.UseVisualStyleBackColor = true;
             this.button_RemoveRow.Click += new System.EventHandler(this.button_RemoveRow_Click);
@@ -171,7 +176,7 @@
             this.button_SaveSetting.Location = new System.Drawing.Point(393, 377);
             this.button_SaveSetting.Name = "button_SaveSetting";
             this.button_SaveSetting.Size = new System.Drawing.Size(85, 23);
-            this.button_SaveSetting.TabIndex = 10;
+            this.button_SaveSetting.TabIndex = 2;
             this.button_SaveSetting.Text = "設定保存";
             this.button_SaveSetting.UseVisualStyleBackColor = true;
             this.button_SaveSetting.Click += new System.EventHandler(this.button_SaveSetting_Click);
@@ -184,14 +189,16 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(470, 363);
-            this.tabControl1.TabIndex = 12;
+            this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label_DeleteTargetHint);
             this.tabPage1.Controls.Add(this.textBox_DeleteDirectoryName);
             this.tabPage1.Controls.Add(this.checkBox_DeleteDirectory);
             this.tabPage1.Controls.Add(this.textBox_BuildOption);
@@ -210,9 +217,12 @@
             // 
             this.textBox_DeleteDirectoryName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_DeleteDirectoryName.AcceptsReturn = true;
             this.textBox_DeleteDirectoryName.Location = new System.Drawing.Point(109, 103);
+            this.textBox_DeleteDirectoryName.Multiline = true;
             this.textBox_DeleteDirectoryName.Name = "textBox_DeleteDirectoryName";
-            this.textBox_DeleteDirectoryName.Size = new System.Drawing.Size(333, 19);
+            this.textBox_DeleteDirectoryName.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox_DeleteDirectoryName.Size = new System.Drawing.Size(333, 80);
             this.textBox_DeleteDirectoryName.TabIndex = 5;
             // 
             // checkBox_DeleteDirectory
@@ -221,9 +231,9 @@
             this.checkBox_DeleteDirectory.Enabled = false;
             this.checkBox_DeleteDirectory.Location = new System.Drawing.Point(109, 81);
             this.checkBox_DeleteDirectory.Name = "checkBox_DeleteDirectory";
-            this.checkBox_DeleteDirectory.Size = new System.Drawing.Size(263, 16);
+            this.checkBox_DeleteDirectory.Size = new System.Drawing.Size(298, 16);
             this.checkBox_DeleteDirectory.TabIndex = 4;
-            this.checkBox_DeleteDirectory.Text = "ビルド後にプロジェクト以下の任意ディレクトリを削除";
+            this.checkBox_DeleteDirectory.Text = "ビルド後にプロジェクト以下の任意のフォルダ・ファイルを削除";
             this.checkBox_DeleteDirectory.UseVisualStyleBackColor = true;
             this.checkBox_DeleteDirectory.CheckedChanged += new System.EventHandler(this.checkBox_DeleteDirectory_CheckedChanged);
             // 
@@ -338,6 +348,7 @@
             // 
             this.tabPage2.Controls.Add(this.button_AddAllSolution);
             this.tabPage2.Controls.Add(this.dataGridView);
+            this.tabPage2.Controls.Add(this.label_RowCount);
             this.tabPage2.Controls.Add(this.label3);
             this.tabPage2.Controls.Add(this.button_Build);
             this.tabPage2.Controls.Add(this.button_RemoveRow);
@@ -356,7 +367,7 @@
             this.button_AddAllSolution.Location = new System.Drawing.Point(174, 305);
             this.button_AddAllSolution.Name = "button_AddAllSolution";
             this.button_AddAllSolution.Size = new System.Drawing.Size(75, 23);
-            this.button_AddAllSolution.TabIndex = 10;
+            this.button_AddAllSolution.TabIndex = 5;
             this.button_AddAllSolution.Text = "一括登録";
             this.button_AddAllSolution.UseVisualStyleBackColor = true;
             this.button_AddAllSolution.Click += new System.EventHandler(this.button_AddAllSolution_Click);
@@ -370,8 +381,51 @@
             this.comboBox_Profile.Location = new System.Drawing.Point(16, 379);
             this.comboBox_Profile.Name = "comboBox_Profile";
             this.comboBox_Profile.Size = new System.Drawing.Size(371, 20);
-            this.comboBox_Profile.TabIndex = 13;
+            this.comboBox_Profile.TabIndex = 1;
             this.comboBox_Profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_Profile_SelectedIndexChanged);
+            // 
+            // label_DeleteTargetHint
+            // 
+            this.label_DeleteTargetHint.AutoSize = true;
+            this.label_DeleteTargetHint.Location = new System.Drawing.Point(107, 188);
+            this.label_DeleteTargetHint.Name = "label_DeleteTargetHint";
+            this.label_DeleteTargetHint.Size = new System.Drawing.Size(299, 12);
+            this.label_DeleteTargetHint.TabIndex = 6;
+            this.label_DeleteTargetHint.Text = "1行に1つ。フォルダ名(例: obj)やファイルのパターン(例: *.ncb)";
+            // 
+            // label_RowCount
+            // 
+            this.label_RowCount.AutoSize = true;
+            this.label_RowCount.Location = new System.Drawing.Point(104, 12);
+            this.label_RowCount.Name = "label_RowCount";
+            this.label_RowCount.Size = new System.Drawing.Size(0, 12);
+            this.label_RowCount.TabIndex = 1;
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.textBox_BuildLog);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(462, 337);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "ビルド結果";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // textBox_BuildLog
+            // 
+            this.textBox_BuildLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_BuildLog.Location = new System.Drawing.Point(6, 6);
+            this.textBox_BuildLog.Multiline = true;
+            this.textBox_BuildLog.Name = "textBox_BuildLog";
+            this.textBox_BuildLog.ReadOnly = true;
+            this.textBox_BuildLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_BuildLog.Size = new System.Drawing.Size(450, 325);
+            this.textBox_BuildLog.TabIndex = 0;
+            this.textBox_BuildLog.WordWrap = false;
+            this.textBox_BuildLog.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_BuildLog_KeyDown);
             // 
             // Form1
             // 
@@ -394,6 +448,8 @@
             this.groupBox3.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -428,6 +484,10 @@
         public StandardTemplate.TextBoxEx textBox_LogDirectory;
         public StandardTemplate.TextBoxEx textBox_DeleteDirectoryName;
         public System.Windows.Forms.CheckBox checkBox_DeleteDirectory;
+        private System.Windows.Forms.Label label_DeleteTargetHint;
+        public System.Windows.Forms.Label label_RowCount;
+        private System.Windows.Forms.TabPage tabPage4;
+        public System.Windows.Forms.TextBox textBox_BuildLog;
 
     }
 }

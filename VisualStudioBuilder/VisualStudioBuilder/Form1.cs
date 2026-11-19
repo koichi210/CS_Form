@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Text;
@@ -53,17 +54,20 @@ namespace VisualStudioBuilder
 
         private readonly StcFileInputOutput _fio = new StcFileInputOutput();
 
-        public class BuildWorkerInfo
+        // ビルド1回分の入力値。画面の値は開始時点でここへ写し、バックグラウンドの処理(BuildWorker_DoWork)は
+        // これだけを見る(別スレッドから画面のコントロールに触らないため)
+        internal class BuildWorkerInfo
         {
-            public String BuildScript { get; set; }
+            public String VisualStudioExePath { get; set; }
+            public String BuildOption { get; set; }
+            public String LogDirectory { get; set; }
+            public List<BuildTarget> Targets { get; set; }
             public Boolean IsDetectError { get; set; }
             public String DetectBuildErrorWord { get; set; }
             public Boolean IsExclude { get; set; }
             public String IgnoreExecuteFile { get; set; }
             public Boolean IsDeleteDirectory { get; set; }
-            public String DeleteDirectoryName { get; set; }
-            public String[] ProjectPathList { get; set; }
-            public String DetectTargetLogList { get; set; }
+            public String DeleteTargetsText { get; set; }
         }
 
         public Form1()
@@ -83,6 +87,10 @@ namespace VisualStudioBuilder
             // ここで切り替える
             checkBox_DeleteDirectory.Enabled = true;
 
+            // ビルド中の経過(何をしているか)をビルド結果欄へ出すため、BuildWorkerから途中経過を受け取る
+            BuildWorker.WorkerReportsProgress = true;
+            BuildWorker.ProgressChanged += BuildWorker_ProgressChanged;
+
             _sr.RegisterItem(this);
             LoadUserData();
         }
@@ -101,17 +109,18 @@ namespace VisualStudioBuilder
                 path => _sr.LoadProc(path, this));
             UpdateBuildGui();
             UpdateOutputGui();
+            UpdateRowCount();
             _util.UpdateProfileList(comboBox_Profile, _profileExtensions, _defaultSettingFileName, _userDataFolder);
         }
 
         // 入力欄が空の時に薄く表示する入力例([[_Common/TextBoxEx.cs]]のPlaceholderText)。
-        // ReadOnly・Multilineの欄は無いので全欄が対象
+        // 削除対象の欄(textBox_DeleteDirectoryName)は複数行にした(Windowsの仕様で表示されない)ので、
+        // 代わりに下のラベル(label_DeleteTargetHint)に書き方を出している
         // (既定値は[[SaveRestore.cs]]のRegisterCtrlに合わせた)
         private void InitializePlaceholders()
         {
             textBox_VisualStudioExePath.PlaceholderText = @"例: C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe";
             textBox_BuildOption.PlaceholderText = "例: /rebuild release";
-            textBox_DeleteDirectoryName.PlaceholderText = "例: obj";
             textBox_LogDirectory.PlaceholderText = @"例: C:\Work\BuildLog";
             textBox_DetectBuildErrorWord.PlaceholderText = "例: error";
             textBox_ExcludeWord.PlaceholderText = "例: LNK1168";
@@ -126,18 +135,24 @@ namespace VisualStudioBuilder
             this.Disposed += (s, e) => toolTip.Dispose();
 
             toolTip.SetToolTip(comboBox_Profile, "保存済みのプロファイル。選ぶとその内容を読み込む");
-            toolTip.SetToolTip(textBox_VisualStudioExePath, "ビルドに使うdevenv.exeのパス");
+            toolTip.SetToolTip(textBox_VisualStudioExePath, "ビルドに使うdevenv.exeのパス。ビルド実行の前にファイルがあるか確かめる");
             toolTip.SetToolTip(textBox_BuildOption, "devenvにそのまま渡す引数(ビルドの種類と構成名)");
-            toolTip.SetToolTip(button_Build, "ビルド欄が○のソリューションを順にビルドする。開始時にログ出力先フォルダを中身ごと削除する");
-            toolTip.SetToolTip(checkBox_DeleteDirectory, "オンならビルド完了後、ビルド対象の各プロジェクトフォルダ以下(サブフォルダ含む)から下の欄の名前と一致するフォルダを探して削除する");
+            toolTip.SetToolTip(button_Build, "ビルド欄が○のソリューションを順にビルドし、結果を「ビルド結果」タブに出す。" +
+                "開始時にログ出力先フォルダを中身ごと削除する。見つからないソリューションは飛ばして「存在しないリスト」に出す");
+            toolTip.SetToolTip(checkBox_DeleteDirectory, "オンならビルド完了後、ビルド対象の各プロジェクトフォルダ以下(サブフォルダ含む)から、下の欄に書いた名前と一致するフォルダ・ファイルを探して削除する");
+            toolTip.SetToolTip(textBox_DeleteDirectoryName, "1行に1つ。フォルダ名(obj など)やファイルのパターン(*.ncb など。*と?が使える)を書く。" +
+                "どの行もフォルダとファイルの両方に当てる。\\ / : を含む行や、*・*.* のように全部に当たる行は使わない");
 
-            toolTip.SetToolTip(textBox_LogDirectory, "ソリューションごとのビルドログ(ソリューション名.log)の出力先。ビルド開始時に中身ごと削除して作り直す。空欄ならログを出さない。Enterキーでフォルダを開く");
-            toolTip.SetToolTip(checkBox_DetectBuildError, "ビルド後に各ログを検知ワードで調べ、成功/失敗の一覧を表示する");
+            toolTip.SetToolTip(textBox_LogDirectory, "ソリューションごとのビルドログの出力先。ログ名は「プロジェクトのパス＋ソリューション名」の\\と:を_にしたもの" +
+                "(例: D__Work_Foo_Foo.log)。ビルド開始時に中身ごと削除して作り直す。空欄ならログを出さない。Enterキーでフォルダを開く");
+            toolTip.SetToolTip(checkBox_DetectBuildError, "ビルド後に各ログを検知ワードで調べ、成功/失敗の一覧を「ビルド結果」タブに出す");
             toolTip.SetToolTip(textBox_DetectBuildErrorWord, "この文字列を含むログをビルド失敗と判定する");
             toolTip.SetToolTip(checkBox_IsExclude, "オンなら下の検知ワードを含むログを成功扱いにせず、「実行ファイルの上書きに失敗」として別枠で表示する");
             toolTip.SetToolTip(textBox_ExcludeWord, "この文字列を含むログを、実行中のexeを差し替えられなかったものとして別枠に分ける");
 
             toolTip.SetToolTip(button_AddAllSolution, "指定フォルダ配下(サブフォルダ含む)の.slnを全て登録する。今の一覧は消える");
+            toolTip.SetToolTip(label_RowCount, "表に登録されている行の数と、そのうちビルド欄が○の行の数");
+            toolTip.SetToolTip(textBox_BuildLog, "ビルドの経過と結果(存在しないリスト・成功/失敗の一覧)。Ctrl+Aで全選択");
             dataGridView.Columns[_buildEnableIdx].ToolTipText = "○の行だけビルドする";
             dataGridView.Columns[_solutionNameIdx].ToolTipText = "ソリューションファイル名(.sln込み)。ダブルクリックで開く。空欄のままパスを入れると「フォルダ名.sln」が入る";
             dataGridView.Columns[_projectPathIdx].ToolTipText = "ソリューションファイルがあるフォルダ。ダブルクリックでフォルダを開く";
@@ -189,140 +204,164 @@ namespace VisualStudioBuilder
             }
         }
 
-        private String CreateDetectTargetList()
+        // 表の各行を写し取る(バックグラウンドの処理へ渡すため)
+        private List<BuildTarget> CollectBuildTargets()
         {
-            var detectTargetLogList = new StringBuilder();
-
-            if (checkBox_DetectBuildError.Checked)
-            {
-                for (int i = 0; i < dataGridView.RowCount; i++)
-                {
-                    if (GetCellData(i, _buildEnableIdx) != Logic.BuildListEnable)
-                    {
-                        continue;
-                    }
-
-                    String solutionName = GetCellData(i, _solutionNameIdx);
-                    detectTargetLogList.Append(Logic.GetLogPathName(textBox_LogDirectory.Text, solutionName));
-                    detectTargetLogList.Append(Environment.NewLine);
-                }
-            }
-
-            return _util.TrimEndGarbage(detectTargetLogList.ToString());
-        }
-
-        // ビルド対象(○)のプロジェクトフォルダ一覧。ビルド後のディレクトリ削除で、
-        // どのソリューションの配下を掃除するかに使う
-        private String[] CreateEnabledProjectPathList()
-        {
-            List<String> projectPathList = new List<String>();
-
+            List<BuildTarget> targets = new List<BuildTarget>();
             for (int i = 0; i < dataGridView.RowCount; i++)
             {
-                if (GetCellData(i, _buildEnableIdx) != Logic.BuildListEnable)
+                targets.Add(new BuildTarget
                 {
-                    continue;
-                }
-
-                String projectPath = GetCellData(i, _projectPathIdx);
-                if (projectPath != String.Empty)
-                {
-                    projectPathList.Add(projectPath);
-                }
+                    BuildEnable = GetCellData(i, _buildEnableIdx),
+                    SolutionName = GetCellData(i, _solutionNameIdx),
+                    ProjectPath = GetCellData(i, _projectPathIdx),
+                });
             }
-
-            return projectPathList.ToArray();
-        }
-
-        private Boolean CheckSolutionPath()
-        {
-            var fileNotFoundList = new StringBuilder();
-
-            // ファイルパスチェック
-            for (int i = 0; i < dataGridView.RowCount; i++)
-            {
-                String solutionName = GetCellData(i, _solutionNameIdx);
-                String projectPath = GetCellData(i, _projectPathIdx);
-                String solutionPath = Logic.GetSolutionPathName(projectPath, solutionName);
-
-                if (!File.Exists(solutionPath))
-                {
-                    // 存在しないパス
-                    fileNotFoundList.Append("No").Append(i).Append(' ').Append(solutionName).Append(Environment.NewLine);
-                }
-            }
-
-            if (fileNotFoundList.Length > 0)
-            {
-                DialogResult dlgResult = MessageBox.Show(
-                    "いくつかのソリューションが見つかりませんでした。" +
-                    "処理を継続しますか？" + Environment.NewLine + fileNotFoundList.ToString(),
-                    "Warning",
-                    MessageBoxButtons.YesNo);
-                if (dlgResult == DialogResult.No)
-                {
-                    return false;
-                }
-            }
-            return true;
+            return targets;
         }
 
         private void button_Build_Click(object sender, EventArgs e)
         {
             // ビルド中に押されると、実行中のビルドのログフォルダを消してしまうため先に弾く
+            // (ビルド中はボタンを無効にしてあるが、念のため)
             if (BuildWorker.IsBusy)
             {
-                MessageBox.Show("ビルド実行中です。終わってからもう一度押してください");
                 return;
             }
 
-            if (!CheckSolutionPath())
+            // devenv.exeが無いとバッチは「指定されたパスが見つかりません」で全部失敗するのに、
+            // 以前は「ビルド完了」と出ていた。始める前に確かめて、無ければ止める
+            String exeError = Logic.ValidateVisualStudioExePath(textBox_VisualStudioExePath.Text, File.Exists);
+            if (exeError != null)
             {
+                textBox_BuildLog.Text = "[エラー] " + exeError + Environment.NewLine;
+                MessageBox.Show(this, exeError, "VisualStudioBuilder", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
-            // ビルドログを削除
-            _fio.DeleteDirectoryAndFile(textBox_LogDirectory.Text);
 
             // 以前はList<object>へ順番に詰めてDoWork側で位置で取り出していたが、
-            // 並び順がずれると気づきにくいため、専用クラスをそのまま渡す
+            // 並び順がずれると気づきにくいため、専用クラスをそのまま渡す。
+            // ソリューションの存在チェック・ログフォルダの作り直し・バッチ作成は、表が長いと時間がかかるので
+            // バックグラウンド(BuildWorker_DoWork)で行う
             BuildWorkerInfo bwi = new BuildWorkerInfo
             {
-                BuildScript = CreateAllBuildScript(),
+                VisualStudioExePath = textBox_VisualStudioExePath.Text.Trim().Trim('"'),
+                BuildOption = textBox_BuildOption.Text,
+                LogDirectory = textBox_LogDirectory.Text,
+                Targets = CollectBuildTargets(),
                 IsDetectError = checkBox_DetectBuildError.Checked,
                 DetectBuildErrorWord = textBox_DetectBuildErrorWord.Text,
                 IsExclude = checkBox_IsExclude.Checked,
                 IgnoreExecuteFile = textBox_ExcludeWord.Text,
                 IsDeleteDirectory = checkBox_DeleteDirectory.Checked,
-                DeleteDirectoryName = textBox_DeleteDirectoryName.Text,
-                ProjectPathList = CreateEnabledProjectPathList(),
-                DetectTargetLogList = CreateDetectTargetList(),
+                DeleteTargetsText = textBox_DeleteDirectoryName.Text,
             };
 
+            textBox_BuildLog.Clear();
+            tabControl1.SelectedTab = tabPage4;
+            SetBuilding(true);
             BuildWorker.RunWorkerAsync(bwi);
+        }
+
+        // ビルド中は「ビルド実行」を押せなくし、ボタンの文字で実行中であることを示す
+        private void SetBuilding(Boolean isBuilding)
+        {
+            button_Build.Enabled = !isBuilding;
+            button_Build.Text = isBuilding ? "ビルド中..." : "ビルド実行";
+        }
+
+        // ビルド結果欄の末尾に1行足す
+        private void AppendBuildLog(String text)
+        {
+            textBox_BuildLog.AppendText(text + Environment.NewLine);
+        }
+
+        private void BuildWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            AppendBuildLog((String)e.UserState);
         }
 
         private void BuildWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             // 別スレッドで実行されるため、このメソッドではGUIを操作してはいけない
+            // (経過はReportProgressでUIスレッドへ渡し、BuildWorker_ProgressChangedで結果欄に出す)
+            BackgroundWorker worker = (BackgroundWorker)sender;
 
             // このメソッドへのパラメータ
             BuildWorkerInfo bwi = (BuildWorkerInfo)e.Argument;
+            StringBuilder result = new StringBuilder();
 
-            // ビルド実行
+            // ソリューションの存在チェック。以前は見つからないものがあると「処理を継続しますか？」の
+            // ポップアップで止まっていた。今は見つからないものを飛ばして「存在しないリスト」に出し、残りをビルドする
+            worker.ReportProgress(0, "ソリューションの存在を確認しています...");
+            List<String> missingList = Logic.FindMissingSolutions(bwi.Targets, File.Exists);
+            result.Append("[存在しないリスト]").Append(Environment.NewLine);
+            foreach (String missing in missingList)
+            {
+                result.Append(missing).Append(Environment.NewLine);
+            }
+            result.Append(Environment.NewLine);
+
+            List<BuildTarget> buildTargets = new List<BuildTarget>();
+            foreach (BuildTarget target in bwi.Targets)
+            {
+                if (target.IsEnabled && !target.IsBlank
+                    && File.Exists(Logic.GetSolutionPathName(target.ProjectPath, target.SolutionName)))
+                {
+                    buildTargets.Add(target);
+                }
+            }
+
+            // ビルドログを削除して作り直す(空欄ならログを出さない)
+            Boolean isExportLog = bwi.LogDirectory != String.Empty;
+            if (isExportLog)
+            {
+                worker.ReportProgress(0, "ログ出力先を作り直しています: " + bwi.LogDirectory);
+                _fio.DeleteDirectoryAndFile(bwi.LogDirectory);
+                Directory.CreateDirectory(bwi.LogDirectory);
+            }
+
+            if (buildTargets.Count == 0)
+            {
+                result.Append("ビルドできるソリューションがありません(ビルド欄が○で、ファイルがあるものが0件)").Append(Environment.NewLine);
+                e.Result = result.ToString();
+                return;
+            }
+
+            // バッチ作成・ビルド実行
+            StringBuilder script = new StringBuilder(Logic.CreateScriptHeader(bwi.VisualStudioExePath, bwi.BuildOption));
+            foreach (BuildTarget target in buildTargets)
+            {
+                script.Append(Logic.CreateBuildScript(target.BuildEnable, target.SolutionName, target.ProjectPath, bwi.LogDirectory, isExportLog));
+            }
+
+            worker.ReportProgress(0, "ビルドしています(" + buildTargets.Count + " 件)...");
             String batchFile = _fio.CreateTempFile("Bat");
-            _fio.CreateFile(batchFile, bwi.BuildScript);
+            _fio.CreateFile(batchFile, script.ToString());
             _util.ExecutePathWithWait(batchFile);
 
-            // ディレクトリ削除。ビルド全体(全ソリューション)が終わった後に、
+            // フォルダ・ファイル削除。ビルド全体(全ソリューション)が終わった後に、
             // ビルド対象だった各ソリューションのプロジェクトフォルダ以下を再帰的に探して消す
             // (objフォルダ等、ビルド中はまだ使われているため各ソリューションのビルド直後ではなく
             // 全ビルド完了後にまとめて行う)。判定・削除処理自体はLogic側(テスト可能)に置く
-            if (bwi.IsDeleteDirectory && bwi.DeleteDirectoryName != String.Empty)
+            if (bwi.IsDeleteDirectory)
             {
-                foreach (String projectPath in bwi.ProjectPathList)
+                String[] invalidTargets;
+                String[] deleteTargets = Logic.ParseDeleteTargets(bwi.DeleteTargetsText, out invalidTargets);
+                foreach (String invalidTarget in invalidTargets)
                 {
-                    Logic.DeleteDirectoriesByName(projectPath, bwi.DeleteDirectoryName);
+                    worker.ReportProgress(0, "[削除しない] パスや全部に当たるパターンは使えません: " + invalidTarget);
+                }
+
+                if (deleteTargets.Length != 0)
+                {
+                    worker.ReportProgress(0, "ビルド後の削除をしています: " + String.Join(", ", deleteTargets));
+                    int deletedCount = 0;
+                    foreach (BuildTarget target in buildTargets)
+                    {
+                        deletedCount += Logic.DeleteTargetsByPatterns(target.ProjectPath, deleteTargets);
+                    }
+                    worker.ReportProgress(0, "削除したフォルダ・ファイル: " + deletedCount + " 件");
                 }
             }
 
@@ -330,34 +369,47 @@ namespace VisualStudioBuilder
             // ログファイルの中身を見る部分だけここから渡す
             if (bwi.IsDetectError)
             {
-                String[] targetArray = _util.ChangeStrLinear2Array(bwi.DetectTargetLogList, Environment.NewLine);
-                e.Result = Logic.ClassifyBuildResult(targetArray, bwi.DetectBuildErrorWord,
-                                                     bwi.IsExclude, bwi.IgnoreExecuteFile,
-                                                     _fio.DetectFileData);
+                String[] targetArray = buildTargets
+                    .ConvertAll(target => Logic.GetLogPathName(bwi.LogDirectory, target.ProjectPath, target.SolutionName))
+                    .ToArray();
+                result.Append(Logic.ClassifyBuildResult(targetArray, bwi.DetectBuildErrorWord,
+                                                        bwi.IsExclude, bwi.IgnoreExecuteFile,
+                                                        _fio.DetectFileData));
             }
             else
             {
-                e.Result = "ビルド完了";
+                result.Append("ビルド完了(" + buildTargets.Count + " 件)").Append(Environment.NewLine);
             }
+            e.Result = result.ToString();
         }
 
+        // 結果は以前はメッセージボックスに出していたが、ソリューションが多いと画面からはみ出して読めなかった。
+        // 「ビルド結果」タブのテキスト欄に出す(スクロール・コピーできる)
         private void BuildWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            SetBuilding(false);
+            AppendBuildLog("");
             if (e.Cancelled)
             {
                 // この場合にはe.Resultにはアクセスできない
-                MessageBox.Show("キャンセルされました");
+                AppendBuildLog("キャンセルされました");
             }
             else if (e.Error != null)
             {
                 // この場合にはe.Resultにはアクセスできない
-                MessageBox.Show("処理が中断されました" + Environment.NewLine + e.Error.Message);
+                AppendBuildLog("処理が中断されました" + Environment.NewLine + e.Error.Message);
             }
             else
             {
                 // 処理結果の表示
-                MessageBox.Show((String)e.Result);
+                AppendBuildLog((String)e.Result);
             }
+            tabControl1.SelectedTab = tabPage4;
+        }
+
+        private void textBox_BuildLog_KeyDown(object sender, KeyEventArgs e)
+        {
+            _util.SelectAll(textBox_BuildLog, e);
         }
 
         private void InitializeDataGridView()
@@ -365,8 +417,15 @@ namespace VisualStudioBuilder
             // ComboBoxを除く項目数
             dataGridView.ColumnCount = 2;
 
-            // 左端プロパティを非表示
-            dataGridView.RowHeadersVisible = false;
+            // 左端(行ヘッダー)に1始まりの行番号を出す(何件登録されているか・存在しないリストのNo.と突き合わせられるように)。
+            // 番号はdataGridView_RowPostPaintで描く
+            dataGridView.RowHeadersVisible = true;
+            dataGridView.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridView.RowHeadersWidth = 44;
+            dataGridView.RowPostPaint += dataGridView_RowPostPaint;
+            dataGridView.RowsAdded += (s, e) => UpdateRowCount();
+            dataGridView.RowsRemoved += (s, e) => UpdateRowCount();
+            dataGridView.CellValueChanged += (s, e) => UpdateRowCount();
 
             // Memo：下記を設定しない場合、最終行（☆がついている行）は削除できないので注意
             // 最下部プロパティを非表示
@@ -387,39 +446,31 @@ namespace VisualStudioBuilder
             SetDataGridViewColumnWidth();
         }
 
-        private String CreateAllBuildScript()
-        {
-            Boolean isExportLog = false;
-            if (textBox_LogDirectory.Text != String.Empty)
-            {
-                _fio.EnsureDirectory(textBox_LogDirectory.Text, true);
-                isExportLog = true;
-            }
-
-            // ヘッダー生成
-            var script = new StringBuilder(Logic.CreateScriptHeader(textBox_VisualStudioExePath.Text, textBox_BuildOption.Text));
-
-            // GridDataからビルド設定コマンド生成
-            for (int i = 0; i < dataGridView.RowCount; i++)
-            {
-                script.Append(CreateBuildScript(i, isExportLog));
-            }
-
-            return script.ToString();
-        }
-
         private String GetCellData(int rowIndex, int columnIndex)
         {
             return dataGridView.Rows[rowIndex].Cells[columnIndex].Value?.ToString() ?? "";
         }
 
-        private String CreateBuildScript(int rowIndex, Boolean isExportLog)
+        // 表の左端に行番号(1始まり)を描く
+        private void dataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
-            String buildEnable = GetCellData(rowIndex, _buildEnableIdx);
-            String solutionName = GetCellData(rowIndex, _solutionNameIdx);
-            String projectPath = GetCellData(rowIndex, _projectPathIdx);
+            Rectangle bounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, dataGridView.RowHeadersWidth - 4, e.RowBounds.Height);
+            TextRenderer.DrawText(e.Graphics, (e.RowIndex + 1).ToString(), dataGridView.RowHeadersDefaultCellStyle.Font,
+                bounds, dataGridView.RowHeadersDefaultCellStyle.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
+        }
 
-            return Logic.CreateBuildScript(buildEnable, solutionName, projectPath, textBox_LogDirectory.Text, isExportLog);
+        // 表の上に登録数(とビルド対象の数)を出す
+        private void UpdateRowCount()
+        {
+            int enabledCount = 0;
+            for (int i = 0; i < dataGridView.RowCount; i++)
+            {
+                if (GetCellData(i, _buildEnableIdx) == Logic.BuildListEnable)
+                {
+                    enabledCount++;
+                }
+            }
+            label_RowCount.Text = Logic.FormatRowCount(dataGridView.RowCount, enabledCount);
         }
 
         private void button_AddRow_Click(object sender, EventArgs e)

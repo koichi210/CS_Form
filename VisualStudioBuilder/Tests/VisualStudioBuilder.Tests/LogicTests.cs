@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -82,7 +83,7 @@ namespace VisualStudioBuilder.Tests
         {
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, false);
 
-            StringAssert.Contains(result, @"%DEV_ENV% %BUILD_OPT% C:\proj\a.sln");
+            StringAssert.Contains(result, @"%DEV_ENV% %BUILD_OPT% ""C:\proj\a.sln""", "パスに空白があってもよいよう\"\"で囲む");
             Assert.IsFalse(result.Contains("/out"));
         }
 
@@ -91,19 +92,20 @@ namespace VisualStudioBuilder.Tests
         {
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, true);
 
-            string expectedLog = Path.Combine(tempDirectory, "a.log");
-            StringAssert.Contains(result, "/out " + expectedLog);
+            // ログ名は「プロジェクトのパス＋ソリューション名」の\と:を_にしたもの
+            string expectedLog = Path.Combine(tempDirectory, "C__proj_a.log");
+            StringAssert.Contains(result, "/out \"" + expectedLog + "\" \"C:\\proj\\a.sln\"");
         }
 
         [TestMethod]
         public void CreateBuildScriptは既存ログファイルがあれば削除コマンドを先頭に付ける()
         {
-            string logPath = Path.Combine(tempDirectory, "a.log");
+            string logPath = Path.Combine(tempDirectory, "C__proj_a.log");
             File.WriteAllText(logPath, "old log");
 
             string result = Logic.CreateBuildScript("○", "a.sln", @"C:\proj", tempDirectory, true);
 
-            StringAssert.Contains(result, "del " + logPath);
+            StringAssert.Contains(result, "del \"" + logPath + "\"");
         }
 
         [TestMethod]
@@ -214,6 +216,137 @@ namespace VisualStudioBuilder.Tests
             Logic.DeleteDirectoriesByName(tempDirectory, "obj");
 
             Assert.IsTrue(Directory.Exists(keepBin));
+        }
+
+        // --- ログ名(プロジェクトのパス＋ソリューション名) -------------------------------
+
+        [TestMethod]
+        public void GetLogFileNameはパスとソリューション名の円記号とコロンをアンダーバーにする()
+        {
+            Assert.AreEqual("D__Work_Foo_Foo.log", Logic.GetLogFileName(@"D:\Work\Foo", "Foo.sln"));
+            Assert.AreEqual("D__Work_Foo_Foo.log", Logic.GetLogFileName(@"D:\Work\Foo\", "Foo.sln"), "末尾の\\は1つにそろえる");
+            Assert.AreEqual(@"C:\logs\D__Work_Foo_Foo.log", Logic.GetLogPathName(@"C:\logs", @"D:\Work\Foo", "Foo.sln"));
+        }
+
+        [TestMethod]
+        public void GetLogFileNameは別フォルダの同じ名前のソリューションを別のログにする()
+        {
+            Assert.AreNotEqual(Logic.GetLogFileName(@"D:\A\App", "App.sln"), Logic.GetLogFileName(@"D:\B\App", "App.sln"));
+        }
+
+        [TestMethod]
+        public void GetLogFileNameは拡張子が大文字のslnでもlogにする()
+        {
+            Assert.AreEqual("C__p_App.log", Logic.GetLogFileName(@"C:\p", "App.SLN"));
+        }
+
+        // --- devenv.exeのチェック --------------------------------------------------------
+
+        [TestMethod]
+        public void ValidateVisualStudioExePathはファイルがあればnullを返す()
+        {
+            Assert.IsNull(Logic.ValidateVisualStudioExePath(@"C:\VS\devenv.exe", path => path == @"C:\VS\devenv.exe"));
+            Assert.IsNull(Logic.ValidateVisualStudioExePath(@" ""C:\VS\devenv.exe"" ", path => path == @"C:\VS\devenv.exe"), "前後の空白と\"\"は外して確かめる");
+        }
+
+        [TestMethod]
+        public void ValidateVisualStudioExePathはファイルが無いか空欄ならメッセージを返す()
+        {
+            StringAssert.Contains(Logic.ValidateVisualStudioExePath(@"C:\VS\devenv.exe", path => false), "見つかりません");
+            StringAssert.Contains(Logic.ValidateVisualStudioExePath("", path => true), "空欄");
+            StringAssert.Contains(Logic.ValidateVisualStudioExePath("   ", path => true), "空欄");
+        }
+
+        // --- 存在しないリスト -------------------------------------------------------------
+
+        [TestMethod]
+        public void FindMissingSolutionsはビルド対象で見つからないものだけを行番号付きで返す()
+        {
+            var targets = new List<BuildTarget>
+            {
+                new BuildTarget { BuildEnable = "○", SolutionName = "a.sln", ProjectPath = @"C:\a" },
+                new BuildTarget { BuildEnable = "○", SolutionName = "b.sln", ProjectPath = @"C:\b" },
+                new BuildTarget { BuildEnable = "×", SolutionName = "c.sln", ProjectPath = @"C:\c" },
+                new BuildTarget { BuildEnable = "○", SolutionName = "", ProjectPath = "" },
+                new BuildTarget { BuildEnable = "○", SolutionName = "", ProjectPath = @"C:\e" },
+            };
+
+            List<string> missing = Logic.FindMissingSolutions(targets, path => path == @"C:\a\a.sln");
+
+            CollectionAssert.AreEqual(new[] { @"No.2 C:\b\b.sln", @"No.5 C:\e\" }, missing,
+                "ビルド対象外(×)と空欄の行は数えず、ソリューション名が無い行は見つからない扱い");
+        }
+
+        [TestMethod]
+        public void FormatRowCountは登録数とビルド対象数を出す()
+        {
+            Assert.AreEqual("登録数: 3 件 (ビルド対象: 2 件)", Logic.FormatRowCount(3, 2));
+        }
+
+        // --- ビルド後に削除するもの(複数行) -----------------------------------------------
+
+        [TestMethod]
+        public void ParseDeleteTargetsは1行に1つずつ分け空行と前後の空白と重複を捨てる()
+        {
+            string[] invalid;
+            string[] targets = Logic.ParseDeleteTargets(" obj \r\n\r\n*.ncb\nOBJ\r*.suo", out invalid);
+
+            CollectionAssert.AreEqual(new[] { "obj", "*.ncb", "*.suo" }, targets);
+            Assert.AreEqual(0, invalid.Length);
+        }
+
+        [TestMethod]
+        public void ParseDeleteTargetsはパスや全部に当たるパターンを使わない()
+        {
+            string[] invalid;
+            string[] targets = Logic.ParseDeleteTargets("obj\r\n*\r\n*.*\r\n..\r\nbin\\Debug\r\nC:\\tmp\r\na/b\r\na|b", out invalid);
+
+            CollectionAssert.AreEqual(new[] { "obj" }, targets);
+            CollectionAssert.AreEqual(new[] { "*", "*.*", "..", @"bin\Debug", @"C:\tmp", "a/b", "a|b" }, invalid);
+        }
+
+        [TestMethod]
+        public void ParseDeleteTargetsは空欄やnullなら何も返さない()
+        {
+            string[] invalid;
+            Assert.AreEqual(0, Logic.ParseDeleteTargets("", out invalid).Length);
+            Assert.AreEqual(0, Logic.ParseDeleteTargets(null, out invalid).Length);
+        }
+
+        [TestMethod]
+        public void DeleteTargetsByPatternsはフォルダ名とファイルのパターンの両方を階層を問わず削除する()
+        {
+            string objAtRoot = Path.Combine(tempDirectory, "obj");
+            string nested = Path.Combine(tempDirectory, "Sub");
+            string objNested = Path.Combine(nested, "obj", "Debug");
+            string keepBin = Path.Combine(tempDirectory, "bin");
+            Directory.CreateDirectory(objAtRoot);
+            Directory.CreateDirectory(objNested);
+            Directory.CreateDirectory(keepBin);
+            string ncbAtRoot = Path.Combine(tempDirectory, "App.ncb");
+            string ncbNested = Path.Combine(nested, "Lib.ncb");
+            string keepCpp = Path.Combine(nested, "main.cpp");
+            File.WriteAllText(ncbAtRoot, "x");
+            File.WriteAllText(ncbNested, "x");
+            File.WriteAllText(keepCpp, "x");
+            File.WriteAllText(Path.Combine(objNested, "a.obj"), "x");
+
+            int deleted = Logic.DeleteTargetsByPatterns(tempDirectory, new[] { "obj", "*.ncb" });
+
+            Assert.IsFalse(Directory.Exists(objAtRoot));
+            Assert.IsFalse(Directory.Exists(Path.Combine(nested, "obj")));
+            Assert.IsFalse(File.Exists(ncbAtRoot));
+            Assert.IsFalse(File.Exists(ncbNested));
+            Assert.IsTrue(Directory.Exists(keepBin));
+            Assert.IsTrue(File.Exists(keepCpp));
+            Assert.AreEqual(4, deleted, "objフォルダ2つと.ncbファイル2つ");
+        }
+
+        [TestMethod]
+        public void DeleteTargetsByPatternsはルートが無くても例外にならない()
+        {
+            Assert.AreEqual(0, Logic.DeleteTargetsByPatterns(Path.Combine(tempDirectory, "missing"), new[] { "obj" }));
+            Assert.AreEqual(0, Logic.DeleteTargetsByPatterns(tempDirectory, null));
         }
     }
 }
