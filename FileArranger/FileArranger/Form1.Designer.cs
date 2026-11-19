@@ -99,6 +99,7 @@
             this.mf_button_MoveFile = new System.Windows.Forms.Button();
             this.tab_PartitionFile = new System.Windows.Forms.TabPage();
             this.pf_checkBox_CreateNewDir = new System.Windows.Forms.CheckBox();
+            this.pf_checkBox_KeepFolderName = new System.Windows.Forms.CheckBox();
             this.label25 = new System.Windows.Forms.Label();
             this.pf_label_SelectNum = new System.Windows.Forms.Label();
             this.pf_button_ClearSelect = new System.Windows.Forms.Button();
@@ -1009,6 +1010,7 @@
             // 
             // tab_PartitionFile
             // 
+            this.tab_PartitionFile.Controls.Add(this.pf_checkBox_KeepFolderName);
             this.tab_PartitionFile.Controls.Add(this.pf_checkBox_CreateNewDir);
             this.tab_PartitionFile.Controls.Add(this.label25);
             this.tab_PartitionFile.Controls.Add(this.pf_label_SelectNum);
@@ -1049,6 +1051,17 @@
             this.pf_checkBox_CreateNewDir.Text = "フォルダを新規作成";
             this.pf_checkBox_CreateNewDir.UseVisualStyleBackColor = true;
             this.pf_checkBox_CreateNewDir.CheckedChanged += new System.EventHandler(this.pf_checkBox_CreateNewDir_CheckedChanged);
+            // 
+            // pf_checkBox_KeepFolderName
+            // 
+            this.pf_checkBox_KeepFolderName.AutoSize = true;
+            this.pf_checkBox_KeepFolderName.Location = new System.Drawing.Point(385, 154);
+            this.pf_checkBox_KeepFolderName.Name = "pf_checkBox_KeepFolderName";
+            this.pf_checkBox_KeepFolderName.Size = new System.Drawing.Size(207, 22);
+            this.pf_checkBox_KeepFolderName.TabIndex = 14;
+            this.pf_checkBox_KeepFolderName.Text = "フォルダ名を変更しない";
+            this.pf_checkBox_KeepFolderName.UseVisualStyleBackColor = true;
+            this.pf_checkBox_KeepFolderName.CheckedChanged += new System.EventHandler(this.pf_checkBox_KeepFolderName_CheckedChanged);
             // 
             // label25
             // 
@@ -1476,6 +1489,7 @@
         public StandardTemplate.TextBoxEx cmn_textBox_AddListSuffix;
         public System.Windows.Forms.Label label7;
         public System.Windows.Forms.CheckBox pf_checkBox_CreateNewDir;
+        public System.Windows.Forms.CheckBox pf_checkBox_KeepFolderName;
         public StandardTemplate.ComboBoxEx md_comboBox_TargetDir;
         public StandardTemplate.ComboBoxEx rd_comboBox_AddTitlePostWord;
         public StandardTemplate.ComboBoxEx rd_comboBox_RenameDir;

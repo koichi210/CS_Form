@@ -201,6 +201,7 @@ namespace FileArranger
             toolTip.SetToolTip(pf_textBox_SearchTitleLine, "振り分け先のフォルダ名から番号を探し始める位置を、名前の末尾から数えた文字数で指定する。空欄なら先頭から。Ctrl+Enterでファイル移動");
             toolTip.SetToolTip(pf_textBox_SearchTitleLength, "探し始めた位置から何文字を番号として読むか(中の数字だけを使う)。空欄なら末尾まで。Ctrl+Enterでファイル移動");
             toolTip.SetToolTip(pf_checkBox_CreateNewDir, "オンの時、候補に一致するフォルダが無いファイルには、ファイル名(区切り文字より前)+新規追加Suffixを元にした新しいフォルダ名を移動後名称に入れる。切り替えると一覧を読み直す");
+            toolTip.SetToolTip(pf_checkBox_KeepFolderName, "オンの時、移動前名称(候補に一致した既存フォルダ)がある行は、番号を付け替えずにそのフォルダ名のまま移動後名称にする(フォルダをリネームしない)。移動前名称が無い行(新規作成)は今までどおり番号付きの名前にする");
             toolTip.SetToolTip(pf_listView_Target, "選択したファイルに移動前/移動後名称が自動で入る(移動後はフォルダ名の番号に、同じ名前で選択中のファイル数を足したもの)。Enterでファイル移動、Deleteで移動後名称を空に、ダブルクリックで移動前フォルダを開く");
             toolTip.SetToolTip(pf_comboBox_MoveDestDirName, "キー入力すると、選択中の全行の移動後名称をこの値にする。Ctrl+Enterでファイル移動");
             toolTip.SetToolTip(pf_button_ClearSelect, "全行の移動前/移動後名称を空にする(一覧の選択状態はそのまま)");

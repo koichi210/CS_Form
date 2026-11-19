@@ -57,6 +57,7 @@ namespace FileArranger
             RegisterCtrl("PartitionFile", "pf_textBox_SearchTitleLine", parent.pf_textBox_SearchTitleLine);
             RegisterCtrl("PartitionFile", "pf_textBox_SearchTitleLength", parent.pf_textBox_SearchTitleLength);
             RegisterCtrl("PartitionFile", "pf_checkBox_CreateNewDir", parent.pf_checkBox_CreateNewDir);
+            RegisterCtrl("PartitionFile", "pf_checkBox_KeepFolderName", parent.pf_checkBox_KeepFolderName);
         }
 
         public Boolean LoadProc(String loadFileName, FileArranger parent)

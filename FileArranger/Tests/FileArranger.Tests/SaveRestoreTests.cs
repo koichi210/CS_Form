@@ -146,6 +146,7 @@ namespace FileArranger.Tests
                 writer.pf_textBox_SearchTitleLine.Text = "1";
                 writer.pf_textBox_SearchTitleLength.Text = "2";
                 writer.pf_checkBox_CreateNewDir.Checked = true;
+                writer.pf_checkBox_KeepFolderName.Checked = true;
 
                 string path = PathFor("partition");
                 NewSaveRestore(writer).SaveXmlFile(path);
@@ -160,6 +161,7 @@ namespace FileArranger.Tests
                     Assert.AreEqual("1", reader.pf_textBox_SearchTitleLine.Text);
                     Assert.AreEqual("2", reader.pf_textBox_SearchTitleLength.Text);
                     Assert.IsTrue(reader.pf_checkBox_CreateNewDir.Checked);
+                    Assert.IsTrue(reader.pf_checkBox_KeepFolderName.Checked);
                 }
             }
         }
