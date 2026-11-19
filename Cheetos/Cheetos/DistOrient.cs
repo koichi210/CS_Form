@@ -32,14 +32,9 @@ namespace Cheetos
                 return;
             }
 
-            if (!_fio.EnsureDirectory(do_DestPortFolderPath.Text))
+            if (!EnsureDirectoryWithMessage(do_DestPortFolderPath.Text)
+                || !EnsureDirectoryWithMessage(do_DestLandFolderPath.Text))
             {
-                MessageBox.Show("無効なフォルダパスです。\n" + do_DestPortFolderPath.Text);
-                return;
-            }
-            if (!_fio.EnsureDirectory(do_DestLandFolderPath.Text))
-            {
-                MessageBox.Show("無効なフォルダパスです。\n" + do_DestLandFolderPath.Text);
                 return;
             }
 

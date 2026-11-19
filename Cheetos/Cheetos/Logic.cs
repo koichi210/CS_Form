@@ -17,7 +17,7 @@ namespace Cheetos
     /// BuildFilePathPrefix だけは Form のチェックボックスを直接参照していたので、
     /// bool のパラメータに置き換えた（呼び出し側で .Checked を渡す）。
     /// </summary>
-    internal static class Logic
+    internal static partial class Logic
     {
         /// <summary>
         /// 画像の左右の白フチの太さを比較し、縦長（Portrait）向けの画像かどうかを判定する。

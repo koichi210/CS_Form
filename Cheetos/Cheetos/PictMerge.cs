@@ -63,7 +63,9 @@ namespace Cheetos
                 _errorMessages.Append("ファイルが存在しません。").Append(_sourceFileFullName).AppendLine();
                 return false;
             }
-            File.Copy(_sourceFileFullName, _sourceBackUpFullName, true);
+            // バックアップ先は毎回新しいフォルダなので、前のバックアップを上書きすることはない(念のため同名なら別名にする)
+            _sourceBackUpFullName = Logic.GetNonConflictFilePath(_sourceBackUpFullName);
+            File.Copy(_sourceFileFullName, _sourceBackUpFullName, false);
             return true;
         }
 
@@ -276,13 +278,9 @@ namespace Cheetos
             // ここ(usingの外)では画像はすべて解放済みで、ファイルのロックも外れている
 
             // マージ元ファイルをバックアップへ移動。
-            // 結合元のバックアップ(File.Copyで上書き)と同じく、前回のバックアップがあれば置き換える
-            // (File.Moveは移動先があると例外になり、結合元だけ結合済みで上書きされた状態で処理が止まっていた)
-            if (File.Exists(_mergeBackUpFullName))
-            {
-                File.Delete(_mergeBackUpFullName);
-            }
-            File.Move(_mergeFileFullName, _mergeBackUpFullName);
+            // 前のバックアップは上書きしない(バックアップ先は毎回新しいフォルダ。念のため同名があれば別名にする。
+            // File.Moveは移動先があると例外になり、結合元だけ結合済みの状態で処理が止まっていた)
+            File.Move(_mergeFileFullName, Logic.GetNonConflictFilePath(_mergeBackUpFullName));
             return true;
         }
 
@@ -306,13 +304,6 @@ namespace Cheetos
                 return;
             }
 
-            String backUpDirPath = pm_SourceFolderPath.Text + @"\" + @"Bk_Merge";
-            if (!_fio.EnsureDirectory(backUpDirPath))
-            {
-                MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
-                return;
-            }
-
             // ListBoxの値を配列で取得
             String[] targetFileNames = _util.GetStrArrayFromListBox(pm_ListBox_ListUp.SelectedItems);
 
@@ -331,6 +322,13 @@ namespace Cheetos
                 {
                     return;
                 }
+            }
+
+            // バックアップ先は毎回新しいフォルダにする(入力の確認が済んでから作る)
+            String backUpDirPath = CreateBackupDirectoryWithMessage(pm_SourceFolderPath.Text, "Merge");
+            if (backUpDirPath == null)
+            {
+                return;
             }
 
             InitProgressBar(pm_ListBox_ListUp.SelectedItems.Count);

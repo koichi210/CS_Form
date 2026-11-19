@@ -83,13 +83,6 @@ namespace Cheetos
                 return;
             }
 
-            String backUpDirPath = pt_SourceFolderPath.Text + @"\" + @"Bk_Trim";
-            if (!_fio.EnsureDirectory(backUpDirPath))
-            {
-                MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
-                return;
-            }
-
             if (pt_TargetX.Text == String.Empty || pt_TargetY.Text == String.Empty)
             {
                 MessageBox.Show("サイズが指定されていません");
@@ -125,6 +118,13 @@ namespace Cheetos
             if (targetWidth <= 0 || targetHeight <= 0)
             {
                 MessageBox.Show("切り取るサイズが0以下です(幅=" + targetWidth + "、高さ=" + targetHeight + ")");
+                return;
+            }
+
+            // バックアップ先は毎回新しいフォルダにする(入力の確認が済んでから作る。途中で戻ると空のフォルダが残るため)
+            String backUpDirPath = CreateBackupDirectoryWithMessage(pt_SourceFolderPath.Text, "Trim");
+            if (backUpDirPath == null)
+            {
                 return;
             }
 
@@ -178,8 +178,8 @@ namespace Cheetos
                 String filePath = param.SourceFolderPath + @"\" + targetFileNames[itemIdx];
                 String backUpFilePath = param.BackUpDirPath + @"\" + targetFileNames[itemIdx];
 
-                // オリジナルファイルをバックアップ
-                File.Copy(filePath, backUpFilePath, true);
+                // オリジナルファイルをバックアップ(毎回新しいフォルダなので上書きはしない)
+                File.Copy(filePath, backUpFilePath, false);
 
                 // トリミング
                 // キャンバス作成(途中で失敗しても画像ファイルがロックされたまま残らないようusingで必ず解放する)

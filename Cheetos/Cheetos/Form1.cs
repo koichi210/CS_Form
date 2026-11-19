@@ -186,7 +186,7 @@ namespace Cheetos
             toolTip.SetToolTip(pt_TargetX, "「座標で指定」なら右端のX座標、「サイズで指定」なら幅(px)");
             toolTip.SetToolTip(pt_TargetY, "「座標で指定」なら下端のY座標、「サイズで指定」なら高さ(px)");
             toolTip.SetToolTip(pt_ListBox_ListUp, "選択したファイルだけが処理対象(Ctrl+Aで全選択)。ダブルクリックで選択中のファイルを開く");
-            toolTip.SetToolTip(pt_Button_Trim, "選択したファイルを切り取って上書き保存する。元ファイルはフォルダ内のBk_Trimへコピーしておく。処理中に押すと中断");
+            toolTip.SetToolTip(pt_Button_Trim, "選択したファイルを切り取って上書き保存する。元ファイルはフォルダ内のCheetos\\BK\\yyyyMMdd_Trim(毎回新しいフォルダ)へコピーしておく。処理中に押すと中断");
 
             // Rotation
             toolTip.SetToolTip(pr_SourceFolderPath, readOnlyFolderTip);
@@ -196,7 +196,7 @@ namespace Cheetos
             toolTip.SetToolTip(pr_Angle, "回転角度(度、整数)。正の値で時計回り");
             toolTip.SetToolTip(pr_Button_RotationPreview, "画像を読み込んで原点・角度を試せるプレビューを開く。OKで閉じるとその値をこの画面に反映する");
             toolTip.SetToolTip(pr_ListBox_ListUp, "選択したファイルだけが処理対象(Ctrl+Aで全選択)");
-            toolTip.SetToolTip(pr_Button_Rotation, "選択したファイルを回転して上書き保存する(画像サイズは元画像の対角線長の正方形になる)。元ファイルはBk_Rotateへコピーしておく。処理中に押すと中断");
+            toolTip.SetToolTip(pr_Button_Rotation, "選択したファイルを回転して上書き保存する(画像サイズは元画像の対角線長の正方形になる)。元ファイルはフォルダ内のCheetos\\BK\\yyyyMMdd_Rotate(毎回新しいフォルダ)へコピーしておく。処理中に押すと中断");
 
             // DistOrient
             toolTip.SetToolTip(do_SourceFolderPath, readOnlyFolderTip);
@@ -225,7 +225,7 @@ namespace Cheetos
             toolTip.SetToolTip(fc_SourceFolderPath, readOnlyFolderTip);
             toolTip.SetToolTip(fc_Label_SourceFolderPath, readOnlyLabelTip);
             toolTip.SetToolTip(fc_TargetFileName, "移動するファイルの検索パターン(*や?が使える)。移動元フォルダの直下だけが対象");
-            toolTip.SetToolTip(fc_MoveFile, "移動元直下の対象ファイルを移動先へ移動する(コピーではない)。移動先が無ければ作成するか確認する");
+            toolTip.SetToolTip(fc_MoveFile, "移動元直下の対象ファイルを移動先へ移動する(コピーではない)。移動先が無ければ作成する");
         }
 
         // *******************************************************************************
@@ -366,7 +366,7 @@ namespace Cheetos
                 return;
             }
 
-            if (!_fio.EnsureDirectory(fc_DestFolderPath.Text))
+            if (!EnsureDirectoryWithMessage(fc_DestFolderPath.Text))
             {
                 return;
             }
@@ -451,8 +451,10 @@ namespace Cheetos
             }
         }
 
+        // 実行ボタンを押した時に呼ぶ。前回の「N/N 完了」の表示もここで消す
         private void InitProgressBar(int maximum)
         {
+            TextBox_Status.Text = "";
             ProgressBar_Status.Maximum = maximum;
             ProgressBar_Status.Minimum = 0;
             ProgressBar_Status.Value = 0;
@@ -473,6 +475,45 @@ namespace Cheetos
             if (textBox_ExpectEndTime.Text == "" && e.ProgressPercentage > 0)
             {
                 SetExpectEndTime(ProgressBar_Status.Maximum, e.ProgressPercentage);
+            }
+        }
+
+        // フォルダが無ければ作る(「作成しますか？」とは聞かずに作る)。作れなければメッセージを出してfalseを返す
+        private Boolean EnsureDirectoryWithMessage(String dirPath)
+        {
+            try
+            {
+                if (dirPath.Trim() != String.Empty && _fio.EnsureDirectory(dirPath, true))
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("フォルダを作れませんでした。\n" + dirPath + "\n" + ex.Message);
+                return false;
+            }
+            MessageBox.Show("無効なフォルダパスです。\n" + dirPath);
+            return false;
+        }
+
+        // 元フォルダの中に、今回のバックアップ用の新しいフォルダ(Cheetos\BK\yyyyMMdd_種類[_連番])を作る。
+        // 作れなければメッセージを出してnullを返す
+        private String CreateBackupDirectoryWithMessage(String sourceFolderPath, String kind)
+        {
+            if (!Directory.Exists(sourceFolderPath))
+            {
+                MessageBox.Show("フォルダパスが不正です");
+                return null;
+            }
+            try
+            {
+                return Logic.CreateBackupDirectory(sourceFolderPath, kind);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("バックアップ先のフォルダを作れませんでした。\n" + ex.Message);
+                return null;
             }
         }
 

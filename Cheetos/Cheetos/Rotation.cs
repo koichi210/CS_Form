@@ -33,7 +33,9 @@ namespace Cheetos
             _filePath = SourceFolderPath + @"\" + _targetFileName;
             _backUpFilePath = BackUpDirPath + @"\" + _targetFileName;
 
-            File.Copy(_filePath, _backUpFilePath, true);
+            // バックアップ先は毎回新しいフォルダなので、前のバックアップを上書きすることはない(念のため同名なら別名にする)
+            _backUpFilePath = Logic.GetNonConflictFilePath(_backUpFilePath);
+            File.Copy(_filePath, _backUpFilePath, false);
             return true;
         }
 
@@ -135,13 +137,6 @@ namespace Cheetos
                 return;
             }
 
-            String backUpDirPath = pr_SourceFolderPath.Text + @"\" + @"Bk_Rotate";
-            if (!_fio.EnsureDirectory(backUpDirPath))
-            {
-                MessageBox.Show("無効なフォルダパスです。\n" + backUpDirPath);
-                return;
-            }
-
             pr_BaseX.Text = Logic.KeepIfInteger(pr_BaseX.Text);
             pr_BaseY.Text = Logic.KeepIfInteger(pr_BaseY.Text);
             pr_Angle.Text = Logic.KeepIfInteger(pr_Angle.Text);
@@ -151,6 +146,13 @@ namespace Cheetos
             if (!TryGetIntWithMessage(pr_BaseX, "原点(X)", int.MinValue, out value)
                 || !TryGetIntWithMessage(pr_BaseY, "原点(Y)", int.MinValue, out value)
                 || !TryGetIntWithMessage(pr_Angle, "角度", int.MinValue, out value))
+            {
+                return;
+            }
+
+            // バックアップ先は毎回新しいフォルダにする(入力の確認が済んでから作る)
+            String backUpDirPath = CreateBackupDirectoryWithMessage(pr_SourceFolderPath.Text, "Rotate");
+            if (backUpDirPath == null)
             {
                 return;
             }
