@@ -52,6 +52,8 @@
             this.radioButton_ChangeDelete = new System.Windows.Forms.RadioButton();
             this.radioButton_ChangeReplace = new System.Windows.Forms.RadioButton();
             this.radioButton_ChangeExt = new System.Windows.Forms.RadioButton();
+            this.radioButton_ChangeKanjiNum = new System.Windows.Forms.RadioButton();
+            this.radioButton_ChangePadNumber = new System.Windows.Forms.RadioButton();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage_ChangeName = new System.Windows.Forms.TabPage();
             this.radioButton_ChangeAddDirName = new System.Windows.Forms.RadioButton();
@@ -64,6 +66,7 @@
             this.checkBox_CreationTime = new System.Windows.Forms.CheckBox();
             this.checkBox_LastWriteTime = new System.Windows.Forms.CheckBox();
             this.checkBox_LastAccessTime = new System.Windows.Forms.CheckBox();
+            this.checkBox_DateTaken = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.dateTimePicker_Time = new System.Windows.Forms.DateTimePicker();
             this.dateTimePicker_Days = new System.Windows.Forms.DateTimePicker();
@@ -288,7 +291,7 @@
             this.label_String1.Location = new System.Drawing.Point(15, 208);
             this.label_String1.Name = "label_String1";
             this.label_String1.Size = new System.Drawing.Size(54, 16);
-            this.label_String1.TabIndex = 11;
+            this.label_String1.TabIndex = 13;
             this.label_String1.Text = "先頭から";
             this.label_String1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -297,7 +300,7 @@
             this.label_String2.Location = new System.Drawing.Point(15, 231);
             this.label_String2.Name = "label_String2";
             this.label_String2.Size = new System.Drawing.Size(54, 16);
-            this.label_String2.TabIndex = 13;
+            this.label_String2.TabIndex = 15;
             this.label_String2.Text = "後方から";
             this.label_String2.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -329,7 +332,7 @@
             this.radioButton_ChangeReplace.Location = new System.Drawing.Point(9, 180);
             this.radioButton_ChangeReplace.Name = "radioButton_ChangeReplace";
             this.radioButton_ChangeReplace.Size = new System.Drawing.Size(81, 16);
-            this.radioButton_ChangeReplace.TabIndex = 10;
+            this.radioButton_ChangeReplace.TabIndex = 11;
             this.radioButton_ChangeReplace.Text = "文字の置換";
             this.radioButton_ChangeReplace.UseVisualStyleBackColor = true;
             this.radioButton_ChangeReplace.CheckedChanged += new System.EventHandler(this.UpdateNameChangeControl);
@@ -344,6 +347,28 @@
             this.radioButton_ChangeExt.Text = "拡張子変更";
             this.radioButton_ChangeExt.UseVisualStyleBackColor = true;
             this.radioButton_ChangeExt.CheckedChanged += new System.EventHandler(this.UpdateNameChangeControl);
+            // 
+            // radioButton_ChangeKanjiNum
+            // 
+            this.radioButton_ChangeKanjiNum.AutoSize = true;
+            this.radioButton_ChangeKanjiNum.Location = new System.Drawing.Point(120, 160);
+            this.radioButton_ChangeKanjiNum.Name = "radioButton_ChangeKanjiNum";
+            this.radioButton_ChangeKanjiNum.Size = new System.Drawing.Size(89, 16);
+            this.radioButton_ChangeKanjiNum.TabIndex = 10;
+            this.radioButton_ChangeKanjiNum.Text = "漢数字→数字";
+            this.radioButton_ChangeKanjiNum.UseVisualStyleBackColor = true;
+            this.radioButton_ChangeKanjiNum.CheckedChanged += new System.EventHandler(this.UpdateNameChangeControl);
+            // 
+            // radioButton_ChangePadNumber
+            // 
+            this.radioButton_ChangePadNumber.AutoSize = true;
+            this.radioButton_ChangePadNumber.Location = new System.Drawing.Point(120, 180);
+            this.radioButton_ChangePadNumber.Name = "radioButton_ChangePadNumber";
+            this.radioButton_ChangePadNumber.Size = new System.Drawing.Size(83, 16);
+            this.radioButton_ChangePadNumber.TabIndex = 12;
+            this.radioButton_ChangePadNumber.Text = "数字の0埋め";
+            this.radioButton_ChangePadNumber.UseVisualStyleBackColor = true;
+            this.radioButton_ChangePadNumber.CheckedChanged += new System.EventHandler(this.UpdateNameChangeControl);
             // 
             // tabControl
             // 
@@ -360,6 +385,8 @@
             // 
             // tabPage_ChangeName
             // 
+            this.tabPage_ChangeName.Controls.Add(this.radioButton_ChangePadNumber);
+            this.tabPage_ChangeName.Controls.Add(this.radioButton_ChangeKanjiNum);
             this.tabPage_ChangeName.Controls.Add(this.radioButton_ChangeAddDirName);
             this.tabPage_ChangeName.Controls.Add(this.comboBox_String2);
             this.tabPage_ChangeName.Controls.Add(this.comboBox_String1);
@@ -401,7 +428,8 @@
             this.comboBox_String2.Location = new System.Drawing.Point(70, 228);
             this.comboBox_String2.Name = "comboBox_String2";
             this.comboBox_String2.Size = new System.Drawing.Size(156, 20);
-            this.comboBox_String2.TabIndex = 14;
+            this.comboBox_String2.TabIndex = 16;
+            this.comboBox_String2.KeyDown += new System.Windows.Forms.KeyEventHandler(this.comboBox_String_KeyDown);
             // 
             // comboBox_String1
             // 
@@ -410,7 +438,8 @@
             this.comboBox_String1.Location = new System.Drawing.Point(70, 205);
             this.comboBox_String1.Name = "comboBox_String1";
             this.comboBox_String1.Size = new System.Drawing.Size(156, 20);
-            this.comboBox_String1.TabIndex = 12;
+            this.comboBox_String1.TabIndex = 14;
+            this.comboBox_String1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.comboBox_String_KeyDown);
             // 
             // tabPage_TimeStamp
             // 
@@ -451,9 +480,10 @@
             this.groupBox2.Controls.Add(this.checkBox_CreationTime);
             this.groupBox2.Controls.Add(this.checkBox_LastWriteTime);
             this.groupBox2.Controls.Add(this.checkBox_LastAccessTime);
+            this.groupBox2.Controls.Add(this.checkBox_DateTaken);
             this.groupBox2.Location = new System.Drawing.Point(11, 145);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(214, 86);
+            this.groupBox2.Size = new System.Drawing.Size(214, 108);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "更新対象";
@@ -493,6 +523,16 @@
             this.checkBox_LastAccessTime.TabIndex = 2;
             this.checkBox_LastAccessTime.Text = "アクセス日時";
             this.checkBox_LastAccessTime.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_DateTaken
+            // 
+            this.checkBox_DateTaken.AutoSize = true;
+            this.checkBox_DateTaken.Location = new System.Drawing.Point(23, 84);
+            this.checkBox_DateTaken.Name = "checkBox_DateTaken";
+            this.checkBox_DateTaken.Size = new System.Drawing.Size(147, 16);
+            this.checkBox_DateTaken.TabIndex = 3;
+            this.checkBox_DateTaken.Text = "撮影日時(JPEGのEXIF)";
+            this.checkBox_DateTaken.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -711,6 +751,9 @@
         private System.Windows.Forms.Label label4;
         public StandardTemplate.TextBoxEx textBox_Target_Extension;
         private System.Windows.Forms.CheckBox checkBox_Operation_AnyDir;
+        private System.Windows.Forms.RadioButton radioButton_ChangeKanjiNum;
+        private System.Windows.Forms.RadioButton radioButton_ChangePadNumber;
+        public System.Windows.Forms.CheckBox checkBox_DateTaken;
     }
 }
 

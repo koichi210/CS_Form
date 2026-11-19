@@ -57,6 +57,8 @@
   <ItemGroup>
     <Compile Include="ProcessMemoryTests.cs" />
     <Compile Include="RenameTests.cs" />
+    <Compile Include="NameConverterTests.cs" />
+    <Compile Include="ExifDateTests.cs" />
     <Compile Include="FunctionTests.cs" />
     <Compile Include="TimeStampTests.cs" />
     <Compile Include="SaveRestoreTests.cs" />

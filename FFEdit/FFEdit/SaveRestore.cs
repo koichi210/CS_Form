@@ -10,9 +10,13 @@ namespace FFEdit
             SetElement("Setting");
 
             // コントロールを列挙
+            // コンボボックスは履歴(項目一覧)と、最後に入力していた文字列(Text)の両方を保存する
             RegisterCtrlList("comboBox_TargetDir", "Value_", parent.comboBox_TargetDir);
+            RegisterCtrl("comboBox_TargetDir", "Value", parent.comboBox_TargetDir);
             RegisterCtrlList("comboBox_String1", "Value_", parent.comboBox_String1);
+            RegisterCtrl("comboBox_String1", "Value", parent.comboBox_String1);
             RegisterCtrlList("comboBox_String2", "Value_", parent.comboBox_String2);
+            RegisterCtrl("comboBox_String2", "Value", parent.comboBox_String2);
             RegisterCtrl("textBox_Target_Extension", "Value", parent.textBox_Target_Extension, "*");
         }
 

@@ -103,7 +103,7 @@ namespace FFEdit
             ToolTip toolTip = new ToolTip { AutoPopDelay = 15000 };
             this.Disposed += (s, e) => toolTip.Dispose();
 
-            toolTip.SetToolTip(comboBox_TargetDir, "処理対象のフォルダ。Enterキーでこのフォルダを開く");
+            toolTip.SetToolTip(comboBox_TargetDir, "処理対象のフォルダ。Enterキーで一覧を更新(リストアップ)、Ctrl+Enterでこのフォルダをエクスプローラーで開く");
             toolTip.SetToolTip(textBox_Target_Extension, "一覧に出す名前の絞り込み(ワイルドカード可)。空欄なら全件。Enterキーで一覧を更新する");
             toolTip.SetToolTip(checkBox_Target_SelectFile, "オンなら一覧で選択した項目だけを処理する。オフなら一覧の全項目が対象");
             toolTip.SetToolTip(listBox, "Ctrl+A: 全選択、Ctrl+C: 表示名をコピー、Ctrl+Shift+C: フルパスでコピー、Delete: 選択項目を削除(ごみ箱を経由せず元に戻せない)");
@@ -119,11 +119,17 @@ namespace FFEdit
             toolTip.SetToolTip(radioButton_ChangeDelete, "指定した文字列を名前から全て取り除く。拡張子部分も対象になる");
             toolTip.SetToolTip(radioButton_ChangeReplace, "置換前の文字列を全て置換後の文字列に置き換える。拡張子部分も対象になる");
             toolTip.SetToolTip(radioButton_ChangeExt, "拡張子を指定した文字に変える。「.」は付けずに入力する");
+            toolTip.SetToolTip(radioButton_ChangeKanjiNum, "名前の中の漢数字を算用数字にする(例: 第十二話 → 第12話、二〇二四 → 2024、百二十三 → 123)。「一緒」「統一」のような熟語の中の漢数字も変わるので注意。単独の百・千・万・億・兆(千葉・百合など)はそのまま");
+            toolTip.SetToolTip(radioButton_ChangePadNumber, "名前の中の数字を指定した桁数に0埋めする(例: AAA1BBB → AAA01BBB)。何番目の数字を対象にするかは「何番目」欄で指定。ファイルの拡張子は対象外");
+            toolTip.SetToolTip(comboBox_String1, "Ctrl+Enterで実行。数字の0埋めでは対象にする数字の番号(空欄・1=先頭、2=2番目、-1=最後、0=すべての数字)");
+            toolTip.SetToolTip(comboBox_String2, "Ctrl+Enterで実行。数字の0埋めでは0埋め後の桁数");
             toolTip.SetToolTip(radioButton_ChangeAddDirName, "対象フォルダからの相対パスの「\\」を「_」に置き換えた名前にする(例: sub\\a.txt → sub_a.txt)。置き場所は変わらない");
 
             toolTip.SetToolTip(dateTimePicker_Days, "1件目に設定する日付");
             toolTip.SetToolTip(dateTimePicker_Time, "1件目に設定する時刻");
             toolTip.SetToolTip(comboBox_TimeSpan, "2件目以降は1件ごとにこの単位で1ずつ日時を進める。無しなら全件同じ日時");
+            toolTip.SetToolTip(checkBox_DateTaken, "JPEGのEXIFにある撮影日時(撮影日時・デジタル化日時・変更日時の欄)も書き換える。画像データはそのまま。"
+                + "EXIFに日時の欄が無いファイル(JPEG以外を含む)は書き換えずにエラー一覧に出す");
 
             toolTip.SetToolTip(radioButton_Copy_Target, "対象ファイルをコピーする。コピー先に同名ファイルがあると失敗する。フォルダのコピーは未対応");
             toolTip.SetToolTip(radioButton_Move_Target, "対象を移動する。サブフォルダ内の項目も移動先の直下にまとめて置く");
@@ -132,11 +138,33 @@ namespace FFEdit
             toolTip.SetToolTip(textBox_Function_Any_Directory, "移動/コピー先のフォルダ。存在しなければ作成する");
         }
 
+        // Enterで一覧を更新(リストアップ)、Ctrl+Enterでフォルダをエクスプローラーで開く
         private void comboBox_TargetDir_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode != Keys.Enter)
+            {
+                return;
+            }
+
+            // Enterの「ポン」という警告音を鳴らさない
+            e.SuppressKeyPress = true;
+            if (e.Control)
             {
                 _util.ExecutePath(comboBox_TargetDir.Text);
+            }
+            else
+            {
+                UpdateListBox();
+            }
+        }
+
+        // 名称変換の入力欄(comboBox_String1/2)でCtrl+Enterを押したら「実行」ボタンと同じ動作にする
+        private void comboBox_String_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && e.Control)
+            {
+                e.SuppressKeyPress = true;
+                button_Execute_Click(sender, EventArgs.Empty);
             }
         }
 
@@ -199,7 +227,7 @@ namespace FFEdit
             switch (tabControl.SelectedIndex)
             {
                 case _tabIdxChangeName:
-                    if (!IsFirstNumberValid() || !IsExtensionValid())
+                    if (!IsFirstNumberValid() || !IsExtensionValid() || !IsPadNumberValid())
                     {
                         return;
                     }
@@ -207,7 +235,7 @@ namespace FFEdit
                     break;
 
                 case _tabIdxTimeStamp:
-                    ChangeTimeStamp();
+                    errorList = ChangeTimeStamp();
                     break;
 
                 case _tabIdxFunction:
@@ -458,6 +486,31 @@ namespace FFEdit
             return false;
         }
 
+        // 数字の0埋めモードで「何番目」(空欄可)と「桁数」(1以上)が整数か確かめる(数字の0埋めモード以外は見ない)
+        private Boolean IsPadNumberValid()
+        {
+            if (!radioButton_ChangePadNumber.Checked)
+            {
+                return true;
+            }
+
+            int position;
+            String positionText = comboBox_String1.Text.Trim();
+            if (positionText != String.Empty && !Int32.TryParse(positionText, out position))
+            {
+                MessageBox.Show("何番目には整数を入力してください(空欄なら先頭の数字)。");
+                return false;
+            }
+
+            int digits;
+            if (!Int32.TryParse(comboBox_String2.Text.Trim(), out digits) || digits < 1)
+            {
+                MessageBox.Show("桁数には1以上の整数を入力してください。");
+                return false;
+            }
+            return true;
+        }
+
         private String ChangeName()
         {
             _rename.BaseDir = comboBox_TargetDir.Text.TrimEnd('\\');
@@ -478,7 +531,7 @@ namespace FFEdit
             return _rename.Execute();
         }
 
-        private void ChangeTimeStamp()
+        private String ChangeTimeStamp()
         {
             var ts = new TimeStamp();
 
@@ -499,8 +552,9 @@ namespace FFEdit
             ts.UpdateCreationTime = checkBox_CreationTime.Checked;
             ts.UpdateLastWriteTime = checkBox_LastWriteTime.Checked;
             ts.UpdateLastAccessTime = checkBox_LastAccessTime.Checked;
+            ts.UpdateDateTaken = checkBox_DateTaken.Checked;
 
-            ts.Execute();
+            return ts.Execute();
         }
 
         private int GetPadDigits()
@@ -564,6 +618,14 @@ namespace FFEdit
             {
                 return Rename.ChangeType.OnlyExt;
             }
+            else if (radioButton_ChangeKanjiNum.Checked)
+            {
+                return Rename.ChangeType.KanjiToNumber;
+            }
+            else if (radioButton_ChangePadNumber.Checked)
+            {
+                return Rename.ChangeType.PadNumber;
+            }
             // radioButton_ChangeAddDirName
             return Rename.ChangeType.AddDirName;
         }
@@ -573,7 +635,7 @@ namespace FFEdit
             String label1 = "";
             String label2 = "";
 
-            // 状態取得(連番・フォルダ名付与のときはラベル無し)
+            // 状態取得(連番・フォルダ名付与・漢数字→数字のときはラベル無し)
             if (radioButton_ChangeDelNum.Checked)
             {
                 label1 = "先頭から";
@@ -596,6 +658,11 @@ namespace FFEdit
             else if (radioButton_ChangeExt.Checked)
             {
                 label1 = "拡張子";
+            }
+            else if (radioButton_ChangePadNumber.Checked)
+            {
+                label1 = "何番目";
+                label2 = "桁数";
             }
 
             label_String1.Text = label1;

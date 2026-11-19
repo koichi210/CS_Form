@@ -126,6 +126,42 @@ namespace FFEdit.Tests
             }
         }
 
+        [DataTestMethod]
+        [DataRow("json")]
+        [DataRow("xml")]
+        public void コンボボックスの入力中の文字列も保存して読み直すと戻る(string extension)
+        {
+            using (Form1 writer = NewForm())
+            {
+                writer.comboBox_TargetDir.Text = @"C:\last";
+                writer.comboBox_String1.Text = "foo";
+                writer.comboBox_String2.Text = "bar";
+
+                string path = Path.Combine(tempDirectory, "text." + extension);
+                Assert.IsTrue(writer.SaveProfile(path));
+
+                using (Form1 reader = NewForm())
+                {
+                    reader.comboBox_TargetDir.Text = "";
+                    reader.comboBox_String1.Text = "";
+                    reader.comboBox_String2.Text = "";
+                    if (extension == "json")
+                    {
+                        Assert.IsTrue(StandardTemplate.JsonSaveRestore.Load(NewSaveRestore(reader), path));
+                    }
+                    else
+                    {
+                        Assert.IsTrue(NewSaveRestore(reader).LoadXmlFile(path));
+                    }
+
+                    Assert.AreEqual(@"C:\last", reader.comboBox_TargetDir.Text);
+                    Assert.AreEqual("foo", reader.comboBox_String1.Text);
+                    Assert.AreEqual("bar", reader.comboBox_String2.Text);
+                    CollectionAssert.Contains(reader.comboBox_TargetDir.Items, @"C:\last", "履歴も一緒に戻る");
+                }
+            }
+        }
+
         [TestMethod]
         public void 拡張子は未指定なら既定値のアスタリスクになる()
         {
