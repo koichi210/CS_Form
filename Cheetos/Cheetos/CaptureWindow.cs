@@ -15,6 +15,68 @@ namespace Cheetos
             cw_TextBox_Status.Text = "X=" + Cursor.Position.X.ToString() + ", Y=" + Cursor.Position.Y.ToString();
         }
 
+        // ドラッグして離した位置の座標を、表の選択中の行のMouseX/MouseYに入れる。
+        // タブの余白か座標の表示欄でマウスを押して始め、押している間はマウスを捕まえておくので、
+        // このウィンドウの外(座標を取りたい別のアプリの上)で離しても拾える
+        private Boolean _isCoordinateDragging = false;
+        private Point _coordinateDragStart;
+
+        private void InitializeCoordinateDrag()
+        {
+            CaptureWindow.MouseDown += CoordinateDrag_MouseDown;
+            CaptureWindow.MouseUp += CoordinateDrag_MouseUp;
+            cw_TextBox_Status.MouseDown += CoordinateDrag_MouseDown;
+            cw_TextBox_Status.MouseUp += CoordinateDrag_MouseUp;
+            cw_TextBox_Status.MouseMove += tabPageCaptureWindow_MouseMove;
+            cw_TextBox_Status.Cursor = Cursors.Cross;
+        }
+
+        private void CoordinateDrag_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || _isCaptureRunning)
+            {
+                return;
+            }
+            _isCoordinateDragging = true;
+            _coordinateDragStart = Cursor.Position;
+            ((Control)sender).Capture = true;
+            Cursor.Current = Cursors.Cross;
+        }
+
+        private void CoordinateDrag_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (!_isCoordinateDragging || e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+            _isCoordinateDragging = false;
+            ((Control)sender).Capture = false;
+            Cursor.Current = Cursors.Default;
+
+            // 押しただけ(ほとんど動かしていない)のときは何もしない
+            Point pos = Cursor.Position;
+            Size dragSize = SystemInformation.DragSize;
+            if (Math.Abs(pos.X - _coordinateDragStart.X) < dragSize.Width
+                && Math.Abs(pos.Y - _coordinateDragStart.Y) < dragSize.Height)
+            {
+                return;
+            }
+            SetCurrentRowMousePoint(pos);
+        }
+
+        private void SetCurrentRowMousePoint(Point pos)
+        {
+            cw_dataGridView.EndEdit();
+            int rowIdx = (cw_dataGridView.CurrentCell == null) ? 0 : cw_dataGridView.CurrentCell.RowIndex;
+            if (rowIdx >= cw_dataGridView.RowCount)
+            {
+                return;
+            }
+            _util.SetDataGridCell(cw_dataGridView, rowIdx, GetDataGridColumnIdx(_gridHeaderMouseXStr), pos.X.ToString());
+            _util.SetDataGridCell(cw_dataGridView, rowIdx, GetDataGridColumnIdx(_gridHeaderMouseYStr), pos.Y.ToString());
+            cw_TextBox_Status.Text = "X=" + pos.X + ", Y=" + pos.Y + " →" + (rowIdx + 1) + "行目";
+        }
+
         // Captureボタンを押した瞬間のマウス座標。一連のCapture処理が終わったらここへ戻す
         private Point _captureStartCursorPosition;
 

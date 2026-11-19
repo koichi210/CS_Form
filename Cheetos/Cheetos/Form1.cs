@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
@@ -27,6 +28,7 @@ namespace Cheetos
         private const String _gridHeaderMouseYStr = "MouseY";
         private const String _gridHeaderMouseActionStr = "MouseAction";
         private const String _gridHeaderCaptureStr = "Capture";
+        private const String _gridHeaderCommentStr = "Comment";
 
         private const String _mouseEventMoveStr = "Move";
         private const String _mouseEventLeftDownStr = "LeftDown";
@@ -39,7 +41,8 @@ namespace Cheetos
             new DataGridColumnDef() { HeaderName = _gridHeaderMouseXStr, Type = DataGridType.EditBox },
             new DataGridColumnDef() { HeaderName = _gridHeaderMouseYStr, Type = DataGridType.EditBox },
             new DataGridColumnDef() { HeaderName = _gridHeaderMouseActionStr, Type = DataGridType.DropDown },
-            new DataGridColumnDef() { HeaderName = _gridHeaderCaptureStr, Type = DataGridType.CheckBox }
+            new DataGridColumnDef() { HeaderName = _gridHeaderCaptureStr, Type = DataGridType.CheckBox },
+            new DataGridColumnDef() { HeaderName = _gridHeaderCommentStr, Type = DataGridType.EditBox },
         };
 
         private readonly String[] _mouseEventItems = new String[] {
@@ -82,6 +85,7 @@ namespace Cheetos
 
             // DataGridViewの初期設定
             InitializeDataGridView();
+            InitializeCoordinateDrag();
 
             InitializePlaceholders();
             InitializeToolTips();
@@ -174,12 +178,13 @@ namespace Cheetos
             toolTip.SetToolTip(cw_Radio_CurrentWindow, "Alt+PrintScreenで、撮影時点でアクティブなウィンドウを撮る");
             toolTip.SetToolTip(cw_Button_Capture, "グリッドの各行を上から順に実行(マウス操作→Sleep→キャプチャ)し、それを繰り返し数だけ行う。終了後はマウスカーソルを押した時の位置へ戻す。処理中に押すと中断");
             toolTip.SetToolTip(cw_Button_AddLine, "選択中の行の下に1行挿入する(MouseAction=Move、Capture=×)");
-            toolTip.SetToolTip(cw_TextBox_Status, "このタブ上でマウスを動かすと、現在のマウス座標(画面座標)を表示する");
+            toolTip.SetToolTip(cw_TextBox_Status, "このタブ上でマウスを動かすと、現在のマウス座標(画面座標)を表示する。この欄(かタブの余白)からマウスをドラッグして離すと、その位置の座標を表の選択中の行のMouseX/MouseYに入れる");
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderSleepStr)].ToolTipText = "マウス操作の後、キャプチャ前に待つ時間(ミリ秒、1秒単位に切り上げ)。空欄なら直前に使った待ち時間を引き継ぐ";
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderMouseXStr)].ToolTipText = "マウスを動かす先のX座標(画面座標、px)。MouseX/MouseYのどちらかが空欄ならマウス操作をしない";
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderMouseYStr)].ToolTipText = "マウスを動かす先のY座標(画面座標、px)。MouseX/MouseYのどちらかが空欄ならマウス操作をしない";
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderMouseActionStr)].ToolTipText = "Move: 移動だけ。LeftDown(未設定も含む): 移動して左クリック(押して離す)";
             cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderCaptureStr)].ToolTipText = "〇の行だけSleepの後にキャプチャする(×・未設定は撮らない)。セルのダブルクリックかSpaceキーで〇/×を切り替える";
+            cw_dataGridView.Columns[GetDataGridColumnIdx(_gridHeaderCommentStr)].ToolTipText = "何の操作かのメモ(自由に書ける。動作には使わない)";
 
             // PictTrim
             toolTip.SetToolTip(pt_SourceFolderPath, readOnlyFolderTip);
@@ -569,17 +574,27 @@ namespace Cheetos
             // 最下部プロパティを非表示
             cw_dataGridView.AllowUserToAddRows = false;
 
-            // 個別に挿入していないColumn項目数（ComboBox等を別途Insertしているので除外したい）
-            cw_dataGridView.ColumnCount = _dataGridColumns.Count(c => c.Type == DataGridType.EditBox);
-
-            // ComboBoxのリスト作成
-            DataGridViewComboBoxColumn column = new DataGridViewComboBoxColumn();
-            column.Items.AddRange(_mouseEventItems);
-            cw_dataGridView.Columns.Add(column);
-
-            column = new DataGridViewComboBoxColumn();
-            column.Items.AddRange(_captureEventItems);
-            cw_dataGridView.Columns.Add(column);
+            // 列を_dataGridColumnsの順に作る(以前は文字の列をまとめて作ってからComboBoxの列を足していたため、
+            // 文字の列(Comment)を後ろに足せなかった)
+            foreach (DataGridColumnDef def in _dataGridColumns)
+            {
+                DataGridViewColumn column;
+                if (def.Type == DataGridType.DropDown || def.Type == DataGridType.CheckBox)
+                {
+                    DataGridViewComboBoxColumn comboColumn = new DataGridViewComboBoxColumn();
+                    comboColumn.Items.AddRange((def.Type == DataGridType.DropDown) ? _mouseEventItems : _captureEventItems);
+                    column = comboColumn;
+                }
+                else
+                {
+                    column = new DataGridViewTextBoxColumn();
+                }
+                if (def.HeaderName == _gridHeaderCommentStr)
+                {
+                    column.FillWeight = 150;
+                }
+                cw_dataGridView.Columns.Add(column);
+            }
 
             // ヘッダ作成
             for (int i = 0; i < _dataGridColumns.Length; i++)
@@ -637,6 +652,16 @@ namespace Cheetos
         // (プルダウンを出さなくしたので、キーボードだけでも変えられるようにしておく)
         private void cw_dataGridView_KeyDown(object sender, KeyEventArgs e)
         {
+            // Ctrl+V: Excelなどからコピーした表を、選択中のセルを左上にして貼り付ける
+            // (セルの編集中は編集欄へ普通に貼り付けられ、ここには来ない)
+            if (e.KeyData == (Keys.Control | Keys.V))
+            {
+                PasteToGrid();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
             if (e.KeyData != Keys.Space || cw_dataGridView.CurrentCell == null)
             {
                 return;
@@ -662,6 +687,67 @@ namespace Cheetos
             String current = _util.GetDataGridCell(cw_dataGridView, rowIndex, columnIndex);
             _util.SetDataGridCell(cw_dataGridView, rowIndex, columnIndex, Logic.ToggleChoice(current, _executeStr, _notExecuteStr));
             return true;
+        }
+
+        // クリップボードの表(列はタブ、行は改行区切り)を、選択中のセルを左上にして書き込む。
+        // 行が足りなければ足す。表の右端より右の列は捨てる。
+        // ドロップダウン/〇×の列は、選べる値(Move/LeftDown、〇/×)か空欄のときだけ書き込む
+        // (選べない値を入れるとDataGridViewComboBoxCellがエラーになるため)
+        private void PasteToGrid()
+        {
+            String text;
+            try
+            {
+                text = Clipboard.GetText();
+            }
+            catch (Exception)
+            {
+                // 他のアプリがクリップボードを使っている
+                return;
+            }
+            List<String[]> table = Logic.ParseTableText(text);
+            if (table.Count == 0)
+            {
+                return;
+            }
+
+            int startRow = (cw_dataGridView.CurrentCell == null) ? 0 : cw_dataGridView.CurrentCell.RowIndex;
+            int startColumn = (cw_dataGridView.CurrentCell == null) ? 0 : cw_dataGridView.CurrentCell.ColumnIndex;
+
+            for (int r = 0; r < table.Count; r++)
+            {
+                int rowIdx = startRow + r;
+                while (rowIdx >= cw_dataGridView.RowCount)
+                {
+                    cw_dataGridView.Rows.Add();
+                }
+                for (int c = 0; c < table[r].Length && startColumn + c < _dataGridColumns.Length; c++)
+                {
+                    int columnIdx = startColumn + c;
+                    String value = table[r][c].Trim();
+                    if (IsPastableValue(columnIdx, value))
+                    {
+                        _util.SetDataGridCell(cw_dataGridView, rowIdx, columnIdx, value);
+                    }
+                }
+            }
+        }
+
+        private Boolean IsPastableValue(int columnIdx, String value)
+        {
+            if (value == String.Empty)
+            {
+                return true;
+            }
+            switch (_dataGridColumns[columnIdx].Type)
+            {
+                case DataGridType.DropDown:
+                    return Array.IndexOf(_mouseEventItems, value) >= 0;
+                case DataGridType.CheckBox:
+                    return Array.IndexOf(_captureEventItems, value) >= 0;
+                default:
+                    return true;
+            }
         }
 
         private void cw_Button_AddLine_Click(object sender, EventArgs e)

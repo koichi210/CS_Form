@@ -279,6 +279,9 @@ namespace Cheetos.Tests
                 SaveRestore sr = NewSaveRestore(writer);
                 writer.cw_dataGridView.RowCount = 3;
                 writer.cw_dataGridView.Rows[1].Cells[0].Value = "500";
+                writer.cw_dataGridView.Rows[1].Cells[3].Value = "LeftDown";
+                writer.cw_dataGridView.Rows[1].Cells[4].Value = "〇";
+                writer.cw_dataGridView.Rows[1].Cells[5].Value = "ログインボタン";
 
                 string path = Path.Combine(tempDirectory, "datagrid.json");
                 Assert.IsTrue(sr.SaveJsonFile(path));
@@ -289,6 +292,10 @@ namespace Cheetos.Tests
 
                     Assert.AreEqual(3, reader.cw_dataGridView.RowCount);
                     Assert.AreEqual("500", Convert.ToString(reader.cw_dataGridView.Rows[1].Cells[0].Value));
+                    Assert.AreEqual(6, reader.cw_dataGridView.ColumnCount, "Sleep/MouseX/MouseY/MouseAction/Capture/Comment");
+                    Assert.AreEqual("LeftDown", Convert.ToString(reader.cw_dataGridView.Rows[1].Cells[3].Value));
+                    Assert.AreEqual("〇", Convert.ToString(reader.cw_dataGridView.Rows[1].Cells[4].Value));
+                    Assert.AreEqual("ログインボタン", Convert.ToString(reader.cw_dataGridView.Rows[1].Cells[5].Value), "コメント列も保存される");
                 }
             }
         }
