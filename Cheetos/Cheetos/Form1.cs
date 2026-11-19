@@ -199,7 +199,7 @@ namespace Cheetos
             toolTip.SetToolTip(pr_BaseX, "回転後の画像で、元画像の左上隅を置くX座標(px)。この点を中心に回転する");
             toolTip.SetToolTip(pr_BaseY, "回転後の画像で、元画像の左上隅を置くY座標(px)。この点を中心に回転する");
             toolTip.SetToolTip(pr_Angle, "回転角度(度、整数)。正の値で時計回り");
-            toolTip.SetToolTip(pr_Button_RotationPreview, "画像を読み込んで原点・角度を試せるプレビューを開く。OKで閉じるとその値をこの画面に反映する");
+            toolTip.SetToolTip(pr_Button_RotationPreview, "一覧の先頭の画像を読み込んで原点・角度を試せるプレビューを開く。OKで閉じるとその値をこの画面に反映する");
             toolTip.SetToolTip(pr_ListBox_ListUp, "選択したファイルだけが処理対象(Ctrl+Aで全選択)");
             toolTip.SetToolTip(pr_Button_Rotation, "選択したファイルを回転して上書き保存する(画像サイズは元画像の対角線長の正方形になる)。元ファイルはフォルダ内のCheetos\\BK\\yyyyMMdd_Rotate(毎回新しいフォルダ)へコピーしておく。処理中に押すと中断");
 

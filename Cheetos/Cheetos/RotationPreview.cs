@@ -19,6 +19,8 @@ namespace Cheetos
         private Label label3;
         private Label label2;
         private StandardTemplate.TextBoxEx textBox_angle;
+        private Label label5;
+        private StandardTemplate.TextBoxEx textBox_CanvasWidth;
 
         // OKで閉じたときに確定した値
         public String OriginX { get; private set; } = "";
@@ -40,6 +42,8 @@ namespace Cheetos
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox_angle = new StandardTemplate.TextBoxEx();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox_CanvasWidth = new StandardTemplate.TextBoxEx();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Source)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Dest)).BeginInit();
             this.SuspendLayout();
@@ -50,7 +54,7 @@ namespace Cheetos
             this.buttonCancel.Location = new System.Drawing.Point(556, 37);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this.buttonCancel.TabIndex = 10;
+            this.buttonCancel.TabIndex = 12;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
@@ -61,7 +65,7 @@ namespace Cheetos
             this.buttonOk.Location = new System.Drawing.Point(556, 10);
             this.buttonOk.Name = "buttonOk";
             this.buttonOk.Size = new System.Drawing.Size(75, 23);
-            this.buttonOk.TabIndex = 9;
+            this.buttonOk.TabIndex = 3;
             this.buttonOk.Text = "OK";
             this.buttonOk.UseVisualStyleBackColor = true;
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
@@ -97,10 +101,12 @@ namespace Cheetos
             // 
             // pictureBox_Source
             // 
+            this.pictureBox_Source.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.pictureBox_Source.Location = new System.Drawing.Point(15, 66);
             this.pictureBox_Source.Name = "pictureBox_Source";
-            this.pictureBox_Source.Size = new System.Drawing.Size(280, 280);
-            this.pictureBox_Source.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox_Source.Size = new System.Drawing.Size(296, 571);
+            this.pictureBox_Source.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox_Source.TabIndex = 13;
             this.pictureBox_Source.TabStop = false;
             // 
@@ -111,8 +117,8 @@ namespace Cheetos
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox_Dest.Location = new System.Drawing.Point(317, 66);
             this.pictureBox_Dest.Name = "pictureBox_Dest";
-            this.pictureBox_Dest.Size = new System.Drawing.Size(280, 280);
-            this.pictureBox_Dest.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox_Dest.Size = new System.Drawing.Size(305, 571);
+            this.pictureBox_Dest.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox_Dest.TabIndex = 14;
             this.pictureBox_Dest.TabStop = false;
             // 
@@ -121,7 +127,7 @@ namespace Cheetos
             this.textBox_OriginX.Location = new System.Drawing.Point(206, 37);
             this.textBox_OriginX.Name = "textBox_OriginX";
             this.textBox_OriginX.Size = new System.Drawing.Size(46, 19);
-            this.textBox_OriginX.TabIndex = 4;
+            this.textBox_OriginX.TabIndex = 5;
             this.textBox_OriginX.Text = "0";
             this.textBox_OriginX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_OriginX_KeyDown);
             this.textBox_OriginX.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
@@ -132,7 +138,7 @@ namespace Cheetos
             this.label4.Location = new System.Drawing.Point(257, 40);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(36, 12);
-            this.label4.TabIndex = 5;
+            this.label4.TabIndex = 6;
             this.label4.Text = "原点Y";
             // 
             // textBox_OriginY
@@ -140,7 +146,7 @@ namespace Cheetos
             this.textBox_OriginY.Location = new System.Drawing.Point(299, 37);
             this.textBox_OriginY.Name = "textBox_OriginY";
             this.textBox_OriginY.Size = new System.Drawing.Size(46, 19);
-            this.textBox_OriginY.TabIndex = 6;
+            this.textBox_OriginY.TabIndex = 7;
             this.textBox_OriginY.Text = "0";
             this.textBox_OriginY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_OriginY_KeyDown);
             this.textBox_OriginY.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
@@ -151,7 +157,7 @@ namespace Cheetos
             this.label3.Location = new System.Drawing.Point(350, 40);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(29, 12);
-            this.label3.TabIndex = 7;
+            this.label3.TabIndex = 8;
             this.label3.Text = "角度";
             // 
             // label2
@@ -160,7 +166,7 @@ namespace Cheetos
             this.label2.Location = new System.Drawing.Point(164, 40);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(36, 12);
-            this.label2.TabIndex = 3;
+            this.label2.TabIndex = 4;
             this.label2.Text = "原点X";
             // 
             // textBox_angle
@@ -168,10 +174,21 @@ namespace Cheetos
             this.textBox_angle.Location = new System.Drawing.Point(385, 37);
             this.textBox_angle.Name = "textBox_angle";
             this.textBox_angle.Size = new System.Drawing.Size(46, 19);
-            this.textBox_angle.TabIndex = 8;
+            this.textBox_angle.TabIndex = 9;
             this.textBox_angle.Text = "0";
             this.textBox_angle.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_Angle_KeyDown);
             this.textBox_angle.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(437, 40);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(29, 12);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "横幅";
+            this.textBox_CanvasWidth.Location = new System.Drawing.Point(471, 37);
+            this.textBox_CanvasWidth.Name = "textBox_CanvasWidth";
+            this.textBox_CanvasWidth.Size = new System.Drawing.Size(56, 19);
+            this.textBox_CanvasWidth.TabIndex = 11;
+            this.textBox_CanvasWidth.TextChanged += new System.EventHandler(this.textBox_Param_TextChanged);
             // 
             // RotationPreview
             // 
@@ -182,6 +199,8 @@ namespace Cheetos
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox_angle);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.textBox_CanvasWidth);
             this.Controls.Add(this.pictureBox_Dest);
             this.Controls.Add(this.pictureBox_Source);
             this.Controls.Add(this.button_draw);
@@ -204,12 +223,33 @@ namespace Cheetos
             InitializeToolTips();
         }
 
+        // 回転後のキャンバスの横幅の初期値は、元画像の幅のこの倍率
+        private const double _defaultCanvasWidthRate = 1.5;
+        private const int _maxCanvasWidth = 20000;
+
+        // 描画中(初期値の代入中など)は、TextChangedで描き直さない
+        private Boolean _isUpdatingParams = false;
+
         public RotationPreview(String originX, String originY, String angle)
+            : this(originX, originY, angle, "")
+        {
+        }
+
+        // filePath: 最初に読み込む画像(Rotationタブの一覧の先頭のファイル)。あれば開いた時点で読み込んで表示する
+        public RotationPreview(String originX, String originY, String angle, String filePath)
             : this()
         {
+            _isUpdatingParams = true;
             textBox_OriginX.Text = originX;
             textBox_OriginY.Text = originY;
             textBox_angle.Text = angle;
+            textBox_loadfilepath.Text = filePath ?? "";
+            _isUpdatingParams = false;
+
+            if (File.Exists(textBox_loadfilepath.Text))
+            {
+                Shown += (s, e) => LoadSourceImage(false);
+            }
         }
 
         // マウスを乗せた時に出す説明(ツールチップ)。ラベルやボタン名だけでは
@@ -223,24 +263,73 @@ namespace Cheetos
             toolTip.SetToolTip(textBox_OriginX, "回転後の画像で、元画像の左上隅を置くX座標(px)。この点を中心に回転する。↑↓キーで1ずつ増減できる");
             toolTip.SetToolTip(textBox_OriginY, "回転後の画像で、元画像の左上隅を置くY座標(px)。この点を中心に回転する。↑↓キーで1ずつ増減できる");
             toolTip.SetToolTip(textBox_angle, "回転角度(度、整数)。正の値で時計回り。↑↓キーで1ずつ増減できる");
+            toolTip.SetToolTip(textBox_CanvasWidth, "回転後の画像を描くキャンバスの横幅(px)。loadすると元画像の幅の1.5倍が入る。空欄なら元画像の幅の1.5倍");
         }
 
         private void button_ClickDraw(object sender, EventArgs e)
         {
+            LoadSourceImage(true);
+        }
+
+        // 画像ファイルを読み直して元画像を表示し、横幅を元画像の1.5倍にしてから回転後を描く。
+        // 以前はファイルが無いとImage.FromFileで例外になっていたので、先に有るか確かめる
+        private void LoadSourceImage(Boolean showMessage)
+        {
+            String filePath = textBox_loadfilepath.Text;
+            if (!File.Exists(filePath))
+            {
+                if (showMessage)
+                {
+                    MessageBox.Show("ファイルが見つかりません。\n" + filePath, "RotationPreview");
+                }
+                return;
+            }
+
+            Bitmap img;
+            try
+            {
+                img = LoadBitmapWithoutLock(filePath);
+            }
+            catch (Exception ex)
+            {
+                if (showMessage)
+                {
+                    MessageBox.Show("画像を読み込めませんでした。\n" + filePath + "\n" + ex.Message, "RotationPreview");
+                }
+                return;
+            }
+
             if (pictureBox_Source.Image != null)
             {
                 pictureBox_Source.Image.Dispose();
                 pictureBox_Source.Image = null;
             }
-            pictureBox_Source.Image = Image.FromFile(textBox_loadfilepath.Text);
+            pictureBox_Source.Image = img;
+
+            _isUpdatingParams = true;
+            textBox_CanvasWidth.Text = ((int)Math.Round(img.Width * _defaultCanvasWidthRate)).ToString();
+            _isUpdatingParams = false;
             Draw();
+        }
+
+        // ファイルを開いたままにしない(Image.FromFileは画像を捨てるまでファイルをロックする)
+        private static Bitmap LoadBitmapWithoutLock(String filePath)
+        {
+            using (FileStream fs = File.OpenRead(filePath))
+            using (Image img = Image.FromStream(fs))
+            {
+                return new Bitmap(img);
+            }
         }
 
         // 以前はKeyPress/KeyDownで再描画していたが、どちらも文字が入る前に呼ばれるため、
         // プレビューが常にひとつ前の値で描かれていた。入力が反映された後のTextChangedで描画する(WPF版と同じ)
         private void textBox_Param_TextChanged(object sender, EventArgs e)
         {
-            Draw();
+            if (!_isUpdatingParams)
+            {
+                Draw();
+            }
         }
 
         // ↑/↓キーで数値を増減する
@@ -322,11 +411,28 @@ namespace Cheetos
             float.TryParse(textBox_OriginY.Text, out y);
 
             Bitmap canvas;
-            using (Bitmap img = new Bitmap(textBox_loadfilepath.Text))
+            Bitmap img;
+            try
             {
-                int max = Math.Max(img.Width, img.Height);
-                pictureBox_Dest.Size = new Size(max * 2, max * 2);
-                canvas = new Bitmap(pictureBox_Dest.Width, pictureBox_Dest.Height);
+                img = LoadBitmapWithoutLock(textBox_loadfilepath.Text);
+            }
+            catch (Exception)
+            {
+                // 画像として読めないファイル(loadボタンの方で知らせる)
+                return;
+            }
+            using (img)
+            {
+                // 横幅は入力値(空欄・数値以外は元画像の幅の1.5倍)、高さは回転実行と同じく元画像の対角線の長さ。
+                // 表示は枠に合わせて縮小する(PictureBoxのSizeMode=Zoom)
+                int canvasWidth;
+                if (!Int32.TryParse(textBox_CanvasWidth.Text, out canvasWidth) || canvasWidth <= 0)
+                {
+                    canvasWidth = (int)Math.Round(img.Width * _defaultCanvasWidthRate);
+                }
+                canvasWidth = Math.Min(canvasWidth, _maxCanvasWidth);
+                int canvasHeight = (int)Math.Sqrt((double)img.Width * img.Width + (double)img.Height * img.Height);
+                canvas = new Bitmap(Math.Max(canvasWidth, 1), Math.Max(canvasHeight, 1));
 
                 PointF[] destinationPoints = Rotation.GetDestinationPoints(x, y, img.Size, angle);
 
