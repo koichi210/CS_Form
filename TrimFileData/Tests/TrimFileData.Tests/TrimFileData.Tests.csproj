@@ -55,6 +55,7 @@
     <Compile Include="FormReflection.cs" />
     <Compile Include="LogicTests.cs" />
     <Compile Include="Form1Tests.cs" />
+    <Compile Include="SaveRestoreTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

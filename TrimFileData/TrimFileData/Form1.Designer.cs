@@ -38,6 +38,7 @@
             this.textBox_ReferencePath = new StandardTemplate.TextBoxEx();
             this.checkBox_FirstWordOnly = new System.Windows.Forms.CheckBox();
             this.checkBox_OrdinalCase = new System.Windows.Forms.CheckBox();
+            this.checkBox_IgnoreWidth = new System.Windows.Forms.CheckBox();
             this.comboBox_LoadSetting = new StandardTemplate.ComboBoxEx();
             this.textBox_SearchCommonWord = new StandardTemplate.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
@@ -49,12 +50,12 @@
             // 
             this.textBox_SearchWordList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox_SearchWordList.Location = new System.Drawing.Point(17, 143);
+            this.textBox_SearchWordList.Location = new System.Drawing.Point(17, 165);
             this.textBox_SearchWordList.Multiline = true;
             this.textBox_SearchWordList.Name = "textBox_SearchWordList";
             this.textBox_SearchWordList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_SearchWordList.Size = new System.Drawing.Size(210, 227);
-            this.textBox_SearchWordList.TabIndex = 8;
+            this.textBox_SearchWordList.Size = new System.Drawing.Size(210, 205);
+            this.textBox_SearchWordList.TabIndex = 9;
             this.textBox_SearchWordList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SearchWordList_KeyDown);
             // 
             // label1
@@ -69,10 +70,10 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(250, 128);
+            this.label2.Location = new System.Drawing.Point(250, 150);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 12);
-            this.label2.TabIndex = 9;
+            this.label2.TabIndex = 10;
             this.label2.Text = "検索結果";
             // 
             // textBox_SearchResultList
@@ -80,12 +81,12 @@
             this.textBox_SearchResultList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_SearchResultList.Location = new System.Drawing.Point(252, 143);
+            this.textBox_SearchResultList.Location = new System.Drawing.Point(252, 165);
             this.textBox_SearchResultList.Multiline = true;
             this.textBox_SearchResultList.Name = "textBox_SearchResultList";
             this.textBox_SearchResultList.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_SearchResultList.Size = new System.Drawing.Size(210, 227);
-            this.textBox_SearchResultList.TabIndex = 10;
+            this.textBox_SearchResultList.Size = new System.Drawing.Size(210, 205);
+            this.textBox_SearchResultList.TabIndex = 11;
             this.textBox_SearchResultList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_SearchResultList_KeyDown);
             // 
             // button_Execute
@@ -94,7 +95,7 @@
             this.button_Execute.Location = new System.Drawing.Point(387, 376);
             this.button_Execute.Name = "button_Execute";
             this.button_Execute.Size = new System.Drawing.Size(75, 23);
-            this.button_Execute.TabIndex = 11;
+            this.button_Execute.TabIndex = 12;
             this.button_Execute.Text = "実行";
             this.button_Execute.UseVisualStyleBackColor = true;
             this.button_Execute.Click += new System.EventHandler(this.button_Execute_Click);
@@ -105,7 +106,7 @@
             this.button_SaveSetting.Location = new System.Drawing.Point(387, 411);
             this.button_SaveSetting.Name = "button_SaveSetting";
             this.button_SaveSetting.Size = new System.Drawing.Size(75, 23);
-            this.button_SaveSetting.TabIndex = 13;
+            this.button_SaveSetting.TabIndex = 14;
             this.button_SaveSetting.Text = "設定保存";
             this.button_SaveSetting.UseVisualStyleBackColor = true;
             this.button_SaveSetting.Click += new System.EventHandler(this.button_SaveSetting_Click);
@@ -113,10 +114,10 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(15, 128);
+            this.label7.Location = new System.Drawing.Point(15, 150);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(57, 12);
-            this.label7.TabIndex = 7;
+            this.label7.TabIndex = 8;
             this.label7.Text = "検索ワード";
             // 
             // textBox_ReferencePath
@@ -151,6 +152,17 @@
             this.checkBox_OrdinalCase.Text = "大文字小文字を区別する";
             this.checkBox_OrdinalCase.UseVisualStyleBackColor = true;
             // 
+            // checkBox_IgnoreWidth
+            // 
+            this.checkBox_IgnoreWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox_IgnoreWidth.AutoSize = true;
+            this.checkBox_IgnoreWidth.Location = new System.Drawing.Point(260, 66);
+            this.checkBox_IgnoreWidth.Name = "checkBox_IgnoreWidth";
+            this.checkBox_IgnoreWidth.Size = new System.Drawing.Size(148, 16);
+            this.checkBox_IgnoreWidth.TabIndex = 7;
+            this.checkBox_IgnoreWidth.Text = "全角半角を区別しない";
+            this.checkBox_IgnoreWidth.UseVisualStyleBackColor = true;
+            // 
             // comboBox_LoadSetting
             // 
             this.comboBox_LoadSetting.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -160,7 +172,7 @@
             this.comboBox_LoadSetting.Location = new System.Drawing.Point(18, 412);
             this.comboBox_LoadSetting.Name = "comboBox_LoadSetting";
             this.comboBox_LoadSetting.Size = new System.Drawing.Size(363, 20);
-            this.comboBox_LoadSetting.TabIndex = 12;
+            this.comboBox_LoadSetting.TabIndex = 13;
             this.comboBox_LoadSetting.SelectedIndexChanged += new System.EventHandler(this.comboBox_LoadSetting_SelectedIndexChanged);
             // 
             // textBox_SearchCommonWord
@@ -186,12 +198,13 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.textBox_SearchCommonWord);
+            this.groupBox1.Controls.Add(this.checkBox_IgnoreWidth);
             this.groupBox1.Controls.Add(this.checkBox_OrdinalCase);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.checkBox_FirstWordOnly);
             this.groupBox1.Location = new System.Drawing.Point(18, 41);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(444, 74);
+            this.groupBox1.Size = new System.Drawing.Size(444, 96);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "設定";
@@ -233,6 +246,7 @@
         public StandardTemplate.TextBoxEx textBox_ReferencePath;
         public System.Windows.Forms.CheckBox checkBox_FirstWordOnly;
         public System.Windows.Forms.CheckBox checkBox_OrdinalCase;
+        public System.Windows.Forms.CheckBox checkBox_IgnoreWidth;
         private StandardTemplate.ComboBoxEx comboBox_LoadSetting;
         public StandardTemplate.TextBoxEx textBox_SearchCommonWord;
         private System.Windows.Forms.Label label3;

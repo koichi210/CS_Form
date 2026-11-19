@@ -13,6 +13,7 @@ namespace TrimFileData
             RegisterCtrl("Common", "textBox_SearchCommonWord", parent.textBox_SearchCommonWord, legacyAttrValue: "textBox_SerchCommonWord");
             RegisterCtrl("Common", "checkBox_FirstWordOnly", parent.checkBox_FirstWordOnly);
             RegisterCtrl("Common", "checkBox_OrdinalCase", parent.checkBox_OrdinalCase);
+            RegisterCtrl("Common", "checkBox_IgnoreWidth", parent.checkBox_IgnoreWidth);
             RegisterCtrl("Common", "textBox_SearchWordList", parent.textBox_SearchWordList, legacyAttrValue: "textBox_SerchWordList");
             RegisterCtrl("Common", "textBox_SearchResultList", parent.textBox_SearchResultList, legacyAttrValue: "textBox_SerchResultList");
         }

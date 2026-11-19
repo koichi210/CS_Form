@@ -81,7 +81,9 @@ namespace TrimFileData
 
             toolTip.SetToolTip(textBox_ReferencePath, "検索対象のテキストファイル(Shift_JISとして読み込む)。Enterキーで関連付けられたアプリで開く");
             toolTip.SetToolTip(textBox_SearchCommonWord, "指定するとこの文字列を含む行だけを検索対象にする。空欄なら全行が対象");
-            toolTip.SetToolTip(textBox_SearchWordList, "1行が1グループ。行内をスペースで区切った各ワードを含む行を抽出し、行ごとに「◆」見出しを付けて出力する");
+            toolTip.SetToolTip(textBox_SearchWordList, "1行に1つの検索ワード。行の先頭から「後ろから見て最初のスペース」の手前までを検索ワードにする" +
+                "(スペースが無ければ行全体。例: \"apple pie 3\" → \"apple pie\")。ヒットした行を、行ごとに「◆」見出しを付けて出力する");
+            toolTip.SetToolTip(checkBox_IgnoreWidth, "ONのときは検索ワード・共通ワードと検索対象の両方の全角英数字・記号・スペースを半角にそろえてから比べる(結果には元の行を出す)");
             toolTip.SetToolTip(checkBox_FirstWordOnly, "各ワードについて、最初に見つかった1行だけを抽出する");
             toolTip.SetToolTip(button_Execute, "検索結果を検索結果欄に出し、クリップボードにもコピーする");
             toolTip.SetToolTip(comboBox_LoadSetting, "選ぶと保存済みの設定を読み込み、各欄の内容が置き換わる");
@@ -144,7 +146,7 @@ namespace TrimFileData
             string[] referLines = Logic.SplitLines(referData);
 
             // 検索結果をコントロールにセット
-            textBox_SearchResultList.Text = Logic.GetSearchData(searchWordLines, referLines, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text);
+            textBox_SearchResultList.Text = Logic.GetSearchData(searchWordLines, referLines, checkBox_OrdinalCase.Checked, checkBox_FirstWordOnly.Checked, textBox_SearchCommonWord.Text, checkBox_IgnoreWidth.Checked);
             _util.SetClipboardText(textBox_SearchResultList.Text);
         }
 
